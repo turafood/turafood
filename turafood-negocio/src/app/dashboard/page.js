@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function BusinessDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -120,19 +121,19 @@ export default function BusinessDashboard() {
         <div style={{ flex: 1, padding: '0 10px 14px' }}>
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--faint)', letterSpacing: '.1em', padding: '0 10px 8px' }}>OPERACIÓN</div>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', background: 'var(--surface2)', color: 'var(--primary)' }}>
+            <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', background: 'var(--surface2)', color: 'var(--primary)' }}>
               <span style={{ fontFamily: "'Material Symbols Rounded'", fontSize: '20px', flex: 'none' }}>receipt_long</span>
               <span style={{ flex: 1, fontSize: '13.5px', fontWeight: 600 }}>Kanban Pedidos</span>
               <span style={{ flex: 'none', minWidth: '20px', height: '20px', padding: '0 6px', borderRadius: '99px', background: 'var(--primary)', color: '#fff', fontSize: '10.5px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>2</span>
-            </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', color: 'var(--text)' }}>
+            </Link>
+            <Link href="/catalog" style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', color: 'var(--text)' }}>
               <span style={{ fontFamily: "'Material Symbols Rounded'", fontSize: '20px', flex: 'none', color: 'var(--muted)' }}>inventory_2</span>
               <span style={{ flex: 1, fontSize: '13.5px', fontWeight: 600 }}>Catálogo</span>
-            </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', color: 'var(--text)' }}>
+            </Link>
+            <Link href="/history" style={{ display: 'flex', alignItems: 'center', gap: '11px', width: '100%', height: '42px', padding: '0 12px', borderRadius: '999px', textAlign: 'left', marginBottom: '2px', color: 'var(--text)' }}>
               <span style={{ fontFamily: "'Material Symbols Rounded'", fontSize: '20px', flex: 'none', color: 'var(--muted)' }}>history</span>
               <span style={{ flex: 1, fontSize: '13.5px', fontWeight: 600 }}>Historial</span>
-            </button>
+            </Link>
           </div>
         </div>
 
