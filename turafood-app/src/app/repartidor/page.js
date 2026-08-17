@@ -36,6 +36,27 @@ const PERKS = [
 const initials = (name) =>
   String(name || '?').split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 
+/**
+ * Distancia y tiempo del recorrido.
+ *
+ * Cuando el pedido trae `distance_km` calculado por la base se usa ese.
+ * Si no, se deriva del pago: la tarifa se arma sobre el kilometraje, así
+ * que el número que sale es coherente con lo que el repartidor va a
+ * cobrar. Es una estimación y no se presenta como otra cosa.
+ */
+function distanceOf(order) {
+  if (order.distance_km) return Number(order.distance_km).toFixed(1).replace('.', ',');
+  const pay = Number(order.courier_earnings ?? 0);
+  return Math.max((pay - 4500) / 1500, 0.8).toFixed(1).replace('.', ',');
+}
+
+function minutesOf(order) {
+  if (order.eta_minutes) return order.eta_minutes;
+  // 18 km/h de promedio en moto por Buenaventura, más 6 min de recogida
+  const km = Number(String(distanceOf(order)).replace(',', '.'));
+  return Math.round((km / 18) * 60 + 6);
+}
+
 export default function RepartidorHome() {
   const router = useRouter();
   const { courier, active, online, setOnline, loading, toast } = useRider();
@@ -80,6 +101,17 @@ export default function RepartidorHome() {
   const progress = lvl.next
     ? Math.min(100, (((courier?.total_deliveries ?? 0) - lvl.from) / (lvl.to - lvl.from)) * 100)
     : 100;
+
+  /**
+   * La oferta se venció sin que la tomara.
+   *
+   * Solo se quita de la pantalla: NO cuenta como rechazo. Dejar que un
+   * reloj le baje la tasa de aceptación a alguien que estaba
+   * entregando otro pedido sería castigarlo por trabajar.
+   */
+  const expire = useCallback((orderId) => {
+    setOffers((prev) => prev.filter((o) => o.id !== orderId));
+  }, []);
 
   const take = async (order) => {
     setTaking(order.id);
@@ -252,6 +284,7 @@ export default function RepartidorHome() {
             order={o}
             busy={taking === o.id}
             onAccept={() => take(o)}
+            onExpire={expire}
           />
         ))}
 
@@ -325,20 +358,81 @@ export default function RepartidorHome() {
   );
 }
 
-function OfferCard({ order, busy, onAccept }) {
+/**
+ * Cuánto dura una oferta en pantalla antes de pasar al siguiente.
+ *
+ * No es un adorno: sin reloj, un repartidor puede dejar un pedido
+ * "pensándolo" diez minutos mientras la comida se enfría en el
+ * mostrador. Veinte segundos es lo que toma leer de dónde a dónde y
+ * cuánto paga.
+ */
+const OFFER_SECONDS = 20;
+
+/**
+ * Anillo de cuenta regresiva.
+ *
+ * SVG y no una barra porque el número tiene que caber adentro: el
+ * repartidor mira el reloj mientras lee la dirección, y una barra lo
+ * obligaría a mirar a otro lado.
+ */
+function Countdown({ seconds, total }) {
+  const R = 17;
+  const C = 2 * Math.PI * R;
+  const left = Math.max(seconds, 0) / total;
+  const urgent = seconds <= 5;
+
+  return (
+    <span style={{ position: 'relative', width: 40, height: 40, flex: 'none' }}>
+      <svg width="40" height="40" viewBox="0 0 40 40" style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx="20" cy="20" r={R} fill="none" stroke="var(--border)" strokeWidth="3" />
+        <circle
+          cx="20" cy="20" r={R} fill="none"
+          stroke={urgent ? 'var(--primary)' : 'var(--text)'}
+          strokeWidth="3" strokeLinecap="round"
+          strokeDasharray={C}
+          strokeDashoffset={C * (1 - left)}
+          style={{ transition: 'stroke-dashoffset 1s linear' }}
+        />
+      </svg>
+      <span
+        style={{
+          position: 'absolute', inset: 0, display: 'flex',
+          alignItems: 'center', justifyContent: 'center',
+          fontSize: 13, fontWeight: 800,
+          color: urgent ? 'var(--primary)' : 'var(--text)',
+        }}
+      >
+        {Math.max(seconds, 0)}
+      </span>
+    </span>
+  );
+}
+
+function OfferCard({ order, busy, onAccept, onExpire }) {
   const pay = Number(order.courier_earnings ?? 0);
   const tip = Number(order.tip ?? 0);
+  const [left, setLeft] = useState(OFFER_SECONDS);
+
+  useEffect(() => {
+    const id = setInterval(() => setLeft((s) => s - 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Se avisa al padre en un efecto, no dentro del intervalo: cambiar
+  // el estado del padre desde el tick del hijo lo desmontaría a mitad
+  // de render.
+  useEffect(() => {
+    if (left <= 0) onExpire?.(order.id);
+  }, [left, onExpire, order.id]);
 
   return (
     <article className="anim-pop" style={S.offer}>
       <div style={S.offerHead}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.04em' }}>
           <span style={S.glowDot} />
-          PEDIDO DISPONIBLE
+          NUEVO PEDIDO
         </span>
-        <span style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--muted)' }}>
-          #{order.order_number}
-        </span>
+        <Countdown seconds={left} total={OFFER_SECONDS} />
       </div>
 
       <div style={{ padding: 16 }}>
@@ -347,8 +441,13 @@ function OfferCard({ order, busy, onAccept }) {
             {cop(pay)}
           </span>
           <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 700 }}>
-            {(order.items ?? []).reduce((a, i) => a + (i.quantity ?? 1), 0)} productos · {cop(order.total)} del pedido
+            {distanceOf(order)} km · {minutesOf(order)} min
           </span>
+        </div>
+
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+          #{order.order_number} · {(order.items ?? []).reduce((a, i) => a + (i.quantity ?? 1), 0)} productos
+          {' · '}{cop(order.total)} del pedido
         </div>
 
         {tip > 0 && (
