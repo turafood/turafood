@@ -16,12 +16,17 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  title: 'TuraFood | Super Admin',
-  description: 'Panel de operación de TuraFood en Buenaventura.',
+  title: 'TuraFood | Consola de administración',
+  description:
+    'Consola de TuraFood en Buenaventura: aprobaciones, operación en vivo, flota, soporte y finanzas.',
+  // Que no se indexe: es una puerta interna, no una página de la marca.
+  robots: { index: false, follow: false },
 };
 
 export const viewport = {
   themeColor: '#FF441F',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
@@ -32,8 +37,9 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
         />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       </head>
-      <body style={{ background: 'var(--bg)' }}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

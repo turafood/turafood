@@ -24,12 +24,71 @@
   --amber: #FFB020;
   --blue: #2E6BFF;
 
+  /* Tintes de las etiquetas y fondos suaves. Se derivan del color base
+     con color-mix, así siguen sirviendo en oscuro sin redefinirlos. */
+  --primary-tint: color-mix(in srgb, var(--primary) 10%, transparent);
+  --green-tint: color-mix(in srgb, var(--green) 13%, transparent);
+  --amber-tint: color-mix(in srgb, var(--amber) 15%, transparent);
+  --blue-tint: color-mix(in srgb, var(--blue) 12%, transparent);
+
   --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
   --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
 
   /* Tipografías: se cargan desde layout.js */
   --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------
+   TEMA OSCURO
+   Solo se redefinen los tokens de superficie y texto: el naranja de
+   la marca y los tintes de las etiquetas se mantienen, porque son
+   los que hacen reconocible la app.
+
+   Tres estados: elección explícita (`data-theme`), y el sistema
+   cuando no hay ninguna. El `:not([data-theme="light"])` evita que
+   el sistema le gane a quien pidió claro a propósito.
+   ------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --backdrop: #0B0A09;
+    --bg: #131110;
+    --surface: #1C1917;
+    --surface2: #262220;
+
+    --text: #F5F2EE;
+    --muted: #A29A90;
+    --faint: #6E665D;
+    --border: rgba(255, 255, 255, 0.10);
+
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  --backdrop: #0B0A09;
+  --bg: #131110;
+  --surface: #1C1917;
+  --surface2: #262220;
+
+  --text: #F5F2EE;
+  --muted: #A29A90;
+  --faint: #6E665D;
+  --border: rgba(255, 255, 255, 0.10);
+
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* El panel usa el color de fondo plano; el degradado radial claro
+   solo tiene sentido en tema claro. */
+:root[data-theme='dark'] body {
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body { background: var(--bg); }
 }
 
 * {
@@ -137,6 +196,18 @@ textarea {
   40%           { opacity: 1; transform: translateY(-3px); }
 }
 
+/* Panel lateral de Tura IA (mockup de Negocios) */
+@keyframes slidein {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Punto rojo de "nuevo pedido" en la app del repartidor */
+@keyframes glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 68, 31, .55); }
+  50%      { opacity: .55; box-shadow: 0 0 0 6px rgba(255, 68, 31, 0); }
+}
+
 @keyframes banner {
   from { opacity: 0; transform: translateY(-120%) scale(.96); }
   to   { opacity: 1; transform: none; }
@@ -146,6 +217,33 @@ textarea {
 .anim-pop     { animation: pop .2s ease both; }
 .anim-fade    { animation: fade .25s ease both; }
 .anim-slideup { animation: slideup .3s cubic-bezier(.32, .72, 0, 1) both; }
+
+/* ------------------------------------------------------------
+   Esqueleto de carga
+
+   Con la forma del contenido que viene, no un spinner: el salto de
+   "cargando" a "listo" se siente mucho menor si la caja ya estaba
+   donde va a quedar.
+   ------------------------------------------------------------ */
+.sk {
+  background: linear-gradient(
+    100deg,
+    var(--surface2) 30%,
+    color-mix(in srgb, var(--surface2) 55%, var(--surface)) 50%,
+    var(--surface2) 70%
+  );
+  background-size: 220% 100%;
+  animation: sk 1.4s ease-in-out infinite;
+}
+
+@keyframes sk {
+  from { background-position: 140% 0; }
+  to   { background-position: -40% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; }
+}
 
 /* ------------------------------------------------------------
    Material Symbols — el mockup los usa como font-family directa
@@ -213,12 +311,238 @@ button:disabled {
 /* ------------------------------------------------------------
    Utilidades responsive usadas por las vistas móvil/escritorio
    ------------------------------------------------------------ */
-.mobile-only { display: none; }
+.mobile-only { display: none !important; }
 .desktop-only { display: flex; }
 
-@media (max-width: 900px) {
-  .mobile-only { display: block; }
+@media (max-width: 899px) {
+  .mobile-only { display: flex !important; }
   .desktop-only { display: none !important; }
+}
+
+/* ------------------------------------------------------------
+   Panel de negocios — el corte a celular es el mismo del mockup
+   (w < 900): la barra lateral pasa a ser un cajón deslizante.
+   ------------------------------------------------------------ */
+.biz-main { padding: 24px 26px 40px; }
+
+@media (max-width: 899px) {
+  .biz-side {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    box-shadow: 0 20px 60px rgba(20, 16, 10, .28);
+    transform: translateX(-102%);
+    transition: transform .26s cubic-bezier(.32, .72, 0, 1);
+  }
+
+  .biz-side.is-open { transform: translateX(0); }
+
+  .biz-main { padding: 16px 16px 150px; }
+}
+
+/* ------------------------------------------------------------
+   BARRA LATERAL RECOGIDA
+   En escritorio se puede dejar solo en iconos para ganar ancho.
+   Las etiquetas se ocultan; el `title` de cada botón dice qué es.
+   ------------------------------------------------------------ */
+/**
+ * El ancho cambia sin animación a propósito.
+ *
+ * Animar `width` en un contenedor con capa de pintado propia dejaba un
+ * rastro del menú anterior al lado del nuevo: parecían dos menús. El
+ * recogido es instantáneo, que además se siente más directo.
+ */
+.biz-side {
+  width: 250px;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .biz-side.is-rail { width: 76px; }
+
+  .biz-side.is-rail .rail-hide { display: none; }
+
+  /* Todo se centra: el icono queda alineado en la columna estrecha */
+  .biz-side.is-rail a,
+  .biz-side.is-rail > div > div,
+  .biz-side.is-rail > div:last-child > div {
+    justify-content: center;
+  }
+
+  .biz-side.is-rail a { padding-left: 0; padding-right: 0; }
+
+  /* El contador no cabe al lado: se monta sobre el icono */
+  .biz-side.is-rail a > span:last-child {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 9.5px;
+    border: 2px solid var(--surface);
+  }
+
+  .biz-side.is-rail a { position: relative; }
+
+  /* La separación entre grupos se mantiene aunque no haya título */
+  .biz-side.is-rail .rail-hide + a { margin-top: 4px; }
+}
+
+/* La etiqueta del interruptor de tienda ocupa mucho en pantallas medias */
+@media (max-width: 1100px) {
+  .open-label { display: none; }
+}
+
+/* ------------------------------------------------------------
+   TABLERO DE COMANDAS
+   En escritorio las columnas van una al lado de otra y cada una
+   se desplaza sola. En celular se recorren de lado con enganche,
+   como la barra de una cocina: una columna a la vez, completa.
+   ------------------------------------------------------------ */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.kanban-col {
+  background: var(--surface2);
+  border-radius: 18px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.comanda {
+  animation: pop .2s ease both;
+}
+
+@media (max-width: 899px) {
+  .kanban {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Se sale del padding del contenedor para que la primera y la
+       última columna no queden pegadas al borde */
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+  }
+
+  .kanban::-webkit-scrollbar { display: none; }
+
+  .kanban-col {
+    flex: 0 0 86%;
+    max-width: 340px;
+    scroll-snap-align: start;
+  }
+}
+
+/* En pantallas muy angostas la etiqueta del sonido estorba */
+@media (max-width: 520px) {
+  .sound-label { display: none; }
+}
+
+/* ------------------------------------------------------------
+   CATÁLOGO
+   Escritorio: columna de categorías + tabla.
+   Celular: las categorías pasan a una tira horizontal y la tabla
+   se convierte en tarjetas, porque una tabla de 5 columnas en
+   375 px obliga a un scroll lateral incómodo.
+   ------------------------------------------------------------ */
+.catalog {
+  display: grid;
+  grid-template-columns: 226px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.catalog-cats-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* El grid vive aquí y no en línea: los estilos en línea ganan siempre
+   y la vista de celular no podía reacomodar las columnas. */
+.catalog-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) 116px 130px 108px 92px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 899px) {
+  .catalog { grid-template-columns: 1fr; }
+
+  .catalog-cats {
+    padding: 12px 14px;
+    overflow: hidden;
+  }
+
+  .catalog-cats-list {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin: 0 -14px;
+    padding: 0 14px;
+  }
+
+  .catalog-cats-list::-webkit-scrollbar { display: none; }
+  .catalog-cats-list > button { width: auto; margin-bottom: 0; }
+
+  .catalog-count { display: none; }
+
+  /* La tabla se vuelve lista de tarjetas */
+  .catalog-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "product actions"
+      "price   toggle"
+      "perf    perf";
+    gap: 10px 12px;
+    padding: 14px 16px;
+  }
+
+  .catalog-head { display: none; }
+
+  .catalog-row > *:nth-child(1) { grid-area: product; }
+  .catalog-row > *:nth-child(2) { grid-area: price; }
+  .catalog-row > *:nth-child(3) { grid-area: perf; }
+  .catalog-row > *:nth-child(4) { grid-area: toggle; justify-self: end; }
+  .catalog-row > *:nth-child(5) { grid-area: actions; }
+}
+
+/* ------------------------------------------------------------
+   App del repartidor: columna de celular, centrada en escritorio
+   ------------------------------------------------------------ */
+.rider-frame {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 560px) {
+  .rider-frame {
+    min-height: calc(100dvh - 32px);
+    height: calc(100dvh - 32px);
+    margin: 16px auto;
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+  }
 }
 
 /* Truncado de una línea, muy usado en las tarjetas del diseño */
@@ -271,4 +595,155 @@ button:disabled {
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+
+/* ------------------------------------------------------------
+   SUITE DE REDES
+   El editor y la vista previa van lado a lado en escritorio; en
+   celular la vista previa baja, porque partir 375 px en dos deja
+   las dos mitades inservibles.
+   ------------------------------------------------------------ */
+.composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* La bandeja: lista de conversaciones + la conversación abierta */
+.inbox {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 16px;
+  height: calc(100dvh - 190px);
+  min-height: 480px;
+}
+
+@media (max-width: 899px) {
+  .composer { grid-template-columns: 1fr; }
+
+  .inbox {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  /* Sin alto fijo la lista crece sola y la conversación se lee
+     completa haciendo scroll de la página */
+  .inbox > aside { max-height: 320px; }
+  .inbox > section { min-height: 460px; }
+}
+
+/* ------------------------------------------------------------
+   CONSOLA DE ADMINISTRACIÓN
+
+   Lo responsive vive aquí y no en `style={}` porque un estilo en
+   línea siempre le gana a la hoja: una media query no puede
+   sobreescribir un `width` puesto en el atributo.
+   ------------------------------------------------------------ */
+.adm-side {
+  flex: none;
+  width: 250px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Frontera de pintado explicita: nada de aqui adentro afecta al
+     resto de la pagina, asi que al cambiar de tamano el navegador
+     solo repinta esta caja y no deja rastro del ancho anterior. */
+  contain: paint;
+}
+
+.adm-nav {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 999px;
+  margin-bottom: 2px;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+.adm-nav:hover { background: var(--surface2); }
+
+.adm-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 26px 40px;
+}
+
+.adm-burger { display: none; }
+
+/* El punto verde de "plataforma operando" respira: es la única señal
+   de que la pantalla está viva cuando no hay pedidos entrando. */
+.adm-pulse span:first-child { animation: admpulse 2s infinite; }
+@keyframes admpulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(17, 178, 106, .45); }
+  50%      { box-shadow: 0 0 0 7px rgba(17, 178, 106, 0); }
+}
+
+.adm-search { flex: 1; max-width: 320px; }
+
+@media (max-width: 1180px) {
+  .adm-search { max-width: 220px; }
+}
+
+@media (max-width: 1000px) {
+  .adm-pulse { display: none !important; }
+}
+
+/* Por debajo de esto la barra lateral se vuelve cajón */
+@media (max-width: 900px) {
+  /* `absolute` y no `fixed`: con `fixed` el navegador le da una capa
+     de composicion propia que escapa al recorte del armazon, y al
+     cerrar el cajon o redimensionar la ventana esa capa se quedaba
+     pintada al lado de la nueva. */
+  .adm-side {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform .26s cubic-bezier(.32, .72, 0, 1),
+                visibility 0s linear .26s;
+    box-shadow: 0 0 60px rgba(20, 16, 10, .2);
+
+    /* Cerrado no se pinta: lo invisible no deja rastro. */
+    visibility: hidden;
+  }
+  .adm-side.is-open {
+    transform: none;
+    visibility: visible;
+    transition: transform .26s cubic-bezier(.32, .72, 0, 1),
+                visibility 0s linear 0s;
+  }
+
+  .adm-burger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex: none;
+    margin-left: -9px;
+  }
+  .adm-burger:hover { background: var(--surface2); }
+
+  .adm-main { padding: 18px 16px 34px; }
+  .adm-search { max-width: none; }
+}
+
+@media (max-width: 620px) {
+  .adm-search { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-side { transition: none; }
+  .adm-pulse span:first-child { animation: none; }
 }

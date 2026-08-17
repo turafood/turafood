@@ -326,18 +326,40 @@ button:disabled {
 .biz-main { padding: 24px 26px 40px; }
 
 @media (max-width: 899px) {
+  /**
+   * El cajón es `absolute`, no `fixed`.
+   *
+   * Con `fixed` el navegador le da una capa de composición propia que
+   * queda fuera del recorte del contenedor. Al cerrarlo, o al cambiar
+   * el tamaño de la ventana, esa capa se quedaba pintada al lado de la
+   * nueva: por eso se veían dos menús, uno de ellos sin las insignias
+   * porque era el pintado de antes de que cargaran.
+   *
+   * Siendo `absolute` dentro de un padre con `overflow: hidden`, el
+   * cajón no puede pintar fuera del armazón ni aunque quiera.
+   */
   .biz-side {
-    position: fixed;
+    position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 40;
     box-shadow: 0 20px 60px rgba(20, 16, 10, .28);
     transform: translateX(-102%);
-    transition: transform .26s cubic-bezier(.32, .72, 0, 1);
+    transition: transform .26s cubic-bezier(.32, .72, 0, 1),
+                visibility 0s linear .26s;
+
+    /* Cerrado no se pinta en absoluto. Un elemento invisible no puede
+       dejar rastro. */
+    visibility: hidden;
   }
 
-  .biz-side.is-open { transform: translateX(0); }
+  .biz-side.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .26s cubic-bezier(.32, .72, 0, 1),
+                visibility 0s linear 0s;
+  }
 
   .biz-main { padding: 16px 16px 150px; }
 }
@@ -357,6 +379,12 @@ button:disabled {
 .biz-side {
   width: 250px;
   overflow: hidden;
+
+  /* Frontera de pintado explícita: le dice al navegador que nada de
+     lo que hay aquí adentro afecta al resto de la página, así que al
+     cambiar de tamaño solo tiene que repintar esta caja. Es lo que
+     evita que quede un rastro del ancho anterior. */
+  contain: paint;
 }
 
 @media (min-width: 900px) {

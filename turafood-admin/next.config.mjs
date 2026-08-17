@@ -6,6 +6,8 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
   },
+
+  /* config options here */
 };
 
 export default nextConfig;
