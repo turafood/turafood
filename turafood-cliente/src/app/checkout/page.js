@@ -388,7 +388,7 @@ export default function CheckoutPage() {
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 14, padding: '0 4px' }}>
             <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>shield</span>
             <span style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.45 }}>
-              Pago protegido por Tura Shop. Si algo sale mal con tu pedido, te devolvemos el dinero.
+              Pago protegido por TuraFood. Si algo sale mal con tu pedido, te devolvemos el dinero.
             </span>
           </div>
         </div>

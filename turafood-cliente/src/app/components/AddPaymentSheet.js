@@ -232,7 +232,7 @@ export default function AddPaymentSheet({ open, onClose, onSave }) {
 
             <p style={S.explainBody}>
               Por seguridad, los datos de {option.id === 'card' ? 'tu tarjeta' : 'tu banco'} se
-              digitan dentro del formulario cifrado de ePayco, no en Tura Shop.
+              digitan dentro del formulario cifrado de ePayco, no en TuraFood.
               Nosotros nunca vemos ni guardamos esa información.
             </p>
 

@@ -1,6 +1,6 @@
 -- ============================================================
 -- TURAFOOD — SEED DE DESARROLLO
--- Datos idénticos a los del mockup "Tura Shop - Cliente.dc.html"
+-- Datos idénticos a los del mockup "TuraFood - Cliente.dc.html"
 -- para que el diseño se vea igual con datos reales.
 --
 -- Se ejecuta con `supabase db reset`. NO usar en producción.
@@ -50,7 +50,7 @@ INSERT INTO public.delivery_zones (id, name, neighborhoods, base_fee, per_km_fee
 -- ------------------------------------------------------------
 SELECT pg_temp.demo_user(
     'ad000000-0000-4000-8000-000000000001',
-    'admin@turafood.com', 'admin', 'Super Admin', '3160000000');
+    'admin@turafood.com', 'admin', 'Super Admin', '3137594713');
 
 -- ------------------------------------------------------------
 -- 3. CLIENTE DEMO (Camila, la del mockup)

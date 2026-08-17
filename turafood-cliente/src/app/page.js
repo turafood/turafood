@@ -180,7 +180,7 @@ export default function OnboardingPage() {
                
                <div style={{ display: 'flex', gap: '18px' }}>
                  <span className="material-symbols-rounded" style={{ color: 'var(--primary)', fontSize: '26px', flex: 'none', filter: 'drop-shadow(0 2px 4px rgba(255,68,31,0.3))' }}>share</span>
-                 <p style={{ margin: 0, fontSize: '14.5px', color: '#EBEBEB', lineHeight: 1.5 }}>Es posible que las personas que usan nuestro servicio hayan subido tu información de contacto a Tura Food AI. <span style={{ color: '#4A8DFF', cursor: 'pointer', fontWeight: 600 }}>Más información.</span></p>
+                 <p style={{ margin: 0, fontSize: '14.5px', color: '#EBEBEB', lineHeight: 1.5 }}>Es posible que las personas que usan nuestro servicio hayan subido tu información de contacto a TuraFood. <span style={{ color: '#4A8DFF', cursor: 'pointer', fontWeight: 600 }}>Más información.</span></p>
                </div>
              </div>
 

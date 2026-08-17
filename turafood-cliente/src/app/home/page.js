@@ -5,7 +5,7 @@
  *
  * Conversión 1:1 de las pantallas `isHome` (móvil, línea 212) e
  * `isDeskHome` (escritorio, línea 137) de
- * "Tura Shop PWA - V2 - 13-08-2026/Tura Shop - Cliente.dc.html".
+ * "TuraFood PWA - V2 - 13-08-2026/TuraFood - Cliente.dc.html".
  *
  * Regla de este archivo: NO inventar contenido ni medidas. Cada valor
  * (px, color, copy, orden de secciones) sale del mockup. Los datos
@@ -100,7 +100,7 @@ export default function HomePage() {
               <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>shopping_bag</span>
             </span>
             <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, letterSpacing: '-.03em' }}>
-              Tura Shop
+              TuraFood
             </span>
           </span>
 

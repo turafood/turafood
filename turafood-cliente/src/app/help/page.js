@@ -48,7 +48,7 @@ const TOPICS = [
 ];
 
 const CHANNELS = [
-  { id: 'whatsapp', icon: 'chat', label: 'WhatsApp', hint: 'Respondemos en minutos', href: 'https://wa.me/573160000000' },
+  { id: 'whatsapp', icon: 'chat', label: 'WhatsApp', hint: 'Respondemos en minutos', href: 'https://wa.me/573137594713' },
   { id: 'mail', icon: 'mail', label: 'Correo', hint: 'soporte@turafood.com', href: 'mailto:soporte@turafood.com' },
 ];
 

@@ -124,10 +124,10 @@ export default function ReferralsPage() {
   };
 
   const share = async () => {
-    const text = `Pide en Buenaventura con Tura Shop y llévate tu primer pedido con descuento: ${link}`;
+    const text = `Pide en Buenaventura con TuraFood y llévate tu primer pedido con descuento: ${link}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Tura Shop', text, url: link });
+        await navigator.share({ title: 'TuraFood', text, url: link });
         return;
       } catch { /* cancelado */ }
     }
@@ -308,7 +308,7 @@ export default function ReferralsPage() {
                 id="cuenta"
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                placeholder={method === 'bancolombia' || method === 'otro' ? '000-000000-00' : '316 000 0000'}
+                placeholder={method === 'bancolombia' || method === 'otro' ? '000-000000-00' : '313 759 4713'}
                 style={S.input}
               />
 

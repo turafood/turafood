@@ -1,0 +1,206 @@
+'use client';
+
+/**
+ * CRECIMIENTO
+ *
+ * Los servicios con los que TuraFood ayuda al negocio a posicionarse:
+ * ficha de Google, campañas y agente de voz. Cada uno recoge en un
+ * asistente lo que el equipo necesita para montarlo a mano.
+ *
+ * Ninguno se activa solo, y la pantalla lo dice. La app es la puerta;
+ * el trabajo lo hace el equipo.
+ */
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { SERVICES, EXTRA_SERVICES } from '@/lib/serviciosConfig';
+import { getServiceRequests, SERVICE_STATUS } from '@/lib/servicios';
+import { useBiz } from '../BizContext';
+
+export default function CrecimientoPage() {
+  const { business } = useBiz();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!business) return undefined;
+    let alive = true;
+    getServiceRequests(business.id)
+      .then((rows) => { if (alive) setRequests(rows); })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [business]);
+
+  const byKind = Object.fromEntries(requests.map((r) => [r.kind, r]));
+
+  return (
+    <div style={{ maxWidth: 1000 }}>
+      {/* Encabezado */}
+      <section style={S.hero}>
+        <div style={S.heroGlow} />
+        <div style={{ position: 'relative', maxWidth: 560 }}>
+          <span style={S.kicker}>SERVICIOS TURAFOOD</span>
+          <h1 style={S.heroTitle}>Que te encuentren, no solo que te pidan.</h1>
+          <p style={S.heroText}>
+            Vender en TuraFood es un canal. Estos servicios trabajan los otros: que
+            aparezcas en Google, que llegues a quien todavía no te conoce y que ninguna
+            llamada se quede sin contestar.
+          </p>
+        </div>
+      </section>
+
+      {/* Servicios con asistente */}
+      <div style={S.grid}>
+        {SERVICES.map((s) => {
+          const req = byKind[s.kind];
+          const st = SERVICE_STATUS[req?.status];
+          return (
+            <Link key={s.kind} href={`/negocio/crecimiento/${SLUG[s.kind]}`} style={S.card}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                <span style={{ ...S.icon, background: s.tint }}>
+                  <span className="ms" style={{ fontSize: 24, color: s.accent }}>{s.icon}</span>
+                </span>
+                {req && st && (
+                  <span style={{ ...S.pill, background: st.bg, color: st.color }}>{st.label}</span>
+                )}
+              </div>
+
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, marginTop: 16 }}>
+                {s.title}
+              </div>
+              <p style={S.cardText}>{s.blurb}</p>
+
+              <span style={{ ...S.cta, color: s.accent }}>
+                {req?.status === 'draft' ? 'Continuar donde iba'
+                  : req ? 'Ver mi solicitud'
+                    : 'Conocer y empezar'}
+                <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Lo que hacemos además */}
+      <section style={{ ...S.panel, marginTop: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
+          <span style={{ ...S.icon, background: 'var(--surface2)' }}>
+            <span className="ms" style={{ fontSize: 24, color: 'var(--text)' }}>rocket_launch</span>
+          </span>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19 }}>
+              ¿Necesitas algo más grande?
+            </div>
+            <p style={{ ...S.cardText, marginTop: 6 }}>
+              El mismo equipo que construyó TuraFood puede montarte otras cosas. Si algo
+              de esto te sirve, escríbenos y lo hablamos sin compromiso.
+            </p>
+          </div>
+        </div>
+
+        <div style={S.extras}>
+          {EXTRA_SERVICES.map((e) => (
+            <div key={e.id} style={S.extra}>
+              <span style={{ ...S.extraIcon, background: e.tint }}>
+                <span className="ms" style={{ fontSize: 20, color: e.accent }}>{e.icon}</span>
+              </span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700 }}>{e.title}</span>
+                <span style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.45 }}>
+                  {e.blurb}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <a
+          href="https://wa.me/573137594713?text=Hola,%20quiero%20saber%20de%20los%20servicios%20de%20TuraFood"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="md3-btn"
+          style={S.contact}
+        >
+          <span className="ms" style={{ fontSize: 19 }}>chat</span>
+          Hablar con el equipo
+        </a>
+      </section>
+
+      {loading && (
+        <div style={{ padding: 20, textAlign: 'center', fontSize: 12.5, color: 'var(--muted)' }}>
+          Cargando tus solicitudes…
+        </div>
+      )}
+    </div>
+  );
+}
+
+export const SLUG = {
+  gmb: 'google-negocio',
+  google_ads: 'google-ads',
+  voice_agent: 'agente-voz',
+};
+
+const S = {
+  hero: {
+    position: 'relative', overflow: 'hidden', borderRadius: 24, padding: 28,
+    background: 'linear-gradient(145deg,#241F1A 0%,#12100D 66%)', color: '#fff',
+    boxShadow: '0 16px 40px rgba(20,16,10,.2)', marginBottom: 18,
+  },
+  heroGlow: {
+    position: 'absolute', right: -60, top: -70, width: 260, height: 260, borderRadius: '50%',
+    background: 'radial-gradient(circle,rgba(255,68,31,.34),rgba(255,68,31,0) 70%)',
+  },
+  kicker: {
+    fontSize: 10.5, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.5)',
+  },
+  heroTitle: {
+    margin: '10px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 28, lineHeight: 1.12, letterSpacing: '-.03em', textWrap: 'balance',
+  },
+  heroText: {
+    margin: '10px 0 0', fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,.7)',
+  },
+  grid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16,
+  },
+  card: {
+    display: 'block', background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: 20, boxShadow: 'var(--shadowSm)',
+    textDecoration: 'none', color: 'var(--text)',
+  },
+  icon: {
+    width: 50, height: 50, borderRadius: 16, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  pill: { fontSize: 10, fontWeight: 800, padding: '5px 9px', borderRadius: 7 },
+  cardText: {
+    margin: '6px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.55,
+  },
+  cta: {
+    display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16,
+    fontSize: 13, fontWeight: 800,
+  },
+  panel: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)',
+  },
+  extras: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))',
+    gap: 12, marginTop: 18,
+  },
+  extra: {
+    display: 'flex', gap: 12, alignItems: 'flex-start', padding: 14,
+    borderRadius: 15, background: 'var(--bg)', border: '1px solid var(--border)', minWidth: 0,
+  },
+  extraIcon: {
+    width: 38, height: 38, borderRadius: 12, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  contact: {
+    display: 'inline-flex', alignItems: 'center', gap: 8, height: 46, padding: '0 20px',
+    borderRadius: 999, background: 'var(--text)', color: 'var(--surface)',
+    fontSize: 13.5, fontWeight: 700, textDecoration: 'none', marginTop: 18,
+  },
+};

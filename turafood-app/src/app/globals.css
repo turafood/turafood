@@ -1,7 +1,7 @@
 /* ============================================================
    TURAFOOD — SISTEMA DE DISEÑO
    Tokens, animaciones y helpers copiados literalmente del mockup
-   "Tura Shop PWA - V2 - 13-08-2026". No cambiar valores sin
+   "TuraFood PWA - V2 - 13-08-2026". No cambiar valores sin
    actualizar también el mockup: son la referencia visual.
    ============================================================ */
 
@@ -315,7 +315,17 @@ button:disabled {
    ------------------------------------------------------------ */
 .biz-side {
   width: 250px;
-  transition: width .22s cubic-bezier(.32, .72, 0, 1);
+  /* Clipping propio: durante la animación de ancho el contenido se
+     recorta en vez de desbordarse, que es lo que dejaba un rastro del
+     menú repetido al lado mientras se redimensionaba la ventana. */
+  overflow: hidden;
+  contain: paint;
+}
+
+/* La animación solo en escritorio: abajo de 900 px el menú es un cajón
+   que se desliza, y animar además el ancho encima produce el arrastre. */
+@media (min-width: 900px) {
+  .biz-side { transition: width .22s cubic-bezier(.32, .72, 0, 1); }
 }
 
 @media (min-width: 900px) {

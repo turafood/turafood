@@ -36,6 +36,10 @@ const PAGES = {
   '/negocio/resenas': ['Reseñas de clientes', 'Lo que opinan de tu comida y tu servicio'],
   '/negocio/equipo': ['Equipo y cuenta', 'Roles, verificación y plan'],
   '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
+  '/negocio/crecimiento': ['Crecimiento', 'Servicios para posicionar tu negocio'],
+  '/negocio/crecimiento/google-negocio': ['Ficha de Google', 'Para que te encuentren en Maps y en el buscador'],
+  '/negocio/crecimiento/google-ads': ['Campañas en Google', 'Aparece de primero cuando busquen lo que vendes'],
+  '/negocio/crecimiento/agente-voz': ['Agente de voz', 'Una línea que contesta y toma pedidos sola'],
 };
 
 /** Grupos del menú lateral — navGroups del mockup, línea 1464 */
@@ -72,6 +76,10 @@ const NAV_GROUPS = [
       { label: 'Reportes', icon: 'insights', href: '/negocio/reportes' },
       { label: 'Liquidaciones', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
     ],
+  },
+  {
+    label: 'CRECIMIENTO',
+    items: [{ label: 'Servicios y Google', icon: 'rocket_launch', href: '/negocio/crecimiento' }],
   },
   {
     label: 'CUENTA',
@@ -385,6 +393,27 @@ export default function BizShell({ children }) {
           </header>
 
           <main className="sc biz-main" style={S.main}>
+            {/* Aviso persistente del tope diario mientras no esté verificado.
+                El tope de verdad lo aplica un trigger en la base; esto solo
+                lo hace visible antes de que el negocio choque con él. */}
+            {onboardingPending && path !== '/negocio/verificacion' && (
+              <Link href="/negocio/verificacion" style={S.quotaBanner}>
+                <span style={S.quotaIcon}>
+                  <span className="ms" style={{ fontSize: 20, color: '#A8730B' }}>warning</span>
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 13.5, fontWeight: 800, color: '#7A5405' }}>
+                    Tu cuenta está sin verificar: máximo 20 pedidos al día
+                  </span>
+                  <span style={{ display: 'block', fontSize: 12, color: '#7A5405', marginTop: 2, lineHeight: 1.45 }}>
+                    Al llegar a 20 dejamos de recibirte pedidos hasta el día siguiente.
+                    Sube tus documentos y el límite se levanta.
+                  </span>
+                </span>
+                <span className="ms" style={{ fontSize: 20, color: '#A8730B', flex: 'none' }}>chevron_right</span>
+              </Link>
+            )}
+
             {error && (
               <div style={S.error}>
                 <span className="ms" style={{ fontSize: 18 }}>error</span>
@@ -539,6 +568,15 @@ const S = {
     boxShadow: '0 1px 3px rgba(20,16,10,.18)', flex: 'none', textDecoration: 'none',
   },
   main: { flex: 1, overflowY: 'auto', minHeight: 0 },
+  quotaBanner: {
+    display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 14,
+    borderRadius: 16, background: '#FFF7E6', border: '1px solid #F0DCA8',
+    textDecoration: 'none',
+  },
+  quotaIcon: {
+    width: 40, height: 40, borderRadius: 12, flex: 'none', background: '#FBEFD0',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16, padding: '12px 14px',
     borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,

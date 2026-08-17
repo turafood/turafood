@@ -128,7 +128,7 @@ export default function CuentaPage() {
           <Row icon="map" label="Zona de trabajo" value="Buenaventura" last />
         </div>
 
-        <a href="https://wa.me/573160000000" target="_blank" rel="noopener noreferrer" style={S.support}>
+        <a href="https://wa.me/573137594713" target="_blank" rel="noopener noreferrer" style={S.support}>
           <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>headset_mic</span>
           <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>Ayuda y soporte</span>
           <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>chevron_right</span>

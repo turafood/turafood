@@ -188,7 +188,7 @@ export default function SucursalesPage() {
           </ul>
 
           <a
-            href="https://wa.me/573160000000"
+            href="https://wa.me/573137594713"
             target="_blank"
             rel="noopener noreferrer"
             className="md3-btn"

@@ -131,7 +131,7 @@ export default function PaymentSheet({
           <span className="ms" style={{ fontSize: 17, color: 'var(--green)', flex: 'none' }}>lock</span>
           <span>
             {online
-              ? 'Pago cifrado procesado por ePayco. Tus datos de tarjeta no pasan por Tura Shop.'
+              ? 'Pago cifrado procesado por ePayco. Tus datos de tarjeta no pasan por TuraFood.'
               : 'Pagas en efectivo al recibir. Ten el monto listo para el repartidor.'}
           </span>
         </div>

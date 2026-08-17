@@ -80,7 +80,7 @@ export const epaycoProvider = {
       ?? (typeof window !== 'undefined' ? window.location.origin : '');
 
     handler.open({
-      name: 'Pedido Tura Shop',
+      name: 'Pedido TuraFood',
       description: opts.businessName
         ? `Pedido en ${opts.businessName}`
         : `Pedido ${order.order_number}`,

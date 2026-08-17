@@ -16,7 +16,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  title: 'Tura Shop | Super Admin',
+  title: 'TuraFood | Super Admin',
   description: 'Panel de operación de TuraFood en Buenaventura.',
 };
 

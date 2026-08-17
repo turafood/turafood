@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { relativeTime } from '@/lib/format';
 import { getReviews, replyToReview } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
@@ -172,6 +173,53 @@ export default function ResenasPage() {
         </div>
       </div>
 
+      {/* Herramientas de Google: la reputación no vive solo aquí */}
+      <section style={S.google}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
+          <span style={S.googleIcon}>
+            <span className="ms" style={{ fontSize: 24, color: '#2E6BFF' }}>travel_explore</span>
+          </span>
+          <div style={{ flex: 1, minWidth: 240 }}>
+            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18 }}>
+              Herramientas de Google
+            </div>
+            <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--muted)', lineHeight: 1.55 }}>
+              Tu reputación no vive solo en TuraFood. La mayoría de la gente busca en
+              Google antes de pedir, y ahí se ven otras reseñas. Nosotros te montamos la
+              ficha y las campañas.
+            </p>
+          </div>
+        </div>
+
+        <div style={S.googleGrid}>
+          <Link href="/negocio/crecimiento/google-negocio" style={S.googleCard}>
+            <span style={{ ...S.googleCardIcon, background: '#EAF1FF' }}>
+              <span className="ms" style={{ fontSize: 21, color: '#2E6BFF' }}>storefront</span>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={S.googleCardTitle}>Ficha de Google</span>
+              <span style={S.googleCardText}>
+                Sales en Maps con tus horarios, tus fotos y tus reseñas.
+              </span>
+            </span>
+            <span className="ms" style={{ fontSize: 20, color: 'var(--faint)', flex: 'none' }}>chevron_right</span>
+          </Link>
+
+          <Link href="/negocio/crecimiento/google-ads" style={S.googleCard}>
+            <span style={{ ...S.googleCardIcon, background: '#E6F6EE' }}>
+              <span className="ms" style={{ fontSize: 21, color: '#0B8E54' }}>campaign</span>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={S.googleCardTitle}>Campañas en Google</span>
+              <span style={S.googleCardText}>
+                Apareces de primero cuando busquen lo que vendes.
+              </span>
+            </span>
+            <span className="ms" style={{ fontSize: 20, color: 'var(--faint)', flex: 'none' }}>chevron_right</span>
+          </Link>
+        </div>
+      </section>
+
       {/* Filtros */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 20 }}>
         {filters.map((f, i) => (
@@ -306,6 +354,31 @@ export default function ResenasPage() {
 }
 
 const S = {
+  google: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)', marginTop: 20,
+  },
+  googleIcon: {
+    width: 50, height: 50, borderRadius: 16, background: '#EAF1FF', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  googleGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
+    gap: 12, marginTop: 18,
+  },
+  googleCard: {
+    display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 15,
+    background: 'var(--bg)', border: '1px solid var(--border)',
+    textDecoration: 'none', color: 'var(--text)', minWidth: 0,
+  },
+  googleCardIcon: {
+    width: 40, height: 40, borderRadius: 12, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  googleCardTitle: { display: 'block', fontSize: 13.5, fontWeight: 700 },
+  googleCardText: {
+    display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.45,
+  },
   card: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',

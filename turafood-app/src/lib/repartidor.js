@@ -345,7 +345,7 @@ const LOCAL_COURIER = {
   total_deliveries: 1284,
   total_earnings: 84300,
   pro_plan: false,
-  profile: { full_name: 'Yeison Mosquera', phone: '3160000000', rating: 4.9 },
+  profile: { full_name: 'Yeison Mosquera', phone: '3137594713', rating: 4.9 },
 };
 
 /** Ofertas del mockup (OFFERS, línea 874) con la forma de `orders` */

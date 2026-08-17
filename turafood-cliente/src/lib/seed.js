@@ -8,7 +8,7 @@
  * y nada más cambia.
  *
  * Los valores (nombres, precios, ratings, tiempos) vienen del mockup
- * "Tura Shop - Cliente.dc.html" — no inventar datos nuevos aquí.
+ * "TuraFood - Cliente.dc.html" — no inventar datos nuevos aquí.
  */
 
 export const BUENAVENTURA = {

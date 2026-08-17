@@ -2,7 +2,7 @@
 
 /**
  * SUPER ADMIN — TURAFOOD
- * Réplica de "Tura Shop - Admin.dc.html". El mockup es una máquina de
+ * Réplica de "TuraFood - Admin.dc.html". El mockup es una máquina de
  * estados con barra lateral; aquí se conserva esa estructura y cada
  * sección lee de `lib/data`.
  *
@@ -76,7 +76,7 @@ export default function AdminPage() {
           </div>
           <div>
             <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--primary)' }}>
-              Tura Shop
+              TuraFood
             </div>
             <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.05em' }}>
               SUPER ADMIN

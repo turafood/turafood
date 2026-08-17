@@ -207,7 +207,7 @@ export default function AuthPage() {
                 </Link>
 
                 <p style={S.riderNote}>
-                  ¿Quieres ser repartidor? Escríbenos por WhatsApp al 316 000 0000 y te
+                  ¿Quieres ser repartidor? Escríbenos por WhatsApp al 313 759 4713 y te
                   creamos la cuenta.
                 </p>
               </div>

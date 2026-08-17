@@ -241,7 +241,7 @@ export default function AccountPage() {
           {/* Pie */}
           <div style={S.footer}>
             <div style={{ fontSize: 11.5, color: 'var(--faint)', fontWeight: 600 }}>
-              Tura Shop · Buenaventura
+              TuraFood · Buenaventura
             </div>
             <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, lineHeight: 1.2, marginTop: 10 }}>
               Hecho con <span style={{ color: 'var(--primary)' }}>amor</span>

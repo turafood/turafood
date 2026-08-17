@@ -121,7 +121,7 @@ function AuthPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <div style={S.logo}>t</div>
             <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 18.5, letterSpacing: '-.01em' }}>
-              Tura Shop
+              TuraFood
             </span>
           </div>
           <span style={S.cityTag}>BUENAVENTURA</span>
@@ -197,7 +197,7 @@ function AuthPage() {
                   {accepted && <span className="ms" style={{ fontSize: 14, color: '#fff' }}>check</span>}
                 </span>
                 <span style={{ flex: 1, textAlign: 'left', fontSize: 12, color: 'rgba(255,255,255,.66)', lineHeight: 1.45 }}>
-                  Acepto los Términos y la Política de privacidad de Tura Shop.
+                  Acepto los Términos y la Política de privacidad de TuraFood.
                 </span>
               </button>
             )}
