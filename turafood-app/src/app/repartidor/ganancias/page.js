@@ -67,7 +67,27 @@ export default function GananciasPage() {
   const tips = days.reduce((a, d) => a + d.tips, 0);
   const count = days.reduce((a, d) => a + d.count, 0);
 
-  const available = Number(wallet?.credits ?? 0);
+  /**
+   * Lo que se puede retirar.
+   *
+   * Con la base conectada manda la billetera: es la unica que sabe que
+   * ya se consigno y que no. Sin base —revisando pantallas en local—
+   * se estima con lo ganado desde el ultimo viernes, que es cuando cae
+   * el corte. Se estima para que la pantalla no salga en cero y parezca
+   * rota, no para que nadie decida nada con ese numero.
+   */
+  const sinceCut = useMemo(() => {
+    const cut = new Date();
+    cut.setHours(0, 0, 0, 0);
+    // Retrocede hasta el viernes mas reciente (5 = viernes)
+    while (cut.getDay() !== 5) cut.setDate(cut.getDate() - 1);
+    return deliveries
+      .filter((d) => new Date(d.delivered_at ?? d.created_at) >= cut)
+      .reduce((a, d) => a + Number(d.courier_earnings ?? 0), 0);
+  }, [deliveries]);
+
+  const live = isConfigured();
+  const available = live ? Number(wallet?.credits ?? 0) : sinceCut;
 
   const withdraw = async () => {
     setError(null);
@@ -123,9 +143,23 @@ export default function GananciasPage() {
             {loading ? '…' : cop(available)}
           </div>
           <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.55)', marginTop: 4 }}>
-            Se consigna a la cuenta que registraste
+            {live
+              ? 'Se consigna a la cuenta que registraste'
+              : 'Estimado con lo ganado desde el ultimo corte'}
           </div>
+
+          {/* Corte: saber cuando cae la plata es la mitad de la pregunta */}
+          <div style={S.cutRow}>
+            <span className="ms" style={{ fontSize: 17, color: 'rgba(255,255,255,.5)', flex: 'none' }}>
+              event
+            </span>
+            <span style={{ flex: 1, fontSize: 12, color: 'rgba(255,255,255,.62)' }}>
+              El corte automatico cae el viernes a las 6:00 a. m.
+            </span>
+          </div>
+
           <button onClick={withdraw} disabled={busy || available <= 0} style={S.withdraw}>
+            <span className="ms" style={{ fontSize: 19 }}>account_balance</span>
             {busy ? 'Enviando…' : 'Retirar ahora'}
           </button>
         </div>
@@ -235,12 +269,18 @@ export default function GananciasPage() {
 const S = {
   header: { flex: 'none', padding: '18px 20px 10px' },
   scroll: { flex: 1, overflowY: 'auto', padding: '6px 20px 108px', minHeight: 0 },
+  cutRow: {
+    display: 'flex', alignItems: 'center', gap: 8, marginTop: 14,
+    paddingTop: 12, borderTop: '1px solid rgba(255,255,255,.12)',
+  },
   available: {
     background: 'linear-gradient(135deg,#17140F,#3A332A)', borderRadius: 20, padding: 20, color: '#fff',
   },
   withdraw: {
-    width: '100%', height: 46, borderRadius: 14, background: 'var(--primary)',
-    color: '#fff', fontWeight: 700, fontSize: 14, marginTop: 16,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    width: '100%', height: 48, borderRadius: 14, background: 'var(--primary)',
+    color: '#fff', fontWeight: 700, fontSize: 14.5, marginTop: 14,
+    boxShadow: '0 10px 24px rgba(255,68,31,.34)',
   },
   tabs: {
     display: 'flex', background: 'var(--surface2)', borderRadius: 13,

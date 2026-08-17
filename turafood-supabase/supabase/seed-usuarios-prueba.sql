@@ -45,29 +45,38 @@ BEGIN
             ('admin@turafood.co',      'Sharick Grajales',  'admin'),
             ('negocio@turafood.co',    'Asadero El Puerto', 'business'),
             ('repartidor@turafood.co', 'Yeison Mosquera',   'courier'),
-            ('cliente@turafood.co',    'Andrés Riascos',    'customer')
+            ('cliente@turafood.co',    'Andres Riascos',    'customer')
         ) AS t(email, full_name, role)
     LOOP
-        INSERT INTO auth.users (
-            instance_id, id, aud, role, email,
-            encrypted_password, email_confirmed_at,
-            raw_app_meta_data, raw_user_meta_data,
-            created_at, updated_at
-        )
-        VALUES (
-            '00000000-0000-0000-0000-000000000000',
-            gen_random_uuid(),
-            'authenticated', 'authenticated', r.email,
-            extensions.crypt(v_password, extensions.gen_salt('bf')),
-            now(),
-            '{"provider":"email","providers":["email"]}'::jsonb,
-            jsonb_build_object('full_name', r.full_name, 'role', r.role),
-            now(), now()
-        )
-        ON CONFLICT (email) DO UPDATE
-            SET encrypted_password = extensions.crypt(v_password, extensions.gen_salt('bf')),
-                email_confirmed_at = COALESCE(auth.users.email_confirmed_at, now()),
-                updated_at         = now();
+        -- Nada de ON CONFLICT (email): el indice unico de correo en
+        -- auth.users es PARCIAL (solo aplica a cuentas que no son SSO),
+        -- y Postgres no acepta una clausula ON CONFLICT contra un
+        -- indice parcial. Se mira primero y se decide.
+        IF EXISTS (SELECT 1 FROM auth.users WHERE email = r.email) THEN
+            UPDATE auth.users
+               SET encrypted_password = extensions.crypt(v_password, extensions.gen_salt('bf')),
+                   email_confirmed_at = COALESCE(email_confirmed_at, now()),
+                   raw_user_meta_data = jsonb_build_object('full_name', r.full_name, 'role', r.role),
+                   updated_at         = now()
+             WHERE email = r.email;
+        ELSE
+            INSERT INTO auth.users (
+                instance_id, id, aud, role, email,
+                encrypted_password, email_confirmed_at,
+                raw_app_meta_data, raw_user_meta_data,
+                created_at, updated_at
+            )
+            VALUES (
+                '00000000-0000-0000-0000-000000000000',
+                gen_random_uuid(),
+                'authenticated', 'authenticated', r.email,
+                extensions.crypt(v_password, extensions.gen_salt('bf')),
+                now(),
+                '{"provider":"email","providers":["email"]}'::jsonb,
+                jsonb_build_object('full_name', r.full_name, 'role', r.role),
+                now(), now()
+            );
+        END IF;
     END LOOP;
 
     SELECT id INTO v_admin      FROM auth.users WHERE email = 'admin@turafood.co';

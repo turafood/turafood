@@ -396,14 +396,67 @@ const LOCAL_OFFERS = [
 /** Caja mutable: guarda la entrega tomada en modo local */
 const LOCAL_ACTIVE = { current: null };
 
-const LOCAL_DELIVERIES = [
-  { id: 'd1', order_number: 'TS-4810', total: 62000, tip: 2000, courier_earnings: 8900, delivered_at: ago(48), business: { name: 'Asadero El Puerto', cover_url: '/images/steak-ribeye.jpg' } },
-  { id: 'd2', order_number: 'TS-4802', total: 94000, tip: 0, courier_earnings: 11200, delivered_at: ago(89), business: { name: 'Supermercado La Bahía', cover_url: '/images/fried-steak.jpg' } },
-  { id: 'd3', order_number: 'TS-4794', total: 38000, tip: 3000, courier_earnings: 7600, delivered_at: ago(132), business: { name: 'Burger House Bahía', cover_url: '/images/burger.jpg' } },
-  { id: 'd4', order_number: 'TS-4781', total: 128000, tip: 5000, courier_earnings: 13400, delivered_at: ago(220), business: { name: 'Marisquería El Faro', cover_url: '/images/food-fork.jpg' } },
-  { id: 'd5', order_number: 'TS-4770', total: 26000, tip: 0, courier_earnings: 6800, delivered_at: ago(295), business: { name: 'Droguería La Salud', cover_url: '/images/beef-tomatoes.jpg' } },
-  { id: 'd6', order_number: 'TS-4762', total: 44000, tip: 1500, courier_earnings: 7900, delivered_at: ago(1520), business: { name: 'Picadas El Jorge', cover_url: '/images/lamb-chops.jpg' } },
+/**
+ * Entregas de los ultimos 60 dias.
+ *
+ * Sesenta y no seis porque la pantalla de ganancias compara dia,
+ * semana y mes: con seis filas el "mes" salia igual que la "semana" y
+ * parecia un error.
+ *
+ * La forma imita una jornada real: viernes y sabado mandan, el lunes
+ * es el piso, y las propinas aparecen en una de cada tres entregas.
+ * Sin Math.random, para que el servidor y el navegador pinten lo mismo.
+ */
+const DELIVERY_WEIGHT = [1.1, 0.6, 0.68, 0.75, 0.9, 1.45, 1.55];  // Dom -> Sab
+
+const LOCAL_BUSINESSES_POOL = [
+  ['Asadero El Puerto', '/images/steak-ribeye.jpg'],
+  ['Marisqueria El Faro', '/images/food-fork.jpg'],
+  ['Burger House Bahia', '/images/burger.jpg'],
+  ['Supermercado La Bahia', '/images/fried-steak.jpg'],
+  ['Drogueria La Salud', '/images/beef-tomatoes.jpg'],
+  ['Picadas El Jorge', '/images/lamb-chops.jpg'],
 ];
+
+const LOCAL_DELIVERIES = (() => {
+  const rows = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let n = 4900;
+
+  for (let back = 59; back >= 0; back -= 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - back);
+
+    const count = Math.round(9 * DELIVERY_WEIGHT[day.getDay()]);
+
+    for (let k = 0; k < count; k += 1) {
+      // Reparte las entregas entre las 11 a.m. y las 10 p.m.
+      const at = new Date(day);
+      at.setHours(11 + Math.floor((k / count) * 11), (k * 13) % 60, 0, 0);
+
+      const [name, cover] = LOCAL_BUSINESSES_POOL[(back + k) % LOCAL_BUSINESSES_POOL.length];
+      const fee = 6800 + ((k * 977) % 8) * 900;
+      // Propina en una de cada tres, y mas alta el fin de semana
+      const tip = (back + k) % 3 === 0
+        ? 1500 + ((k * 331) % 4) * 1000 + (day.getDay() >= 5 ? 1000 : 0)
+        : 0;
+
+      n -= 1;
+      rows.push({
+        id: 'd' + n,
+        order_number: 'TS-' + n,
+        total: 24000 + ((k * 1777) % 9) * 7000,
+        tip,
+        courier_earnings: fee + tip,
+        delivered_at: at.toISOString(),
+        business: { name, cover_url: cover },
+      });
+    }
+  }
+
+  return rows.reverse();
+})();
 
 const LOCAL_MESSAGES = [
   { id: 'm1', sender_id: 'me', body: '¡Hola! Ya recogí tu pedido en el Asadero El Puerto.', created_at: ago(4) },
