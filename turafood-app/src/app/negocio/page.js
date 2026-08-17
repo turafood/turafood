@@ -304,6 +304,70 @@ export default function ResumenPage() {
         </section>
       </div>
 
+      {/* Canales. Hoy solo mide TuraFood; el resto queda listo para
+          engancharse cuando existan las integraciones. */}
+      <section style={{ ...S.card, marginTop: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <div style={S.cardTitle}>Tus canales de venta</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+              Todo lo que vendes, en un solo reporte
+            </div>
+          </div>
+        </div>
+
+        <div style={S.channels}>
+          {[
+            {
+              id: 'tura', name: 'TuraFood', icon: 'storefront', color: 'var(--primary)', bg: '#FFF1EC',
+              connected: true,
+              value: cop(weekTotal),
+              hint: `${days.reduce((a, d) => a + d.orders, 0)} pedidos en 7 días`,
+            },
+            {
+              id: 'whatsapp', name: 'WhatsApp Business', icon: 'chat', color: '#0B8E54', bg: '#E6F6EE',
+              connected: false, hint: 'Recibe pedidos del chat aquí mismo',
+            },
+            {
+              id: 'instagram', name: 'Instagram', icon: 'photo_camera', color: '#C13584', bg: '#FDECF5',
+              connected: false, hint: 'Publica tu carta y mide los clics',
+            },
+            {
+              id: 'facebook', name: 'Facebook', icon: 'thumb_up', color: '#1877F2', bg: '#EAF1FF',
+              connected: false, hint: 'Alcance y pedidos desde tu página',
+            },
+          ].map((c) => (
+            <div key={c.id} style={{ ...S.channel, opacity: c.connected ? 1 : 0.85 }}>
+              <span style={{ ...S.channelIcon, background: c.bg }}>
+                <span className="ms" style={{ fontSize: 20, color: c.color }}>{c.icon}</span>
+              </span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                  <span className="tr1" style={{ fontSize: 13.5, fontWeight: 700 }}>{c.name}</span>
+                  <span
+                    style={{
+                      ...S.channelState,
+                      background: c.connected ? '#E6F6EE' : 'var(--surface2)',
+                      color: c.connected ? '#0B7A48' : 'var(--muted)',
+                    }}
+                  >
+                    {c.connected ? 'CONECTADO' : 'PRÓXIMAMENTE'}
+                  </span>
+                </span>
+                {c.value && (
+                  <span style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, marginTop: 4 }}>
+                    {c.value}
+                  </span>
+                )}
+                <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 3 }}>
+                  {c.hint}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Atención + salud */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: 16, marginTop: 16 }}>
         <section style={S.card}>
@@ -422,6 +486,23 @@ const S = {
   card: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+  },
+  channels: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(210px,1fr))',
+    gap: 12, marginTop: 16,
+  },
+  channel: {
+    display: 'flex', gap: 12, alignItems: 'flex-start', padding: 14,
+    borderRadius: 15, background: 'var(--bg)', border: '1px solid var(--border)',
+    minWidth: 0,
+  },
+  channelIcon: {
+    width: 38, height: 38, borderRadius: 12, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  channelState: {
+    fontSize: 9.5, fontWeight: 800, padding: '3px 6px',
+    borderRadius: 5, letterSpacing: '.04em',
   },
   cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
   hero: {

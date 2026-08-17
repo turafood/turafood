@@ -206,6 +206,91 @@ export async function getCatalog(businessId) {
   return data ?? [];
 }
 
+export async function getCategories(businessId) {
+  if (!isLive()) {
+    await delay();
+    return Array.from(new Set(LOCAL_PRODUCTS.map((p) => p.category?.name)))
+      .filter(Boolean)
+      .map((name, i) => ({ id: `c${i}`, name }));
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('product_categories')
+    .select('id, name')
+    .eq('business_id', businessId)
+    .order('sort_order');
+
+  if (error) return [];
+  return data ?? [];
+}
+
+/** Crea una categoría nueva desde el formulario de producto */
+export async function createCategory(businessId, name) {
+  if (!isLive()) {
+    await delay(200);
+    return { id: `c-${Date.now()}`, name };
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('product_categories')
+    .insert({ business_id: businessId, name })
+    .select()
+    .single();
+
+  if (error) throw new Error(`No se pudo crear la categoría: ${error.message}`);
+  return data;
+}
+
+export async function saveProduct(businessId, product) {
+  if (!isLive()) {
+    await delay(300);
+    if (product.id) {
+      const i = LOCAL_PRODUCTS.findIndex((p) => p.id === product.id);
+      if (i >= 0) LOCAL_PRODUCTS[i] = { ...LOCAL_PRODUCTS[i], ...product };
+      return LOCAL_PRODUCTS[i];
+    }
+    const row = { ...product, id: `p-${Date.now()}`, is_available: true, sold: 0 };
+    LOCAL_PRODUCTS.unshift(row);
+    return row;
+  }
+
+  const supabase = createClient();
+  const payload = {
+    business_id: businessId,
+    name: product.name,
+    description: product.description || null,
+    price: Number(product.price) || 0,
+    compare_price: product.compare_price ? Number(product.compare_price) : null,
+    category_id: product.category_id || null,
+    image_url: product.image_url || null,
+    is_available: product.is_available ?? true,
+  };
+
+  const query = product.id
+    ? supabase.from('products').update(payload).eq('id', product.id)
+    : supabase.from('products').insert(payload);
+
+  const { data, error } = await query.select('*, category:product_categories(name)').single();
+  if (error) throw new Error(`No se pudo guardar el producto: ${error.message}`);
+  return data;
+}
+
+export async function deleteProduct(productId) {
+  if (!isLive()) {
+    await delay(200);
+    const i = LOCAL_PRODUCTS.findIndex((p) => p.id === productId);
+    if (i >= 0) LOCAL_PRODUCTS.splice(i, 1);
+    return true;
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.from('products').delete().eq('id', productId);
+  if (error) throw new Error(`No se pudo eliminar: ${error.message}`);
+  return true;
+}
+
 export async function setProductAvailability(productId, isAvailable) {
   if (!isLive()) {
     await delay(150);

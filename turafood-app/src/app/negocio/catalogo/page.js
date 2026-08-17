@@ -2,34 +2,55 @@
 
 /**
  * MENÚ Y PRODUCTOS
- * Conversión de `isCatalog` (línea 424) del mockup de Negocios.
  *
- * El interruptor de cada fila escribe `products.is_available`: es lo que
- * hace que el plato deje de aparecer en la app del cliente.
+ * Además de listar, aquí se crea, se edita y se agota. El interruptor
+ * de cada fila escribe `products.is_available`: es lo que hace que el
+ * plato deje de aparecer en la app del cliente.
+ *
+ * Si el catálogo está vacío no se muestra una tabla en blanco: se
+ * ofrece cargar un menú de arranque acorde a la vertical del negocio,
+ * porque editar algo existente cuesta mucho menos que crear de cero.
  */
 
 import { useEffect, useMemo, useState } from 'react';
 import { cop } from '@/lib/format';
-import { getCatalog, setProductAvailability } from '@/lib/negocio';
+import {
+  getCatalog, getCategories, setProductAvailability, deleteProduct,
+} from '@/lib/negocio';
+import { STARTER_MENUS, starterSize, loadStarterMenu } from '@/lib/menuDemo';
+import Vertical3D, { ProductThumb } from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
+import ProductSheet from './ProductSheet';
 
 const norm = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
 export default function CatalogoPage() {
   const { business, toast } = useBiz();
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [cat, setCat] = useState('Todos');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [sheet, setSheet] = useState({ open: false, product: null });
+  const [seeding, setSeeding] = useState(false);
+
+  const vertical = business?.vertical ?? 'restaurant';
 
   useEffect(() => {
     if (!business) return undefined;
     let alive = true;
     (async () => {
       try {
-        const rows = await getCatalog(business.id);
-        if (alive) setProducts(rows);
+        const [rows, cats] = await Promise.all([
+          getCatalog(business.id),
+          getCategories(business.id),
+        ]);
+        if (!alive) return;
+        setProducts(rows);
+        setCategories(cats);
       } catch (err) {
         if (alive) setError(err.message);
       } finally {
@@ -39,7 +60,7 @@ export default function CatalogoPage() {
     return () => { alive = false; };
   }, [business]);
 
-  const categories = useMemo(() => {
+  const catNames = useMemo(() => {
     const names = Array.from(new Set(products.map((p) => p.category?.name).filter(Boolean)));
     return ['Todos', ...names];
   }, [products]);
@@ -52,6 +73,7 @@ export default function CatalogoPage() {
   });
 
   const soldMax = Math.max(...products.map((p) => p.sold ?? 0), 1);
+  const outOfStock = products.filter((p) => !p.is_available).length;
 
   const toggle = async (product) => {
     const next = !product.is_available;
@@ -65,160 +87,236 @@ export default function CatalogoPage() {
     }
   };
 
+  const remove = async (product) => {
+    setProducts((list) => list.filter((p) => p.id !== product.id));
+    try {
+      await deleteProduct(product.id);
+      toast(`${product.name} eliminado`);
+    } catch (err) {
+      setError(err.message);
+      setProducts(await getCatalog(business.id));
+    }
+  };
+
+  const seed = async () => {
+    setSeeding(true);
+    setError(null);
+    try {
+      await loadStarterMenu(business.id, vertical);
+      const [rows, cats] = await Promise.all([
+        getCatalog(business.id),
+        getCategories(business.id),
+      ]);
+      setProducts(rows);
+      setCategories(cats);
+      toast('Menú de ejemplo cargado · edítalo a tu gusto');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const onSaved = (saved, wasEdit) => {
+    setProducts((list) => (wasEdit
+      ? list.map((p) => (p.id === saved.id ? { ...p, ...saved } : p))
+      : [saved, ...list]));
+    setSheet({ open: false, product: null });
+    toast(wasEdit ? 'Producto actualizado' : 'Producto creado');
+  };
+
+  // Catálogo vacío: lo importante es dar el primer empujón
+  if (!loading && products.length === 0) {
+    const menu = STARTER_MENUS[vertical] ?? STARTER_MENUS.restaurant;
+    return (
+      <>
+        {error && <ErrorBox text={error} />}
+        <section style={S.starter}>
+          <Vertical3D vertical={vertical} size={96} />
+          <h2 style={S.starterTitle}>Tu carta está vacía</h2>
+          <p style={S.starterText}>
+            Podemos dejarte cargado un menú de ejemplo de <b>{menu.label.toLowerCase()}</b> con{' '}
+            {starterSize(vertical)} productos y sus categorías. Después cambias nombres,
+            precios y fotos: editar es mucho más rápido que empezar de cero.
+          </p>
+
+          <div style={S.starterPreview}>
+            {menu.categories.slice(0, 4).map((c) => (
+              <span key={c.name} style={S.starterChip}>
+                {c.name}
+                <span style={{ color: 'var(--faint)', fontWeight: 700 }}>{c.products.length}</span>
+              </span>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: 11, flexWrap: 'wrap', justifyContent: 'center', marginTop: 22 }}>
+            <button onClick={seed} disabled={seeding} className="md3-btn" style={S.starterPrimary}>
+              <span className="ms" style={{ fontSize: 19 }}>auto_awesome</span>
+              {seeding ? 'Cargando…' : 'Cargar menú de ejemplo'}
+            </button>
+            <button onClick={() => setSheet({ open: true, product: null })} style={S.starterGhost}>
+              <span className="ms" style={{ fontSize: 19 }}>add</span>
+              Crear el primero a mano
+            </button>
+          </div>
+        </section>
+
+        <ProductSheet
+          open={sheet.open}
+          product={sheet.product}
+          categories={categories}
+          businessId={business?.id}
+          vertical={vertical}
+          onClose={() => setSheet({ open: false, product: null })}
+          onSaved={onSaved}
+          onCategoryCreated={(c) => setCategories((list) => [...list, c])}
+        />
+      </>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      {/* Categorías */}
-      <aside style={S.cats}>
-        <div style={S.catsLabel}>CATEGORÍAS</div>
-        {categories.map((c) => (
-          <button
-            key={c}
-            onClick={() => setCat(c)}
-            style={{ ...S.catBtn, background: c === cat ? 'var(--surface2)' : 'transparent' }}
-          >
-            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, textAlign: 'left' }}>{c}</span>
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)' }}>
-              {c === 'Todos' ? products.length : products.filter((p) => p.category?.name === c).length}
-            </span>
-          </button>
-        ))}
-      </aside>
+    <>
+      {error && <ErrorBox text={error} />}
 
-      {/* Tabla */}
-      <section style={S.table}>
-        <div style={S.tableHead}>
-          <div style={S.search}>
-            <span className="ms" style={{ fontSize: 19, color: 'var(--muted)' }}>search</span>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar producto"
-              style={S.searchInput}
-            />
-            {query && (
-              <button onClick={() => setQuery('')} style={S.clear} aria-label="Limpiar búsqueda">
-                <span className="ms" style={{ fontSize: 14, color: 'var(--muted)' }}>close</span>
+      <div className="catalog">
+        {/* Categorías */}
+        <aside className="catalog-cats" style={S.cats}>
+          <div style={S.catsLabel}>CATEGORÍAS</div>
+          <div className="catalog-cats-list">
+            {catNames.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCat(c)}
+                style={{ ...S.catBtn, background: c === cat ? 'var(--surface2)' : 'transparent' }}
+              >
+                <span style={{ flex: 1, fontSize: 13, fontWeight: 700, textAlign: 'left', whiteSpace: 'nowrap' }}>{c}</span>
+                <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)' }}>
+                  {c === 'Todos' ? products.length : products.filter((p) => p.category?.name === c).length}
+                </span>
               </button>
-            )}
+            ))}
           </div>
-          <div style={{ flex: 1 }} />
-          <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
-            {shown.length} productos · {shown.filter((p) => !p.is_available).length} agotados
-          </span>
-        </div>
+        </aside>
 
-        {error && (
-          <div style={S.error}>
-            <span className="ms" style={{ fontSize: 18 }}>error</span>
-            <span>{error}</span>
-          </div>
-        )}
-
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ ...S.row, ...S.headRow }}>
-            <span>PRODUCTO</span>
-            <span>PRECIO</span>
-            <span>RENDIMIENTO</span>
-            <span>DISPONIBLE</span>
-            <span style={{ textAlign: 'right' }}>ACCIONES</span>
-          </div>
-
-          {shown.map((p) => (
-            <div
-              key={p.id}
-              style={{ ...S.row, background: p.is_available ? 'transparent' : 'var(--bg)' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                <span
-                  style={{
-                    ...S.thumb,
-                    backgroundImage: p.image_url ? `url('${p.image_url}')` : 'none',
-                    background: p.image_url ? undefined : 'var(--surface2)',
-                  }}
-                >
-                  {!p.is_available && (
-                    <span style={S.thumbOff}>
-                      <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>visibility_off</span>
-                    </span>
-                  )}
-                </span>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span className="tr1" style={{ fontSize: 13.5, fontWeight: 700 }}>{p.name}</span>
-                    {(p.sold ?? 0) >= 200 && <span style={S.top}>TOP</span>}
-                  </span>
-                  <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                    {p.description}
-                  </span>
-                </span>
-              </div>
-
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 800 }}>{cop(p.price)}</div>
-                {p.compare_price && (
-                  <div style={{ fontSize: 11, color: 'var(--faint)', textDecoration: 'line-through' }}>
-                    {cop(p.compare_price)}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
-                  {p.sold ?? 0} vendidos
-                </div>
-                <div style={S.perfTrack}>
-                  <div
-                    style={{
-                      height: '100%', borderRadius: 99,
-                      width: `${Math.max(4, ((p.sold ?? 0) / soldMax) * 100)}%`,
-                      background: (p.sold ?? 0) >= 200
-                        ? 'linear-gradient(90deg,#FF7A3D,#FF441F)'
-                        : 'var(--faint)',
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <button
-                  onClick={() => toggle(p)}
-                  aria-label={p.is_available ? `Agotar ${p.name}` : `Activar ${p.name}`}
-                  style={{
-                    ...S.switchTrack,
-                    background: p.is_available ? 'var(--green)' : 'var(--faint)',
-                  }}
-                >
-                  <span
-                    style={{
-                      ...S.switchKnob,
-                      transform: p.is_available ? 'translateX(18px)' : 'none',
-                    }}
-                  />
+        {/* Lista */}
+        <section style={S.panel}>
+          <div style={S.panelHead}>
+            <div style={S.search}>
+              <span className="ms" style={{ fontSize: 19, color: 'var(--muted)' }}>search</span>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar producto"
+                style={S.searchInput}
+              />
+              {query && (
+                <button onClick={() => setQuery('')} style={S.clear} aria-label="Limpiar búsqueda">
+                  <span className="ms" style={{ fontSize: 14, color: 'var(--muted)' }}>close</span>
                 </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                <button style={S.iconBtn} aria-label={`Editar ${p.name}`}>
-                  <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>edit</span>
-                </button>
-              </div>
+              )}
             </div>
-          ))}
+
+            <span className="catalog-count" style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
+              {shown.length} productos
+              {outOfStock > 0 && ` · ${outOfStock} agotados`}
+            </span>
+
+            <button
+              onClick={() => setSheet({ open: true, product: null })}
+              className="md3-btn"
+              style={S.addBtn}
+            >
+              <span className="ms" style={{ fontSize: 18 }}>add</span>
+              Nuevo
+            </button>
+          </div>
+
+          {/* Escritorio: tabla. Celular: tarjetas. */}
+          <div className="catalog-table">
+            <div className="catalog-row catalog-head" style={S.headRow}>
+              <span>PRODUCTO</span><span>PRECIO</span><span>RENDIMIENTO</span>
+              <span>DISPONIBLE</span><span style={{ textAlign: 'right' }}>ACCIONES</span>
+            </div>
+
+            {shown.map((p) => (
+              <div key={p.id} className="catalog-row" style={{ background: p.is_available ? 'transparent' : 'var(--bg)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                  <span style={{ position: 'relative', flex: 'none' }}>
+                    <ProductThumb src={p.image_url} vertical={vertical} size={44} alt={p.name} />
+                    {!p.is_available && (
+                      <span style={S.thumbOff}>
+                        <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>visibility_off</span>
+                      </span>
+                    )}
+                  </span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <span className="tr1" style={{ fontSize: 13.5, fontWeight: 700 }}>{p.name}</span>
+                      {(p.sold ?? 0) >= 200 && <span style={S.top}>TOP</span>}
+                    </span>
+                    <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                      {p.description}
+                    </span>
+                  </span>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 800 }}>{cop(p.price)}</div>
+                  {p.compare_price && (
+                    <div style={{ fontSize: 11, color: 'var(--faint)', textDecoration: 'line-through' }}>
+                      {cop(p.compare_price)}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
+                    {p.sold ?? 0} vendidos
+                  </div>
+                  <div style={S.perfTrack}>
+                    <div
+                      style={{
+                        height: '100%', borderRadius: 99,
+                        width: `${Math.max(4, ((p.sold ?? 0) / soldMax) * 100)}%`,
+                        background: (p.sold ?? 0) >= 200
+                          ? 'linear-gradient(90deg,#FF7A3D,#FF441F)'
+                          : 'var(--faint)',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    onClick={() => toggle(p)}
+                    aria-label={p.is_available ? `Agotar ${p.name}` : `Activar ${p.name}`}
+                    style={{ ...S.switchTrack, background: p.is_available ? 'var(--green)' : 'var(--faint)' }}
+                  >
+                    <span style={{ ...S.switchKnob, transform: p.is_available ? 'translateX(18px)' : 'none' }} />
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                  <button onClick={() => setSheet({ open: true, product: p })} style={S.iconBtn} aria-label={`Editar ${p.name}`}>
+                    <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>edit</span>
+                  </button>
+                  <button onClick={() => remove(p)} style={S.iconBtn} aria-label={`Eliminar ${p.name}`}>
+                    <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>delete</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {!loading && shown.length === 0 && (
             <div style={S.empty}>
               <span style={S.emptyIcon}>
-                <span className="ms" style={{ fontSize: 23, color: 'var(--faint)' }}>
-                  {products.length ? 'search_off' : 'restaurant_menu'}
-                </span>
+                <span className="ms" style={{ fontSize: 23, color: 'var(--faint)' }}>search_off</span>
               </span>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>
-                {products.length ? 'Ningún producto coincide' : 'Tu menú está vacío'}
-              </div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Ningún producto coincide</div>
               <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-                {products.length
-                  ? 'Prueba con otro nombre o cambia de categoría.'
-                  : 'Agrega tus platos para que aparezcan en la app de clientes.'}
+                Prueba con otro nombre o cambia de categoría.
               </div>
             </div>
           )}
@@ -228,17 +326,35 @@ export default function CatalogoPage() {
               Cargando catálogo…
             </div>
           )}
-        </div>
-      </section>
+        </section>
+      </div>
+
+      <ProductSheet
+        open={sheet.open}
+        product={sheet.product}
+        categories={categories}
+        businessId={business?.id}
+        vertical={vertical}
+        onClose={() => setSheet({ open: false, product: null })}
+        onSaved={onSaved}
+        onCategoryCreated={(c) => setCategories((list) => [...list, c])}
+      />
+    </>
+  );
+}
+
+function ErrorBox({ text }) {
+  return (
+    <div style={S.error}>
+      <span className="ms" style={{ fontSize: 18, flex: 'none' }}>error</span>
+      <span>{text}</span>
     </div>
   );
 }
 
-const GRID = 'minmax(0,2.4fr) 116px 130px 108px 92px';
-
 const S = {
   cats: {
-    flex: 'none', width: 226, background: 'var(--surface)', border: '1px solid var(--border)',
+    background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 14, boxShadow: 'var(--shadowSm)',
   },
   catsLabel: {
@@ -247,39 +363,35 @@ const S = {
   },
   catBtn: {
     display: 'flex', alignItems: 'center', gap: 9, width: '100%', height: 38,
-    padding: '0 10px', borderRadius: 11, marginBottom: 2,
+    padding: '0 10px', borderRadius: 11, marginBottom: 2, flex: 'none',
   },
-  table: {
-    flex: 1, minWidth: 320, background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, boxShadow: 'var(--shadowSm)', overflow: 'hidden',
+  panel: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 18, boxShadow: 'var(--shadowSm)', overflow: 'hidden', minWidth: 0,
   },
-  tableHead: {
+  panelHead: {
     display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px',
     borderBottom: '1px solid var(--border)', flexWrap: 'wrap',
   },
   search: {
-    display: 'flex', alignItems: 'center', gap: 9, flex: 1, height: 40,
-    background: 'var(--bg)', borderRadius: 12, padding: '0 13px', maxWidth: 320, minWidth: 180,
+    display: 'flex', alignItems: 'center', gap: 9, flex: 1, height: 42,
+    background: 'var(--bg)', borderRadius: 12, padding: '0 13px', minWidth: 160,
   },
   searchInput: {
-    flex: 1, border: 'none', outline: 'none', background: 'none',
-    fontSize: 16, minWidth: 0,
+    flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 16, minWidth: 0,
   },
   clear: {
     width: 20, height: 20, borderRadius: '50%', background: 'var(--surface2)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
-  row: {
-    display: 'grid', gridTemplateColumns: GRID, gap: 12, minWidth: 760,
-    alignItems: 'center', padding: '12px 18px', borderBottom: '1px solid var(--border)',
+  addBtn: {
+    display: 'flex', alignItems: 'center', gap: 6, height: 42, padding: '0 16px',
+    borderRadius: 999, background: 'var(--primary)', color: '#fff',
+    fontSize: 13, fontWeight: 700, flex: 'none',
   },
   headRow: {
     background: 'var(--bg)', fontSize: 11, fontWeight: 800,
     color: 'var(--muted)', letterSpacing: '.05em',
-  },
-  thumb: {
-    width: 44, height: 44, borderRadius: 12, flex: 'none', position: 'relative',
-    backgroundSize: 'cover', backgroundPosition: 'center',
   },
   thumbOff: {
     position: 'absolute', inset: 0, borderRadius: 12, background: 'rgba(255,255,255,.68)',
@@ -299,7 +411,7 @@ const S = {
   },
   iconBtn: {
     width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--border)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9,
@@ -309,8 +421,38 @@ const S = {
     width: 46, height: 46, borderRadius: 14, background: 'var(--bg)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
+  starter: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+    padding: '48px 24px', background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 22, boxShadow: 'var(--shadowSm)',
+  },
+  starterTitle: {
+    margin: '18px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 24, letterSpacing: '-.02em',
+  },
+  starterText: {
+    margin: '10px 0 0', fontSize: 14, lineHeight: 1.6, color: 'var(--muted)', maxWidth: 470,
+  },
+  starterPreview: {
+    display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 20,
+  },
+  starterChip: {
+    display: 'flex', alignItems: 'center', gap: 7, height: 34, padding: '0 13px',
+    borderRadius: 999, background: 'var(--bg)', border: '1px solid var(--border)',
+    fontSize: 12.5, fontWeight: 700,
+  },
+  starterPrimary: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 50, padding: '0 22px',
+    borderRadius: 999, background: 'var(--primary)', color: '#fff',
+    fontSize: 14.5, fontWeight: 700, boxShadow: '0 10px 26px rgba(255,68,31,.32)',
+  },
+  starterGhost: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 50, padding: '0 20px',
+    borderRadius: 999, border: '1px solid var(--border)', fontSize: 14, fontWeight: 700,
+  },
   error: {
-    display: 'flex', alignItems: 'center', gap: 9, margin: '14px 18px', padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    display: 'flex', alignItems: 'flex-start', gap: 9, marginBottom: 14, padding: '12px 14px',
+    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
+    fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 };

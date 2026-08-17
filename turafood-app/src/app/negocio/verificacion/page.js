@@ -1,15 +1,19 @@
 'use client';
 
 /**
- * VERIFICACIÓN DEL NEGOCIO
+ * VERIFICACIÓN DEL NEGOCIO — ASISTENTE
  *
- * Aquí vive lo que antes era el asistente de 4 pasos previo al ingreso.
- * La diferencia es que ahora se puede dejar a medias: cada bloque se
- * guarda por separado y la barra de arriba muestra cuánto falta.
+ * Aquí vive lo que antes era el alta previa al ingreso. La diferencia
+ * es que ahora se recorre paso a paso desde adentro y se puede dejar a
+ * medias: cada paso se guarda al avanzar y el riel de arriba muestra
+ * en qué punto va.
+ *
+ * Se puede saltar a cualquier paso tocando el riel. Obligar a pasar en
+ * orden molesta a quien solo entró a cambiar la cuenta bancaria.
  *
  * "Enviar a revisión" llama a `submit_business_for_review()`, que
- * vuelve a comprobar todo en el servidor. Si la pantalla se equivoca
- * marcando algo como listo, la base no deja pasar igual.
+ * revalida todo en el servidor: si esta pantalla marca algo como listo
+ * por error, la base no deja pasar igual.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -17,6 +21,7 @@ import {
   getDocuments, updateBusiness, uploadDocument, deleteDocument,
   submitForReview, checklistOf, REQUIRED_DOCS, DOC_LABELS,
 } from '@/lib/negocio';
+import Vertical3D from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
 
 const VERTICALS = [
@@ -29,17 +34,46 @@ const VERTICALS = [
 
 const BANKS = ['Bancolombia', 'Davivienda', 'Nequi', 'Daviplata', 'BBVA', 'Banco de Bogotá'];
 const ACCOUNT_TYPES = ['Ahorros', 'Corriente'];
-
 const DOC_ORDER = ['rut', 'chamber', 'id_card', 'health'];
+
+/** Los cuatro pasos, con los campos que guarda cada uno */
+const STEPS = [
+  {
+    id: 'datos', icon: 'storefront', short: 'Datos',
+    title: 'Cuéntanos de tu negocio',
+    sub: 'Así aparece tu tienda en la app de clientes. Puedes cambiarlo después.',
+    fields: ['name', 'vertical', 'nit', 'phone'],
+  },
+  {
+    id: 'direccion', icon: 'location_on', short: 'Dirección',
+    title: '¿Dónde queda tu punto de venta?',
+    sub: 'La usamos para calcular tiempos de entrega y a qué zonas llegas.',
+    fields: ['address', 'neighborhood', 'courier_notes'],
+  },
+  {
+    id: 'documentos', icon: 'folder_open', short: 'Documentos',
+    title: 'Sube tus documentos',
+    sub: 'Los revisamos en menos de 24 horas. Máximo 8 MB por archivo, en PDF o imagen.',
+    fields: [],
+  },
+  {
+    id: 'banco', icon: 'account_balance', short: 'Banco',
+    title: '¿Dónde te consignamos?',
+    sub: 'Liquidamos todos los viernes con el corte del domingo anterior.',
+    fields: ['bank_name', 'bank_account_type', 'bank_account_number', 'bank_account_holder'],
+  },
+];
 
 export default function VerificacionPage() {
   const { business, loading, toast, refreshBusiness } = useBiz();
 
+  const [step, setStep] = useState(0);
   const [form, setForm] = useState(null);
   const [docs, setDocs] = useState([]);
-  const [saving, setSaving] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+  const top = useRef(null);
 
   useEffect(() => {
     if (!business) return;
@@ -67,6 +101,11 @@ export default function VerificacionPage() {
     return () => { alive = false; };
   }, [business]);
 
+  // Al cambiar de paso, volver arriba: si no, se entra a media pantalla
+  useEffect(() => {
+    top.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [step]);
+
   const merged = useMemo(
     () => (business && form ? { ...business, ...form } : business),
     [business, form],
@@ -78,19 +117,30 @@ export default function VerificacionPage() {
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  const save = async (section, keys) => {
+  /** Guarda el paso actual y se mueve a `to` */
+  const saveAndGo = async (to) => {
+    const current = STEPS[step];
     setError(null);
-    setSaving(section);
-    try {
-      const patch = Object.fromEntries(keys.map((k) => [k, form[k]]));
-      await updateBusiness(business.id, patch);
-      await refreshBusiness?.();
-      toast('Guardado');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(null);
+
+    if (current.fields.length) {
+      setSaving(true);
+      try {
+        const patch = Object.fromEntries(current.fields.map((k) => [k, form[k]]));
+        await updateBusiness(business.id, patch);
+        await refreshBusiness?.();
+      } catch (err) {
+        setError(err.message);
+        setSaving(false);
+        return;
+      }
+      setSaving(false);
     }
+
+    if (to === 'done') {
+      toast('Guardado');
+      return;
+    }
+    setStep(to);
   };
 
   const send = async () => {
@@ -111,51 +161,149 @@ export default function VerificacionPage() {
     return <div style={{ padding: 40, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>Cargando…</div>;
   }
 
-  const submitted = Boolean(business?.submitted_at);
   const approved = business?.status === 'active';
+  const submitted = Boolean(business?.submitted_at);
+  const current = STEPS[step];
+  const isLast = step === STEPS.length - 1;
 
   return (
-    <>
-      {/* Progreso */}
-      <section style={{ ...S.card, padding: 22 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ minWidth: 220, flex: 1 }}>
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em' }}>
+    <div style={{ maxWidth: 820 }} ref={top}>
+      {/* Cabecera con progreso */}
+      <section style={S.head}>
+        <div style={S.headTop}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={S.headTitle}>
               {approved
                 ? 'Tu negocio está aprobado'
                 : submitted ? 'Registro en revisión' : 'Completa tu registro'}
             </div>
-            <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55, marginTop: 6, maxWidth: 520 }}>
+            <div style={S.headSub}>
               {approved
                 ? 'Ya estás visible en la app de clientes y sin límite de pedidos diarios.'
                 : submitted
-                  ? 'Recibimos tus documentos. Los revisamos en menos de 24 horas; mientras tanto puedes seguir vendiendo con un límite de 20 pedidos diarios.'
-                  : 'Mientras esté incompleto puedes vender con un límite de 20 pedidos diarios. Al aprobarlo se levanta el límite.'}
+                  ? 'Recibimos tus documentos. Los revisamos en menos de 24 horas; mientras tanto sigues vendiendo con un límite de 20 pedidos diarios.'
+                  : 'Mientras esté incompleto vendes con un límite de 20 pedidos diarios. Al aprobarlo se levanta.'}
             </div>
           </div>
 
           <div style={S.ring}>
             <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, var(--surface2) 0)` }} />
             <div style={S.ringHole}>
-              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20 }}>{pct}%</span>
+              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19 }}>{pct}%</span>
             </div>
           </div>
         </div>
 
-        <div style={S.steps}>
-          {checklist.map((c) => (
-            <div key={c.id} style={S.step}>
-              <span style={{ ...S.stepDot, background: c.done ? 'var(--green)' : 'var(--surface2)' }}>
-                <span className="ms" style={{ fontSize: 15, color: c.done ? '#fff' : 'var(--faint)' }}>
-                  {c.done ? 'check' : 'radio_button_unchecked'}
-                </span>
-              </span>
-              <span style={{ minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>{c.label}</span>
-                <span style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>{c.hint}</span>
-              </span>
+        {/* Riel de pasos: se puede saltar a cualquiera */}
+        <ol className="hs" style={S.rail}>
+          {STEPS.map((s, i) => {
+            const done = checklist[i].done;
+            const active = i === step;
+            return (
+              <li key={s.id} style={S.railItem}>
+                <button
+                  onClick={() => setStep(i)}
+                  style={{ ...S.railBtn, ...(active ? S.railActive : null) }}
+                  aria-current={active ? 'step' : undefined}
+                >
+                  <span
+                    style={{
+                      ...S.railDot,
+                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'var(--surface2)',
+                      color: done || active ? '#fff' : 'var(--muted)',
+                    }}
+                  >
+                    {done
+                      ? <span className="ms" style={{ fontSize: 15 }}>check</span>
+                      : <span style={{ fontSize: 12, fontWeight: 800 }}>{i + 1}</span>}
+                  </span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap' }}>{s.short}</span>
+                </button>
+                {i < STEPS.length - 1 && <span style={S.railLine} />}
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      {/* Paso actual */}
+      <section style={S.card}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <span style={{ ...S.stepIcon, background: checklist[step].done ? '#E6F6EE' : '#FFF1EC' }}>
+            <span className="ms" style={{ fontSize: 22, color: checklist[step].done ? '#0B8E54' : 'var(--primary)' }}>
+              {checklist[step].done ? 'check' : current.icon}
+            </span>
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em' }}>
+              PASO {step + 1} DE {STEPS.length}
             </div>
-          ))}
+            <h2 style={S.stepTitle}>{current.title}</h2>
+            <p style={S.stepSub}>{current.sub}</p>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          {current.id === 'datos' && (
+            <>
+              <Field label="Nombre comercial" value={form.name} onChange={(v) => set('name', v)} placeholder="Ej. Asadero El Puerto" />
+              <Chips label="Tipo de negocio" options={VERTICALS} value={form.vertical} onChange={(v) => set('vertical', v)} />
+              <Field label="NIT o cédula del propietario" value={form.nit} onChange={(v) => set('nit', v)} placeholder="901.234.567-8" />
+              <Field label="Celular de contacto" value={form.phone} onChange={(v) => set('phone', v)} placeholder="+57 320 000 0000" />
+              {(form.vertical === 'pharmacy' || form.vertical === 'liquor') && (
+                <Note>
+                  Farmacias y licoreras pagan 15% de comisión por pedido en vez de 10%.
+                  Con Biz Pro pasa a 0% en cualquier vertical.
+                </Note>
+              )}
+            </>
+          )}
+
+          {current.id === 'direccion' && (
+            <>
+              <Field label="Dirección" value={form.address} onChange={(v) => set('address', v)} placeholder="Cra. 3 # 4-58" />
+              <Field label="Barrio o comuna" value={form.neighborhood} onChange={(v) => set('neighborhood', v)} placeholder="Centro, Comuna 1" />
+              <Field label="Indicaciones para el repartidor" value={form.courier_notes} onChange={(v) => set('courier_notes', v)} placeholder="Local esquinero, al lado de la droguería" />
+              <Note>
+                Entre más claras las indicaciones, menos llamadas recibes del repartidor
+                y más rápido sale el pedido.
+              </Note>
+            </>
+          )}
+
+          {current.id === 'documentos' && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {DOC_ORDER.map((kind) => (
+                  <DocRow
+                    key={kind}
+                    kind={kind}
+                    doc={docs.find((d) => d.kind === kind)}
+                    businessId={business.id}
+                    onChange={setDocs}
+                    onError={setError}
+                  />
+                ))}
+              </div>
+              <Note>
+                Los archivos quedan en un espacio privado: no tienen dirección pública y
+                solo los vemos tú y el equipo de TuraFood.
+              </Note>
+            </>
+          )}
+
+          {current.id === 'banco' && (
+            <>
+              <Chips label="Banco" options={BANKS.map((b) => ({ value: b, label: b }))} value={form.bank_name} onChange={(v) => set('bank_name', v)} />
+              <Chips label="Tipo de cuenta" options={ACCOUNT_TYPES.map((a) => ({ value: a, label: a }))} value={form.bank_account_type} onChange={(v) => set('bank_account_type', v)} />
+              <Field label="Número de cuenta" value={form.bank_account_number} onChange={(v) => set('bank_account_number', v)} placeholder="000-000000-00" />
+              <Field label="Titular de la cuenta" value={form.bank_account_holder} onChange={(v) => set('bank_account_holder', v)} placeholder="Como aparece en el banco" />
+              <Note>
+                El titular debe coincidir con el NIT o la cédula que registraste. Si no
+                coincide, el banco rechaza la consignación.
+              </Note>
+            </>
+          )}
         </div>
 
         {error && (
@@ -165,15 +313,51 @@ export default function VerificacionPage() {
           </div>
         )}
 
-        {!approved && (
+        <div style={S.nav}>
+          {step > 0 && (
+            <button onClick={() => setStep(step - 1)} style={S.back}>
+              <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
+              Atrás
+            </button>
+          )}
+          <div style={{ flex: 1 }} />
+          <button
+            onClick={() => saveAndGo(isLast ? 'done' : step + 1)}
+            disabled={saving}
+            className="md3-btn"
+            style={S.next}
+          >
+            {saving ? 'Guardando…' : isLast ? 'Guardar' : 'Guardar y continuar'}
+            {!isLast && <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>}
+          </button>
+        </div>
+      </section>
+
+      {/* Cierre: qué falta y el botón de enviar */}
+      {!approved && (
+        <section style={{ ...S.card, marginTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <Vertical3D vertical={business?.vertical} size={56} />
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17 }}>
+                {complete ? 'Todo listo para revisar' : `Te faltan ${checklist.length - doneCount} de ${checklist.length}`}
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 4 }}>
+                {complete
+                  ? 'Envíalo y te respondemos en menos de 24 horas.'
+                  : checklist.filter((c) => !c.done).map((c) => c.label).join(' · ')}
+              </div>
+            </div>
+          </div>
+
           <button
             onClick={send}
             disabled={!complete || sending}
             className="md3-btn"
             style={{
-              ...S.submitBtn,
+              ...S.submit,
               ...(complete
-                ? { background: 'var(--primary)', color: '#fff' }
+                ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 10px 24px rgba(255,68,31,.28)' }
                 : { background: 'var(--surface2)', color: 'var(--faint)' }),
             }}
           >
@@ -181,99 +365,15 @@ export default function VerificacionPage() {
               ? 'Enviando…'
               : complete
                 ? (submitted ? 'Actualizar mi registro' : 'Enviar a revisión')
-                : `Faltan ${checklist.length - doneCount} de ${checklist.length} bloques`}
+                : 'Completa los pasos que faltan'}
           </button>
-        )}
-      </section>
-
-      {/* 1. Datos */}
-      <Block
-        icon="storefront" title="Datos del negocio"
-        sub="Así aparece tu tienda en la app de clientes."
-        done={checklist[0].done}
-        saving={saving === 'datos'}
-        onSave={() => save('datos', ['name', 'vertical', 'nit', 'phone'])}
-      >
-        <Field label="Nombre comercial" value={form.name} onChange={(v) => set('name', v)} placeholder="Ej. Asadero El Puerto" />
-        <Chips
-          label="Tipo de negocio" options={VERTICALS}
-          value={form.vertical} onChange={(v) => set('vertical', v)}
-        />
-        <Field label="NIT o cédula del propietario" value={form.nit} onChange={(v) => set('nit', v)} placeholder="901.234.567-8" />
-        <Field label="Celular de contacto" value={form.phone} onChange={(v) => set('phone', v)} placeholder="+57 320 000 0000" />
-        {form.vertical === 'pharmacy' || form.vertical === 'liquor' ? (
-          <Note>
-            Farmacias y licoreras pagan 15% de comisión por pedido en vez de 10%.
-            Con Biz Pro pasa a 0% en cualquier vertical.
-          </Note>
-        ) : null}
-      </Block>
-
-      {/* 2. Dirección */}
-      <Block
-        icon="location_on" title="Dirección"
-        sub="La usamos para calcular tiempos y zonas de entrega."
-        done={checklist[1].done}
-        saving={saving === 'direccion'}
-        onSave={() => save('direccion', ['address', 'neighborhood', 'courier_notes'])}
-      >
-        <Field label="Dirección" value={form.address} onChange={(v) => set('address', v)} placeholder="Cra. 3 # 4-58" />
-        <Field label="Barrio o comuna" value={form.neighborhood} onChange={(v) => set('neighborhood', v)} placeholder="Centro, Comuna 1" />
-        <Field
-          label="Indicaciones para el repartidor" value={form.courier_notes}
-          onChange={(v) => set('courier_notes', v)}
-          placeholder="Local esquinero, al lado de la droguería"
-        />
-      </Block>
-
-      {/* 3. Documentos */}
-      <Block
-        icon="folder_open" title="Documentos"
-        sub="Los revisamos en menos de 24 horas. Máximo 8 MB por archivo, en PDF o imagen."
-        done={checklist[2].done}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {DOC_ORDER.map((kind) => (
-            <DocRow
-              key={kind}
-              kind={kind}
-              doc={docs.find((d) => d.kind === kind)}
-              businessId={business.id}
-              onChange={setDocs}
-              onError={setError}
-            />
-          ))}
-        </div>
-        <Note>
-          Los archivos quedan en un espacio privado: no tienen dirección pública y
-          solo los vemos tú y el equipo de TuraFood.
-        </Note>
-      </Block>
-
-      {/* 4. Banco */}
-      <Block
-        icon="account_balance" title="Cuenta bancaria"
-        sub="Liquidamos todos los viernes con el corte del domingo anterior."
-        done={checklist[3].done}
-        saving={saving === 'banco'}
-        onSave={() => save('banco', ['bank_name', 'bank_account_type', 'bank_account_number', 'bank_account_holder'])}
-      >
-        <Chips
-          label="Banco" options={BANKS.map((b) => ({ value: b, label: b }))}
-          value={form.bank_name} onChange={(v) => set('bank_name', v)}
-        />
-        <Chips
-          label="Tipo de cuenta" options={ACCOUNT_TYPES.map((a) => ({ value: a, label: a }))}
-          value={form.bank_account_type} onChange={(v) => set('bank_account_type', v)}
-        />
-        <Field label="Número de cuenta" value={form.bank_account_number} onChange={(v) => set('bank_account_number', v)} placeholder="000-000000-00" />
-        <Field label="Titular de la cuenta" value={form.bank_account_holder} onChange={(v) => set('bank_account_holder', v)} placeholder="Como aparece en el banco" />
-      </Block>
-    </>
+        </section>
+      )}
+    </div>
   );
 }
 
-/** Una fila de documento: subir, ver estado, reemplazar o quitar */
+/** Fila de documento: subir, ver estado, reemplazar o quitar */
 function DocRow({ kind, doc, businessId, onChange, onError }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -327,9 +427,7 @@ function DocRow({ kind, doc, businessId, onChange, onError }) {
         <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13.5, fontWeight: 700 }}>{meta.label}</span>
           {!required && <span style={S.optional}>OPCIONAL</span>}
-          {state.label && (
-            <span style={{ ...S.docState, background: state.bg, color: state.fg }}>{state.label}</span>
-          )}
+          {state.label && <span style={{ ...S.docState, background: state.bg, color: state.fg }}>{state.label}</span>}
         </span>
         <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
           {doc?.file_name ?? meta.hint}
@@ -363,63 +461,24 @@ function DocRow({ kind, doc, businessId, onChange, onError }) {
   );
 }
 
-function Block({ icon, title, sub, done, children, onSave, saving }) {
-  return (
-    <section style={{ ...S.card, marginTop: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 13 }}>
-        <span style={{ ...S.blockIcon, background: done ? '#E6F6EE' : 'var(--surface2)' }}>
-          <span className="ms" style={{ fontSize: 20, color: done ? '#0B8E54' : 'var(--muted)' }}>
-            {done ? 'check' : icon}
-          </span>
-        </span>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 }}>
-            {title}
-          </span>
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 3 }}>
-            {sub}
-          </span>
-        </span>
-      </div>
-
-      <div style={{ marginTop: 16 }}>{children}</div>
-
-      {onSave && (
-        <button onClick={onSave} disabled={saving} className="md3-btn" style={S.saveBtn}>
-          {saving ? 'Guardando…' : 'Guardar'}
-        </button>
-      )}
-    </section>
-  );
-}
-
 function Field({ label, value, onChange, placeholder }) {
   return (
-    <label style={{ display: 'block', marginBottom: 12 }}>
+    <label style={{ display: 'block', marginBottom: 14 }}>
       <span style={S.label}>{label}</span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={S.input}
-      />
+      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={S.input} />
     </label>
   );
 }
 
 function Chips({ label, options, value, onChange }) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 14 }}>
       <span style={S.label}>{label}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {options.map((o) => {
           const on = value === o.value;
           return (
-            <button
-              key={o.value}
-              onClick={() => onChange(o.value)}
-              style={{ ...S.chip, ...(on ? S.chipOn : S.chipOff) }}
-            >
+            <button key={o.value} onClick={() => onChange(o.value)} style={{ ...S.chip, ...(on ? S.chipOn : S.chipOff) }}>
               {o.label}
             </button>
           );
@@ -439,43 +498,73 @@ function Note({ children }) {
 }
 
 const S = {
-  card: {
+  head: {
     background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)', marginBottom: 16,
   },
-  ring: { position: 'relative', width: 84, height: 84, flex: 'none' },
+  headTop: { display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
+  headTitle: {
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em',
+  },
+  headSub: {
+    fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55, marginTop: 6, maxWidth: 520,
+  },
+  ring: { position: 'relative', width: 78, height: 78, flex: 'none' },
   ringFill: { position: 'absolute', inset: 0, borderRadius: '50%' },
   ringHole: {
-    position: 'absolute', inset: 9, borderRadius: '50%', background: 'var(--surface)',
+    position: 'absolute', inset: 8, borderRadius: '50%', background: 'var(--surface)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  steps: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))',
-    gap: 12, marginTop: 20, paddingTop: 18, borderTop: '1px solid var(--border)',
+  rail: {
+    display: 'flex', alignItems: 'center', gap: 4, listStyle: 'none',
+    margin: '20px 0 0', padding: '4px 0 2px',
   },
-  step: { display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 },
-  stepDot: {
-    width: 26, height: 26, borderRadius: '50%', flex: 'none',
+  railItem: { display: 'flex', alignItems: 'center', gap: 4, flex: 'none' },
+  railBtn: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 12px',
+    borderRadius: 999, background: 'transparent',
+  },
+  railActive: { background: 'var(--bg)' },
+  railDot: {
+    width: 24, height: 24, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  submitBtn: {
-    width: '100%', height: 50, borderRadius: 15, fontWeight: 700, fontSize: 14.5, marginTop: 18,
+  railLine: { width: 18, height: 2, background: 'var(--border)', borderRadius: 2, flex: 'none' },
+  card: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)',
   },
-  blockIcon: {
-    width: 40, height: 40, borderRadius: 12, flex: 'none',
+  stepIcon: {
+    width: 46, height: 46, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
+  stepTitle: {
+    margin: '5px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 21, letterSpacing: '-.02em',
+  },
+  stepSub: { margin: '6px 0 0', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 },
   label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 7 },
   input: {
-    width: '100%', height: 46, borderRadius: 13, border: '1px solid var(--border)',
+    width: '100%', height: 48, borderRadius: 13, border: '1px solid var(--border)',
     background: 'var(--bg)', padding: '0 14px', fontSize: 16, outline: 'none',
   },
-  chip: { height: 38, padding: '0 14px', borderRadius: 11, fontSize: 13, fontWeight: 700 },
+  chip: { height: 40, padding: '0 15px', borderRadius: 12, fontSize: 13, fontWeight: 700 },
   chipOn: { background: 'var(--text)', color: '#fff' },
   chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
-  saveBtn: {
-    height: 44, padding: '0 22px', borderRadius: 13, background: 'var(--text)',
-    color: '#fff', fontWeight: 700, fontSize: 13.5, marginTop: 6,
+  nav: {
+    display: 'flex', alignItems: 'center', gap: 11, marginTop: 24,
+    paddingTop: 18, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+  },
+  back: {
+    display: 'flex', alignItems: 'center', gap: 7, height: 48, padding: '0 18px',
+    borderRadius: 14, border: '1px solid var(--border)', fontSize: 14, fontWeight: 700,
+  },
+  next: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 22px',
+    borderRadius: 14, background: 'var(--text)', color: '#fff', fontSize: 14.5, fontWeight: 700,
+  },
+  submit: {
+    width: '100%', height: 50, borderRadius: 15, fontWeight: 700, fontSize: 14.5, marginTop: 18,
   },
   docRow: {
     display: 'flex', alignItems: 'center', gap: 12, padding: 13,
@@ -491,8 +580,8 @@ const S = {
     background: 'var(--surface2)', color: 'var(--muted)',
   },
   docBtn: {
-    height: 36, padding: '0 14px', borderRadius: 10, border: '1px solid var(--border)',
-    fontSize: 12.5, fontWeight: 700,
+    height: 36, padding: '0 14px', borderRadius: 10,
+    border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 700,
   },
   docIconBtn: {
     width: 36, height: 36, borderRadius: 10, border: '1px solid var(--border)',
@@ -503,7 +592,7 @@ const S = {
     padding: 12, borderRadius: 12, background: 'var(--bg)',
   },
   error: {
-    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16, padding: '12px 14px',
+    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18, padding: '12px 14px',
     borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },

@@ -257,6 +257,131 @@ button:disabled {
 }
 
 /* ------------------------------------------------------------
+   TABLERO DE COMANDAS
+   En escritorio las columnas van una al lado de otra y cada una
+   se desplaza sola. En celular se recorren de lado con enganche,
+   como la barra de una cocina: una columna a la vez, completa.
+   ------------------------------------------------------------ */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.kanban-col {
+  background: var(--surface2);
+  border-radius: 18px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.comanda {
+  animation: pop .2s ease both;
+}
+
+@media (max-width: 899px) {
+  .kanban {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Se sale del padding del contenedor para que la primera y la
+       última columna no queden pegadas al borde */
+    margin: 0 -16px;
+    padding: 0 16px 4px;
+  }
+
+  .kanban::-webkit-scrollbar { display: none; }
+
+  .kanban-col {
+    flex: 0 0 86%;
+    max-width: 340px;
+    scroll-snap-align: start;
+  }
+}
+
+/* En pantallas muy angostas la etiqueta del sonido estorba */
+@media (max-width: 520px) {
+  .sound-label { display: none; }
+}
+
+/* ------------------------------------------------------------
+   CATÁLOGO
+   Escritorio: columna de categorías + tabla.
+   Celular: las categorías pasan a una tira horizontal y la tabla
+   se convierte en tarjetas, porque una tabla de 5 columnas en
+   375 px obliga a un scroll lateral incómodo.
+   ------------------------------------------------------------ */
+.catalog {
+  display: grid;
+  grid-template-columns: 226px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.catalog-cats-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* El grid vive aquí y no en línea: los estilos en línea ganan siempre
+   y la vista de celular no podía reacomodar las columnas. */
+.catalog-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) 116px 130px 108px 92px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 899px) {
+  .catalog { grid-template-columns: 1fr; }
+
+  .catalog-cats {
+    padding: 12px 14px;
+    overflow: hidden;
+  }
+
+  .catalog-cats-list {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin: 0 -14px;
+    padding: 0 14px;
+  }
+
+  .catalog-cats-list::-webkit-scrollbar { display: none; }
+  .catalog-cats-list > button { width: auto; margin-bottom: 0; }
+
+  .catalog-count { display: none; }
+
+  /* La tabla se vuelve lista de tarjetas */
+  .catalog-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "product actions"
+      "price   toggle"
+      "perf    perf";
+    gap: 10px 12px;
+    padding: 14px 16px;
+  }
+
+  .catalog-head { display: none; }
+
+  .catalog-row > *:nth-child(1) { grid-area: product; }
+  .catalog-row > *:nth-child(2) { grid-area: price; }
+  .catalog-row > *:nth-child(3) { grid-area: perf; }
+  .catalog-row > *:nth-child(4) { grid-area: toggle; justify-self: end; }
+  .catalog-row > *:nth-child(5) { grid-area: actions; }
+}
+
+/* ------------------------------------------------------------
    App del repartidor: columna de celular, centrada en escritorio
    ------------------------------------------------------------ */
 .rider-frame {
