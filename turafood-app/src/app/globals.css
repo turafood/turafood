@@ -661,3 +661,16 @@ button:disabled {
   .inbox > aside { max-height: 320px; }
   .inbox > section { min-height: 460px; }
 }
+
+/* ------------------------------------------------------------
+   Filas del historial: son botones que abren el ticket
+   ------------------------------------------------------------ */
+.hist-row { transition: background .15s ease; }
+.hist-row:hover { background: var(--bg); }
+.hist-row .hist-arrow { opacity: 0; transition: opacity .15s ease; }
+.hist-row:hover .hist-arrow { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hist-row,
+  .hist-row .hist-arrow { transition: none; }
+}
