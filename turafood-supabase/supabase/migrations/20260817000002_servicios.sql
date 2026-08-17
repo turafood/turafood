@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.service_requests (
                      'gmb',          -- ficha de Google (Google Business Profile)
                      'google_ads',   -- campañas de búsqueda o video
                      'voice_agent',  -- agente de voz que contesta la línea
+                     'booking',      -- reservas con recordatorio automático
                      'website',      -- sitio web
                      'custom_app',   -- app a la medida
                      'other'

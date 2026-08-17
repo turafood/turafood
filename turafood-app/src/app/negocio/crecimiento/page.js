@@ -13,7 +13,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { SERVICES, EXTRA_SERVICES } from '@/lib/serviciosConfig';
+import { SERVICES, EXTRA_SERVICES, BUNDLE, SLUG } from '@/lib/serviciosConfig';
+import { cop } from '@/lib/format';
 import { getServiceRequests, SERVICE_STATUS } from '@/lib/servicios';
 import { useBiz } from '../BizContext';
 
@@ -40,12 +41,12 @@ export default function CrecimientoPage() {
       <section style={S.hero}>
         <div style={S.heroGlow} />
         <div style={{ position: 'relative', maxWidth: 560 }}>
-          <span style={S.kicker}>SERVICIOS TURAFOOD</span>
+          <span style={S.kicker}>GROWTH PARTNER · TURAFOOD</span>
           <h1 style={S.heroTitle}>Que te encuentren, no solo que te pidan.</h1>
           <p style={S.heroText}>
-            Vender en TuraFood es un canal. Estos servicios trabajan los otros: que
-            aparezcas en Google, que llegues a quien todavía no te conoce y que ninguna
-            llamada se quede sin contestar.
+            La app es gratis y lo seguirá siendo. Esto es lo otro: que aparezcas de
+            primero en Google, que ninguna llamada se pierda y que las reservas se
+            confirmen solas. Lo tomas suelto o todo junto.
           </p>
         </div>
       </section>
@@ -81,6 +82,45 @@ export default function CrecimientoPage() {
           );
         })}
       </div>
+
+      {/* El pack */}
+      <section style={S.bundle}>
+        <div style={S.bundleGlow} />
+        <div style={{ position: 'relative', display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <span style={S.bundleTag}>TODO JUNTO</span>
+            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 23, letterSpacing: '-.02em', marginTop: 12 }}>
+              {BUNDLE.name}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
+              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, letterSpacing: '-.03em' }}>
+                {cop(BUNDLE.price)}
+              </span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,.6)', fontWeight: 700 }}>{BUNDLE.period}</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: '#7BE0AE', fontWeight: 700, marginTop: 6 }}>
+              {BUNDLE.saving}
+            </div>
+          </div>
+
+          <ul style={S.bundleList}>
+            {BUNDLE.includes.map((i) => (
+              <li key={i} style={S.bundleItem}>
+                <span className="ms" style={{ fontSize: 17, color: '#7BE0AE', flex: 'none' }}>check_circle</span>
+                {i}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={S.bundleFoot}>
+          <span className="ms" style={{ fontSize: 18, color: 'rgba(255,255,255,.6)', flex: 'none' }}>info</span>
+          <span style={{ fontSize: 12, lineHeight: 1.55, color: 'rgba(255,255,255,.65)' }}>
+            Configura cada servicio arriba y al final elige el plan. Si terminas
+            tomando varios, te armamos un solo precio con este descuento.
+          </span>
+        </div>
+      </section>
 
       {/* Lo que hacemos además */}
       <section style={{ ...S.panel, marginTop: 20 }}>
@@ -136,13 +176,32 @@ export default function CrecimientoPage() {
   );
 }
 
-export const SLUG = {
-  gmb: 'google-negocio',
-  google_ads: 'google-ads',
-  voice_agent: 'agente-voz',
-};
-
 const S = {
+  bundle: {
+    position: 'relative', overflow: 'hidden', borderRadius: 22, padding: 24,
+    background: 'linear-gradient(140deg,#241F1A 0%,#12100D 70%)', color: '#fff',
+    marginTop: 18, boxShadow: '0 14px 36px rgba(20,16,10,.2)',
+  },
+  bundleGlow: {
+    position: 'absolute', left: -50, bottom: -80, width: 240, height: 240, borderRadius: '50%',
+    background: 'radial-gradient(circle,rgba(17,178,106,.28),rgba(17,178,106,0) 70%)',
+  },
+  bundleTag: {
+    fontSize: 9.5, fontWeight: 800, letterSpacing: '.08em', padding: '5px 10px',
+    borderRadius: 6, background: 'rgba(255,255,255,.12)', color: 'rgba(255,255,255,.8)',
+  },
+  bundleList: {
+    listStyle: 'none', margin: 0, padding: 0, flex: 1, minWidth: 240,
+    display: 'flex', flexDirection: 'column', gap: 10,
+  },
+  bundleItem: {
+    display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13,
+    lineHeight: 1.45, color: 'rgba(255,255,255,.88)',
+  },
+  bundleFoot: {
+    position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 10,
+    marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,.12)',
+  },
   hero: {
     position: 'relative', overflow: 'hidden', borderRadius: 24, padding: 28,
     background: 'linear-gradient(145deg,#241F1A 0%,#12100D 66%)', color: '#fff',

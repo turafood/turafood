@@ -19,6 +19,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { getServiceRequest, saveServiceDraft, submitServiceRequest, SERVICE_STATUS } from '@/lib/servicios';
+import { cop } from '@/lib/format';
 import { useBiz } from '../BizContext';
 import VoicePicker from './VoicePicker';
 
@@ -68,9 +69,21 @@ export default function ServiceWizard({ config }) {
     }
   };
 
+  const planStep = config.steps.length;   // el último: elegir plan
+
+  /**
+   * El plan es un paso más del riel, y va de último a propósito:
+   * primero la persona arma lo suyo y ve qué recibe; recién ahí se
+   * habla de plata. Es como funciona Google Ads.
+   */
+  const railSteps = [
+    ...config.steps,
+    { id: 'plan', short: 'Plan' },
+  ];
+
   const go = async (to) => {
     setError(null);
-    if (to > step && step >= 0) {
+    if (to > step && step >= 0 && step < planStep) {
       const missing = missingIn(config.steps[step]);
       if (missing.length) {
         setError(`Falta: ${missing.join(', ')}.`);
@@ -88,6 +101,10 @@ export default function ServiceWizard({ config }) {
     const missing = config.steps.flatMap(missingIn);
     if (missing.length) {
       setError(`Falta completar: ${missing.join(', ')}.`);
+      return;
+    }
+    if (config.plans?.length && !form.plan) {
+      setError('Elige con qué plan quieres activarlo.');
       return;
     }
     setSaving(true);
@@ -204,8 +221,10 @@ export default function ServiceWizard({ config }) {
         <>
           <section style={{ ...S.card, marginBottom: 16 }}>
             <ol className="hs" style={S.rail}>
-              {config.steps.map((s, i) => {
-                const done = missingIn(s).length === 0;
+              {railSteps.map((s, i) => {
+                const done = i === planStep
+                  ? Boolean(form.plan)
+                  : missingIn(config.steps[i]).length === 0;
                 const active = i === step;
                 return (
                   <li key={s.id} style={S.railItem}>
@@ -227,7 +246,7 @@ export default function ServiceWizard({ config }) {
                       </span>
                       <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap' }}>{s.short}</span>
                     </button>
-                    {i < config.steps.length - 1 && <span style={S.railLine} />}
+                    {i < railSteps.length - 1 && <span style={S.railLine} />}
                   </li>
                 );
               })}
@@ -236,21 +255,37 @@ export default function ServiceWizard({ config }) {
 
           <section style={S.card} className="anim-up" key={step}>
             <div style={{ fontSize: 11.5, fontWeight: 800, color: config.accent, letterSpacing: '.06em' }}>
-              PASO {step + 1} DE {config.steps.length}
+              PASO {step + 1} DE {railSteps.length}
             </div>
-            <h2 style={{ ...S.title, fontSize: 22, marginTop: 5 }}>{config.steps[step].title}</h2>
-            <p style={{ ...S.sub, marginTop: 6 }}>{config.steps[step].sub}</p>
+            <h2 style={{ ...S.title, fontSize: 22, marginTop: 5 }}>
+              {step === planStep ? 'Con qué plan lo activamos' : config.steps[step].title}
+            </h2>
+            <p style={{ ...S.sub, marginTop: 6 }}>
+              {step === planStep
+                ? 'Ya está configurado. Elige el plan con el que quieres arrancar; puedes cambiarlo después sin perder nada de lo que llenaste.'
+                : config.steps[step].sub}
+            </p>
 
             <div style={{ marginTop: 22 }}>
-              {config.steps[step].fields.map((f) => (
-                <FieldRenderer
-                  key={f.key}
-                  field={f}
-                  value={form[f.key]}
-                  onChange={(v) => set(f.key, v)}
+              {step === planStep ? (
+                <PlanPicker
+                  plans={config.plans}
+                  note={config.planNote}
+                  value={form.plan}
+                  onChange={(v) => set('plan', v)}
                   accent={config.accent}
                 />
-              ))}
+              ) : (
+                config.steps[step].fields.map((f) => (
+                  <FieldRenderer
+                    key={f.key}
+                    field={f}
+                    value={form[f.key]}
+                    onChange={(v) => set(f.key, v)}
+                    accent={config.accent}
+                  />
+                ))
+              )}
             </div>
 
             {error && (
@@ -266,7 +301,7 @@ export default function ServiceWizard({ config }) {
                 {step === 0 ? 'Volver' : 'Atrás'}
               </button>
               <div style={{ flex: 1 }} />
-              {step < config.steps.length - 1 ? (
+              {step < planStep ? (
                 <button onClick={() => go(step + 1)} disabled={saving} className="md3-btn" style={{ ...S.primary, background: config.accent, marginTop: 0 }}>
                   {saving ? 'Guardando…' : 'Guardar y continuar'}
                   <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
@@ -281,6 +316,96 @@ export default function ServiceWizard({ config }) {
           </section>
         </>
       )}
+    </div>
+  );
+}
+
+
+/**
+ * Selector de plan.
+ *
+ * El precio se muestra completo y sin letra chica. Cuando el servicio
+ * tiene un costo aparte que no cobra TuraFood —la inversión en Google,
+ * por ejemplo— se dice arriba, no escondido al final.
+ */
+function PlanPicker({ plans = [], note, value, onChange, accent }) {
+  return (
+    <div>
+      {note && (
+        <div style={S.planNote}>
+          <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', flex: 'none' }}>info</span>
+          <span style={{ fontSize: 12.5, lineHeight: 1.55, color: 'var(--muted)' }}>{note}</span>
+        </div>
+      )}
+
+      <div style={S.planGrid}>
+        {plans.map((p) => {
+          const on = value === p.id;
+          return (
+            <button
+              key={p.id}
+              onClick={() => onChange(p.id)}
+              style={{
+                ...S.plan,
+                borderColor: on ? accent : 'var(--border)',
+                boxShadow: on ? `0 0 0 2px ${accent}22` : 'none',
+              }}
+            >
+              {p.recommended && (
+                <span style={{ ...S.planTag, background: accent }}>MÁS ELEGIDO</span>
+              )}
+
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17 }}>
+                  {p.name}
+                </span>
+                <span
+                  style={{
+                    ...S.radio,
+                    borderColor: on ? accent : 'var(--faint)',
+                    background: on ? accent : 'transparent',
+                  }}
+                >
+                  {on && <span className="ms" style={{ fontSize: 14, color: '#fff' }}>check</span>}
+                </span>
+              </span>
+
+              <span style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 10 }}>
+                <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em' }}>
+                  {cop(p.price)}
+                </span>
+                <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 700 }}>{p.period}</span>
+              </span>
+
+              <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8, textAlign: 'left' }}>
+                {p.summary}
+              </span>
+
+              <span style={S.planList}>
+                {p.includes.map((i) => (
+                  <span key={i} style={S.planItem}>
+                    <span className="ms" style={{ fontSize: 16, color: accent, flex: 'none' }}>check</span>
+                    {i}
+                  </span>
+                ))}
+              </span>
+
+              {p.suggested && (
+                <span style={S.planSuggested}>{p.suggested}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={S.planFoot}>
+        <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', flex: 'none' }}>handshake</span>
+        <span style={{ fontSize: 12, lineHeight: 1.55, color: 'var(--muted)' }}>
+          Sin permanencia y sin cobro por adelantado: primero lo montamos, lo
+          apruebas, y ahí empieza a correr el plan. Si contratas varios servicios te
+          armamos un solo precio.
+        </span>
+      </div>
     </div>
   );
 }
@@ -444,6 +569,41 @@ const S = {
   nav: {
     display: 'flex', alignItems: 'center', gap: 11, marginTop: 24,
     paddingTop: 18, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+  },
+  planNote: {
+    display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 16,
+    padding: 13, borderRadius: 14, background: 'var(--bg)', border: '1px solid var(--border)',
+  },
+  planGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12,
+  },
+  plan: {
+    position: 'relative', display: 'block', textAlign: 'left', padding: 18,
+    borderRadius: 18, border: '1.5px solid', background: 'var(--surface)',
+    transition: 'border-color .15s ease, box-shadow .15s ease',
+  },
+  planTag: {
+    position: 'absolute', top: -9, left: 16, fontSize: 9, fontWeight: 800,
+    letterSpacing: '.06em', padding: '4px 8px', borderRadius: 6, color: '#fff',
+  },
+  radio: {
+    width: 24, height: 24, borderRadius: '50%', border: '2px solid', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  planList: {
+    display: 'flex', flexDirection: 'column', gap: 7, marginTop: 14,
+    paddingTop: 13, borderTop: '1px solid var(--border)',
+  },
+  planItem: {
+    display: 'flex', alignItems: 'flex-start', gap: 7, fontSize: 12.5, lineHeight: 1.45,
+  },
+  planSuggested: {
+    display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 12,
+    paddingTop: 10, borderTop: '1px dashed var(--border)', lineHeight: 1.45,
+  },
+  planFoot: {
+    display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16,
+    padding: 13, borderRadius: 14, background: 'var(--bg)',
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18, padding: '12px 14px',

@@ -313,19 +313,16 @@ button:disabled {
    En escritorio se puede dejar solo en iconos para ganar ancho.
    Las etiquetas se ocultan; el `title` de cada botón dice qué es.
    ------------------------------------------------------------ */
+/**
+ * El ancho cambia sin animación a propósito.
+ *
+ * Animar `width` en un contenedor con capa de pintado propia dejaba un
+ * rastro del menú anterior al lado del nuevo: parecían dos menús. El
+ * recogido es instantáneo, que además se siente más directo.
+ */
 .biz-side {
   width: 250px;
-  /* Clipping propio: durante la animación de ancho el contenido se
-     recorta en vez de desbordarse, que es lo que dejaba un rastro del
-     menú repetido al lado mientras se redimensionaba la ventana. */
   overflow: hidden;
-  contain: paint;
-}
-
-/* La animación solo en escritorio: abajo de 900 px el menú es un cajón
-   que se desliza, y animar además el ancho encima produce el arrastre. */
-@media (min-width: 900px) {
-  .biz-side { transition: width .22s cubic-bezier(.32, .72, 0, 1); }
 }
 
 @media (min-width: 900px) {
