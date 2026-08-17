@@ -17,6 +17,7 @@ export const BizContext = createContext({
   pendingReviews: 0,
   setPendingReviews: () => {},
   reloadOrders: () => {},
+  refreshBusiness: () => {},
   toast: () => {},
 });
 

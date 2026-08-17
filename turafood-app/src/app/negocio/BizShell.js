@@ -33,6 +33,7 @@ const PAGES = {
   '/negocio/liquidaciones': ['Pagos y liquidaciones', 'Consignaciones semanales, todos los viernes'],
   '/negocio/resenas': ['Reseñas de clientes', 'Lo que opinan de tu comida y tu servicio'],
   '/negocio/equipo': ['Equipo y cuenta', 'Roles, verificación y plan'],
+  '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
 };
 
 /** Grupos del menú lateral — navGroups del mockup, línea 1464 */
@@ -72,7 +73,10 @@ const NAV_GROUPS = [
   },
   {
     label: 'CUENTA',
-    items: [{ label: 'Equipo y ajustes', icon: 'settings', href: '/negocio/equipo' }],
+    items: [
+      { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
+      { label: 'Equipo y ajustes', icon: 'settings', href: '/negocio/equipo' },
+    ],
   },
 ];
 
@@ -144,6 +148,16 @@ export default function BizShell({ children }) {
     }
   }, [business]);
 
+  /** Vuelve a leer la ficha: lo usa la verificación al guardar un bloque */
+  const refreshBusiness = useCallback(async () => {
+    try {
+      const fresh = await getMyBusiness();
+      if (fresh) setBusiness(fresh);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, []);
+
   // Pedidos en vivo: entran solos, sin recargar
   useEffect(() => {
     if (!business) return undefined;
@@ -158,7 +172,18 @@ export default function BizShell({ children }) {
     [orders],
   );
 
-  const badgeValue = (kind) => (kind === 'new' ? newCount : kind === 'reviews' ? pendingReviews : 0);
+  /**
+   * Al negocio nuevo le falta mandar su registro a revisión. Se marca
+   * con un punto en el menú hasta que lo haga.
+   */
+  const onboardingPending = Boolean(business) && !business.submitted_at && business.status !== 'active';
+
+  const badgeValue = (kind) => {
+    if (kind === 'new') return newCount;
+    if (kind === 'reviews') return pendingReviews;
+    if (kind === 'onboarding') return onboardingPending ? 1 : 0;
+    return 0;
+  };
 
   const toggleOpen = async () => {
     if (!business) return;
@@ -186,7 +211,7 @@ export default function BizShell({ children }) {
 
   const ctx = {
     business, loading, error, orders, newCount, pendingReviews,
-    setPendingReviews, reloadOrders, toast,
+    setPendingReviews, reloadOrders, refreshBusiness, toast,
   };
 
   return (

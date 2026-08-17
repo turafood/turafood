@@ -78,9 +78,11 @@ export async function updateSession(request) {
   const role = profile?.role;
   const home = HOME_BY_ROLE[role];
 
-  // Cliente o admin entrando aquí: este dominio no es el suyo.
+  // Sesión válida pero sin rol de este dominio. Puede ser alguien que
+  // acaba de entrar con Google para registrar su negocio y todavía no
+  // tiene la ficha creada, así que le dejamos terminar el alta.
   if (!home) {
-    if (pathname === '/sin-acceso') return response;
+    if (pathname === '/registro/completar' || pathname === '/sin-acceso') return response;
     return redirect('/sin-acceso');
   }
 

@@ -433,6 +433,171 @@ export async function getPayouts(businessId) {
 }
 
 // ============================================================
+// VERIFICACIÓN DEL NEGOCIO
+//
+// Los requisitos que antes se pedían en el asistente de alta ahora se
+// completan aquí adentro, y se pueden dejar a medias.
+// ============================================================
+
+/** Documentos obligatorios para que TuraFood apruebe el negocio */
+export const REQUIRED_DOCS = ['rut', 'chamber', 'id_card'];
+
+export const DOC_LABELS = {
+  rut: { label: 'RUT', hint: 'Actualizado, del año en curso' },
+  chamber: { label: 'Cámara de comercio', hint: 'Certificado de máximo 90 días' },
+  id_card: { label: 'Cédula del representante', hint: 'Por ambas caras' },
+  health: { label: 'Concepto sanitario', hint: 'Solo si manejas alimentos preparados' },
+};
+
+/** Guarda los campos del negocio que edita la propia tienda */
+export async function updateBusiness(businessId, patch) {
+  if (!isLive()) {
+    await delay(200);
+    Object.assign(LOCAL_BUSINESS, patch);
+    return LOCAL_BUSINESS;
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('business_profiles')
+    .update(patch)
+    .eq('id', businessId)
+    .select()
+    .single();
+
+  if (error) throw new Error(`No se pudo guardar: ${error.message}`);
+  return data;
+}
+
+export async function getDocuments(businessId) {
+  if (!isLive()) {
+    await delay();
+    return LOCAL_DOCS;
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('business_documents')
+    .select('*')
+    .eq('business_id', businessId);
+
+  if (error) return [];
+  return data ?? [];
+}
+
+/**
+ * Sube un documento al bucket privado y lo registra.
+ *
+ * La ruta empieza por el id del negocio porque las políticas de Storage
+ * exigen que la primera carpeta sea quien sube: así nadie puede escribir
+ * en la carpeta de otro ni leerla.
+ */
+export async function uploadDocument(businessId, kind, file) {
+  if (file.size > 8 * 1024 * 1024) {
+    throw new Error('El archivo pesa más de 8 MB. Comprímelo e inténtalo de nuevo.');
+  }
+
+  if (!isLive()) {
+    await delay(400);
+    const row = { id: `d-${kind}`, business_id: businessId, kind, file_name: file.name, status: 'uploaded' };
+    const i = LOCAL_DOCS.findIndex((d) => d.kind === kind);
+    if (i >= 0) LOCAL_DOCS[i] = row; else LOCAL_DOCS.push(row);
+    return row;
+  }
+
+  const supabase = createClient();
+  const ext = (file.name.split('.').pop() ?? 'pdf').toLowerCase();
+  const path = `${businessId}/${kind}.${ext}`;
+
+  const { error: upErr } = await supabase.storage
+    .from('business-docs')
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if (upErr) throw new Error(`No se pudo subir el archivo: ${upErr.message}`);
+
+  const { data, error } = await supabase
+    .from('business_documents')
+    .upsert(
+      { business_id: businessId, kind, file_path: path, file_name: file.name, status: 'uploaded' },
+      { onConflict: 'business_id,kind' },
+    )
+    .select()
+    .single();
+
+  if (error) throw new Error(`Se subió el archivo pero no se registró: ${error.message}`);
+  return data;
+}
+
+export async function deleteDocument(businessId, kind, filePath) {
+  if (!isLive()) {
+    await delay(200);
+    const i = LOCAL_DOCS.findIndex((d) => d.kind === kind);
+    if (i >= 0) LOCAL_DOCS.splice(i, 1);
+    return true;
+  }
+
+  const supabase = createClient();
+  if (filePath) await supabase.storage.from('business-docs').remove([filePath]);
+  await supabase.from('business_documents').delete()
+    .eq('business_id', businessId).eq('kind', kind);
+  return true;
+}
+
+/**
+ * Manda el registro a revisión. Quien decide si está completo es la
+ * base: si falta algo devuelve el mensaje con lo que falta.
+ */
+export async function submitForReview() {
+  if (!isLive()) {
+    await delay(400);
+    LOCAL_BUSINESS.submitted_at = new Date().toISOString();
+    return LOCAL_BUSINESS;
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc('submit_business_for_review');
+  if (error) throw new Error(error.message);
+  return Array.isArray(data) ? data[0] : data;
+}
+
+/**
+ * Qué le falta al negocio, calculado igual que en la base.
+ * Sirve para pintar la lista; la validación de verdad es del servidor.
+ */
+export function checklistOf(business, documents = []) {
+  const has = (v) => Boolean(String(v ?? '').trim());
+  const kinds = documents.map((d) => d.kind);
+
+  return [
+    {
+      id: 'datos',
+      label: 'Datos del negocio',
+      hint: 'Nombre, tipo, NIT y celular',
+      done: has(business?.name) && has(business?.nit) && has(business?.phone),
+    },
+    {
+      id: 'direccion',
+      label: 'Dirección',
+      hint: 'Dónde queda tu punto de venta',
+      done: has(business?.address),
+    },
+    {
+      id: 'documentos',
+      label: 'Documentos',
+      hint: 'RUT, cámara de comercio y cédula',
+      done: REQUIRED_DOCS.every((k) => kinds.includes(k)),
+    },
+    {
+      id: 'banco',
+      label: 'Cuenta bancaria',
+      hint: 'Dónde te consignamos los viernes',
+      done: has(business?.bank_name)
+        && has(business?.bank_account_number)
+        && has(business?.bank_account_holder),
+    },
+  ];
+}
+
+// ============================================================
 // PROMOCIONES
 // ============================================================
 
@@ -667,6 +832,12 @@ const LOCAL_SALES = [412000, 598000, 505000, 726000, 934000, 1180000, 827300].fl
     created_at: d.toISOString(),
   }));
 });
+
+/** Documentos ya cargados, en modo local */
+const LOCAL_DOCS = [
+  { id: 'd1', kind: 'chamber', file_name: 'camara-comercio.pdf', status: 'approved' },
+  { id: 'd2', kind: 'id_card', file_name: 'cedula.pdf', status: 'approved' },
+];
 
 /** Promociones del mockup (promoCards, línea 1589) en el formato de `coupons` */
 const LOCAL_COUPONS = [

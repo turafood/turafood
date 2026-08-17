@@ -16,6 +16,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
+import HeroBackdrop from '../components/HeroBackdrop';
 export default function AuthPageWrapper() {
   return (
     <Suspense fallback={null}>
@@ -103,7 +104,16 @@ function AuthPage() {
   return (
     <>
       <div style={S.screen}>
-        <div style={S.photo} />
+        <div style={S.photo}>
+          <HeroBackdrop
+            images={[
+              '/images/onboarding-burger.jpg',
+              '/images/steak-fork.jpg',
+              '/images/food-fork.jpg',
+            ]}
+            brightness={0.62}
+          />
+        </div>
         <div style={S.shade} />
 
         {/* Marca */}
@@ -264,8 +274,7 @@ const S = {
   },
   photo: {
     position: 'absolute', left: 0, right: 0, top: 0, height: '52%',
-    backgroundImage: "url('/images/onboarding-burger.jpg')",
-    backgroundSize: 'cover', backgroundPosition: 'center 35%',
+    overflow: 'hidden',
   },
   shade: {
     position: 'absolute', inset: 0,
@@ -319,7 +328,7 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   primaryBtn: {
-    width: '100%', height: 56, borderRadius: 999, background: 'var(--primary)',
+    width: '100%', height: 50, borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 15.5, marginTop: 6,
     boxShadow: '0 10px 26px rgba(255,68,31,.4)',
   },

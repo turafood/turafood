@@ -131,8 +131,29 @@ export default function ResumenPage() {
     },
   ];
 
+  const needsOnboarding = business && !business.submitted_at && business.status !== 'active';
+
   return (
     <>
+      {/* Lo primero que ve un negocio nuevo: qué le falta para que lo aprueben */}
+      {needsOnboarding && (
+        <button onClick={() => router.push('/negocio/verificacion')} style={S.onboarding}>
+          <span style={S.onboardingIcon}>
+            <span className="ms" style={{ fontSize: 22, color: '#fff' }}>verified_user</span>
+          </span>
+          <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+            <span style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5 }}>
+              Completa tu registro para que te aprobemos
+            </span>
+            <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 3 }}>
+              Ya puedes vender, pero con un límite de 20 pedidos diarios. Sube tus
+              documentos y la cuenta bancaria para levantarlo.
+            </span>
+          </span>
+          <span className="ms" style={{ fontSize: 22, color: 'var(--primary)', flex: 'none' }}>chevron_right</span>
+        </button>
+      )}
+
       {/* Hero + KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 }}>
         <div style={S.hero}>
@@ -389,6 +410,15 @@ function Empty({ icon, text }) {
 }
 
 const S = {
+  onboarding: {
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%', marginBottom: 16,
+    padding: 16, borderRadius: 18, background: 'var(--surface)',
+    border: '1.5px solid var(--primary)', boxShadow: '0 10px 30px rgba(255,68,31,.13)',
+  },
+  onboardingIcon: {
+    width: 44, height: 44, borderRadius: 14, flex: 'none', background: 'var(--primary)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
   card: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',

@@ -18,8 +18,15 @@ import { useCartStore } from '@/store/useCartStore';
 import { useHydrated } from '@/lib/useHydrated';
 import { cop } from '@/lib/format';
 
-/** Rutas que ya tienen su propia barra inferior de acción */
-const HIDDEN_ON = ['/cart', '/checkout', '/product', '/tracking', '/rate'];
+/**
+ * Rutas donde no se pinta:
+ *   · las que ya tienen su propia barra inferior de acción;
+ *   · el onboarding y el login, donde quedaba flotando encima del
+ *     formulario sin nada que ver con lo que la persona está haciendo
+ *     (pasa al entrar por "Explorar sin registrarme" y volver a la
+ *     pantalla de acceso con el carrito ya lleno).
+ */
+const HIDDEN_ON = ['/cart', '/checkout', '/product', '/tracking', '/rate', '/auth'];
 
 export default function FloatingCart() {
   const router = useRouter();
@@ -33,6 +40,7 @@ export default function FloatingCart() {
   // El carrito vive en localStorage: hasta que el navegador no monte,
   // no lo pintamos. Si no, el HTML del servidor no coincide.
   if (!hydrated || count === 0) return null;
+  if (pathname === '/') return null;                                  // onboarding
   if (HIDDEN_ON.some((p) => pathname.startsWith(p))) return null;
 
   return (

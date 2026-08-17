@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import HeroBackdrop from './components/HeroBackdrop';
+import { GoogleMark, FacebookMark } from './components/SocialMarks';
 export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState('');
@@ -14,12 +16,10 @@ export default function OnboardingPage() {
   const supabase = createClient();
   const router = useRouter();
 
-  const handleGoogleLogin = async () => {
+  const handleOAuth = async (provider) => {
     await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/home`
-      }
+      provider,
+      options: { redirectTo: `${window.location.origin}/home` },
     });
   };
 
@@ -64,11 +64,17 @@ export default function OnboardingPage() {
     <>
     <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#050505', color: '#fff', overflow: 'hidden' }}>
       
-      {/* Fondo Cinematico Full Screen */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url(https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.35) contrast(1.15) saturate(1.2)' }} />
-      
-      {/* Glow detrás de la tarjeta */}
-      <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,68,31,0.15) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+      {/* Fondo cinematográfico: las fotos se cruzan solas cada 6 s.
+          Son las locales ya optimizadas, no una URL de terceros. */}
+      <HeroBackdrop
+        images={[
+          '/images/burger-hero.jpg',
+          '/images/steak-fork.jpg',
+          '/images/steak-ribeye.jpg',
+          '/images/food-fork.jpg',
+          '/images/lamb-chops.jpg',
+        ]}
+      />
 
       {/* Header (opcional, si lo quieres flotando) */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '30px 40px', zIndex: 10 }}>
@@ -81,15 +87,16 @@ export default function OnboardingPage() {
       </div>
 
       {/* Content Container (Glassmorphism PRO) */}
-      <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', zIndex: 10 }}>
+      <div className="sc" style={{ position: 'relative', flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', padding: '20px', zIndex: 10 }}>
         <div style={{ 
           width: '100%', 
           maxWidth: '480px', 
+          margin: 'auto',
           background: 'linear-gradient(145deg, rgba(30, 30, 30, 0.4) 0%, rgba(10, 10, 10, 0.6) 100%)', 
           backdropFilter: 'blur(48px)', 
           WebkitBackdropFilter: 'blur(48px)',
           borderRadius: '36px', 
-          padding: '50px 40px',
+          padding: '36px 28px',
           border: '1px solid rgba(255,255,255,0.12)',
           boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2)',
           display: 'flex', 
@@ -109,20 +116,30 @@ export default function OnboardingPage() {
               <button 
                 onClick={() => { setNextAuthMethod('phone'); setStep('terms'); }} 
                 className="md3-btn md3-ripple"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', height: '56px', borderRadius: '999px', background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: '15.5px', boxShadow: '0 10px 26px rgba(255,68,31,.4)' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', height: '50px', borderRadius: '999px', background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: '15px', boxShadow: '0 10px 26px rgba(255,68,31,.4)' }}
               >
                 <span style={{ fontFamily: 'Material Symbols Rounded', fontSize: '21px' }}>smartphone</span>
                 Continuar con celular
               </button>
-              <button 
-                onClick={() => { setNextAuthMethod('google'); setStep('terms'); }}
-                className="md3-btn md3-ripple"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '11px', width: '100%', height: '54px', borderRadius: '999px', background: '#fff', color: '#17140F', fontWeight: 700, fontSize: '15px' }}
-              >
-                <svg width="19" height="19" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8a12 12 0 010-24c3.1 0 5.9 1.2 8 3.1l5.7-5.7A19.9 19.9 0 0024 4a20 20 0 100 40c11 0 19.5-8 19.5-20 0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8A12 12 0 0124 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7A19.9 19.9 0 0024 4 20 20 0 006.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2A12 12 0 0124 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5A20 20 0 0024 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3a12 12 0 01-4.1 5.6l6.2 5.2C39.9 35.9 44 30.5 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
-                Continuar con Google
-              </button>
-              <button 
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => { setNextAuthMethod('google'); setStep('terms'); }}
+                  className="md3-btn md3-ripple"
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', height: '48px', borderRadius: '999px', background: '#fff', color: '#17140F', fontWeight: 700, fontSize: '14px' }}
+                >
+                  <GoogleMark />
+                  Google
+                </button>
+                <button
+                  onClick={() => { setNextAuthMethod('facebook'); setStep('terms'); }}
+                  className="md3-btn md3-ripple"
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', height: '48px', borderRadius: '999px', background: '#1877F2', color: '#fff', fontWeight: 700, fontSize: '14px' }}
+                >
+                  <FacebookMark />
+                  Facebook
+                </button>
+              </div>
+              <button
                 onClick={() => router.push('/home')}
                 className="md3-btn md3-ripple"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '46px', color: 'rgba(255,255,255,.62)', fontWeight: 600, fontSize: '14px' }}
@@ -172,7 +189,7 @@ export default function OnboardingPage() {
              </div>
 
              <button 
-                onClick={() => nextAuthMethod === 'google' ? handleGoogleLogin() : setStep('phone')}
+                onClick={() => nextAuthMethod === 'phone' ? setStep('phone') : handleOAuth(nextAuthMethod)}
                 className="md3-btn md3-ripple"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '56px', borderRadius: '16px', background: '#0064E0', color: '#fff', fontWeight: 800, fontSize: '16px', marginTop: '24px', boxShadow: '0 8px 24px rgba(0, 100, 224, 0.4)' }}
               >
