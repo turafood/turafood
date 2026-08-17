@@ -51,6 +51,22 @@ export default function CrecimientoPage() {
         </div>
       </section>
 
+      {/* Puerta a la sección de Google: Ficha + Ads viven juntos allí */}
+      <Link href="/negocio/crecimiento/google" style={S.googleBanner}>
+        <span style={S.googleDot}>
+          <span className="ms" style={{ fontSize: 24, color: '#2E6BFF' }}>travel_explore</span>
+        </span>
+        <span style={{ flex: 1, minWidth: 180 }}>
+          <span style={S.googleTag}>GOOGLE GROWTH AI</span>
+          <span style={S.googleTitle}>Tu negocio en Google, de punta a punta</span>
+          <span style={S.googleText}>
+            La ficha que sale en Maps y las campañas que te ponen de primero,
+            explicadas sin tecnicismos y armadas por nosotros.
+          </span>
+        </span>
+        <span className="ms" style={{ fontSize: 20, color: '#2E6BFF', flex: 'none' }}>arrow_forward</span>
+      </Link>
+
       {/* Servicios con asistente */}
       <div style={S.grid}>
         {SERVICES.map((s) => {
@@ -223,6 +239,27 @@ const S = {
   },
   grid: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16,
+  },
+  googleBanner: {
+    display: 'flex', alignItems: 'center', gap: 15, flexWrap: 'wrap',
+    padding: 18, borderRadius: 22, marginBottom: 16, textDecoration: 'none',
+    background: 'linear-gradient(120deg, rgba(46,107,255,.14) 0%, rgba(46,107,255,.05) 100%)',
+    border: '1px solid rgba(46,107,255,.3)', color: 'var(--text)',
+  },
+  googleDot: {
+    width: 48, height: 48, borderRadius: 15, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(46,107,255,.16)',
+  },
+  googleTag: {
+    display: 'block', fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: '#2E6BFF',
+  },
+  googleTitle: {
+    display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 17, letterSpacing: '-.02em', marginTop: 5,
+  },
+  googleText: {
+    display: 'block', fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-soft)', marginTop: 5,
   },
   card: {
     display: 'block', background: 'var(--surface)', border: '1px solid var(--border)',
