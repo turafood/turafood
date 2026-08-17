@@ -524,6 +524,102 @@ export function summarizeByDay(orders, days = 7) {
   }));
 }
 
+/**
+ * Reparte los pedidos entregados en las 24 horas del día.
+ *
+ * Sirve para responder una pregunta muy concreta del dueño: ¿a qué hora
+ * necesito más gente en cocina? Se mira sobre la ventana completa, no
+ * sobre un día suelto, porque un día suelto no dice nada.
+ */
+export function summarizeByHour(orders, days = 7) {
+  const from = new Date();
+  from.setHours(0, 0, 0, 0);
+  from.setDate(from.getDate() - (days - 1));
+
+  const hours = Array.from({ length: 24 }, (_, hour) => ({ hour, orders: 0, gross: 0 }));
+
+  orders.forEach((o) => {
+    if (o.status !== 'delivered') return;
+    const at = new Date(o.created_at);
+    if (at < from) return;
+    const b = hours[at.getHours()];
+    b.orders += 1;
+    b.gross += Number(o.subtotal ?? 0);
+  });
+
+  return hours;
+}
+
+/** Domingo primero, como el calendario colombiano */
+const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+/**
+ * Promedio por día de la semana. Divide entre cuántas veces cayó ese
+ * día en la ventana: si en 10 días hubo dos lunes y un martes, comparar
+ * los totales crudos mentiría a favor del lunes.
+ */
+export function summarizeByWeekday(orders, days = 7) {
+  const from = new Date();
+  from.setHours(0, 0, 0, 0);
+  from.setDate(from.getDate() - (days - 1));
+
+  const weekdays = WEEKDAYS.map((label, index) => ({
+    index, label, orders: 0, gross: 0, samples: 0,
+  }));
+
+  // Cuántas veces aparece cada día de la semana en la ventana
+  for (let i = 0; i < days; i += 1) {
+    const d = new Date(from);
+    d.setDate(from.getDate() + i);
+    weekdays[d.getDay()].samples += 1;
+  }
+
+  orders.forEach((o) => {
+    if (o.status !== 'delivered') return;
+    const at = new Date(o.created_at);
+    if (at < from) return;
+    const b = weekdays[at.getDay()];
+    b.orders += 1;
+    b.gross += Number(o.subtotal ?? 0);
+  });
+
+  return weekdays.map((w) => ({
+    ...w,
+    avgGross: w.samples ? Math.round(w.gross / w.samples) : 0,
+    avgOrders: w.samples ? w.orders / w.samples : 0,
+  }));
+}
+
+/**
+ * Totales del periodo inmediatamente anterior, para poder decir "vas
+ * mejor o peor que la semana pasada". Sin esto un número grande no
+ * significa nada.
+ */
+export function summarizePrevious(orders, days = 7) {
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  end.setDate(end.getDate() - (days - 1));
+
+  const start = new Date(end);
+  start.setDate(end.getDate() - days);
+
+  const totals = { orders: 0, gross: 0, fee: 0, net: 0 };
+
+  orders.forEach((o) => {
+    if (o.status !== 'delivered') return;
+    const at = new Date(o.created_at);
+    if (at < start || at >= end) return;
+    const gross = Number(o.subtotal ?? 0);
+    const fee = Number(o.business_commission ?? 0);
+    totals.orders += 1;
+    totals.gross += gross;
+    totals.fee += fee;
+    totals.net += gross - fee;
+  });
+
+  return totals;
+}
+
 /** Todos los pedidos entregados de los últimos N días */
 export async function getSalesWindow(businessId, days = 7) {
   if (!isLive()) {
@@ -950,22 +1046,68 @@ const LOCAL_HOURS = [
   { day_of_week: 6, is_open: true, opens_at: '12:00', closes_at: '23:30' },
 ];
 
-/** Ventas de los últimos 7 días, con la comisión ya aplicada (10%) */
-const LOCAL_SALES = [412000, 598000, 505000, 726000, 934000, 1180000, 827300].flatMap((gross, i) => {
-  const d = new Date();
-  d.setHours(13, 0, 0, 0);
-  d.setDate(d.getDate() - (6 - i));
-  const count = [19, 26, 22, 31, 34, 41, 38][i];
-  const per = Math.round(gross / count);
-  return Array.from({ length: count }, (_, k) => ({
-    id: `s${i}-${k}`,
-    status: 'delivered',
-    subtotal: per,
-    total: per,
-    business_commission: Math.round(per * 0.1),
-    created_at: d.toISOString(),
-  }));
-});
+/**
+ * Ventas de los últimos 60 días, con la comisión ya aplicada (10%).
+ *
+ * Sesenta y no siete porque los reportes comparan contra el periodo
+ * anterior: con una sola semana el "vs. semana pasada" saldría siempre
+ * en cero y parecería un error.
+ *
+ * La forma imita la de un asadero real: los viernes y sábados mandan,
+ * el lunes es el piso, y dentro del día hay dos picos (almuerzo y
+ * cena) con la cena bastante más fuerte. Un generador aleatorio plano
+ * haría gráficas bonitas pero mentirosas.
+ */
+const WEEKDAY_WEIGHT = [1.15, 0.62, 0.7, 0.78, 0.92, 1.45, 1.6];  // Dom → Sáb
+const HOUR_WEIGHT = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4,        // 00–11
+  9, 8, 4, 2, 2, 3, 6, 12, 14, 10, 5, 1,     // 12–23
+];
+const HOUR_TOTAL = HOUR_WEIGHT.reduce((a, b) => a + b, 0);
+
+const LOCAL_SALES = (() => {
+  const rows = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let back = 59; back >= 0; back -= 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - back);
+
+    // Tendencia suave al alza: el negocio crece ~35% en los dos meses
+    const growth = 1 + ((59 - back) / 59) * 0.35;
+    const count = Math.round(26 * WEEKDAY_WEIGHT[day.getDay()] * growth);
+    const ticket = 24000 + (day.getDay() >= 5 ? 3500 : 0);
+
+    for (let k = 0; k < count; k += 1) {
+      // Reparte el pedido k dentro de la curva horaria del día
+      let cursor = ((k + 0.5) / count) * HOUR_TOTAL;
+      let hour = 0;
+      while (hour < 23 && cursor > HOUR_WEIGHT[hour]) {
+        cursor -= HOUR_WEIGHT[hour];
+        hour += 1;
+      }
+
+      const at = new Date(day);
+      at.setHours(hour, (k * 7) % 60, 0, 0);
+
+      // Variación de ticket estable por pedido, sin Math.random:
+      // así el servidor y el cliente pintan exactamente lo mismo.
+      const subtotal = ticket + ((k * 2137) % 11) * 900;
+
+      rows.push({
+        id: `s${back}-${k}`,
+        status: 'delivered',
+        subtotal,
+        total: subtotal,
+        business_commission: Math.round(subtotal * 0.1),
+        created_at: at.toISOString(),
+      });
+    }
+  }
+
+  return rows;
+})();
 
 /** Documentos ya cargados, en modo local */
 const LOCAL_DOCS = [

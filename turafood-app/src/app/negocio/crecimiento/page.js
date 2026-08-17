@@ -259,7 +259,7 @@ const S = {
     fontSize: 17, letterSpacing: '-.02em', marginTop: 5,
   },
   googleText: {
-    display: 'block', fontSize: 12.5, lineHeight: 1.5, color: 'var(--text-soft)', marginTop: 5,
+    display: 'block', fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)', marginTop: 5,
   },
   card: {
     display: 'block', background: 'var(--surface)', border: '1px solid var(--border)',

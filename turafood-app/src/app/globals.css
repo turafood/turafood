@@ -24,6 +24,13 @@
   --amber: #FFB020;
   --blue: #2E6BFF;
 
+  /* Tintes de las etiquetas y fondos suaves. Se derivan del color base
+     con color-mix, así siguen sirviendo en oscuro sin redefinirlos. */
+  --primary-tint: color-mix(in srgb, var(--primary) 10%, transparent);
+  --green-tint: color-mix(in srgb, var(--green) 13%, transparent);
+  --amber-tint: color-mix(in srgb, var(--amber) 15%, transparent);
+  --blue-tint: color-mix(in srgb, var(--blue) 12%, transparent);
+
   --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
   --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
 
@@ -210,6 +217,33 @@ textarea {
 .anim-pop     { animation: pop .2s ease both; }
 .anim-fade    { animation: fade .25s ease both; }
 .anim-slideup { animation: slideup .3s cubic-bezier(.32, .72, 0, 1) both; }
+
+/* ------------------------------------------------------------
+   Esqueleto de carga
+
+   Con la forma del contenido que viene, no un spinner: el salto de
+   "cargando" a "listo" se siente mucho menor si la caja ya estaba
+   donde va a quedar.
+   ------------------------------------------------------------ */
+.sk {
+  background: linear-gradient(
+    100deg,
+    var(--surface2) 30%,
+    color-mix(in srgb, var(--surface2) 55%, var(--surface)) 50%,
+    var(--surface2) 70%
+  );
+  background-size: 220% 100%;
+  animation: sk 1.4s ease-in-out infinite;
+}
+
+@keyframes sk {
+  from { background-position: 140% 0; }
+  to   { background-position: -40% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; }
+}
 
 /* ------------------------------------------------------------
    Material Symbols — el mockup los usa como font-family directa
