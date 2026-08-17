@@ -257,6 +257,7 @@ export async function saveProduct(businessId, product) {
   }
 
   const supabase = createClient();
+  const images = product.images ?? [];
   const payload = {
     business_id: businessId,
     name: product.name,
@@ -264,7 +265,10 @@ export async function saveProduct(businessId, product) {
     price: Number(product.price) || 0,
     compare_price: product.compare_price ? Number(product.compare_price) : null,
     category_id: product.category_id || null,
-    image_url: product.image_url || null,
+    images,
+    // La principal es la primera de la galería; un trigger la mantiene
+    // igual del lado de la base por si alguien escribe por otra vía.
+    image_url: images[0] ?? null,
     is_available: product.is_available ?? true,
   };
 
@@ -275,6 +279,51 @@ export async function saveProduct(businessId, product) {
   const { data, error } = await query.select('*, category:product_categories(name)').single();
   if (error) throw new Error(`No se pudo guardar el producto: ${error.message}`);
   return data;
+}
+
+/**
+ * Sube una foto de producto y devuelve su dirección pública.
+ *
+ * La ruta empieza por el id del negocio porque las políticas de Storage
+ * exigen que la primera carpeta sea quien sube: nadie puede escribir en
+ * la carpeta de otro. El bucket sí es público en lectura, porque estas
+ * fotos tienen que verse en la app de cliente sin sesión.
+ */
+export async function uploadProductPhoto(businessId, file) {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Solo se pueden subir imágenes.');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error(`"${file.name}" pesa más de 5 MB. Usa una versión más liviana.`);
+  }
+
+  if (!isLive()) {
+    await delay(500);
+    // Sin base de datos mostramos la foto local, para poder revisar la pantalla
+    return URL.createObjectURL(file);
+  }
+
+  const supabase = createClient();
+  const ext = (file.name.split('.').pop() ?? 'jpg').toLowerCase();
+  const path = `${businessId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from('product-photos')
+    .upload(path, file, { contentType: file.type, cacheControl: '31536000' });
+  if (error) throw new Error(`No se pudo subir "${file.name}": ${error.message}`);
+
+  const { data } = supabase.storage.from('product-photos').getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/** Quita la foto del almacenamiento. Si ya no estaba, no pasa nada. */
+export async function deleteProductPhoto(url) {
+  if (!isLive() || !url?.includes('/product-photos/')) return true;
+
+  const supabase = createClient();
+  const path = url.split('/product-photos/')[1];
+  if (path) await supabase.storage.from('product-photos').remove([path]);
+  return true;
 }
 
 export async function deleteProduct(productId) {

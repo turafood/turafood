@@ -32,6 +32,58 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
+/* ------------------------------------------------------------
+   TEMA OSCURO
+   Solo se redefinen los tokens de superficie y texto: el naranja de
+   la marca y los tintes de las etiquetas se mantienen, porque son
+   los que hacen reconocible la app.
+
+   Tres estados: elección explícita (`data-theme`), y el sistema
+   cuando no hay ninguna. El `:not([data-theme="light"])` evita que
+   el sistema le gane a quien pidió claro a propósito.
+   ------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --backdrop: #0B0A09;
+    --bg: #131110;
+    --surface: #1C1917;
+    --surface2: #262220;
+
+    --text: #F5F2EE;
+    --muted: #A29A90;
+    --faint: #6E665D;
+    --border: rgba(255, 255, 255, 0.10);
+
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  --backdrop: #0B0A09;
+  --bg: #131110;
+  --surface: #1C1917;
+  --surface2: #262220;
+
+  --text: #F5F2EE;
+  --muted: #A29A90;
+  --faint: #6E665D;
+  --border: rgba(255, 255, 255, 0.10);
+
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* El panel usa el color de fondo plano; el degradado radial claro
+   solo tiene sentido en tema claro. */
+:root[data-theme='dark'] body {
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) body { background: var(--bg); }
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -254,6 +306,52 @@ button:disabled {
   .biz-side.is-open { transform: translateX(0); }
 
   .biz-main { padding: 16px 16px 150px; }
+}
+
+/* ------------------------------------------------------------
+   BARRA LATERAL RECOGIDA
+   En escritorio se puede dejar solo en iconos para ganar ancho.
+   Las etiquetas se ocultan; el `title` de cada botón dice qué es.
+   ------------------------------------------------------------ */
+.biz-side {
+  width: 250px;
+  transition: width .22s cubic-bezier(.32, .72, 0, 1);
+}
+
+@media (min-width: 900px) {
+  .biz-side.is-rail { width: 76px; }
+
+  .biz-side.is-rail .rail-hide { display: none; }
+
+  /* Todo se centra: el icono queda alineado en la columna estrecha */
+  .biz-side.is-rail a,
+  .biz-side.is-rail > div > div,
+  .biz-side.is-rail > div:last-child > div {
+    justify-content: center;
+  }
+
+  .biz-side.is-rail a { padding-left: 0; padding-right: 0; }
+
+  /* El contador no cabe al lado: se monta sobre el icono */
+  .biz-side.is-rail a > span:last-child {
+    position: absolute;
+    top: 4px;
+    right: 12px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 9.5px;
+    border: 2px solid var(--surface);
+  }
+
+  .biz-side.is-rail a { position: relative; }
+
+  /* La separación entre grupos se mantiene aunque no haya título */
+  .biz-side.is-rail .rail-hide + a { margin-top: 4px; }
+}
+
+/* La etiqueta del interruptor de tienda ocupa mucho en pantallas medias */
+@media (max-width: 1100px) {
+  .open-label { display: none; }
 }
 
 /* ------------------------------------------------------------

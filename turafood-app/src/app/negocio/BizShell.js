@@ -17,6 +17,8 @@ import { createClient } from '@/utils/supabase/client';
 import {
   getMyBusiness, getLiveOrders, getReviews, setStoreOpen, subscribeToOrders, columnOf,
 } from '@/lib/negocio';
+import { useRail, useTheme, useLang } from '@/lib/prefs';
+import { makeT } from '@/lib/i18n';
 import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
 
@@ -103,6 +105,10 @@ export default function BizShell({ children }) {
   const [error, setError] = useState(null);
 
   const [drawer, setDrawer] = useState(false);
+  const rail = useRail();
+  const { theme, toggle: toggleTheme } = useTheme();
+  const { lang, toggle: toggleLang } = useLang();
+  const t = makeT(lang);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiTips, setAiTips] = useState(0);
   const [toastMsg, setToastMsg] = useState('');
@@ -221,10 +227,13 @@ export default function BizShell({ children }) {
         {drawer && <div onClick={() => setDrawer(false)} style={S.scrim} />}
 
         {/* ---------------- Barra lateral ---------------- */}
-        <nav style={S.side} className={`biz-side${drawer ? ' is-open' : ''}`}>
+        <nav
+          style={S.side}
+          className={`biz-side${drawer ? ' is-open' : ''}${rail.collapsed ? ' is-rail' : ''}`}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '20px 18px 18px' }}>
             <div style={S.logo}>t</div>
-            <div style={{ minWidth: 0 }}>
+            <div className="rail-hide" style={{ minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 15.5, letterSpacing: '-.01em' }}>
                 TuraFood
               </div>
@@ -242,7 +251,7 @@ export default function BizShell({ children }) {
                 background: business?.cover_url ? undefined : 'var(--faint)',
               }}
             />
-            <span style={{ flex: 1, minWidth: 0 }}>
+            <span className="rail-hide" style={{ flex: 1, minWidth: 0 }}>
               <span className="tr1" style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
                 {business?.name ?? 'Tu negocio'}
               </span>
@@ -250,13 +259,13 @@ export default function BizShell({ children }) {
                 {business?.address ?? 'Buenaventura'}
               </span>
             </span>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', flex: 'none' }}>unfold_more</span>
+            <span className="ms rail-hide" style={{ fontSize: 18, color: 'var(--muted)', flex: 'none' }}>unfold_more</span>
           </Link>
 
           <div style={{ flex: 1, padding: '0 10px 14px', overflowY: 'auto' }}>
             {NAV_GROUPS.map((g) => (
               <div key={g.label} style={{ marginBottom: 16 }}>
-                <div style={S.groupLabel}>{g.label}</div>
+                <div className="rail-hide" style={S.groupLabel}>{t(g.label)}</div>
                 {g.items.map((i) => {
                   const on = path === i.href;
                   const badge = badgeValue(i.badge);
@@ -265,6 +274,7 @@ export default function BizShell({ children }) {
                       key={i.href}
                       href={i.href}
                       style={{ ...S.navItem, ...(on ? S.navOn : S.navOff) }}
+                      title={t(i.label)}
                     >
                       <span
                         className={`ms${on ? ' ms-fill' : ''}`}
@@ -272,7 +282,7 @@ export default function BizShell({ children }) {
                       >
                         {i.icon}
                       </span>
-                      <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{i.label}</span>
+                      <span className="rail-hide" style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{t(i.label)}</span>
                       {badge > 0 && <span style={S.navBadge}>{badge}</span>}
                     </Link>
                   );
@@ -284,13 +294,13 @@ export default function BizShell({ children }) {
           <div style={{ padding: 12, borderTop: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px' }}>
               <div style={S.userAvatar}>{initials(business?.name)}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="rail-hide" style={{ flex: 1, minWidth: 0 }}>
                 <div className="tr1" style={{ fontSize: 12.5, fontWeight: 700 }}>
                   {business?.name ?? '—'}
                 </div>
-                <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>Administrador</div>
+                <div style={{ fontSize: 10.5, color: 'var(--muted)' }}>{t('Administrador')}</div>
               </div>
-              <button onClick={signOut} style={S.logout} aria-label="Cerrar sesión">
+              <button onClick={signOut} style={S.logout} aria-label={t('Cerrar sesión')}>
                 <span className="ms" style={{ fontSize: 17, color: 'var(--muted)' }}>logout</span>
               </button>
             </div>
@@ -300,17 +310,30 @@ export default function BizShell({ children }) {
         {/* ---------------- Contenido ---------------- */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <header style={S.topbar}>
-            <button onClick={() => setDrawer(true)} style={S.menuBtn} className="mobile-only" aria-label="Abrir menú">
+            {/* Celular: abre el cajón. Escritorio: recoge la barra a iconos. */}
+            <button onClick={() => setDrawer(true)} style={S.menuBtn} className="mobile-only" aria-label={t('Abrir menú')}>
               <span className="ms" style={{ fontSize: 24 }}>menu</span>
+            </button>
+            <button
+              onClick={rail.toggle}
+              style={S.menuBtn}
+              className="desktop-only"
+              aria-label={rail.collapsed ? t('Expandir menú') : t('Recoger menú')}
+              aria-pressed={rail.collapsed}
+              title={rail.collapsed ? t('Expandir menú') : t('Recoger menú')}
+            >
+              <span className="ms" style={{ fontSize: 24 }}>
+                {rail.collapsed ? 'menu_open' : 'menu'}
+              </span>
             </button>
 
             <div style={{ minWidth: 0 }}>
               <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 19, letterSpacing: '-.01em' }}>
-                {title}
+                {t(title)}
               </div>
               {pageSub && (
                 <div className="tr1" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>
-                  {pageSub}
+                  {t(pageSub)}
                 </div>
               )}
             </div>
@@ -325,11 +348,28 @@ export default function BizShell({ children }) {
                 color: business?.is_open ? '#0B7A48' : 'var(--muted)',
               }}
             >
-              <span style={{ fontSize: 12.5, fontWeight: 800 }}>
-                {business?.is_open ? 'Tienda abierta' : 'Tienda cerrada'}
+              <span className="open-label" style={{ fontSize: 12.5, fontWeight: 800 }}>
+                {business?.is_open ? t('Tienda abierta') : t('Tienda cerrada')}
               </span>
               <span style={{ ...S.switchTrack, background: business?.is_open ? 'var(--green)' : 'var(--faint)' }}>
                 <span style={{ ...S.switchKnob, transform: business?.is_open ? 'translateX(16px)' : 'none' }} />
+              </span>
+            </button>
+
+            {/* Idioma: la bandera dice a qué idioma se cambia */}
+            <button onClick={toggleLang} style={S.iconBtn} aria-label={t('Cambiar idioma')} title={t('Cambiar idioma')}>
+              <span style={{ fontSize: 15, lineHeight: 1 }}>{lang === 'es' ? '🇺🇸' : '🇨🇴'}</span>
+              <span style={S.langTag}>{lang === 'es' ? 'EN' : 'ES'}</span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              style={S.iconBtn}
+              aria-label={theme === 'dark' ? t('Cambiar a tema claro') : t('Cambiar a tema oscuro')}
+              title={theme === 'dark' ? t('Cambiar a tema claro') : t('Cambiar a tema oscuro')}
+            >
+              <span className="ms" style={{ fontSize: 20 }}>
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
               </span>
             </button>
 
@@ -340,7 +380,7 @@ export default function BizShell({ children }) {
 
             <Link href="/negocio/catalogo" style={S.newProduct} className="desktop-only">
               <span className="ms" style={{ fontSize: 18 }}>add</span>
-              Nuevo producto
+              {t('Nuevo producto')}
             </Link>
           </header>
 
@@ -415,7 +455,9 @@ const S = {
     background: 'rgba(20,16,10,.4)', backdropFilter: 'blur(2px)',
   },
   side: {
-    flex: 'none', width: 250, background: 'var(--surface)', color: 'var(--text)',
+    // El ancho vive en globals.css: en línea gana siempre y el modo
+    // recogido no podría cambiarlo.
+    flex: 'none', background: 'var(--surface)', color: 'var(--text)',
     borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column',
   },
   logo: {
@@ -466,6 +508,10 @@ const S = {
     width: 42, height: 42, borderRadius: '50%',
     alignItems: 'center', justifyContent: 'center', flex: 'none', marginLeft: -9,
   },
+  langTag: {
+    fontSize: 8.5, fontWeight: 800, letterSpacing: '.04em',
+    color: 'var(--muted)', marginTop: 1,
+  },
   openBtn: {
     display: 'flex', alignItems: 'center', gap: 9, height: 40,
     padding: '0 6px 0 14px', borderRadius: 13, border: '1px solid var(--border)', flex: 'none',
@@ -479,8 +525,9 @@ const S = {
   },
   iconBtn: {
     width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)',
-    background: 'var(--surface)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', position: 'relative', flex: 'none', color: 'var(--text)',
+    background: 'var(--surface)', display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', position: 'relative',
+    flex: 'none', color: 'var(--text)', textDecoration: 'none',
   },
   dot: {
     position: 'absolute', top: 8, right: 9, width: 7, height: 7, borderRadius: '50%',

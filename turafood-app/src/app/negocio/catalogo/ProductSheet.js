@@ -12,10 +12,11 @@ import { useEffect, useState } from 'react';
 import { cop } from '@/lib/format';
 import { saveProduct, createCategory } from '@/lib/negocio';
 import { ProductThumb } from '../../components/Vertical3D';
+import PhotoUploader from './PhotoUploader';
 
 const EMPTY = {
   name: '', description: '', price: '', compare_price: '',
-  category_id: '', image_url: '',
+  category_id: '', images: [],
 };
 
 export default function ProductSheet({
@@ -39,7 +40,11 @@ export default function ProductSheet({
         price: String(product.price ?? ''),
         compare_price: product.compare_price ? String(product.compare_price) : '',
         category_id: product.category_id ?? '',
-        image_url: product.image_url ?? '',
+        // Los productos viejos traen solo `image_url`: se convierte en
+        // una galería de una para que la pantalla no tenga dos caminos.
+        images: product.images?.length
+          ? product.images
+          : (product.image_url ? [product.image_url] : []),
       }
       : { ...EMPTY, category_id: categories[0]?.id ?? '' });
   }, [open, product, categories]);
@@ -111,7 +116,7 @@ export default function ProductSheet({
         <form onSubmit={submit} className="sc" style={S.body}>
           {/* Vista previa: lo que verá el cliente */}
           <div style={S.preview}>
-            <ProductThumb src={form.image_url} vertical={vertical} size={64} radius={14} />
+            <ProductThumb src={form.images[0]} vertical={vertical} size={64} radius={14} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="tr1" style={{ fontWeight: 700, fontSize: 14.5 }}>
                 {form.name || 'Nombre del producto'}
@@ -192,10 +197,11 @@ export default function ProductSheet({
             )}
           </div>
 
-          <Field
-            label="Foto (dirección de la imagen)" value={form.image_url}
-            onChange={(v) => set('image_url', v)}
-            placeholder="https://…  ·  déjalo vacío y usamos un icono"
+          <PhotoUploader
+            businessId={businessId}
+            images={form.images}
+            onChange={(images) => set('images', images)}
+            onError={setError}
           />
 
           {error && (
