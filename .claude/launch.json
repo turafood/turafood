@@ -8,9 +8,9 @@
       "port": 3000
     },
     {
-      "name": "turafood-negocio",
+      "name": "turafood-app",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "turafood-negocio", "run", "dev", "--", "--port", "3100"],
+      "runtimeArgs": ["--prefix", "turafood-app", "run", "dev", "--", "--port", "3100"],
       "port": 3100
     },
     {
@@ -18,12 +18,6 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "turafood-admin", "run", "dev", "--", "--port", "3200"],
       "port": 3200
-    },
-    {
-      "name": "turafood-repartidor",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "turafood-repartidor", "run", "dev", "--", "--port", "3300"],
-      "port": 3300
     }
   ]
 }

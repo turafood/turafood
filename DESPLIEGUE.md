@@ -21,7 +21,7 @@ supabase link --project-ref btaddjjzpvyqltkchqki
 supabase db push
 ```
 
-Aplica las cuatro migraciones en orden:
+Aplica las migraciones en orden:
 
 | Archivo | Qué hace |
 |---|---|
@@ -29,6 +29,12 @@ Aplica las cuatro migraciones en orden:
 | `20260816000001_rls.sql` | Políticas RLS y aprobación de negocios |
 | `20260816000002_referrals.sql` | Códigos de invitación y referidos |
 | `20260816000003_payouts.sql` | Comisión recurrente y retiros de afiliados |
+| `20260816000004_payments.sql` | Pagos, planes y suscripciones |
+| `20260816000005_payment_methods.sql` | Nequi y Daviplata guardados |
+| `20260816000006_saved_cards.sql` | Referencias de tarjeta (marca y últimos 4) |
+| `20260816000007_social.sql` | Favoritos, notificaciones y chat del pedido |
+| `20260816000008_grants.sql` | Permisos de `anon` y `authenticated` sobre `public` |
+| `20260816000009_app_negocio_repartidor.sql` | Respuesta a reseñas, promociones del negocio y toma de pedidos del repartidor |
 
 Si prefieres sin CLI: pega cada archivo en el SQL Editor, **en ese orden**.
 
@@ -69,15 +75,21 @@ git push -u origin master
 
 ## 3. Servicios en EasyPanel
 
-Son cuatro apps independientes. Cada una es su propio servicio: mismo
+Son tres apps independientes. Cada una es su propio servicio: mismo
 repo, distinta carpeta de build.
 
-| Servicio | Build context | Dominio sugerido |
+| Servicio | Build context | Dominio |
 |---|---|---|
 | Cliente | `turafood-cliente` | `turafood.com` |
-| Negocios | `turafood-negocio` | `negocios.turafood.com` |
-| Super Admin | `turafood-admin` | `admin.turafood.com` |
-| Repartidor | `turafood-repartidor` | `repartidor.turafood.com` |
+| Negocios y repartidores | `turafood-app` | `app.turafood.com` |
+| Super Admin | `turafood-admin` | `dash.turafood.com` |
+
+Negocio y repartidor comparten despliegue a propósito: entran por la
+misma pantalla de ingreso y el proxy (`turafood-app/src/proxy.js`) lee
+`profiles.role` en el servidor para mandar a cada quien a `/negocio` o
+a `/repartidor`. Un negocio no puede entrar al entorno del repartidor
+ni al revés, y quién ve qué datos lo siguen decidiendo las políticas
+RLS de la base.
 
 En cada servicio:
 
@@ -100,19 +112,22 @@ app compila sin ellas y sale a producción usando datos de demo.
 En EasyPanel hay que ponerlas en **Environment** y marcarlas también
 como argumentos de build.
 
-### Las cuatro apps
+### Las tres apps
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://btaddjjzpvyqltkchqki.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<tu sb_publishable_...>
 ```
 
-### Solo el cliente
+### Cliente y app.turafood.com
+
+Las dos abren checkout de ePayco: el cliente para pagar pedidos y Tura
+Plus, `turafood-app` para la suscripcion Biz Pro del negocio.
 
 ```
 NEXT_PUBLIC_EPAYCO_KEY=<PUBLIC_KEY de ePayco>
 NEXT_PUBLIC_EPAYCO_TEST=false
-NEXT_PUBLIC_BASE_URL=https://turafood.com
+NEXT_PUBLIC_BASE_URL=https://turafood.com      # en app: https://app.turafood.com
 ```
 
 > `NEXT_PUBLIC_EPAYCO_TEST=false` activa cobros reales. Déjalo en `true`
@@ -124,7 +139,7 @@ NEXT_PUBLIC_BASE_URL=https://turafood.com
 
 **`SUPABASE_SERVICE_ROLE_KEY` (o `sb_secret_`) no va en ninguna app de
 Next.** Salta todas las políticas RLS; si se filtra, cualquiera lee y
-escribe la base completa. Ninguna de las cuatro la necesita.
+escribe la base completa. Ninguna de las tres la necesita.
 
 **Las llaves privadas de ePayco tampoco.** `P_KEY` valida la firma del
 pago: si está del lado del navegador, se puede falsificar una
@@ -161,5 +176,5 @@ Si agregas fotos nuevas:
 cd turafood-cliente && node scripts/optimize-images.mjs public/images
 ```
 
-Los cuatro Dockerfile usan `output: 'standalone'`, así que la imagen
+Los tres Dockerfile usan `output: 'standalone'`, así que la imagen
 final lleva solo el servidor y los estáticos (~150 MB en vez de ~1 GB).
