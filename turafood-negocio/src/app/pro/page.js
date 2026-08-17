@@ -3,51 +3,67 @@
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 export default function BizProOnboarding() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const supabase = createClient();
 
   const plans = [
     { id: 'monthly', title: 'Plan Mensual', price: '$49.900', desc: 'Facturación mes a mes. Cancela en cualquier momento.', rawPrice: 49900 },
     { id: 'yearly', title: 'Plan Anual', price: '$499.000', desc: 'Ahorra un 17% (2 meses gratis).', badge: 'Recomendado', rawPrice: 499000 }
   ];
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     setLoading(true);
     
-    // Initialize ePayco Checkout
-    const handler = window.ePayco.checkout.configure({
-      key: '2a3096dcf0c981790a3e8aea8995674d', // PUBLIC_KEY
-      test: true // Modo pruebas
-    });
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        alert('Debes iniciar sesión para suscribirte a Biz Pro.');
+        setLoading(false);
+        return;
+      }
 
-    const selected = plans.find(p => p.id === selectedPlan);
+      // Initialize ePayco Checkout
+      const handler = window.ePayco.checkout.configure({
+        key: process.env.NEXT_PUBLIC_EPAYCO_KEY || '2a3096dcf0c981790a3e8aea8995674d', // PUBLIC_KEY
+        test: true // Modo pruebas
+      });
 
-    const data = {
-      name: `Suscripción Biz Pro - ${selected.title}`,
-      description: `Suscripción ${selected.title} a Biz Pro para Negocios`,
-      invoice: `BIZ-SUB-${Date.now()}`,
-      currency: 'cop',
-      amount: selected.rawPrice,
-      tax_base: '0',
-      tax: '0',
-      country: 'co',
-      lang: 'es',
-      external: 'false',
-      confirmation: 'http://localhost:3002/api/epayco/webhook',
-      response: 'http://localhost:3002/pro/success',
-      name_billing: 'Representante Legal',
-      address_billing: 'Local 4, Centro',
-      type_doc_billing: 'CC',
-      mobilephone_billing: '3000000000',
-      number_doc_billing: '100000000'
-    };
+      const selected = plans.find(p => p.id === selectedPlan);
 
-    handler.open(data);
-    
-    setTimeout(() => setLoading(false), 2000);
+      const data = {
+        name: `Suscripción Biz Pro - ${selected.title}`,
+        description: `Suscripción ${selected.title} a Biz Pro para Negocios`,
+        invoice: `BIZ-SUB-${Date.now()}`,
+        currency: 'cop',
+        amount: selected.rawPrice,
+        tax_base: '0',
+        tax: '0',
+        country: 'co',
+        lang: 'es',
+        external: 'false',
+        confirmation: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/epayco-webhook`,
+        response: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/pro/success`,
+        extra1: user.id, // ID real del negocio en Supabase
+        extra2: 'BUSINESS_PRO', // Tipo de pago para el webhook
+        name_billing: 'Representante Legal',
+        address_billing: 'Local 4, Centro',
+        type_doc_billing: 'CC',
+        mobilephone_billing: '3000000000',
+        number_doc_billing: '100000000'
+      };
+
+      handler.open(data);
+      
+      setTimeout(() => setLoading(false), 2000);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
   };
 
   return (

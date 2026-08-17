@@ -1,0 +1,427 @@
+/* ============================================================
+   TURAFOOD — SISTEMA DE DISEÑO
+   Tokens, animaciones y helpers copiados literalmente del mockup
+   "Tura Shop PWA - V2 - 13-08-2026". No cambiar valores sin
+   actualizar también el mockup: son la referencia visual.
+   ============================================================ */
+
+:root {
+  --backdrop: #E7E5E1;
+  --bg: #F6F5F2;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE9;
+
+  --text: #17140F;
+  --muted: #8C857B;
+  --faint: #B6AFA4;
+  --border: rgba(20, 16, 10, 0.09);
+
+  --primary: #FF441F;
+  --primaryDark: #E2360F;
+  --onPrimary: #FFFFFF;
+
+  --green: #11B26A;
+  --amber: #FFB020;
+  --blue: #2E6BFF;
+
+  --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
+  --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
+
+  /* Tipografías: se cargan desde layout.js */
+  --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: radial-gradient(120% 90% at 50% 0%, #F2F0EC, #DFDCD6);
+  min-height: 100dvh;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primaryDark);
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* ------------------------------------------------------------
+   Scroll sin barra visible (igual que el mockup)
+   ------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.hs {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.sc {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow-y: auto;
+}
+
+/* ------------------------------------------------------------
+   Animaciones — nombres y curvas idénticos al mockup
+   ------------------------------------------------------------ */
+@keyframes up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.26); }
+  100% { transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 31, .45); }
+  50%      { box-shadow: 0 0 0 10px rgba(255, 68, 31, 0); }
+}
+
+@keyframes slideup {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: .28; transform: translateY(0); }
+  40%           { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes banner {
+  from { opacity: 0; transform: translateY(-120%) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Transición al cambiar de ruta dentro del shell. Corta a propósito:
+   debe leerse como que el contenido cambió, no como que cargó. */
+.route-fade {
+  animation: routeIn .18s cubic-bezier(.32, .72, 0, 1) both;
+}
+
+@keyframes routeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.anim-up      { animation: up .28s ease both; }
+.anim-pop     { animation: pop .2s ease both; }
+.anim-fade    { animation: fade .25s ease both; }
+.anim-slideup { animation: slideup .3s cubic-bezier(.32, .72, 0, 1) both; }
+
+/* ------------------------------------------------------------
+   Material Symbols — el mockup los usa como font-family directa
+   ------------------------------------------------------------ */
+.material-symbols-rounded,
+.ms {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'opsz' 24;
+}
+
+.ms-fill {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* ------------------------------------------------------------
+   Interacciones (Material 3 ripple sutil del mockup)
+   ------------------------------------------------------------ */
+.md3-ripple {
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s ease, background .15s ease, opacity .15s ease;
+}
+
+.md3-ripple:active {
+  transform: scale(.975);
+}
+
+.md3-card {
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.md3-card:hover {
+  transform: translateY(-3px);
+}
+
+.md3-btn {
+  transition: filter .15s ease, transform .15s ease, opacity .15s ease;
+}
+
+.md3-btn:hover {
+  filter: brightness(.96);
+}
+
+.md3-btn:active {
+  transform: scale(.985);
+}
+
+/* Estados deshabilitados coherentes en toda la plataforma */
+button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+/* ------------------------------------------------------------
+   Utilidades responsive usadas por las vistas móvil/escritorio
+   ------------------------------------------------------------ */
+/* ------------------------------------------------------------
+   VARIANTES MÓVIL / ESCRITORIO
+   Se deciden por el ancho del MARCO (.tablet-device), no del
+   viewport: dentro del chasis de 440px la app debe verse móvil
+   aunque la ventana del navegador sea ancha.
+
+   Importante: los elementos que usen estas clases NO deben traer
+   `display` en su style inline — el inline gana sobre la clase y
+   ambas variantes terminan visibles a la vez.
+   ------------------------------------------------------------ */
+.mobile-only { display: none; }
+.desktop-only { display: flex; }
+
+@container device (max-width: 900px) {
+  .mobile-only { display: block; }
+  .desktop-only { display: none; }
+}
+
+/* Fuera del marco (páginas sin chasis) decide el viewport */
+@media (max-width: 900px) {
+  .mobile-only { display: block; }
+  .desktop-only { display: none; }
+}
+
+/* Truncado de una línea, muy usado en las tarjetas del diseño */
+.tr1 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Truncado de dos líneas para descripciones de producto */
+.tr2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------
+   MARCO DE DISPOSITIVO
+   Valores tomados de `#dc-root[data-dev="phone"] .sc-host`
+   y del bloque de status bar del mockup del cliente.
+   ------------------------------------------------------------ */
+
+.device-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 30px 0;
+  background: radial-gradient(120% 90% at 50% 0%, #F2F0EC, #DCD9D3);
+}
+
+.tablet-device {
+  /* Ancla de las container queries de .mobile-only / .desktop-only */
+  container-type: inline-size;
+  container-name: device;
+  position: relative;
+  flex: none;
+  width: 440px;
+  height: 956px;
+  max-width: 100vw;
+  border-radius: 56px;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  /* Bisel de tres capas, igual que el mockup */
+  box-shadow:
+    0 0 0 12px #1C1C1F,
+    0 0 0 13.5px #6E6D74,
+    0 0 0 15px #2A2A2E,
+    0 46px 100px rgba(0, 0, 0, .42);
+}
+
+.device-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 35px;
+  border-radius: 99px;
+  background: #050506;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+.device-island-lens {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #16161A;
+  box-shadow:
+    0 0 0 1.5px #0E0E11 inset,
+    0 0 3px rgba(60, 90, 160, .55) inset;
+}
+
+.device-statusbar {
+  flex: none;
+  height: 56px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 30px 9px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  position: relative;
+  z-index: 800;
+  color: var(--text);
+}
+
+.device-homebar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7px;
+  display: flex;
+  justify-content: center;
+  z-index: 900;
+  pointer-events: none;
+}
+
+.device-homebar span {
+  width: 142px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(23, 20, 15, .28);
+}
+
+/* En celular real no hay chasis: la app ocupa toda la pantalla */
+@media (max-width: 900px) {
+  .device-wrapper {
+    padding: 0;
+    background: var(--bg);
+  }
+
+  .tablet-device {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .device-island {
+    display: none;
+  }
+
+  .device-statusbar {
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .device-homebar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Mapa (Leaflet) — el tracking usa el mismo estilo del mockup
+   ------------------------------------------------------------ */
+.leaflet-container {
+  background: #EDEBE6;
+  font-family: var(--font-sans);
+}
+
+.leaflet-control-attribution {
+  font-size: 9px;
+  background: rgba(255, 255, 255, .7);
+  color: var(--muted);
+}
+
+.leaflet-control-attribution a {
+  color: var(--muted);
+}
+
+.tura-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .25);
+}
+
+/* Respeta la preferencia del sistema de reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
