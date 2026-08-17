@@ -562,3 +562,40 @@ button:disabled {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* ------------------------------------------------------------
+   SUITE DE REDES
+   El editor y la vista previa van lado a lado en escritorio; en
+   celular la vista previa baja, porque partir 375 px en dos deja
+   las dos mitades inservibles.
+   ------------------------------------------------------------ */
+.composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* La bandeja: lista de conversaciones + la conversación abierta */
+.inbox {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 16px;
+  height: calc(100dvh - 190px);
+  min-height: 480px;
+}
+
+@media (max-width: 899px) {
+  .composer { grid-template-columns: 1fr; }
+
+  .inbox {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  /* Sin alto fijo la lista crece sola y la conversación se lee
+     completa haciendo scroll de la página */
+  .inbox > aside { max-height: 320px; }
+  .inbox > section { min-height: 460px; }
+}
