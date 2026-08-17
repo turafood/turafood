@@ -40,6 +40,7 @@ const PAGES = {
   '/negocio/redes': ['Redes sociales', 'Tus cuentas, tus posts y tu bandeja'],
   '/negocio/redes/crear': ['Crear publicación', 'Míralo antes de publicarlo'],
   '/negocio/redes/inbox': ['Bandeja de marketing', 'Todos tus mensajes en un solo lugar'],
+  '/negocio/soporte': ['Soporte', 'Estamos del otro lado'],
   '/negocio/crecimiento/google-negocio': ['Ficha de Google', 'Para que te encuentren en Maps y en el buscador'],
   '/negocio/crecimiento/google-ads': ['Campañas en Google', 'Aparece de primero cuando busquen lo que vendes'],
   '/negocio/crecimiento/agente-voz': ['Agente de voz', 'Una línea que contesta y toma pedidos sola'],
@@ -91,6 +92,7 @@ const NAV_GROUPS = [
     label: 'CUENTA',
     items: [
       { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
+      { label: 'Soporte', icon: 'support_agent', href: '/negocio/soporte' },
       { label: 'Equipo y ajustes', icon: 'settings', href: '/negocio/equipo' },
     ],
   },

@@ -193,7 +193,7 @@ export default function InboxPage() {
                   </span>
 
                   <span style={{ flex: 'none', textAlign: 'right' }}>
-                    <span style={{ display: 'block', fontSize: 10.5, color: 'var(--faint)', fontWeight: 700 }}>
+                    <span suppressHydrationWarning style={{ display: 'block', fontSize: 10.5, color: 'var(--faint)', fontWeight: 700 }}>
                       {relativeTime(t.last_message_at)}
                     </span>
                     {t.unread_count > 0 && (
@@ -241,7 +241,7 @@ export default function InboxPage() {
                   return (
                     <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: mine ? 'flex-end' : 'flex-start' }}>
                       <div style={mine ? S.bubbleOut : S.bubbleIn}>{m.body}</div>
-                      <span style={S.bubbleMeta}>
+                      <span suppressHydrationWarning style={S.bubbleMeta}>
                         {time(m.created_at)}
                         {mine && (
                           <>

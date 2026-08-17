@@ -280,7 +280,7 @@ export default function RedesPage() {
                     <p className="tr2" style={S.postText}>{post.content || 'Sin texto'}</p>
 
                     <div style={S.postMeta}>
-                      <span>
+                      <span suppressHydrationWarning>
                         {post.published_at
                           ? `Publicada ${relativeTime(post.published_at).toLowerCase()}`
                           : post.scheduled_at
