@@ -29,9 +29,11 @@ const OTP_CHANNEL = 'sms';
 export default function AuthPage() {
   const router = useRouter();
 
-  const [mode, setMode] = useState('choose');   // choose | phone | otp
+  const [mode, setMode] = useState('choose');   // choose | phone | otp | email
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
@@ -58,6 +60,33 @@ export default function AuthPage() {
         options: { redirectTo: `${window.location.origin}/` },
       });
       if (oauthError) throw new Error(oauthError.message);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
+  /**
+   * Entrada por correo.
+   *
+   * No es la puerta principal —está un nivel más abajo, detrás de un
+   * enlace— pero tiene que existir: quien ya se registró con correo, y
+   * quien no usa Google ni Facebook, se queda afuera sin ella. Quitarla
+   * del todo dejaba gente encerrada.
+   */
+  const signInWithEmail = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!guard()) return;
+
+    setBusy(true);
+    try {
+      const { error: signInError } = await createClient().auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError) throw new Error('Correo o contraseña incorrectos.');
+      enter();
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -143,9 +172,13 @@ export default function AuthPage() {
 
                 {error && <Alert text={error} />}
 
+                <button onClick={() => { setMode('email'); setError(null); }} style={S.emailLink}>
+                  Entrar con correo y contraseña
+                </button>
+
                 <p style={S.safety}>
                   <span className="ms" style={{ fontSize: 15, verticalAlign: '-2px' }}>lock</span>
-                  {' '}Sin contraseñas que recordar. Nunca vemos tus credenciales.
+                  {' '}Nunca vemos tus credenciales.
                 </p>
 
                 <div style={S.footer}>
@@ -153,6 +186,40 @@ export default function AuthPage() {
                   <Link href="/registro" style={S.footerLink}>Registra tu negocio</Link>
                 </div>
               </div>
+            )}
+
+            {mode === 'email' && (
+              <form onSubmit={signInWithEmail} className="anim-up">
+                <BackButton onClick={() => { setMode('choose'); setError(null); }} />
+                <h1 style={S.title}>Con tu correo</h1>
+                <p style={S.subtitle}>Para cuentas creadas antes, o si no usas Google ni Facebook.</p>
+
+                <input
+                  type="email"
+                  required
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tucorreo@ejemplo.com"
+                  autoComplete="username"
+                  style={{ ...S.field, marginTop: 20 }}
+                />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Tu contraseña"
+                  autoComplete="current-password"
+                  style={{ ...S.field, marginTop: 10 }}
+                />
+
+                {error && <Alert text={error} />}
+
+                <button type="submit" disabled={busy} style={S.primary}>
+                  {busy ? 'Entrando…' : 'Entrar'}
+                </button>
+              </form>
             )}
 
             {mode === 'phone' && (
@@ -301,8 +368,19 @@ export const S = {
     color: '#fff', fontWeight: 700, fontSize: 15, marginTop: 18,
     boxShadow: '0 10px 26px rgba(255,68,31,.36)',
   },
+  emailLink: {
+    display: 'block', width: '100%', marginTop: 16, padding: '6px 0',
+    fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.62)',
+    textAlign: 'center', textDecoration: 'underline',
+    textUnderlineOffset: 3, textDecorationColor: 'rgba(255,255,255,.25)',
+  },
+  field: {
+    width: '100%', height: 50, borderRadius: 14, padding: '0 15px',
+    background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.14)',
+    color: '#fff', fontSize: 15, outline: 'none',
+  },
   safety: {
-    margin: '20px 0 0', fontSize: 11.5, lineHeight: 1.5,
+    margin: '16px 0 0', fontSize: 11.5, lineHeight: 1.5,
     color: 'rgba(255,255,255,.4)', textAlign: 'center',
   },
   footer: {

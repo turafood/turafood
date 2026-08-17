@@ -8,12 +8,16 @@
  *
  * "Buscar" no navega: abre el buscador encima de la pantalla actual,
  * para no perder dónde estaba el usuario.
+ *
+ * Se esconde mientras haya una hoja abierta: las hojas suben desde
+ * abajo y la barra les tapaba los campos de más abajo.
  */
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { useHydrated } from '@/lib/useHydrated';
+import { useDialogOpen } from '@/lib/useDialogOpen';
 import { useSearchOverlay } from './SearchOverlay';
 
 const ITEMS = [
@@ -30,8 +34,11 @@ export default function BottomNav() {
   const searchOpen = useSearchOverlay((s) => s.open);
   const rawCount = useCartStore((s) => s.getTotalItems());
   const hydrated = useHydrated();
+  const dialogOpen = useDialogOpen();
   // El contador sale de localStorage: no lo pintamos antes de hidratar
   const cartCount = hydrated ? rawCount : 0;
+
+  if (dialogOpen) return null;
 
   return (
     <nav style={S.bar}>

@@ -249,11 +249,14 @@ export default function StorePage() {
         {showCartBar && (
           <div style={S.cartBarWrap}>
             <button onClick={() => router.push('/cart')} style={S.cartBar}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 9, fontWeight: 700, fontSize: 15 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 9, fontWeight: 800, fontSize: 15 }}>
                 <span style={S.cartCount}>{cartCount}</span>
-                Ver canasta
+                Ir a comprar
               </span>
-              <span style={{ fontWeight: 800, fontSize: 16 }}>{cop(cartSubtotal)}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: 16 }}>
+                {cop(cartSubtotal)}
+                <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+              </span>
             </button>
           </div>
         )}
@@ -320,8 +323,12 @@ const S = {
   },
   cartBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
-    height: 58, borderRadius: 999, background: 'var(--primary)', color: '#fff',
-    padding: '0 20px', boxShadow: '0 12px 28px rgba(255,68,31,.35)',
+    // Verde, distinto del naranja de "agregar": esta barra no agrega
+    // nada, te saca de la tienda para pagar.
+    height: 58, borderRadius: 999, color: '#fff',
+    background: 'linear-gradient(96deg, #12B972 0%, #0E9E5F 100%)',
+    padding: '0 20px',
+    boxShadow: '0 12px 30px rgba(14,158,95,.4), inset 0 1px 0 rgba(255,255,255,.22)',
   },
   cartCount: {
     minWidth: 24, height: 24, borderRadius: 8, background: 'rgba(255,255,255,.22)',
