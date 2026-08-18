@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getPayment, getLatestPayment, subscribeToPayment, retryPayment } from '@/services/payment';
 import { getOrder } from '@/lib/data';
 import { cop } from '@/lib/format';
+import RouteSkeleton from '../../components/RouteSkeleton';
 
 /** Cómo se ve cada estado */
 const VIEW = {
@@ -55,7 +56,7 @@ const VIEW = {
 
 export default function PaymentResultWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={2} height={120} />}>
       <PaymentResult />
     </Suspense>
   );

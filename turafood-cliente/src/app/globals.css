@@ -143,14 +143,29 @@ textarea {
 }
 
 /* Transición al cambiar de ruta dentro del shell. Corta a propósito:
-   debe leerse como que el contenido cambió, no como que cargó. */
+   debe leerse como que el contenido cambió, no como que cargó.
+
+   Solo mueve, no desvanece. Antes el fotograma inicial era opacidad 0,
+   y el reloj de una animación no avanza mientras el navegador no pinta
+   —una pestaña en segundo plano, por ejemplo—. La pantalla se quedaba
+   en el fotograma inicial: invisible.
+
+   Animando únicamente el desplazamiento, lo peor que puede pasar es
+   que el contenido aparezca seis píxeles más abajo. Nadie lo nota, y
+   nunca hay una pantalla en blanco. */
 .route-fade {
-  animation: routeIn .18s cubic-bezier(.32, .72, 0, 1) both;
+  animation: routeIn .18s cubic-bezier(.32, .72, 0, 1) forwards;
 }
 
 @keyframes routeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  from { transform: translateY(6px); }
+  to   { transform: none; }
+}
+
+/* Quien pidió menos movimiento no necesita el desvanecido, y así se
+   quita también cualquier riesgo de quedarse en el fotograma inicial. */
+@media (prefers-reduced-motion: reduce) {
+  .route-fade { animation: none; }
 }
 
 .anim-up      { animation: up .28s ease both; }

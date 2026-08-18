@@ -17,9 +17,10 @@ import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import HeroBackdrop from '../components/HeroBackdrop';
+import RouteSkeleton from '../components/RouteSkeleton';
 export default function AuthPageWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={3} />}>
       <AuthPage />
     </Suspense>
   );

@@ -15,6 +15,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import { getMessages, sendMessage, subscribeToMessages, getOrder } from '@/lib/data';
+import RouteSkeleton from '../components/RouteSkeleton';
 
 const QUICK_REPLIES = [
   'Ya voy saliendo',
@@ -29,7 +30,7 @@ const hhmm = (iso) => new Date(iso).toLocaleTimeString('es-CO', {
 
 export default function ChatPageWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={5} height={64} />}>
       <ChatPage />
     </Suspense>
   );

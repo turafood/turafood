@@ -12,6 +12,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getOrder } from '@/lib/data';
 import { cop } from '@/lib/format';
+import RouteSkeleton from '../components/RouteSkeleton';
 const TAGS = [
   'Comida caliente', 'Llegó rápido', 'Bien empacado',
   'Pedido completo', 'Buen trato', 'Precio justo',
@@ -30,7 +31,7 @@ const STAR_LABEL = {
 
 export default function RatePageWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={3} />}>
       <RatePage />
     </Suspense>
   );

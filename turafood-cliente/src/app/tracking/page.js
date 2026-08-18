@@ -15,6 +15,7 @@ import Script from 'next/script';
 import { getOrder, subscribeToOrder } from '@/lib/data';
 import { BUENAVENTURA } from '@/lib/seed';
 import { ORDER_STATUS } from '@/lib/format';
+import RouteSkeleton from '../components/RouteSkeleton';
 /** Los cuatro pasos que dibuja la barra de progreso del diseño */
 const STEPS = ['accepted', 'preparing', 'picked_up', 'delivered'];
 
@@ -31,7 +32,7 @@ const STEP_INDEX = {
 
 export default function TrackingPageWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={3} height={140} />}>
       <TrackingPage />
     </Suspense>
   );

@@ -15,6 +15,7 @@ import { SORTS, FILTERS } from '@/lib/seed';
 import { feeLabel, etaLabel, kmLabel } from '@/lib/format';
 import { Cover } from '../components/Media';
 import { useSearchOverlay } from '../components/SearchOverlay';
+import RouteSkeleton from '../components/RouteSkeleton';
 
 const VERTICAL_TITLE = {
   restaurant: 'Restaurantes',
@@ -43,7 +44,7 @@ const CUISINES = [
 
 export default function ListPageWrapper() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<RouteSkeleton rows={5} />}>
       <ListPage />
     </Suspense>
   );
