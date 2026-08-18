@@ -83,6 +83,19 @@ export async function probarComo(rol, onPaso) {
           // Sin menú de ejemplo se entra igual: el panel lo ofrece
           // con un botón desde su propia pantalla.
         }
+
+        // Y cuatro comandas, una por columna. Un tablero que dice
+        // "Sin comandas" cuatro veces no enseña nada: no hay nada que
+        // aceptar, nada que mover, nada que cronometrar. Son pedidos
+        // de verdad en su cuenta, así que se manejan con los mismos
+        // botones — y se borran solos cuando entre el primero real.
+        paso('comandas');
+        try {
+          await supabase.rpc('sembrar_pedidos_demo');
+        } catch {
+          // El tablero arranca vacío y ya. No vale la pena frenar la
+          // entrada por unas comandas de ejemplo.
+        }
       } else {
         await supabase.from('courier_profiles').insert({
           id: nuevo.id,

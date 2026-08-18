@@ -161,7 +161,8 @@ export default function EntrarPage() {
 const PASOS = [
   { id: 'sesion', label: 'Abriendo tu espacio' },
   { id: 'ficha',  label: 'Preparando tu panel' },
-  { id: 'menu',   label: 'Cargando un menú de ejemplo' },
+  { id: 'menu',     label: 'Cargando un menú de ejemplo' },
+  { id: 'comandas', label: 'Poniendo pedidos de prueba' },
   { id: 'listo',  label: 'Todo listo' },
 ];
 

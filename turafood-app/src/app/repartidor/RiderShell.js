@@ -142,10 +142,81 @@ export default function RiderShell({ children }) {
 
   const fullscreen = useMemo(() => FULLSCREEN.includes(path), [path]);
 
+  /** Mismo cálculo que en Inicio: el nivel sale de las entregas hechas */
+  const entregas = courier?.total_deliveries ?? 0;
+  const nivel = entregas >= 1000 ? { nombre: 'Nivel Platino', tope: 1000, piso: 1000 }
+    : entregas >= 500 ? { nombre: 'Nivel Oro', tope: 1000, piso: 500 }
+      : entregas >= 150 ? { nombre: 'Nivel Plata', tope: 500, piso: 150 }
+        : { nombre: 'Nivel Bronce', tope: 150, piso: 0 };
+  const nivelPct = nivel.tope === nivel.piso
+    ? 100
+    : Math.min(100, Math.round(((entregas - nivel.piso) / (nivel.tope - nivel.piso)) * 100));
+
   const ctx = { courier, loading, error, active, online, setOnline, reloadActive, toast };
 
   return (
     <RiderContext.Provider value={ctx}>
+      {/* Barra lateral de escritorio. En el mockup (línea 107) el
+          repartidor en tablet no usa la píldora flotante: la
+          navegación se va al lado y el contenido gana todo el alto. */}
+      {!fullscreen && (
+        <aside className="rider-side">
+          <div style={S.sideBrand}>
+            <span style={S.sideLogo}>
+              <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>two_wheeler</span>
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={S.sideName}>Tura Repartidor</span>
+              <span style={S.sideCity}>Buenaventura</span>
+            </span>
+          </div>
+
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {TABS.map((t) => {
+              const on = path === t.href;
+              return (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className="rider-side-item"
+                  style={on ? S.sideItemOn : S.sideItemOff}
+                >
+                  <span
+                    className="ms"
+                    style={{ fontSize: 21, fontVariationSettings: on ? "'FILL' 1" : undefined }}
+                  >
+                    {t.icon}
+                  </span>
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{t.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div style={{ flex: 1 }} />
+
+          <div style={S.sideTier}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+              <span style={S.sideTierIcon}>
+                <span className="ms" style={{ fontSize: 18, color: '#A8730B' }}>workspace_premium</span>
+              </span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 13, fontWeight: 800 }}>{nivel.nombre}</span>
+                <span style={S.sideTierMeta}>{entregas} / {nivel.tope}</span>
+              </span>
+            </div>
+            <div style={S.sideTierTrack}>
+              <span style={{ ...S.sideTierFill, width: `${nivelPct}%` }} />
+            </div>
+          </div>
+
+          <button onClick={() => setAiOpen(true)} style={S.sideAi}>
+            <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--amber)' }}>auto_awesome</span>
+            <span style={{ flex: 1, textAlign: 'left', fontSize: 13.5, fontWeight: 700 }}>Tura IA</span>
+          </button>
+        </aside>
+      )}
+
       <div className="rider-frame">
         {error && !fullscreen && (
           <div style={S.error}>
@@ -176,7 +247,7 @@ export default function RiderShell({ children }) {
         <TuraIARider open={aiOpen} onClose={() => setAiOpen(false)} />
 
         {!fullscreen && (
-          <nav style={S.tabsWrap}>
+          <nav className="rider-tabs" style={S.tabsWrap}>
             <div style={S.tabs}>
               {TABS.map((t) => {
                 const on = t.href === '/repartidor'
@@ -222,6 +293,48 @@ const S = {
     display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 18px 0 15px',
     borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,#17140F)', color: '#fff',
     boxShadow: '0 12px 30px rgba(20,16,10,.34)', animation: 'pop .3s ease',
+  },
+  sideBrand: { display: 'flex', alignItems: 'center', gap: 11, padding: '0 8px 20px' },
+  sideLogo: {
+    width: 40, height: 40, borderRadius: 13, flex: 'none',
+    background: 'linear-gradient(150deg,#FF7A3D,#FF441F)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(255,68,31,.3)',
+  },
+  sideName: {
+    display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 16, letterSpacing: '-.02em',
+  },
+  sideCity: {
+    display: 'block', fontSize: 11, color: 'var(--muted)', fontWeight: 700, marginTop: 1,
+  },
+  sideItemOn: { background: '#FFF1EC', color: 'var(--primary)' },
+  sideItemOff: { color: 'var(--muted)' },
+  sideTier: {
+    borderRadius: 18, padding: 15, color: '#fff',
+    background: 'linear-gradient(145deg,#241F1A,#12100D)',
+  },
+  sideTierIcon: {
+    width: 32, height: 32, borderRadius: 10, flex: 'none',
+    background: 'linear-gradient(140deg,#FFF0CC,#F7DFA6)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  sideTierMeta: {
+    display: 'block', fontSize: 11, color: 'rgba(255,255,255,.55)', marginTop: 1,
+  },
+  sideTierTrack: {
+    height: 7, borderRadius: 99, marginTop: 12, overflow: 'hidden',
+    background: 'rgba(255,255,255,.14)',
+  },
+  sideTierFill: {
+    display: 'block', height: '100%', borderRadius: 99,
+    background: 'linear-gradient(90deg,#F0C97A,#D99A15)',
+    transition: 'width .4s cubic-bezier(.2,0,0,1)',
+  },
+  sideAi: {
+    display: 'flex', alignItems: 'center', gap: 9, height: 46, padding: '0 14px',
+    borderRadius: 999, marginTop: 12,
+    background: 'var(--bg)', border: '1px solid var(--border)',
   },
   tabsWrap: {
     position: 'absolute', left: 0, right: 0, bottom: 0,

@@ -674,3 +674,66 @@ button:disabled {
   .hist-row,
   .hist-row .hist-arrow { transition: none; }
 }
+
+/* ------------------------------------------------------------
+   APP DEL REPARTIDOR EN ESCRITORIO
+
+   En celular la navegación es la píldora flotante de abajo, como en
+   el mockup. En pantalla ancha esa píldora se ve perdida en medio de
+   tanto espacio, así que se cambia por una barra lateral —línea 107
+   del mockup— y el contenido gana todo el alto.
+   ------------------------------------------------------------ */
+.rider-side { display: none; }
+
+@media (min-width: 900px) {
+  /* El contenedor pasa a fila: barra al lado, contenido al resto.
+     Y el marco deja de ser una columna de celular centrada — con
+     250px de barra al lado, una columna de 460 en medio de la pantalla
+     se ve perdida. */
+  .rider-root {
+    display: flex;
+    align-items: stretch;
+    min-height: 100dvh;
+  }
+
+  .rider-root .rider-frame {
+    max-width: none;
+    margin: 0;
+    height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rider-side {
+    flex: none;
+    width: 250px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 22px 14px 18px;
+  }
+
+  .rider-side-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    border-radius: 13px;
+    text-decoration: none;
+    transition: background .15s ease;
+  }
+  .rider-side-item:hover { background: var(--bg); }
+
+  /* Con barra lateral sobra la píldora de abajo */
+  .rider-frame .rider-tabs { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rider-side-item { transition: none; }
+}
