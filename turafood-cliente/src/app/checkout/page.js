@@ -150,6 +150,19 @@ export default function CheckoutPage() {
     );
   }
 
+  /**
+   * Lo que impide seguir, dicho en el propio boton.
+   *
+   * Un boton apagado sin explicacion es la peor pantalla posible: la
+   * persona toca, no pasa nada, y se va. Si falta la direccion, el
+   * boton dice que falta la direccion.
+   */
+  const falta = mode === 'delivery' && !address
+    ? 'Falta tu direccion'
+    : when === 'scheduled' && !schedule
+      ? 'Elige la hora de entrega'
+      : null;
+
   return (
     <>
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0, position: 'relative' }}>
@@ -161,6 +174,42 @@ export default function CheckoutPage() {
           <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>
             Confirmar pedido
           </span>
+        </div>
+
+        {/* Donde va en el camino. Tres pasos y no cinco: mas de tres
+            deja de tranquilizar y empieza a dar pereza. */}
+        <div style={S.steps}>
+          {['Canasta', 'Confirmar', 'Pagar'].map((label, i) => {
+            const done = i < 1;
+            const now = i === 1;
+            return (
+              <span key={label} style={{ display: 'contents' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    style={{
+                      ...S.stepDot,
+                      background: done ? 'var(--green)' : now ? 'var(--text)' : 'var(--surface2)',
+                      color: done || now ? '#fff' : 'var(--faint)',
+                    }}
+                  >
+                    {done
+                      ? <span className="ms" style={{ fontSize: 13 }}>check</span>
+                      : i + 1}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      fontWeight: now ? 800 : 600,
+                      color: now ? 'var(--text)' : 'var(--muted)',
+                    }}
+                  >
+                    {label}
+                  </span>
+                </span>
+                {i < 2 && <span style={S.stepLine} />}
+              </span>
+            );
+          })}
         </div>
 
         <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 130px', minHeight: 0 }}>
@@ -368,13 +417,34 @@ export default function CheckoutPage() {
           {/* Totales */}
           <div style={{ ...S.card, padding: 16, marginTop: 18 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-              <Row label="Subtotal" value={cop(t.subtotal)} />
+              <Row
+                label="Subtotal" value={cop(t.subtotal)}
+                why="Lo que cuestan los productos en el negocio. Los precios los pone el negocio, no nosotros."
+              />
               {mode === 'delivery' && (
-                <Row label="Envío" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0} />
+                <Row
+                  label="Envío" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0}
+                  why={t.delivery === 0
+                    ? 'Hoy el envío va por cuenta del negocio.'
+                    : 'Va completo para el repartidor que te lo trae. Depende de la distancia hasta tu dirección.'}
+                />
               )}
-              <Row label="Tarifa de servicio" value={cop(t.service)} />
-              {t.tip > 0 && <Row label="Propina" value={cop(t.tip)} />}
-              {t.discount > 0 && <Row label="Descuento" value={`− ${cop(t.discount)}`} green />}
+              <Row
+                label="Tarifa de servicio" value={cop(t.service)}
+                why="Es fija, no un porcentaje. Cubre el soporte, los pagos y que la app siga funcionando."
+              />
+              {t.tip > 0 && (
+                <Row
+                  label="Propina" value={cop(t.tip)}
+                  why="Se la lleva completa el repartidor. Puedes cambiarla o quitarla arriba."
+                />
+              )}
+              {t.discount > 0 && (
+                <Row
+                  label="Descuento" value={`− ${cop(t.discount)}`} green
+                  why="Tu cupón aplicado."
+                />
+              )}
             </div>
           </div>
 
@@ -400,8 +470,12 @@ export default function CheckoutPage() {
               {cop(t.total)}
             </div>
           </div>
-          <button onClick={() => setPaySheetOpen(true)} disabled={placing} style={S.placeBtn}>
-            Hacer pedido
+          <button
+            onClick={() => setPaySheetOpen(true)}
+            disabled={placing || Boolean(falta)}
+            style={{ ...S.placeBtn, opacity: falta ? 0.55 : 1 }}
+          >
+            {falta ?? 'Hacer pedido'}
           </button>
         </div>
 
@@ -431,16 +505,72 @@ export default function CheckoutPage() {
   );
 }
 
-function Row({ label, value, green }) {
+/**
+ * Una linea de la cuenta.
+ *
+ * Con `why`, el nombre se vuelve tocable y explica de donde sale ese
+ * cobro. La sospecha de que a uno le estan metiendo plata de mas es lo
+ * que hace abandonar un carrito: contestarla antes de que la pregunten
+ * cuesta un renglon.
+ */
+function Row({ label, value, green, why }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
-      <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontWeight: 700, color: green ? 'var(--green)' : 'var(--text)' }}>{value}</span>
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
+        {why ? (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              color: 'var(--muted)', fontWeight: 600, fontSize: 13.5,
+            }}
+          >
+            {label}
+            <span
+              className="ms"
+              style={{
+                fontSize: 15, color: 'var(--faint)',
+                transform: open ? 'rotate(180deg)' : 'none',
+                transition: 'transform .18s ease',
+              }}
+            >
+              expand_more
+            </span>
+          </button>
+        ) : (
+          <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+        )}
+        <span style={{ fontWeight: 700, color: green ? 'var(--green)' : 'var(--text)' }}>{value}</span>
+      </div>
+
+      {open && why && (
+        <p className="anim-fade" style={S.why}>{why}</p>
+      )}
     </div>
   );
 }
 
 const S = {
+  steps: {
+    flex: 'none', display: 'flex', alignItems: 'center', gap: 8,
+    padding: '0 20px 14px',
+  },
+  stepDot: {
+    width: 20, height: 20, borderRadius: '50%', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: 11, fontWeight: 800,
+  },
+  stepLine: {
+    flex: 1, height: 2, borderRadius: 99, background: 'var(--surface2)',
+  },
+  why: {
+    margin: '7px 0 0', padding: '9px 11px', borderRadius: 11,
+    background: 'var(--surface2)', fontSize: 11.5, lineHeight: 1.5,
+    color: 'var(--muted)',
+  },
   backBtn: {
     width: 38, height: 38, borderRadius: '50%', background: 'var(--surface2)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
