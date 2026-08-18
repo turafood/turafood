@@ -62,6 +62,7 @@ CREATE INDEX IF NOT EXISTS idx_tickets_queue
     ON public.support_tickets (status, priority, created_at)
     WHERE status IN ('open', 'in_progress', 'waiting');
 
+DROP TRIGGER IF EXISTS support_tickets_touch ON public.support_tickets;
 CREATE TRIGGER support_tickets_touch
     BEFORE UPDATE ON public.support_tickets
     FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();

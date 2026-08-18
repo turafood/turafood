@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS public.social_accounts (
 CREATE INDEX IF NOT EXISTS idx_social_accounts_biz
     ON public.social_accounts (business_id);
 
+DROP TRIGGER IF EXISTS social_accounts_touch ON public.social_accounts;
 CREATE TRIGGER social_accounts_touch
     BEFORE UPDATE ON public.social_accounts
     FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
@@ -99,6 +100,7 @@ CREATE INDEX IF NOT EXISTS idx_social_posts_queue
     ON public.social_posts (status, scheduled_at)
     WHERE status IN ('scheduled', 'queued');
 
+DROP TRIGGER IF EXISTS social_posts_touch ON public.social_posts;
 CREATE TRIGGER social_posts_touch
     BEFORE UPDATE ON public.social_posts
     FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();

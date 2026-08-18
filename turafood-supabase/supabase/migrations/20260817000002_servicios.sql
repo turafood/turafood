@@ -61,6 +61,7 @@ CREATE INDEX IF NOT EXISTS idx_service_requests_queue
     ON public.service_requests (status, submitted_at)
     WHERE status IN ('submitted', 'in_progress');
 
+DROP TRIGGER IF EXISTS service_requests_touch ON public.service_requests;
 CREATE TRIGGER service_requests_touch
     BEFORE UPDATE ON public.service_requests
     FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
