@@ -134,7 +134,9 @@ export default function OperacionPage() {
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={S.fleetName}>{f.name}</span>
                     <span style={S.fleetMeta}>
-                      {f.vehicle === 'bici' ? 'Bicicleta' : `Moto ${f.plate ?? ''}`}
+                      {f.vehicle === 'bicycle' ? 'Bicicleta'
+                        : f.vehicle === 'car' ? `Carro ${f.plate ?? ''}`
+                        : `Moto ${f.plate ?? ''}`}
                       {f.rating ? ` · ${String(f.rating).replace('.', ',')}` : ''}
                     </span>
                   </span>

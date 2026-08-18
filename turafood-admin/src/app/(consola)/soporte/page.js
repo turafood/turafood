@@ -16,21 +16,36 @@ import { cop } from '@/lib/format';
 import { getTickets, AUDIT_LOG, ago } from '@/lib/admin';
 import { Panel, Kpi, Pill, Tabs, Meter, Empty, Skeleton, ErrorNote } from '../../ui';
 
+/**
+ * Las cinco pestañas son los cinco estados que acepta la base. Antes
+ * había tres, así que los tickets en proceso o ya resueltos no
+ * aparecían en ninguna: quedaban invisibles sin que nadie lo notara.
+ */
 const TABS = [
   { id: 'open', label: 'Abiertos' },
-  { id: 'waiting', label: 'Esperando' },
+  { id: 'in_progress', label: 'En proceso' },
+  { id: 'waiting', label: 'Esperando al negocio' },
+  { id: 'resolved', label: 'Resueltos' },
   { id: 'closed', label: 'Cerrados' },
 ];
 
+/**
+ * Claves de la base, no del idioma. `support_tickets.priority` solo
+ * acepta urgent, high, normal o low; con las claves en español ningún
+ * ticket real encontraba su etiqueta y todos salían como "BAJA".
+ */
 const PRIORITY = {
-  alta:  { label: 'ALTA',  bg: '#FFF0ED', color: '#C0341A' },
-  media: { label: 'MEDIA', bg: '#FFF7E6', color: '#A8730B' },
-  baja:  { label: 'BAJA',  bg: '#F0EEE9', color: '#8C857B' },
+  urgent: { label: 'URGENTE', bg: '#FFF0ED', color: '#C0341A' },
+  high:   { label: 'ALTA',    bg: '#FFF0ED', color: '#C0341A' },
+  normal: { label: 'MEDIA',   bg: '#FFF7E6', color: '#A8730B' },
+  low:    { label: 'BAJA',    bg: '#F0EEE9', color: '#8C857B' },
 };
 
+/** Las siete categorías que acepta `support_tickets.category` */
 const CATEGORY_ICON = {
-  pedido: 'receipt_long', pago: 'credit_card', repartidor: 'two_wheeler',
-  cuenta: 'account_balance', otro: 'flag',
+  orders: 'receipt_long', payouts: 'account_balance', account: 'person',
+  catalog: 'restaurant_menu', growth: 'rocket_launch',
+  technical: 'bug_report', other: 'flag',
 };
 
 export default function SoportePage() {
@@ -49,7 +64,7 @@ export default function SoportePage() {
   const counts = Object.fromEntries(
     TABS.map((t) => [t.id, rows.filter((r) => r.status === t.id).length]),
   );
-  const high = rows.filter((t) => t.status === 'open' && t.priority === 'alta').length;
+  const high = rows.filter((t) => t.status === 'open' && ['high', 'urgent'].includes(t.priority)).length;
 
   return (
     <>
@@ -91,7 +106,7 @@ export default function SoportePage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {list.map((t) => {
-                  const p = PRIORITY[t.priority] ?? PRIORITY.baja;
+                  const p = PRIORITY[t.priority] ?? PRIORITY.low;
                   return (
                     <div key={t.id} style={S.ticket}>
                       <span style={S.ticketIcon}>

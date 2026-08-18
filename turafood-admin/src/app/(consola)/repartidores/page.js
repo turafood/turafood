@@ -22,11 +22,15 @@ const TABS = [
   { id: 'suspended', label: 'Suspendidos' },
 ];
 
+/**
+ * Las claves son las que guarda la base (`courier_profiles.vehicle_type`
+ * solo acepta motorcycle, bicycle o car). Estaban en español y por eso
+ * ninguna fila real encontraba su etiqueta.
+ */
 const VEHICLE = {
-  moto:  { label: 'Moto', bg: '#FFF0ED', color: '#C0341A' },
-  bici:  { label: 'Bici', bg: '#E6F6EE', color: '#0B8E54' },
-  carro: { label: 'Carro', bg: '#EAF1FF', color: '#2E6BFF' },
-  a_pie: { label: 'A pie', bg: '#F0EEE9', color: '#8C857B' },
+  motorcycle: { label: 'Moto',  bg: '#FFF0ED', color: '#C0341A' },
+  bicycle:    { label: 'Bici',  bg: '#E6F6EE', color: '#0B8E54' },
+  car:        { label: 'Carro', bg: '#EAF1FF', color: '#2E6BFF' },
 };
 
 /** Los cuatro papeles sin los cuales no puede salir a rodar */
@@ -145,7 +149,7 @@ export default function RepartidoresPage() {
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={S.name}>{c.full_name}</span>
                       <span style={S.meta}>
-                        {c.doc ?? '—'} · {(VEHICLE[c.vehicle_type] ?? VEHICLE.moto).label}
+                        {c.doc ?? '—'} · {(VEHICLE[c.vehicle_type] ?? VEHICLE.motorcycle).label}
                         {c.zone ? ` · ${c.zone}` : ''}
                       </span>
                     </span>
@@ -213,7 +217,7 @@ export default function RepartidoresPage() {
           </div>
 
           {list.map((c) => {
-            const vehicle = VEHICLE[c.vehicle_type] ?? VEHICLE.moto;
+            const vehicle = VEHICLE[c.vehicle_type] ?? VEHICLE.motorcycle;
             const status = COURIER_STATUS[c.approval_status];
             const isOnline = c.status === 'online' && c.approval_status === 'active';
             return (

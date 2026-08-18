@@ -635,20 +635,20 @@ const LOCAL_DOCS = [
 ];
 
 const LOCAL_COURIERS = [
-  { id: 'c1', full_name: 'Yeison Mosquera', doc: 'CC 1.111.234.556', zone: 'Centro · El Piloto', vehicle_type: 'moto', plate: 'WQR-18C', total_deliveries: 1284, rating: 4.9, acceptance_rate: 0.96, approval_status: 'active', status: 'online' },
-  { id: 'c2', full_name: 'Karen Juárez', doc: 'CC 1.006.882.101', zone: 'Juan XXIII', vehicle_type: 'moto', plate: 'TKS-92B', total_deliveries: 842, rating: 4.8, acceptance_rate: 0.91, approval_status: 'active', status: 'online' },
-  { id: 'c3', full_name: 'Brayan Cuero', doc: 'CC 1.110.774.220', zone: 'El Jorge', vehicle_type: 'bici', plate: null, total_deliveries: 318, rating: 4.7, acceptance_rate: 0.88, approval_status: 'active', status: 'offline' },
-  { id: 'c4', full_name: 'Sofía Angulo', doc: 'CC 1.344.902.318', zone: 'Centro', vehicle_type: 'moto', plate: null, total_deliveries: 0, rating: null, acceptance_rate: null, approval_status: 'pending_review', status: 'offline', docs: { cedula: true, licencia: true, soat: true, tecnomecanica: true }, missing: 1 },
-  { id: 'c5', full_name: 'Deiner Riascos', doc: 'CC 1.007.551.904', zone: 'La Playita', vehicle_type: 'moto', plate: null, total_deliveries: 0, rating: null, acceptance_rate: null, approval_status: 'pending_review', status: 'offline', docs: { cedula: true, licencia: true, soat: true, tecnomecanica: true }, missing: 3 },
-  { id: 'c6', full_name: 'Nelson Vidal', doc: 'CC 16.482.310', zone: 'Zona Portuaria', vehicle_type: 'carro', plate: 'HJK-220', total_deliveries: 611, rating: 4.2, acceptance_rate: 0.64, approval_status: 'suspended', status: 'offline' },
+  { id: 'c1', full_name: 'Yeison Mosquera', doc: 'CC 1.111.234.556', zone: 'Centro · El Piloto', vehicle_type: 'motorcycle', plate: 'WQR-18C', total_deliveries: 1284, rating: 4.9, acceptance_rate: 0.96, approval_status: 'active', status: 'online' },
+  { id: 'c2', full_name: 'Karen Juárez', doc: 'CC 1.006.882.101', zone: 'Juan XXIII', vehicle_type: 'motorcycle', plate: 'TKS-92B', total_deliveries: 842, rating: 4.8, acceptance_rate: 0.91, approval_status: 'active', status: 'online' },
+  { id: 'c3', full_name: 'Brayan Cuero', doc: 'CC 1.110.774.220', zone: 'El Jorge', vehicle_type: 'bicycle', plate: null, total_deliveries: 318, rating: 4.7, acceptance_rate: 0.88, approval_status: 'active', status: 'offline' },
+  { id: 'c4', full_name: 'Sofía Angulo', doc: 'CC 1.344.902.318', zone: 'Centro', vehicle_type: 'motorcycle', plate: null, total_deliveries: 0, rating: null, acceptance_rate: null, approval_status: 'pending_review', status: 'offline', docs: { cedula: true, licencia: true, soat: true, tecnomecanica: true }, missing: 1 },
+  { id: 'c5', full_name: 'Deiner Riascos', doc: 'CC 1.007.551.904', zone: 'La Playita', vehicle_type: 'motorcycle', plate: null, total_deliveries: 0, rating: null, acceptance_rate: null, approval_status: 'pending_review', status: 'offline', docs: { cedula: true, licencia: true, soat: true, tecnomecanica: true }, missing: 3 },
+  { id: 'c6', full_name: 'Nelson Vidal', doc: 'CC 16.482.310', zone: 'Zona Portuaria', vehicle_type: 'car', plate: 'HJK-220', total_deliveries: 611, rating: 4.2, acceptance_rate: 0.64, approval_status: 'suspended', status: 'offline' },
 ];
 
 const LOCAL_FLEET = [
-  { id: 'f1', name: 'Yeison Mosquera', vehicle: 'moto', plate: 'WQR-18C', rating: 4.9, state: 'en_ruta' },
-  { id: 'f2', name: 'Luis Alfonso Payán', vehicle: 'moto', plate: 'TKS-92B', rating: 4.8, state: 'en_ruta' },
-  { id: 'f3', name: 'Jhon Edward Bonilla', vehicle: 'moto', plate: 'PLM-44A', rating: 4.6, state: 'retrasado' },
-  { id: 'f4', name: 'Kevin Valencia', vehicle: 'bici', plate: null, rating: 4.7, state: 'libre' },
-  { id: 'f5', name: 'Maicol Arboleda', vehicle: 'moto', plate: 'RTS-71D', rating: 4.9, state: 'libre' },
+  { id: 'f1', name: 'Yeison Mosquera', vehicle: 'motorcycle', plate: 'WQR-18C', rating: 4.9, state: 'en_ruta' },
+  { id: 'f2', name: 'Luis Alfonso Payán', vehicle: 'motorcycle', plate: 'TKS-92B', rating: 4.8, state: 'en_ruta' },
+  { id: 'f3', name: 'Jhon Edward Bonilla', vehicle: 'motorcycle', plate: 'PLM-44A', rating: 4.6, state: 'retrasado' },
+  { id: 'f4', name: 'Kevin Valencia', vehicle: 'bicycle', plate: null, rating: 4.7, state: 'libre' },
+  { id: 'f5', name: 'Maicol Arboleda', vehicle: 'motorcycle', plate: 'RTS-71D', rating: 4.9, state: 'libre' },
 ];
 
 const LOCAL_LIVE_ORDERS = [
@@ -669,11 +669,11 @@ const LOCAL_SERVICES = [
 ];
 
 const LOCAL_TICKETS = [
-  { id: 't1', ref: '#TS-4788', subject: 'Producto faltante en el pedido', body: 'El cliente dice que no recibió el encocado de jaiba. El negocio afirma que sí lo despachó.', who: 'Marleny Cuero', priority: 'alta', status: 'open', action: 'Resolver', created_at: minutesAgo(22) },
-  { id: 't2', ref: '#TS-4771', subject: 'Cobro duplicado con Nequi', body: 'Se registraron dos débitos de $41.800 por el mismo pedido.', who: 'Andrés Riascos', priority: 'alta', status: 'open', action: 'Reembolsar', created_at: hoursAgo(1) },
-  { id: 't3', ref: '#TS-4762', subject: 'Repartidor no encontró la dirección', body: 'Pedido devuelto al negocio. Cliente pide reenvío sin costo.', who: 'Yurany Valencia', priority: 'media', status: 'open', action: 'Reasignar', created_at: hoursAgo(2) },
-  { id: 't4', ref: '#TS-4755', subject: 'Negocio pide cambiar cuenta bancaria', body: 'Solicita pasar de Nequi a Bancolombia antes del corte del viernes.', who: 'Jhon Castillo · Asadero El Puerto', priority: 'media', status: 'open', action: 'Verificar', created_at: hoursAgo(4) },
-  { id: 't5', ref: '#TS-4750', subject: 'Cliente reporta trato inadecuado', body: 'Reporte contra el repartidor Jhon Edward Bonilla. Requiere revisión de super admin.', who: 'Delvid Mosquera', priority: 'alta', status: 'open', action: 'Escalar', created_at: hoursAgo(20) },
+  { id: 't1', ref: '#TS-4788', subject: 'Producto faltante en el pedido', body: 'El cliente dice que no recibió el encocado de jaiba. El negocio afirma que sí lo despachó.', who: 'Marleny Cuero', priority: 'high', status: 'open', action: 'Resolver', created_at: minutesAgo(22) },
+  { id: 't2', ref: '#TS-4771', subject: 'Cobro duplicado con Nequi', body: 'Se registraron dos débitos de $41.800 por el mismo pedido.', who: 'Andrés Riascos', priority: 'high', status: 'open', action: 'Reembolsar', created_at: hoursAgo(1) },
+  { id: 't3', ref: '#TS-4762', subject: 'Repartidor no encontró la dirección', body: 'Pedido devuelto al negocio. Cliente pide reenvío sin costo.', who: 'Yurany Valencia', priority: 'normal', status: 'open', action: 'Reasignar', created_at: hoursAgo(2) },
+  { id: 't4', ref: '#TS-4755', subject: 'Negocio pide cambiar cuenta bancaria', body: 'Solicita pasar de Nequi a Bancolombia antes del corte del viernes.', who: 'Jhon Castillo · Asadero El Puerto', priority: 'normal', status: 'open', action: 'Verificar', created_at: hoursAgo(4) },
+  { id: 't5', ref: '#TS-4750', subject: 'Cliente reporta trato inadecuado', body: 'Reporte contra el repartidor Jhon Edward Bonilla. Requiere revisión de super admin.', who: 'Delvid Mosquera', priority: 'high', status: 'open', action: 'Escalar', created_at: hoursAgo(20) },
 ];
 
 const LOCAL_USERS = [
