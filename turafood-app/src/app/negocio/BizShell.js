@@ -21,6 +21,7 @@ import { useRail, useTheme, useLang } from '@/lib/prefs';
 import { makeT } from '@/lib/i18n';
 import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
+import { useDialogOpen } from '@/lib/useDialogOpen';
 
 /** Títulos de cada sección — PAGES del mockup, línea 1126 */
 const PAGES = {
@@ -130,6 +131,10 @@ export default function BizShell({ children }) {
   const { lang, toggle: toggleLang } = useLang();
   const t = makeT(lang);
   const [aiOpen, setAiOpen] = useState(false);
+
+  // Ver src/lib/useDialogOpen.js: el botón flotante y la barra inferior
+  // se pintaban encima de las hojas porque comparten nivel de apilado.
+  const sheetOpen = useDialogOpen();
   const [aiTips, setAiTips] = useState(0);
   const [toastMsg, setToastMsg] = useState('');
 
@@ -437,7 +442,7 @@ export default function BizShell({ children }) {
         </div>
 
         {/* Botón y panel de Tura IA */}
-        {!aiOpen && (
+        {!aiOpen && !sheetOpen && (
           <button onClick={() => setAiOpen(true)} style={S.aiFab}>
             <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--amber)' }}>auto_awesome</span>
             <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-.01em' }}>Tura IA</span>
@@ -451,7 +456,8 @@ export default function BizShell({ children }) {
           onTipCount={setAiTips}
         />
 
-        {/* Menú inferior de celular */}
+        {/* Menú inferior de celular — se quita mientras haya una hoja abierta */}
+        {!sheetOpen && (
         <nav style={S.bottomNav} className="mobile-only">
           {BOTTOM_NAV.map((b) => {
             const on = path === b.href;
@@ -474,6 +480,7 @@ export default function BizShell({ children }) {
             );
           })}
         </nav>
+        )}
 
         {toastMsg && (
           <div style={S.toast}>
