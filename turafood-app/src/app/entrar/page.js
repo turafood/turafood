@@ -47,6 +47,7 @@ const ROLES = [
 export default function EntrarPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(null);
+  const [paso, setPaso] = useState(null);
   const [error, setError] = useState(null);
 
   const entrar = async (rol) => {
@@ -59,8 +60,9 @@ export default function EntrarPage() {
     }
 
     setBusy(rol.id);
+    setPaso('sesion');
     try {
-      const user = await probarComo(rol.id);
+      const user = await probarComo(rol.id, setPaso);
       if (!user) {
         throw new Error('No se pudo abrir la sesión. Entra con tu cuenta o inténtalo de nuevo.');
       }
@@ -70,8 +72,17 @@ export default function EntrarPage() {
     } catch (err) {
       setError(err.message);
       setBusy(null);
+      setPaso(null);
     }
   };
+
+  // Mientras se abre la sesión, la pantalla completa. No es un adorno:
+  // crear la cuenta y su ficha toma un par de segundos, y dos segundos
+  // sin nada en pantalla se leen como que la app se colgó.
+  if (busy) {
+    const rol = ROLES.find((r) => r.id === busy);
+    return <Abriendo rol={rol} paso={paso} />;
+  }
 
   return (
     <div style={S.page}>
@@ -139,6 +150,132 @@ export default function EntrarPage() {
     </div>
   );
 }
+
+/**
+ * LA ESPERA
+ *
+ * Los pasos son los de verdad, no un temporizador: cada uno se marca
+ * cuando ocurre. Si algo tarda, se ve dónde tardó — y quien espera
+ * prefiere saber en qué va que mirar una rueda dando vueltas.
+ */
+const PASOS = [
+  { id: 'sesion', label: 'Abriendo tu espacio' },
+  { id: 'ficha',  label: 'Preparando tu panel' },
+  { id: 'menu',   label: 'Cargando un menú de ejemplo' },
+  { id: 'listo',  label: 'Todo listo' },
+];
+
+function Abriendo({ rol, paso }) {
+  const actual = Math.max(PASOS.findIndex((p) => p.id === paso), 0);
+
+  return (
+    <div style={T.page}>
+      <HeroBackdrop brightness={0.18} />
+
+      <div style={T.center}>
+        <span style={T.aura}>
+          <span style={{ ...T.logo, boxShadow: `0 0 0 0 ${rol?.accent ?? '#FF7A4D'}` }}>t</span>
+        </span>
+
+        <div style={T.marca}>TuraFood</div>
+        <div style={T.rolTexto}>
+          {rol?.id === 'courier' ? 'Preparando tu ruta' : 'Preparando tu negocio'}
+        </div>
+
+        <div style={T.pasos}>
+          {PASOS.map((p, i) => {
+            const hecho = i < actual;
+            const activo = i === actual;
+            return (
+              <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.35 : 1 }}>
+                <span
+                  style={{
+                    ...T.punto,
+                    background: hecho ? 'var(--green)' : activo ? '#fff' : 'rgba(255,255,255,.18)',
+                    color: hecho || activo ? '#0B0A09' : 'transparent',
+                  }}
+                >
+                  {hecho
+                    ? <span className="ms" style={{ fontSize: 13 }}>check</span>
+                    : activo ? <span style={T.latido} /> : null}
+                </span>
+                <span style={{ fontSize: 13.5, fontWeight: activo ? 800 : 600 }}>
+                  {p.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={T.barra}>
+          <span
+            style={{
+              ...T.barraRelleno,
+              width: `${((actual + 1) / PASOS.length) * 100}%`,
+              background: rol?.accent ?? '#FF7A4D',
+            }}
+          />
+        </div>
+
+        <p style={T.nota}>
+          Sin papeles y sin llenar nada. Puedes empezar a trabajar de una.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const T = {
+  page: {
+    position: 'relative', minHeight: '100dvh', background: '#080706', color: '#fff',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+  },
+  center: {
+    position: 'relative', zIndex: 2, width: '100%', maxWidth: 320, textAlign: 'center',
+    animation: 'up .3s ease both',
+  },
+  aura: {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    width: 88, height: 88, borderRadius: 30,
+    background: 'radial-gradient(circle, rgba(255,122,77,.22), transparent 70%)',
+  },
+  logo: {
+    width: 60, height: 60, borderRadius: 20, background: 'var(--primary)', color: '#fff',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 34,
+    animation: 'pulse 1.8s ease-in-out infinite',
+  },
+  marca: {
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 21,
+    letterSpacing: '-.02em', marginTop: 16,
+  },
+  rolTexto: { fontSize: 13.5, color: 'rgba(255,255,255,.55)', marginTop: 5 },
+  pasos: {
+    display: 'flex', flexDirection: 'column', gap: 13, marginTop: 30,
+    textAlign: 'left',
+  },
+  paso: { display: 'flex', alignItems: 'center', gap: 11, transition: 'opacity .3s ease' },
+  punto: {
+    width: 22, height: 22, borderRadius: '50%', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'background .3s ease',
+  },
+  latido: {
+    width: 8, height: 8, borderRadius: '50%', background: '#0B0A09',
+    animation: 'pulse 1.2s ease-in-out infinite',
+  },
+  barra: {
+    height: 4, borderRadius: 99, background: 'rgba(255,255,255,.12)',
+    overflow: 'hidden', marginTop: 26,
+  },
+  barraRelleno: {
+    display: 'block', height: '100%', borderRadius: 99,
+    transition: 'width .45s cubic-bezier(.2,0,0,1)',
+  },
+  nota: {
+    margin: '18px 0 0', fontSize: 11.5, lineHeight: 1.5, color: 'rgba(255,255,255,.4)',
+  },
+};
 
 const S = {
   page: { position: 'relative', minHeight: '100dvh', background: '#080706', color: '#fff' },

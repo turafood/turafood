@@ -22,6 +22,7 @@ import { makeT } from '@/lib/i18n';
 import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
 import { useDialogOpen } from '@/lib/useDialogOpen';
+import ProgresoCuenta from '../components/ProgresoCuenta';
 
 /** Títulos de cada sección — PAGES del mockup, línea 1126 */
 const PAGES = {
@@ -135,6 +136,53 @@ export default function BizShell({ children }) {
   // Ver src/lib/useDialogOpen.js: el botón flotante y la barra inferior
   // se pintaban encima de las hojas porque comparten nivel de apilado.
   const sheetOpen = useDialogOpen();
+
+  /**
+   * Los pasos salen de los datos, no de una lista que alguien marca a
+   * mano: así no puede quedar diciendo que falta algo que ya está.
+   */
+  const pasosNegocio = [
+    {
+      id: 'nombre', icono: 'storefront',
+      titulo: 'Ponle el nombre a tu negocio',
+      detalle: 'Es el que van a ver tus clientes en la app',
+      href: '/negocio/equipo',
+      cta: 'Ponerlo',
+      hecho: Boolean(business?.name) && business.name !== 'Mi negocio',
+    },
+    {
+      id: 'direccion', icono: 'location_on',
+      titulo: 'Dinos dónde quedas',
+      detalle: 'Sin dirección no podemos calcular el domicilio',
+      href: '/negocio/sucursales',
+      cta: 'Agregar',
+      hecho: Boolean(business?.address),
+    },
+    {
+      id: 'menu', icono: 'restaurant_menu',
+      titulo: 'Deja tu menú a tu gusto',
+      detalle: 'Te cargamos uno de ejemplo: cámbialo por el tuyo',
+      href: '/negocio/catalogo',
+      cta: 'Editarlo',
+      hecho: Boolean(business?.menu_listo),
+    },
+    {
+      id: 'horarios', icono: 'schedule',
+      titulo: 'Marca tus horarios',
+      detalle: 'Para que nadie pida cuando estás cerrado',
+      href: '/negocio/horarios',
+      cta: 'Marcarlos',
+      hecho: Boolean(business?.horarios_listos),
+    },
+    {
+      id: 'documentos', icono: 'verified_user',
+      titulo: 'Sube tus documentos',
+      detalle: 'Con esto se quita el tope de 20 pedidos al día',
+      href: '/negocio/verificacion',
+      cta: 'Subirlos',
+      hecho: business?.status === 'active' && !onboardingPending,
+    },
+  ];
   const [aiTips, setAiTips] = useState(0);
   const [toastMsg, setToastMsg] = useState('');
 
@@ -410,25 +458,16 @@ export default function BizShell({ children }) {
           </header>
 
           <main className="sc biz-main" style={S.main}>
-            {/* Aviso persistente del tope diario mientras no esté verificado.
-                El tope de verdad lo aplica un trigger en la base; esto solo
-                lo hace visible antes de que el negocio choque con él. */}
-            {onboardingPending && path !== '/negocio/verificacion' && (
-              <Link href="/negocio/verificacion" style={S.quotaBanner}>
-                <span style={S.quotaIcon}>
-                  <span className="ms" style={{ fontSize: 20, color: '#A8730B' }}>warning</span>
-                </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 13.5, fontWeight: 800, color: '#7A5405' }}>
-                    Tu cuenta está sin verificar: máximo 20 pedidos al día
-                  </span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#7A5405', marginTop: 2, lineHeight: 1.45 }}>
-                    Al llegar a 20 dejamos de recibirte pedidos hasta el día siguiente.
-                    Sube tus documentos y el límite se levanta.
-                  </span>
-                </span>
-                <span className="ms" style={{ fontSize: 20, color: '#A8730B', flex: 'none' }}>chevron_right</span>
-              </Link>
+            {/* Lo que le falta para quedar activo, en todas las
+                pantallas. Quien entró a probar no va a ir solo a
+                buscar la verificación: si no está delante, la cuenta
+                se queda a medias para siempre. */}
+            {path !== '/negocio/verificacion' && (
+              <ProgresoCuenta
+                titulo="Termina de activar tu negocio"
+                verificado={business?.status === 'active' && !onboardingPending}
+                pasos={pasosNegocio}
+              />
             )}
 
             {error && (

@@ -18,6 +18,7 @@ import {
 } from '@/lib/repartidor';
 import { RiderContext } from './RiderContext';
 import TuraIARider from './TuraIARider';
+import ProgresoCuenta from '../components/ProgresoCuenta';
 
 const TABS = [
   { label: 'Inicio', icon: 'home', href: '/repartidor' },
@@ -38,6 +39,37 @@ export default function RiderShell({ children }) {
   const [error, setError] = useState(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
+
+  /**
+   * Lo que le falta para quedar activo. Cada paso se decide mirando el
+   * dato, no una casilla que alguien marca a mano.
+   */
+  const pasosRepartidor = [
+    {
+      id: 'datos', icono: 'badge',
+      titulo: 'Completa tus datos',
+      detalle: 'Tu nombre y tu celular, para que el cliente sepa quién llega',
+      href: '/repartidor/cuenta',
+      cta: 'Completar',
+      hecho: Boolean(courier?.profile?.full_name && courier?.profile?.phone),
+    },
+    {
+      id: 'vehiculo', icono: 'two_wheeler',
+      titulo: 'Registra tu vehículo',
+      detalle: 'Moto, bici o carro — y la placa si aplica',
+      href: '/repartidor/cuenta',
+      cta: 'Registrar',
+      hecho: Boolean(courier?.vehicle_type && courier?.plate),
+    },
+    {
+      id: 'documentos', icono: 'verified_user',
+      titulo: 'Sube tus documentos',
+      detalle: 'Cédula, licencia, SOAT y tecnomecánica',
+      href: '/repartidor/cuenta',
+      cta: 'Subirlos',
+      hecho: courier?.approval_status === 'active',
+    },
+  ];
 
   const toast = useCallback((msg) => {
     setToastMsg(msg);
@@ -119,6 +151,16 @@ export default function RiderShell({ children }) {
           <div style={S.error}>
             <span className="ms" style={{ fontSize: 18 }}>error</span>
             <span>{error}</span>
+          </div>
+        )}
+
+        {!fullscreen && (
+          <div style={{ padding: '0 20px' }}>
+            <ProgresoCuenta
+              titulo="Termina de activar tu cuenta"
+              verificado={courier?.approval_status === 'active'}
+              pasos={pasosRepartidor}
+            />
           </div>
         )}
 

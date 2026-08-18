@@ -35,19 +35,25 @@ let enCurso = null;
  * crear el perfil: sin eso entraría como cliente y el proxy lo
  * mandaría a /sin-acceso.
  */
-export async function probarComo(rol) {
+export async function probarComo(rol, onPaso) {
   if (!isConfigured()) return null;
   if (!['business', 'courier'].includes(rol)) return null;
+
+  // `onPaso` deja que la pantalla cuente lo que de verdad está
+  // pasando. Los mensajes se disparan cuando el paso ocurre, no con un
+  // temporizador: si algo tarda, se ve dónde tardó.
+  const paso = (n) => { try { onPaso?.(n); } catch { /* la UI no rompe esto */ } };
 
   const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (user) return user;
+  if (user) { paso('listo'); return user; }
 
   if (enCurso) return enCurso;
 
   enCurso = (async () => {
     try {
+      paso('sesion');
       const { data, error } = await supabase.auth.signInAnonymously({
         options: { data: { role: rol } },
       });
@@ -58,11 +64,25 @@ export async function probarComo(rol) {
 
       // La ficha que le corresponde. Sin ella el panel entra pero se
       // ve vacío, y parece roto en vez de nuevo.
+      paso('ficha');
       if (rol === 'business') {
         await supabase.rpc('register_business', {
           p_name: 'Mi negocio',
           p_phone: null,
         });
+
+        // Un panel vacío no se puede evaluar: no hay nada que tocar,
+        // nada que arrastrar, nada que se vea. Se carga el menú de
+        // arranque del vertical para que desde el primer segundo haya
+        // productos con foto y precio — suyos, editables y borrables.
+        paso('menu');
+        try {
+          const { loadStarterMenu } = await import('./menuDemo');
+          await loadStarterMenu(nuevo.id, 'restaurant');
+        } catch {
+          // Sin menú de ejemplo se entra igual: el panel lo ofrece
+          // con un botón desde su propia pantalla.
+        }
       } else {
         await supabase.from('courier_profiles').insert({
           id: nuevo.id,
@@ -72,6 +92,7 @@ export async function probarComo(rol) {
         });
       }
 
+      paso('listo');
       return nuevo;
     } catch {
       return null;
