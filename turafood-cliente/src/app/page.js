@@ -142,10 +142,20 @@ export default function OnboardingPage() {
               <button
                 onClick={() => router.push('/home')}
                 className="md3-btn md3-ripple"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '46px', color: 'rgba(255,255,255,.62)', fontWeight: 600, fontSize: '14px' }}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  width: '100%', height: 50, borderRadius: 14,
+                  background: 'rgba(255,255,255,.07)',
+                  border: '1px solid rgba(255,255,255,.15)',
+                  color: '#fff', fontWeight: 700, fontSize: '14.5px',
+                }}
               >
-                Explorar sin registrarme
+                <span className="ms" style={{ fontSize: 19 }}>visibility</span>
+                Solo estoy mirando
               </button>
+              <p style={{ margin: '10px 0 0', fontSize: 11.5, lineHeight: 1.5, color: 'rgba(255,255,255,.42)', textAlign: 'center' }}>
+                Mira todo el catálogo sin cuenta. Te la pedimos solo al momento de pedir.
+              </p>
             </div>
           </div>
         )}

@@ -230,9 +230,16 @@ function AuthPage() {
             {isSignup ? '¿Ya tienes cuenta? Entra' : '¿Eres nuevo? Crea tu cuenta'}
           </button>
 
+          {/* Siempre visible, y con la forma de un botón de verdad.
+              Antes era un texto tenue al final: quien no quiere dar sus
+              datos todavía no lo veía y cerraba la app. */}
           <button onClick={() => router.push('/home')} style={S.guestBtn}>
-            Explorar sin registrarme
+            <span className="ms" style={{ fontSize: 19 }}>visibility</span>
+            Solo estoy mirando
           </button>
+          <p style={S.guestNote}>
+            Mira todo el catálogo sin cuenta. Te la pedimos solo al momento de pedir.
+          </p>
         </div>
       </div>
     </>
@@ -338,8 +345,15 @@ const S = {
     color: 'rgba(255,255,255,.8)', marginTop: 10,
   },
   guestBtn: {
-    width: '100%', height: 42, fontWeight: 600, fontSize: 13,
-    color: 'rgba(255,255,255,.5)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    width: '100%', height: 50, marginTop: 4, borderRadius: 14,
+    background: 'rgba(255,255,255,.07)',
+    border: '1px solid rgba(255,255,255,.15)',
+    color: '#fff', fontWeight: 700, fontSize: 14.5,
+  },
+  guestNote: {
+    margin: '10px 0 0', fontSize: 11.5, lineHeight: 1.5,
+    color: 'rgba(255,255,255,.42)', textAlign: 'center',
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 8, padding: '11px 13px',

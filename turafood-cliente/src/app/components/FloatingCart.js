@@ -29,7 +29,7 @@ import { useDialogOpen } from '@/lib/useDialogOpen';
  *   · las que ya tienen su propia barra inferior de acción;
  *   · el onboarding y el login, donde quedaba flotando encima del
  *     formulario sin nada que ver con lo que la persona está haciendo
- *     (pasa al entrar por "Explorar sin registrarme" y volver a la
+ *     (pasa al entrar por "Solo estoy mirando" y volver a la
  *     pantalla de acceso con el carrito ya lleno).
  */
 const HIDDEN_ON = ['/cart', '/checkout', '/product', '/tracking', '/rate', '/auth'];
