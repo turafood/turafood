@@ -138,6 +138,101 @@ cuenta se crea a mano.
 
 ---
 
+## 2.bis Dónde hay que registrar cada dominio
+
+Esta es la lista completa. Son **cinco sitios**, no dos.
+
+### 1. Cloudflare — DNS
+
+Un registro por dominio, apuntando al servidor de EasyPanel.
+
+| Nombre | Tipo | Valor |
+|---|---|---|
+| `@` | A | IP del servidor |
+| `app` | A | IP del servidor |
+| `dash` | A | IP del servidor |
+
+Si usas el proxy naranja de Cloudflare, deja el modo SSL en **Full
+(strict)**. En "Flexible" el navegador ve HTTPS pero Cloudflare habla
+HTTP con tu servidor, y las cookies de sesión de Supabase se pierden:
+la persona entra y sale expulsada al instante.
+
+### 2. EasyPanel — dominio por aplicación
+
+En cada app, pestaña **Domains**:
+
+| Aplicación | Dominio |
+|---|---|
+| `turafood-cliente` | `turafood.com` (y `www.turafood.com`) |
+| `turafood-app` | `app.turafood.com` |
+| `turafood-admin` | `dash.turafood.com` |
+
+Activa el certificado de Let's Encrypt en cada uno.
+
+### 3. Supabase → Authentication → URL Configuration
+
+**Sí hace falta, aunque todavía no actives Google ni Facebook.** Esta
+configuración la usan también el código por celular, la recuperación
+de contraseña y cualquier enlace que Supabase mande por correo. Sin
+ella, esos enlaces apuntan a `localhost` y no funcionan para nadie.
+
+**Site URL:**
+
+```
+https://turafood.com
+```
+
+**Redirect URLs** (una por línea):
+
+```
+https://turafood.com/**
+https://www.turafood.com/**
+https://app.turafood.com/**
+https://dash.turafood.com/**
+```
+
+Los `/**` son necesarios: sin ellos solo se acepta la raíz exacta, y
+`app.turafood.com/registro/completar` quedaría rechazada.
+
+### 4. EasyPanel → Build Arguments → `NEXT_PUBLIC_BASE_URL`
+
+Lo usa ePayco para saber a dónde devolver al cliente después de pagar
+(`${BASE_URL}/payment/result`). Va en **Build Arguments**, no en
+Environment.
+
+| Aplicación | Valor |
+|---|---|
+| `turafood-cliente` | `https://turafood.com` |
+| `turafood-app` | `https://app.turafood.com` |
+
+Si esto queda mal, el cliente paga y **no vuelve a la aplicación**:
+termina en una página en blanco sin saber si su pedido entró.
+
+`turafood-admin` no lo necesita: no cobra nada.
+
+### 5. Panel de ePayco
+
+En la configuración del comercio, autoriza las URLs:
+
+| Campo | Valor |
+|---|---|
+| URL de respuesta | `https://turafood.com/payment/result` |
+| URL de confirmación | `https://TU-PROYECTO.supabase.co/functions/v1/epayco-webhook` |
+
+La de **confirmación apunta a Supabase, no a tu dominio**. Es a
+propósito: es la única que decide si un pago se dio por bueno, y tiene
+que llegar a un sitio que el navegador no pueda tocar. La de respuesta
+es solo la pantalla a la que vuelve el cliente.
+
+### Lo que NO hay que tocar
+
+- **`NEXT_PUBLIC_SUPABASE_URL`** no cambia: sigue siendo la URL del
+  proyecto de Supabase, no tu dominio.
+- **Los dominios no van en ningún archivo del repositorio.** Todo sale
+  de variables de entorno y de `window.location.origin`.
+
+---
+
 ## 3. Correr en local
 
 Cada aplicación en su puerto para poder tenerlas las tres abiertas:
