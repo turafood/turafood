@@ -17,6 +17,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import { cached, invalidate } from './cache';
+import { asegurarSesion } from './sesion';
 import {
   BUSINESSES, PRODUCTS, CATEGORIES, EXTRAS, ADDRESSES, COUPONS, BUENAVENTURA,
 } from './seed';
@@ -312,8 +313,10 @@ export async function saveAddress({ label, address, detail, neighborhood, lat, l
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Inicia sesión para guardar direcciones.');
+  // Sin sesión se abre una anónima: guardar la dirección no puede
+  // ser el momento en que se le pide la cuenta a alguien.
+  const user = await asegurarSesion();
+  if (!user) throw new Error('No se pudo abrir la sesión. Revisa tu conexión.');
 
   const { count } = await supabase
     .from('addresses')
@@ -803,6 +806,13 @@ export async function placeOrder({
   businessId, items, mode = 'delivery', addressId = null,
   tip = 0, couponCode = null, instructions = null, paymentMethod = 'cash',
 }) {
+  // Comprar no exige registrarse: si no hay sesión se abre una
+  // anónima. Desde la base es un usuario como cualquier otro, así
+  // que RLS y place_order() no cambian — el pedido es suyo y
+  // nadie más lo ve. Después puede quedarse con esa misma cuenta
+  // poniendo su correo, sin perder el historial.
+  await asegurarSesion();
+
   // Lo escrito deja vieja la caché: sin esto la pantalla
   // siguiente mostraría el estado de antes.
   invalidate('pedidos');

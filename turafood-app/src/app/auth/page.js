@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import HeroBackdrop from '../components/HeroBackdrop';
 import { GoogleMark, FacebookMark } from '../components/SocialMarks';
+import { probarComo } from '@/lib/sesion';
 
 /**
  * Canal del código de un solo uso. Supabase manda SMS con Twilio; si en
@@ -47,6 +48,33 @@ export default function AuthPage() {
   const enter = () => {
     router.replace('/');
     router.refresh();
+  };
+
+  /**
+   * Entrar a probar sin dar datos.
+   *
+   * Pedirle papeles a alguien antes de dejarlo ver el panel es pedirle
+   * fe. Entra con una sesión anónima, trabaja de verdad con el tope de
+   * 20 pedidos diarios que la base ya impone a quien no está
+   * verificado, y se queda con la cuenta cuando quiera.
+   */
+  const probar = async (rol) => {
+    setError(null);
+    if (!guard()) return;
+
+    setBusy(true);
+    try {
+      const user = await probarComo(rol);
+      if (!user) {
+        throw new Error(
+          'No se pudo abrir la sesión de prueba. Puede que esté desactivada en el proyecto.',
+        );
+      }
+      enter();
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
   };
 
   const signInWith = async (provider) => {
@@ -175,6 +203,28 @@ export default function AuthPage() {
                 <button onClick={() => { setMode('email'); setError(null); }} style={S.emailLink}>
                   Entrar con correo y contraseña
                 </button>
+
+                <div style={S.trySep}>
+                  <span style={S.trySepLine} />
+                  <span style={S.trySepText}>O MIRA PRIMERO</span>
+                  <span style={S.trySepLine} />
+                </div>
+
+                <div style={{ display: 'flex', gap: 9 }}>
+                  <button onClick={() => probar('business')} disabled={busy} style={S.tryBtn}>
+                    <span className="ms" style={{ fontSize: 19 }}>storefront</span>
+                    Soy un negocio
+                  </button>
+                  <button onClick={() => probar('courier')} disabled={busy} style={S.tryBtn}>
+                    <span className="ms" style={{ fontSize: 19 }}>two_wheeler</span>
+                    Reparto
+                  </button>
+                </div>
+
+                <p style={S.tryNote}>
+                  Entras y trabajas de una, sin papeles. Los documentos los subes
+                  después, cuando quieras quitarte el tope de 20 pedidos al día.
+                </p>
 
                 <p style={S.safety}>
                   <span className="ms" style={{ fontSize: 15, verticalAlign: '-2px' }}>lock</span>
@@ -367,6 +417,22 @@ export const S = {
     width: '100%', height: 50, borderRadius: 14, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 15, marginTop: 18,
     boxShadow: '0 10px 26px rgba(255,68,31,.36)',
+  },
+  trySep: { display: 'flex', alignItems: 'center', gap: 11, margin: '18px 0 12px' },
+  trySepLine: { flex: 1, height: 1, background: 'rgba(255,255,255,.12)' },
+  trySepText: {
+    fontSize: 9.5, fontWeight: 800, letterSpacing: '.11em',
+    color: 'rgba(255,255,255,.38)',
+  },
+  tryBtn: {
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+    height: 48, borderRadius: 14,
+    background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.15)',
+    color: '#fff', fontWeight: 700, fontSize: 13.5,
+  },
+  tryNote: {
+    margin: '11px 0 0', fontSize: 11.5, lineHeight: 1.5,
+    color: 'rgba(255,255,255,.42)', textAlign: 'center',
   },
   emailLink: {
     display: 'block', width: '100%', marginTop: 16, padding: '6px 0',
