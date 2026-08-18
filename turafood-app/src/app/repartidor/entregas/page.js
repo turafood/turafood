@@ -5,10 +5,24 @@
  * Conversión de `isHistory` (línea 662) del mockup del Repartidor.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cop, relativeTime } from '@/lib/format';
 import { getDeliveries } from '@/lib/repartidor';
 import { useRider } from '../RiderContext';
+
+/** "Hoy", "Ayer" o "sabado 16 de agosto" — nadie lee una fecha ISO */
+function dayLabel(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+
+  const diff = Math.round((today - d) / 86400000);
+  if (diff === 0) return 'Hoy';
+  if (diff === 1) return 'Ayer';
+  if (diff < 7) return d.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 const norm = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
@@ -41,6 +55,29 @@ export default function EntregasPage() {
     || norm(d.order_number).includes(q)
     || norm(d.delivery_address).includes(q));
 
+  /**
+   * Agrupadas por dia, con el total de cada uno.
+   *
+   * Una lista corrida de dos meses de entregas no se puede leer: para
+   * saber cuanto se hizo el sabado habria que ir sumando de a una. El
+   * encabezado del dia responde esa pregunta de una, que es la que
+   * casi siempre trae a alguien a esta pantalla.
+   */
+  const grouped = useMemo(() => {
+    const map = new Map();
+
+    shown.forEach((d) => {
+      const key = String(d.delivered_at ?? d.created_at).slice(0, 10);
+      const g = map.get(key) ?? { key, date: new Date(d.delivered_at ?? d.created_at), items: [], total: 0, tips: 0 };
+      g.items.push(d);
+      g.total += Number(d.courier_earnings ?? 0);
+      g.tips += Number(d.tip ?? 0);
+      map.set(key, g);
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key));
+  }, [shown]);
+
   return (
     <>
       <header style={S.header}>
@@ -71,8 +108,21 @@ export default function EntregasPage() {
           </div>
         )}
 
+        {grouped.map((g) => (
+        <section key={g.key} style={{ marginBottom: 22 }}>
+          <div style={S.dayHead}>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={S.dayLabel}>{dayLabel(g.date)}</span>
+              <span style={S.dayCount}>
+                {g.items.length} {g.items.length === 1 ? 'entrega' : 'entregas'}
+                {g.tips > 0 ? ` · ${cop(g.tips)} en propinas` : ''}
+              </span>
+            </span>
+            <span style={S.dayTotal}>{cop(g.total)}</span>
+          </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-          {shown.map((d) => {
+          {g.items.map((d) => {
             const tip = Number(d.tip ?? 0);
             return (
               <article key={d.id} style={S.card}>
@@ -118,6 +168,8 @@ export default function EntregasPage() {
             );
           })}
         </div>
+        </section>
+        ))}
 
         {!loading && shown.length === 0 && (
           <div style={S.empty}>
@@ -148,6 +200,21 @@ export default function EntregasPage() {
 }
 
 const S = {
+  dayHead: {
+    display: 'flex', alignItems: 'center', gap: 12,
+    padding: '0 2px 10px',
+  },
+  dayLabel: {
+    display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 15, letterSpacing: '-.01em', textTransform: 'capitalize',
+  },
+  dayCount: {
+    display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2,
+  },
+  dayTotal: {
+    flex: 'none', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 16, letterSpacing: '-.02em',
+  },
   header: { flex: 'none', padding: '18px 20px 10px' },
   search: {
     display: 'flex', alignItems: 'center', gap: 9, marginTop: 12, height: 46,
