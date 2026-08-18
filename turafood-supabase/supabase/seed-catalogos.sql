@@ -1,11 +1,14 @@
 -- ============================================================
 -- TURAFOOD — Catálogos completos de los negocios de demostración
 --
--- El seed principal deja a Asadero El Puerto con su menú del mockup y
--- a los otros cinco con uno o dos productos sueltos. Con eso la app
--- del cliente se ve vacía apenas se entra a cualquier otra tienda, y
--- no se puede probar nada que dependa de tener catálogo: buscar,
--- filtrar por categoría, el carrito con varios productos.
+-- Crea cinco negocios de demostración con su carta completa, para que
+-- la app del cliente no se vea vacía y se pueda probar lo que depende
+-- de tener catálogo: buscar, filtrar por categoría, un carrito con
+-- varios productos.
+--
+-- Es autosuficiente: si los negocios no existen, los crea con su
+-- cuenta y su perfil. No hace falta haber corrido el seed de
+-- desarrollo (ese solo se ejecuta con `supabase db reset`).
 --
 -- Esto los llena: categorías, productos con precio tachado donde hay
 -- promoción, y opciones donde tiene sentido pedirlas.
@@ -21,6 +24,125 @@
 -- ============================================================
 
 BEGIN;
+
+-- ------------------------------------------------------------
+-- 0. Los negocios, si no existen
+--
+-- Este archivo tenia que correrse despues del seed de desarrollo, que
+-- solo se ejecuta con `supabase db reset`. En una base que se armo con
+-- `db push` esos negocios no existen y el catalogo no tiene donde
+-- colgarse.
+--
+-- Asi que se crean aqui. `business_profiles.id` apunta a `profiles.id`
+-- y ese a `auth.users.id`, de modo que hay que crear la cadena
+-- completa. Si ya existen, no se toca nada.
+-- ------------------------------------------------------------
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
+DO $$
+DECLARE
+    v_password TEXT := 'TuraFood2026!';
+    r RECORD;
+    v_id UUID;
+BEGIN
+    FOR r IN
+        SELECT * FROM (VALUES
+            ('b0000000-0000-4000-8000-000000000002'::uuid, 'burger@turafood.co',
+             'Burger House Bahia', 'burger-house-bahia',
+             'Hamburguesas y alitas', 'restaurant',
+             'Cl. 2 # 3-21, Centro', '/images/burger.jpg', 4.6, 860, 22, 3500),
+
+            ('b0000000-0000-4000-8000-000000000003'::uuid, 'faro@turafood.co',
+             'Marisqueria El Faro', 'marisqueria-el-faro',
+             'Mariscos y encocados', 'restaurant',
+             'Cra. 1 # 7-12, La Playita', '/images/food-fork.jpg', 4.9, 2105, 35, 4900),
+
+            ('b0000000-0000-4000-8000-000000000004'::uuid, 'parrilla@turafood.co',
+             'Parrilla Punta del Este', 'parrilla-punta-del-este',
+             'Parrilla y costillas', 'restaurant',
+             'Cl. 8 # 52-14, Punta del Este', '/images/lamb-chops.jpg', 4.7, 540, 30, 3900),
+
+            ('b0000000-0000-4000-8000-000000000005'::uuid, 'rosa@turafood.co',
+             'Cevicheria Dona Rosa', 'cevicheria-dona-rosa',
+             'Ceviches y cocteles', 'restaurant',
+             'Cra. 5 # 2-40, Pueblo Nuevo', '/images/beef-tomatoes.jpg', 4.5, 320, 25, 2900),
+
+            ('b0000000-0000-4000-8000-000000000006'::uuid, 'jorge@turafood.co',
+             'Picadas El Jorge', 'picadas-el-jorge',
+             'Picadas y fritos', 'restaurant',
+             'Cl. 6 # 4-09, El Jorge', '/images/fried-steak.jpg', 4.4, 210, 20, 0)
+        ) AS t(id, email, name, slug, category, vertical, address, cover, rating, reviews, prep, fee)
+    LOOP
+        -- Se busca por ID, no por correo. Las categorias y productos de
+        -- mas abajo traen el business_id escrito a mano, asi que la
+        -- cuenta TIENE que quedar con ese id exacto o la llave foranea
+        -- vuelve a fallar.
+        SELECT u.id INTO v_id FROM auth.users u WHERE u.id = r.id;
+
+        -- Si el correo esta tomado por otra cuenta, mejor decirlo claro
+        -- que dejar a medias un seed que despues no cuadra.
+        IF v_id IS NULL AND EXISTS (
+            SELECT 1 FROM auth.users u WHERE u.email = r.email AND u.id <> r.id
+        ) THEN
+            RAISE EXCEPTION
+                'El correo % ya existe con otro id. Borra esa cuenta o cambia el correo en este archivo.',
+                r.email;
+        END IF;
+
+        IF v_id IS NULL THEN
+            INSERT INTO auth.users (
+                instance_id, id, aud, role, email, encrypted_password,
+                email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+                created_at, updated_at
+            ) VALUES (
+                '00000000-0000-0000-0000-000000000000', r.id,
+                'authenticated', 'authenticated', r.email,
+                extensions.crypt(v_password, extensions.gen_salt('bf')), now(),
+                '{"provider":"email","providers":["email"]}'::jsonb,
+                jsonb_build_object('full_name', r.name, 'role', 'business'),
+                now(), now()
+            );
+            v_id := r.id;
+        END IF;
+
+
+        INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider,
+                                     last_sign_in_at, created_at, updated_at)
+        SELECT gen_random_uuid(), v_id, v_id::text,
+               jsonb_build_object('sub', v_id::text, 'email', r.email, 'email_verified', true),
+               'email', now(), now(), now()
+         WHERE NOT EXISTS (
+             SELECT 1 FROM auth.identities i
+              WHERE i.user_id = v_id AND i.provider = 'email');
+
+        -- handle_new_user() ya creo el perfil; aqui solo se asegura el rol
+        INSERT INTO public.profiles (id, role, full_name, email)
+        VALUES (v_id, 'business', r.name, r.email)
+        ON CONFLICT (id) DO UPDATE SET role = 'business';
+
+        -- El slug es unico. Si otro negocio ya lo tiene, el INSERT de
+        -- abajo fallaria por ahi y no por el id, con un mensaje que no
+        -- ayuda en nada.
+        IF EXISTS (
+            SELECT 1 FROM public.business_profiles b
+             WHERE b.slug = r.slug AND b.id <> v_id
+        ) THEN
+            RAISE EXCEPTION
+                'El slug % ya lo tiene otro negocio. Cambialo en este archivo o borra el otro.',
+                r.slug;
+        END IF;
+
+        INSERT INTO public.business_profiles (
+            id, name, slug, category, vertical, cover_url, address,
+            status, is_open, rating, reviews_count, prep_time_min, delivery_fee
+        ) VALUES (
+            v_id, r.name, r.slug, r.category, r.vertical, r.cover, r.address,
+            'active', TRUE, r.rating, r.reviews, r.prep, r.fee
+        )
+        ON CONFLICT (id) DO UPDATE
+            SET status = 'active', is_open = TRUE;
+    END LOOP;
+END $$;
 
 -- Los cinco que vamos a llenar. Asadero El Puerto (…0001) queda fuera.
 CREATE TEMP TABLE _negocios (id UUID) ON COMMIT DROP;
