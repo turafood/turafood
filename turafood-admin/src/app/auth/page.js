@@ -79,7 +79,7 @@ export default function AuthPage() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@turafood.co"
+            placeholder="tu@turafood.com"
             autoComplete="username"
             style={S.input}
           />

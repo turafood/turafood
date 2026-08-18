@@ -47,27 +47,27 @@ DECLARE
 BEGIN
     FOR r IN
         SELECT * FROM (VALUES
-            ('b0000000-0000-4000-8000-000000000002'::uuid, 'burger@turafood.co',
+            ('b0000000-0000-4000-8000-000000000002'::uuid, 'burger@turafood.com',
              'Burger House Bahia', 'burger-house-bahia',
              'Hamburguesas y alitas', 'restaurant',
              'Cl. 2 # 3-21, Centro', '/images/burger.jpg', 4.6, 860, 22, 3500),
 
-            ('b0000000-0000-4000-8000-000000000003'::uuid, 'faro@turafood.co',
+            ('b0000000-0000-4000-8000-000000000003'::uuid, 'faro@turafood.com',
              'Marisqueria El Faro', 'marisqueria-el-faro',
              'Mariscos y encocados', 'restaurant',
              'Cra. 1 # 7-12, La Playita', '/images/food-fork.jpg', 4.9, 2105, 35, 4900),
 
-            ('b0000000-0000-4000-8000-000000000004'::uuid, 'parrilla@turafood.co',
+            ('b0000000-0000-4000-8000-000000000004'::uuid, 'parrilla@turafood.com',
              'Parrilla Punta del Este', 'parrilla-punta-del-este',
              'Parrilla y costillas', 'restaurant',
              'Cl. 8 # 52-14, Punta del Este', '/images/lamb-chops.jpg', 4.7, 540, 30, 3900),
 
-            ('b0000000-0000-4000-8000-000000000005'::uuid, 'rosa@turafood.co',
+            ('b0000000-0000-4000-8000-000000000005'::uuid, 'rosa@turafood.com',
              'Cevicheria Dona Rosa', 'cevicheria-dona-rosa',
              'Ceviches y cocteles', 'restaurant',
              'Cra. 5 # 2-40, Pueblo Nuevo', '/images/beef-tomatoes.jpg', 4.5, 320, 25, 2900),
 
-            ('b0000000-0000-4000-8000-000000000006'::uuid, 'jorge@turafood.co',
+            ('b0000000-0000-4000-8000-000000000006'::uuid, 'jorge@turafood.com',
              'Picadas El Jorge', 'picadas-el-jorge',
              'Picadas y fritos', 'restaurant',
              'Cl. 6 # 4-09, El Jorge', '/images/fried-steak.jpg', 4.4, 210, 20, 0)

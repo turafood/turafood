@@ -350,13 +350,13 @@ Contraseña de todas: `TuraFood2026!`
 
 | App | Correo | Rol |
 |---|---|---|
-| `dash.turafood.com` · :3200 | `admin@turafood.co` | Super Admin |
-| `app.turafood.com` · :3100 | `negocio@turafood.co` | Negocio |
-| `app.turafood.com` · :3100 | `repartidor@turafood.co` | Repartidor |
-| `turafood.com` · :3000 | `cliente@turafood.co` | Cliente |
+| `dash.turafood.com` · :3200 | `admin@turafood.com` | Super Admin |
+| `app.turafood.com` · :3100 | `negocio@turafood.com` | Negocio |
+| `app.turafood.com` · :3100 | `repartidor@turafood.com` | Repartidor |
+| `turafood.com` · :3000 | `cliente@turafood.com` | Cliente |
 
 Los cinco negocios de demostración también tienen cuenta:
-`burger@`, `faro@`, `parrilla@`, `rosa@`, `jorge@turafood.co`.
+`burger@`, `faro@`, `parrilla@`, `rosa@`, `jorge@turafood.com`.
 
 ### Acceso por celular
 

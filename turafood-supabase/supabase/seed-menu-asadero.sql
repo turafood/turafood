@@ -1,7 +1,7 @@
 -- ============================================================
 -- TURAFOOD — Menú de Asadero El Puerto
 --
--- `seed-usuarios-prueba.sql` crea la cuenta negocio@turafood.co con su
+-- `seed-usuarios-prueba.sql` crea la cuenta negocio@turafood.com con su
 -- ficha, pero sin catálogo. `seed-catalogos.sql` lo excluye a propósito
 -- porque asumía que el seed de desarrollo ya le había puesto el menú
 -- del mockup — y ese seed solo corre con `supabase db reset`.

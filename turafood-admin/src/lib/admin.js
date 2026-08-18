@@ -677,11 +677,11 @@ const LOCAL_TICKETS = [
 ];
 
 const LOCAL_USERS = [
-  { id: 'u1', full_name: 'Sharick Grajales', email: 'sharick@turafood.co', role: 'admin', orders: null, last: 'Ahora' },
-  { id: 'u2', full_name: 'Katherine Ospina', email: 'katherine@turafood.co', role: 'ops', orders: null, last: 'Hace 8 min' },
+  { id: 'u1', full_name: 'Sharick Grajales', email: 'sharick@turafood.com', role: 'admin', orders: null, last: 'Ahora' },
+  { id: 'u2', full_name: 'Katherine Ospina', email: 'katherine@turafood.com', role: 'ops', orders: null, last: 'Hace 8 min' },
   { id: 'u3', full_name: 'Jhon Castillo', email: 'jhon@elpuerto.co', role: 'business', orders: null, last: 'Hace 12 min' },
   { id: 'u4', full_name: 'Luz Mery Riascos', email: 'luzmery@lasalud.co', role: 'business', orders: null, last: 'Hace 2 h' },
-  { id: 'u5', full_name: 'Yeison Mosquera', email: 'yeison@turafood.co', role: 'courier', orders: 1284, last: 'Ahora' },
+  { id: 'u5', full_name: 'Yeison Mosquera', email: 'yeison@turafood.com', role: 'courier', orders: 1284, last: 'Ahora' },
   { id: 'u6', full_name: 'Andrés Riascos', email: 'andres.r@gmail.com', role: 'customer', orders: 42, last: 'Hace 26 min' },
   { id: 'u7', full_name: 'Marleny Cuero', email: 'marleny.c@gmail.com', role: 'customer', orders: 8, last: 'Ayer' },
 ];

@@ -42,10 +42,10 @@ BEGIN
     -- --------------------------------------------------------
     FOR r IN
         SELECT * FROM (VALUES
-            ('admin@turafood.co',      'Sharick Grajales',  'admin'),
-            ('negocio@turafood.co',    'Asadero El Puerto', 'business'),
-            ('repartidor@turafood.co', 'Yeison Mosquera',   'courier'),
-            ('cliente@turafood.co',    'Andres Riascos',    'customer')
+            ('admin@turafood.com',      'Sharick Grajales',  'admin'),
+            ('negocio@turafood.com',    'Asadero El Puerto', 'business'),
+            ('repartidor@turafood.com', 'Yeison Mosquera',   'courier'),
+            ('cliente@turafood.com',    'Andres Riascos',    'customer')
         ) AS t(email, full_name, role)
     LOOP
         -- Nada de ON CONFLICT (email): el indice unico de correo en
@@ -79,10 +79,10 @@ BEGIN
         END IF;
     END LOOP;
 
-    SELECT id INTO v_admin      FROM auth.users WHERE email = 'admin@turafood.co';
-    SELECT id INTO v_negocio    FROM auth.users WHERE email = 'negocio@turafood.co';
-    SELECT id INTO v_repartidor FROM auth.users WHERE email = 'repartidor@turafood.co';
-    SELECT id INTO v_cliente    FROM auth.users WHERE email = 'cliente@turafood.co';
+    SELECT id INTO v_admin      FROM auth.users WHERE email = 'admin@turafood.com';
+    SELECT id INTO v_negocio    FROM auth.users WHERE email = 'negocio@turafood.com';
+    SELECT id INTO v_repartidor FROM auth.users WHERE email = 'repartidor@turafood.com';
+    SELECT id INTO v_cliente    FROM auth.users WHERE email = 'cliente@turafood.com';
 
     -- Identidad de correo: sin esto algunos flujos de Supabase Auth
     -- no reconocen la cuenta como propia del proveedor 'email'.
@@ -91,7 +91,7 @@ BEGIN
            jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
            'email', now(), now(), now()
       FROM auth.users u
-     WHERE u.email IN ('admin@turafood.co','negocio@turafood.co','repartidor@turafood.co','cliente@turafood.co')
+     WHERE u.email IN ('admin@turafood.com','negocio@turafood.com','repartidor@turafood.com','cliente@turafood.com')
        AND NOT EXISTS (
            SELECT 1 FROM auth.identities i
             WHERE i.user_id = u.id AND i.provider = 'email');
@@ -104,10 +104,10 @@ BEGIN
     -- --------------------------------------------------------
     INSERT INTO public.profiles (id, role, full_name, email, phone)
     VALUES
-        (v_admin,      'admin',    'Sharick Grajales',  'admin@turafood.co',      '+573137594713'),
-        (v_negocio,    'business', 'Jhon Castillo',     'negocio@turafood.co',    '+573204451189'),
-        (v_repartidor, 'courier',  'Yeison Mosquera',   'repartidor@turafood.co', '+573112345567'),
-        (v_cliente,    'customer', 'Andrés Riascos',    'cliente@turafood.co',    '+573160000002')
+        (v_admin,      'admin',    'Sharick Grajales',  'admin@turafood.com',      '+573137594713'),
+        (v_negocio,    'business', 'Jhon Castillo',     'negocio@turafood.com',    '+573204451189'),
+        (v_repartidor, 'courier',  'Yeison Mosquera',   'repartidor@turafood.com', '+573112345567'),
+        (v_cliente,    'customer', 'Andrés Riascos',    'cliente@turafood.com',    '+573160000002')
     ON CONFLICT (id) DO UPDATE
         SET role      = EXCLUDED.role,
             full_name = EXCLUDED.full_name,
@@ -160,14 +160,14 @@ END $$;
 -- LO QUE QUEDA
 --
 --   dash.turafood.com   (o localhost:3200)
---       admin@turafood.co        · Super Admin
+--       admin@turafood.com        · Super Admin
 --
 --   app.turafood.com    (o localhost:3100)
---       negocio@turafood.co      · Panel del negocio
---       repartidor@turafood.co   · App del repartidor
+--       negocio@turafood.com      · Panel del negocio
+--       repartidor@turafood.com   · App del repartidor
 --
 --   turafood.com        (o localhost:3000)
---       cliente@turafood.co      · App del cliente
+--       cliente@turafood.com      · App del cliente
 --
 --   Contraseña de todas: la que quedó en v_password arriba.
 --
@@ -182,7 +182,7 @@ SELECT p.email,
        (u.email_confirmed_at IS NOT NULL) AS correo_confirmado
   FROM public.profiles p
   JOIN auth.users u ON u.id = p.id
- WHERE p.email LIKE '%@turafood.co'
+ WHERE p.email LIKE '%@turafood.com'
  ORDER BY p.role;
 
 -- ------------------------------------------------------------
@@ -192,5 +192,5 @@ SELECT p.email,
 -- ficha del negocio y la del repartidor.
 -- ------------------------------------------------------------
 -- DELETE FROM auth.users
---  WHERE email IN ('admin@turafood.co','negocio@turafood.co',
---                  'repartidor@turafood.co','cliente@turafood.co');
+--  WHERE email IN ('admin@turafood.com','negocio@turafood.com',
+--                  'repartidor@turafood.com','cliente@turafood.com');

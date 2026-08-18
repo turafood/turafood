@@ -75,7 +75,7 @@ desde el panel de Supabase (Authentication → Add user) y después se le
 pone el rol a mano:
 
 ```sql
-update public.profiles set role = 'admin' where email = 'tu@turafood.co';
+update public.profiles set role = 'admin' where email = 'tu@turafood.com';
 ```
 
 ---
