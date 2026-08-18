@@ -230,7 +230,11 @@ const S = {
   },
   tabs: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    height: 60, borderRadius: 999, background: 'rgba(255,255,255,.9)',
+    height: 60, borderRadius: 999,
+    // El blanco iba escrito a mano y en tema oscuro dejaba una barra
+    // blanca sobre fondo negro. color-mix mantiene la transparencia
+    // del mockup pero sobre la superficie que toque.
+    background: 'color-mix(in srgb, var(--surface) 90%, transparent)',
     backdropFilter: 'blur(16px)', border: '1px solid var(--border)',
     boxShadow: 'var(--shadow)', padding: '0 6px', pointerEvents: 'auto',
   },

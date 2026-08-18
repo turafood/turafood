@@ -293,12 +293,13 @@ const S = {
   },
   back: {
     position: 'absolute', top: 16, left: 16, width: 38, height: 38, borderRadius: '50%',
-    background: 'rgba(255,255,255,.95)', display: 'flex', alignItems: 'center',
+    background: 'color-mix(in srgb, var(--surface) 95%, transparent)', display: 'flex', alignItems: 'center',
     justifyContent: 'center', boxShadow: 'var(--shadowSm)', zIndex: 500,
   },
   orderPill: {
     position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 7,
-    height: 38, padding: '0 14px', borderRadius: 999, background: 'rgba(255,255,255,.95)',
+    height: 38, padding: '0 14px', borderRadius: 999,
+    background: 'color-mix(in srgb, var(--surface) 95%, transparent)',
     boxShadow: 'var(--shadowSm)', fontSize: 12.5, fontWeight: 800, zIndex: 500,
   },
   sheet: {
