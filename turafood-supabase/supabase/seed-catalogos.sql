@@ -144,27 +144,46 @@ BEGIN
     END LOOP;
 END $$;
 
--- Los cinco que vamos a llenar. Asadero El Puerto (…0001) queda fuera.
-CREATE TEMP TABLE _negocios (id UUID) ON COMMIT DROP;
-INSERT INTO _negocios VALUES
-    ('b0000000-0000-4000-8000-000000000002'),  -- Burger House Bahía
-    ('b0000000-0000-4000-8000-000000000003'),  -- Marisquería El Faro
-    ('b0000000-0000-4000-8000-000000000004'),  -- Parrilla Punta del Este
-    ('b0000000-0000-4000-8000-000000000005'),  -- Cevichería Doña Rosa
-    ('b0000000-0000-4000-8000-000000000006');  -- Picadas El Jorge
-
--- Limpieza previa. El orden importa: las opciones cuelgan de los
--- productos y los productos de las categorías.
+-- Limpieza previa, para poder correr esto dos veces sin duplicar.
+--
+-- Los cinco ids van escritos en cada sentencia en vez de en una tabla
+-- temporal: el editor de Supabase confirma cada sentencia por
+-- separado, y una tabla `ON COMMIT DROP` desaparece antes de que la
+-- siguiente la pueda usar.
+--
+-- Asadero El Puerto (…0001) queda fuera: ese menú es la referencia
+-- visual del mockup y no se toca.
+--
+-- El orden importa: las opciones cuelgan de los productos y los
+-- productos de las categorías.
 DELETE FROM public.product_extras
  WHERE product_id IN (
      SELECT p.id FROM public.products p
-      WHERE p.business_id IN (SELECT id FROM _negocios));
+      WHERE p.business_id IN (
+          'b0000000-0000-4000-8000-000000000002',  -- Burger House Bahía
+          'b0000000-0000-4000-8000-000000000003',  -- Marisquería El Faro
+          'b0000000-0000-4000-8000-000000000004',  -- Parrilla Punta del Este
+          'b0000000-0000-4000-8000-000000000005',  -- Cevichería Doña Rosa
+          'b0000000-0000-4000-8000-000000000006'   -- Picadas El Jorge
+      ));
 
 DELETE FROM public.products
- WHERE business_id IN (SELECT id FROM _negocios);
+ WHERE business_id IN (
+     'b0000000-0000-4000-8000-000000000002',
+     'b0000000-0000-4000-8000-000000000003',
+     'b0000000-0000-4000-8000-000000000004',
+     'b0000000-0000-4000-8000-000000000005',
+     'b0000000-0000-4000-8000-000000000006'
+ );
 
 DELETE FROM public.product_categories
- WHERE business_id IN (SELECT id FROM _negocios);
+ WHERE business_id IN (
+     'b0000000-0000-4000-8000-000000000002',
+     'b0000000-0000-4000-8000-000000000003',
+     'b0000000-0000-4000-8000-000000000004',
+     'b0000000-0000-4000-8000-000000000005',
+     'b0000000-0000-4000-8000-000000000006'
+ );
 
 -- ------------------------------------------------------------
 -- Categorías
