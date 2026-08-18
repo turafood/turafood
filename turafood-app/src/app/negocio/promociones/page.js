@@ -107,6 +107,26 @@ export default function PromocionesPage() {
     }
   };
 
+  /**
+   * Los cuatro numeros de arriba.
+   *
+   * "La que mas jala" es el que de verdad sirve: dice cual repetir y
+   * cual dejar morir. Sin eso, una lista de cupones es solo una lista.
+   */
+  const activas = coupons.filter((c) => c.is_active);
+  const usosTotal = coupons.reduce((a, c) => a + Number(c.uses_count ?? 0), 0);
+  const masUsada = coupons.reduce(
+    (best, c) => (Number(c.uses_count ?? 0) > Number(best?.uses_count ?? 0) ? c : best),
+    null,
+  );
+
+  const SIETE_DIAS = 7 * 86400000;
+  const porVencer = activas.filter((c) => {
+    if (!c.valid_until) return false;
+    const falta = new Date(c.valid_until) - Date.now();
+    return falta > 0 && falta < SIETE_DIAS;
+  });
+
   return (
     <>
       {error && (
@@ -116,7 +136,36 @@ export default function PromocionesPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 16 }}>
+      {/* Lo que hay que saber antes de mirar las tarjetas */}
+      <div style={S.kpis}>
+        <Kpi
+          label="Activas ahora" value={String(activas.length)}
+          icon="local_activity" tint="#E6F6EE" fg="#0B8E54"
+          note={coupons.length ? `de ${coupons.length} creadas` : 'Todavía no has creado ninguna'}
+        />
+        <Kpi
+          label="Veces usadas" value={usosTotal.toLocaleString('es-CO')}
+          icon="redeem" tint="#EAF1FF" fg="var(--blue)"
+          note={usosTotal ? 'Desde que las publicaste' : 'Ninguna se ha canjeado todavía'}
+        />
+        <Kpi
+          label="La que más jala" value={masUsada ? masUsada.code : '—'}
+          icon="trending_up" tint="#FFF7E6" fg="#A8730B"
+          note={masUsada
+            ? `${masUsada.uses_count} canjes`
+            : 'Cuando alguien canjee una, aparece aquí'}
+        />
+        <Kpi
+          label="Por vencer" value={String(porVencer.length)}
+          icon="schedule" tint={porVencer.length ? '#FFF0ED' : 'var(--surface2)'}
+          fg={porVencer.length ? 'var(--primary)' : 'var(--muted)'}
+          note={porVencer.length
+            ? 'Vencen en menos de 7 días'
+            : 'Ninguna vence esta semana'}
+        />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 16, marginTop: 16 }}>
         {coupons.map((c) => {
           const look = LOOK[c.discount_type] ?? LOOK.percent;
           return (
@@ -315,7 +364,36 @@ function Field({ label, value, onChange, type = 'text', placeholder }) {
   );
 }
 
+function Kpi({ label, value, icon, tint, fg, note }) {
+  return (
+    <div style={S.kpi}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{label}</span>
+        <span style={{ ...S.kpiIcon, background: tint }}>
+          <span className="ms" style={{ fontSize: 17, color: fg }}>{icon}</span>
+        </span>
+      </div>
+      <div style={S.kpiValue}>{value}</div>
+      <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 5 }}>{note}</div>
+    </div>
+  );
+}
+
 const S = {
+  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 },
+  kpi: {
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: 16, boxShadow: 'var(--shadowSm)',
+  },
+  kpiIcon: {
+    width: 28, height: 28, borderRadius: 9, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  kpiValue: {
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24,
+    letterSpacing: '-.03em', marginTop: 9,
+    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+  },
   card: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 18, boxShadow: 'var(--shadowSm)',

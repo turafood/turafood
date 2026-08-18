@@ -155,8 +155,13 @@ export function subscribeToAvailable(onChange) {
   if (!isLive()) return () => {};
 
   const supabase = createClient();
+    // Nombre único por suscripción: si dos montajes piden el mismo
+  // nombre, Supabase devuelve el canal que ya está suscrito y
+  // agregarle un callback revienta.
+  const nombre = 'courier-pool' + '|' + Math.random().toString(36).slice(2);
+
   const channel = supabase
-    .channel('courier-pool')
+    .channel(nombre)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, onChange)
     .subscribe();
 
@@ -317,8 +322,13 @@ export function subscribeToMessages(orderId, onNew) {
   if (!isLive()) return () => {};
 
   const supabase = createClient();
+    // Nombre único por suscripción: si dos montajes piden el mismo
+  // nombre, Supabase devuelve el canal que ya está suscrito y
+  // agregarle un callback revienta.
+  const nombre = `order-chat:${orderId}` + '|' + Math.random().toString(36).slice(2);
+
   const channel = supabase
-    .channel(`order-chat:${orderId}`)
+    .channel(nombre)
     .on(
       'postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'messages', filter: `order_id=eq.${orderId}` },

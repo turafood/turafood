@@ -97,6 +97,14 @@ export default function LiquidacionesPage() {
 
   const isPro = Boolean(business?.pro_plan);
 
+  const diasParaElCorte = (() => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const viernes = nextFriday();
+    viernes.setHours(0, 0, 0, 0);
+    return Math.round((viernes - hoy) / 86400000);
+  })();
+
   return (
     <>
       {error && (
@@ -117,6 +125,19 @@ export default function LiquidacionesPage() {
           </div>
           <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,.6)', marginTop: 5 }}>
             Se consigna el {nextFriday().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </div>
+
+          {/* Cuanto falta, en dias. "El viernes" no dice nada si hoy
+              es jueves y uno necesita la plata. */}
+          <div style={S.countdown}>
+            <span className="ms" style={{ fontSize: 16, flex: 'none' }}>schedule</span>
+            <span>
+              {diasParaElCorte === 0
+                ? 'El corte es hoy'
+                : diasParaElCorte === 1
+                  ? 'Falta 1 día'
+                  : `Faltan ${diasParaElCorte} días`}
+            </span>
           </div>
 
           <div style={{ display: 'flex', height: 8, borderRadius: 99, overflow: 'hidden', marginTop: 16, gap: 2 }}>
@@ -238,7 +259,7 @@ export default function LiquidacionesPage() {
 
           {loading && (
             <div style={{ padding: 30, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
-              Cargando liquidaciones…
+              <span className="sk" style={{ display: 'block', height: 64, borderRadius: 16 }} />
             </div>
           )}
         </div>
@@ -259,6 +280,11 @@ function Row({ label, value }) {
 const GRID = 'minmax(0,1.4fr) 100px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 120px';
 
 const S = {
+  countdown: {
+    display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 12,
+    height: 28, padding: '0 12px', borderRadius: 999,
+    background: 'rgba(255,255,255,.1)', fontSize: 12, fontWeight: 700,
+  },
   card: {
     background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',

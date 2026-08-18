@@ -13,6 +13,7 @@
  */
 
 import { createClient, isConfigured } from '@/utils/supabase/client';
+import { cached, invalidate } from './cache';
 
 const isLive = () => isConfigured();
 
@@ -23,7 +24,7 @@ const delay = (ms = 260) => new Promise((r) => setTimeout(r, ms));
    RESUMEN
    ================================================================ */
 
-export async function getOverview() {
+async function _getOverview() {
   if (!isLive()) {
     await delay();
     return LOCAL_OVERVIEW;
@@ -35,8 +36,14 @@ export async function getOverview() {
   return data;
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getOverview() {
+  return cached('resumen', () => _getOverview());
+}
+
 /** Venta y comisión de los últimos N días, para la barra doble del tablero */
-export async function getGmvSeries(days = 7) {
+async function _getGmvSeries(days = 7) {
   if (!isLive()) {
     await delay();
     return LOCAL_GMV;
@@ -72,11 +79,17 @@ export async function getGmvSeries(days = 7) {
   return Array.from(buckets.values());
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getGmvSeries(days = 7) {
+  return cached('gmv' + '|' + String(days), () => _getGmvSeries(days));
+}
+
 /* ================================================================
    NEGOCIOS
    ================================================================ */
 
-export async function getBusinesses({ status } = {}) {
+async function _getBusinesses({ status } = {}) {
   if (!isLive()) {
     await delay();
     return status ? LOCAL_BUSINESSES.filter((b) => b.status === status) : LOCAL_BUSINESSES;
@@ -99,6 +112,12 @@ export async function getBusinesses({ status } = {}) {
   return data ?? [];
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getBusinesses({ status } = {}) {
+  return cached('negocios' + '|' + JSON.stringify({ status } ?? null), () => _getBusinesses({ status }));
+}
+
 /** Documentos que el negocio subió, para la pantalla de aprobación */
 export async function getBusinessDocuments(businessId) {
   if (!isLive()) {
@@ -118,6 +137,11 @@ export async function getBusinessDocuments(businessId) {
 }
 
 export async function reviewBusiness(businessId, approve, reason = null) {
+  // Aprobar algo deja vieja la lista: sin esto seguiria
+  // apareciendo como pendiente durante medio minuto.
+  invalidate('negocios');
+  invalidate('resumen');
+
   if (!isLive()) {
     await delay(400);
     return { id: businessId, status: approve ? 'active' : 'rejected' };
@@ -133,6 +157,11 @@ export async function reviewBusiness(businessId, approve, reason = null) {
 }
 
 export async function setBusinessStatus(businessId, status, reason = null) {
+  // Aprobar algo deja vieja la lista: sin esto seguiria
+  // apareciendo como pendiente durante medio minuto.
+  invalidate('negocios');
+  invalidate('resumen');
+
   if (!isLive()) {
     await delay(400);
     return { id: businessId, status };
@@ -151,7 +180,7 @@ export async function setBusinessStatus(businessId, status, reason = null) {
    REPARTIDORES
    ================================================================ */
 
-export async function getCouriers() {
+async function _getCouriers() {
   if (!isLive()) {
     await delay();
     return LOCAL_COURIERS;
@@ -180,7 +209,18 @@ export async function getCouriers() {
   }));
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getCouriers() {
+  return cached('repartidores', () => _getCouriers());
+}
+
 export async function reviewCourier(courierId, approve, reason = null) {
+  // Aprobar algo deja vieja la lista: sin esto seguiria
+  // apareciendo como pendiente durante medio minuto.
+  invalidate('repartidores');
+  invalidate('resumen');
+
   if (!isLive()) {
     await delay(400);
     return { id: courierId, approval_status: approve ? 'active' : 'rejected' };
@@ -260,7 +300,7 @@ export async function getFleet() {
    SERVICIOS (Growth Partner)
    ================================================================ */
 
-export async function getServiceRequests() {
+async function _getServiceRequests() {
   if (!isLive()) {
     await delay();
     return LOCAL_SERVICES;
@@ -285,7 +325,19 @@ export async function getServiceRequests() {
   }));
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getServiceRequests() {
+  return cached('servicios', () => _getServiceRequests());
+}
+
 export async function setServiceStatus(requestId, status, notes = null) {
+  // Aprobar algo deja vieja la lista: sin esto seguiria
+  // apareciendo como pendiente durante medio minuto.
+  invalidate('servicios');
+  invalidate('resumen');
+  invalidate('marketing');
+
   if (!isLive()) {
     await delay(400);
     return { id: requestId, status };
@@ -304,7 +356,7 @@ export async function setServiceStatus(requestId, status, notes = null) {
    SOPORTE
    ================================================================ */
 
-export async function getTickets() {
+async function _getTickets() {
   if (!isLive()) {
     await delay();
     return LOCAL_TICKETS;
@@ -321,11 +373,17 @@ export async function getTickets() {
   return data ?? [];
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getTickets() {
+  return cached('tickets', () => _getTickets());
+}
+
 /* ================================================================
    USUARIOS
    ================================================================ */
 
-export async function getUsers() {
+async function _getUsers() {
   if (!isLive()) {
     await delay();
     return LOCAL_USERS;
@@ -342,11 +400,17 @@ export async function getUsers() {
   return data ?? [];
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getUsers() {
+  return cached('usuarios', () => _getUsers());
+}
+
 /* ================================================================
    MARKETING (cola de MailerLite)
    ================================================================ */
 
-export async function getMarketingQueue() {
+async function _getMarketingQueue() {
   if (!isLive()) {
     await delay();
     return LOCAL_MARKETING;
@@ -365,11 +429,17 @@ export async function getMarketingQueue() {
   return data ?? [];
 }
 
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getMarketingQueue() {
+  return cached('marketing', () => _getMarketingQueue());
+}
+
 /* ================================================================
    FINANZAS
    ================================================================ */
 
-export async function getPayoutCut() {
+async function _getPayoutCut() {
   if (!isLive()) {
     await delay();
     return LOCAL_PAYOUT_CUT;
@@ -405,6 +475,12 @@ export async function getPayoutCut() {
   return Array.from(byBusiness.values())
     .map((b) => ({ ...b, net: b.gross - b.fee, state: 'lista' }))
     .sort((a, b) => b.gross - a.gross);
+}
+
+
+/** Con caché: volver a la pantalla la pinta de una y refresca detrás. */
+export async function getPayoutCut() {
+  return cached('corte', () => _getPayoutCut());
 }
 
 /* ================================================================

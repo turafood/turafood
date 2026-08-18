@@ -40,12 +40,26 @@ export default function LiveOrders() {
     let channel;
     let timer;
 
+    /**
+     * El efecto es asíncrono y React lo monta, desmonta y vuelve a
+     * montar en desarrollo. La limpieza del primer montaje corría
+     * mientras el `await` seguía pendiente, así que `channel` todavía
+     * era undefined y no se quitaba nada; el segundo montaje pedía un
+     * canal con el mismo nombre, Supabase devolvía el que ya estaba
+     * suscrito, y agregarle un callback a un canal ya suscrito revienta.
+     *
+     * Dos cosas lo arreglan: esta bandera, para no suscribir un canal
+     * que ya nadie va a usar, y un nombre único por montaje.
+     */
+    let cancelado = false;
+    const nombre = `mis-pedidos:${Math.random().toString(36).slice(2)}`;
+
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || cancelado) return;
 
       channel = supabase
-        .channel('mis-pedidos')
+        .channel(nombre)
         .on(
           'postgres_changes',
           {
@@ -71,6 +85,7 @@ export default function LiveOrders() {
     })();
 
     return () => {
+      cancelado = true;
       clearTimeout(timer);
       if (channel) supabase.removeChannel(channel);
     };

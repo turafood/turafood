@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
+import { cached, invalidate } from './cache';
 
 export function isLive() {
   return Boolean(
@@ -120,6 +121,11 @@ export async function getLiveOrders(businessId) {
  * aquí solo se manda el estado nuevo.
  */
 export async function setOrderStatus(orderId, status, cancelReason = null) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('historial');
+  invalidate('ventas');
+
   if (!isLive()) {
     await delay(180);
     const order = LOCAL_ORDERS.find((o) => o.id === orderId);
@@ -150,8 +156,13 @@ export function subscribeToOrders(businessId, onChange) {
   if (!isLive() || !businessId) return () => {};
 
   const supabase = createClient();
+    // Nombre único por suscripción: si dos montajes piden el mismo
+  // nombre, Supabase devuelve el canal que ya está suscrito y
+  // agregarle un callback revienta.
+  const nombre = `negocio-orders:${businessId}` + '|' + Math.random().toString(36).slice(2);
+
   const channel = supabase
-    .channel(`negocio-orders:${businessId}`)
+    .channel(nombre)
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'orders', filter: `business_id=eq.${businessId}` },
@@ -189,7 +200,7 @@ export async function setStoreOpen(businessId, isOpen) {
 // CATÁLOGO
 // ============================================================
 
-export async function getCatalog(businessId) {
+async function _getCatalog(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_PRODUCTS;
@@ -204,6 +215,12 @@ export async function getCatalog(businessId) {
 
   if (error) throw new Error(`No se pudo cargar el catálogo: ${error.message}`);
   return data ?? [];
+}
+
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getCatalog(businessId) {
+  return cached('catalogo' + '|' + String(businessId), () => _getCatalog(businessId));
 }
 
 export async function getCategories(businessId) {
@@ -227,6 +244,10 @@ export async function getCategories(businessId) {
 
 /** Crea una categoría nueva desde el formulario de producto */
 export async function createCategory(businessId, name) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!isLive()) {
     await delay(200);
     return { id: `c-${Date.now()}`, name };
@@ -244,6 +265,10 @@ export async function createCategory(businessId, name) {
 }
 
 export async function saveProduct(businessId, product) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!isLive()) {
     await delay(300);
     if (product.id) {
@@ -290,6 +315,10 @@ export async function saveProduct(businessId, product) {
  * fotos tienen que verse en la app de cliente sin sesión.
  */
 export async function uploadProductPhoto(businessId, file) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!file.type.startsWith('image/')) {
     throw new Error('Solo se pueden subir imágenes.');
   }
@@ -318,6 +347,10 @@ export async function uploadProductPhoto(businessId, file) {
 
 /** Quita la foto del almacenamiento. Si ya no estaba, no pasa nada. */
 export async function deleteProductPhoto(url) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!isLive() || !url?.includes('/product-photos/')) return true;
 
   const supabase = createClient();
@@ -327,6 +360,10 @@ export async function deleteProductPhoto(url) {
 }
 
 export async function deleteProduct(productId) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!isLive()) {
     await delay(200);
     const i = LOCAL_PRODUCTS.findIndex((p) => p.id === productId);
@@ -341,6 +378,10 @@ export async function deleteProduct(productId) {
 }
 
 export async function setProductAvailability(productId, isAvailable) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('catalogo');
+
   if (!isLive()) {
     await delay(150);
     const p = LOCAL_PRODUCTS.find((x) => x.id === productId);
@@ -364,7 +405,7 @@ export async function setProductAvailability(productId, isAvailable) {
 // HISTORIAL
 // ============================================================
 
-export async function getHistory(businessId) {
+async function _getHistory(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_HISTORY;
@@ -383,11 +424,17 @@ export async function getHistory(businessId) {
   return data ?? [];
 }
 
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getHistory(businessId) {
+  return cached('historial' + '|' + String(businessId), () => _getHistory(businessId));
+}
+
 // ============================================================
 // RESEÑAS
 // ============================================================
 
-export async function getReviews(businessId) {
+async function _getReviews(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_REVIEWS;
@@ -412,12 +459,22 @@ export async function getReviews(businessId) {
   }));
 }
 
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getReviews(businessId) {
+  return cached('resenas' + '|' + String(businessId), () => _getReviews(businessId));
+}
+
 /**
  * Publica la respuesta del negocio. Va por RPC porque la función
  * comprueba en el servidor que la reseña sea de este negocio y solo
  * deja tocar la respuesta, nunca la calificación del cliente.
  */
 export async function replyToReview(reviewId, reply) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('resenas');
+
   if (!isLive()) {
     await delay(200);
     const r = LOCAL_REVIEWS.find((x) => x.id === reviewId);
@@ -444,7 +501,7 @@ export async function replyToReview(reviewId, reply) {
 
 export const DAY_LABELS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-export async function getHours(businessId) {
+async function _getHours(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_HOURS;
@@ -459,6 +516,12 @@ export async function getHours(businessId) {
 
   if (error) throw new Error(`No se pudieron cargar los horarios: ${error.message}`);
   return data ?? [];
+}
+
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getHours(businessId) {
+  return cached('horarios' + '|' + String(businessId), () => _getHours(businessId));
 }
 
 export async function upsertHour(businessId, dayOfWeek, patch) {
@@ -621,7 +684,7 @@ export function summarizePrevious(orders, days = 7) {
 }
 
 /** Todos los pedidos entregados de los últimos N días */
-export async function getSalesWindow(businessId, days = 7) {
+async function _getSalesWindow(businessId, days = 7) {
   if (!isLive()) {
     await delay();
     return LOCAL_SALES;
@@ -643,7 +706,13 @@ export async function getSalesWindow(businessId, days = 7) {
   return data ?? [];
 }
 
-export async function getPayouts(businessId) {
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getSalesWindow(businessId, days = 7) {
+  return cached('ventas' + '|' + String(businessId) + '|' + String(days), () => _getSalesWindow(businessId, days));
+}
+
+async function _getPayouts(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_PAYOUTS;
@@ -660,6 +729,12 @@ export async function getPayouts(businessId) {
   // La tabla puede no existir todavía en entornos viejos: no rompemos la vista.
   if (error) return [];
   return data ?? [];
+}
+
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getPayouts(businessId) {
+  return cached('liquidaciones' + '|' + String(businessId), () => _getPayouts(businessId));
 }
 
 // ============================================================
@@ -699,7 +774,7 @@ export async function updateBusiness(businessId, patch) {
   return data;
 }
 
-export async function getDocuments(businessId) {
+async function _getDocuments(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_DOCS;
@@ -715,6 +790,12 @@ export async function getDocuments(businessId) {
   return data ?? [];
 }
 
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getDocuments(businessId) {
+  return cached('documentos' + '|' + String(businessId), () => _getDocuments(businessId));
+}
+
 /**
  * Sube un documento al bucket privado y lo registra.
  *
@@ -723,6 +804,10 @@ export async function getDocuments(businessId) {
  * en la carpeta de otro ni leerla.
  */
 export async function uploadDocument(businessId, kind, file) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('documentos');
+
   if (file.size > 8 * 1024 * 1024) {
     throw new Error('El archivo pesa más de 8 MB. Comprímelo e inténtalo de nuevo.');
   }
@@ -758,6 +843,10 @@ export async function uploadDocument(businessId, kind, file) {
 }
 
 export async function deleteDocument(businessId, kind, filePath) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('documentos');
+
   if (!isLive()) {
     await delay(200);
     const i = LOCAL_DOCS.findIndex((d) => d.kind === kind);
@@ -777,6 +866,10 @@ export async function deleteDocument(businessId, kind, filePath) {
  * base: si falta algo devuelve el mensaje con lo que falta.
  */
 export async function submitForReview() {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('documentos');
+
   if (!isLive()) {
     await delay(400);
     LOCAL_BUSINESS.submitted_at = new Date().toISOString();
@@ -831,7 +924,7 @@ export function checklistOf(business, documents = []) {
 // PROMOCIONES
 // ============================================================
 
-export async function getCoupons(businessId) {
+async function _getCoupons(businessId) {
   if (!isLive()) {
     await delay();
     return LOCAL_COUPONS;
@@ -848,7 +941,17 @@ export async function getCoupons(businessId) {
   return data ?? [];
 }
 
+
+/** Con caché: al volver a la pantalla se pinta de una y refresca detrás. */
+export async function getCoupons(businessId) {
+  return cached('cupones' + '|' + String(businessId), () => _getCoupons(businessId));
+}
+
 export async function createCoupon(businessId, coupon) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('cupones');
+
   if (!isLive()) {
     await delay(200);
     const row = { id: `c${Date.now()}`, business_id: businessId, uses_count: 0, is_active: true, ...coupon };
@@ -871,6 +974,10 @@ export async function createCoupon(businessId, coupon) {
 }
 
 export async function setCouponActive(couponId, isActive) {
+  // Lo escrito deja vieja la caché: sin esto la lista siguiente
+  // mostraría el estado de antes durante medio minuto.
+  invalidate('cupones');
+
   if (!isLive()) {
     await delay(150);
     const c = LOCAL_COUPONS.find((x) => x.id === couponId);

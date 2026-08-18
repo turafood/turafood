@@ -155,6 +155,21 @@ Sin `.env.local` las tres arrancan igual y muestran los datos de la
 maqueta. Es a propósito: se puede revisar cualquier pantalla sin tener
 que sembrar la base primero.
 
+### Ojo con las sesiones en local
+
+Las cookies **no distinguen puertos**. `localhost:3000`, `localhost:3100`
+y `localhost:3200` son el mismo host para el navegador, así que entrar
+en una app deja sesión iniciada en las tres. Si entras como cliente y
+después abres la consola, el proxy te va a mandar a `/sin-acceso` — y
+tiene razón: esa sesión no es de administrador.
+
+No es un error y en producción no pasa, porque son tres subdominios
+distintos. Para probar las tres a la vez en local, abre cada una en una
+ventana de incógnito aparte, o en navegadores distintos.
+
+Para cambiar de rol en la misma ventana basta con cerrar sesión y
+volver a entrar con el correo que toca.
+
 ---
 
 ## 4. Orden recomendado la primera vez

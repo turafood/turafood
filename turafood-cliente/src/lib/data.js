@@ -16,6 +16,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
+import { cached, invalidate } from './cache';
 import {
   BUSINESSES, PRODUCTS, CATEGORIES, EXTRAS, ADDRESSES, COUPONS, BUENAVENTURA,
 } from './seed';
@@ -59,7 +60,7 @@ function withDistance(business, from) {
  * Lista de negocios abiertos. `vertical` filtra por tipo (restaurant,
  * market, pharmacy, liquor); si se omite, devuelve todos.
  */
-export async function getBusinesses({ vertical, from = BUENAVENTURA.home } = {}) {
+async function _getBusinesses({ vertical, from = BUENAVENTURA.home } = {}) {
   if (!isLive()) {
     await delay();
     const rows = BUSINESSES.filter(
@@ -82,7 +83,18 @@ export async function getBusinesses({ vertical, from = BUENAVENTURA.home } = {})
   return (data ?? []).map((b) => withDistance(b, from));
 }
 
-export async function getBusiness(id, { from = BUENAVENTURA.home } = {}) {
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getBusinesses({ vertical, from = BUENAVENTURA.home } = {}) {
+  // La clave lleva los filtros: dos verticales distintas no son la
+  // misma consulta y no pueden compartir respuesta.
+  return cached(
+    `tiendas|${vertical ?? 'todas'}|${from?.lat ?? ''},${from?.lng ?? ''}`,
+    () => _getBusinesses({ vertical, from }),
+  );
+}
+
+async function _getBusiness(id, { from = BUENAVENTURA.home } = {}) {
   if (!isLive()) {
     await delay();
     const b = BUSINESSES.find((x) => x.id === id || x.slug === id);
@@ -100,6 +112,15 @@ export async function getBusiness(id, { from = BUENAVENTURA.home } = {}) {
   return data ? withDistance(data, from) : null;
 }
 
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getBusiness(id, { from = BUENAVENTURA.home } = {}) {
+  return cached(
+    `tienda|${id}|${from?.lat ?? ''},${from?.lng ?? ''}`,
+    () => _getBusiness(id, { from }),
+  );
+}
+
 // ============================================================
 // CATÁLOGO
 // ============================================================
@@ -109,7 +130,7 @@ export async function getBusiness(id, { from = BUENAVENTURA.home } = {}) {
  *   [{ id, name, products: [...] }]
  * Los productos sin categoría caen en un grupo "Menú".
  */
-export async function getMenu(businessId) {
+async function _getMenu(businessId) {
   let categories;
   let products;
 
@@ -159,7 +180,13 @@ export async function getMenu(businessId) {
   return groups;
 }
 
-export async function getProduct(productId) {
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getMenu(businessId) {
+  return cached('menu' + '|' + String(businessId), () => _getMenu(businessId));
+}
+
+async function _getProduct(productId) {
   if (!isLive()) {
     await delay();
     const product = PRODUCTS.find((p) => p.id === productId);
@@ -180,6 +207,12 @@ export async function getProduct(productId) {
     ...data,
     extras: [...(data.extras ?? [])].sort((a, b) => a.sort_order - b.sort_order),
   };
+}
+
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getProduct(productId) {
+  return cached('producto' + '|' + String(productId), () => _getProduct(productId));
 }
 
 /** Búsqueda global: negocios + platos que coincidan con el texto */
@@ -230,7 +263,7 @@ export async function search(term) {
 /** Copia mutable del seed: en modo local las direcciones se agregan aquí */
 const LOCAL_ADDRESSES = [...ADDRESSES];
 
-export async function getAddresses() {
+async function _getAddresses() {
   if (!isLive()) {
     await delay();
     return LOCAL_ADDRESSES;
@@ -250,12 +283,22 @@ export async function getAddresses() {
   return (data ?? []).map((a) => ({ ...a, ...(toLatLng(a.location) ?? {}) }));
 }
 
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getAddresses() {
+  return cached('direcciones', () => _getAddresses());
+}
+
 /**
  * Guarda una dirección nueva.
  * Si se marca por defecto, quita la marca de las demás: la base tiene
  * un índice único que solo permite una predeterminada por usuario.
  */
 export async function saveAddress({ label, address, detail, neighborhood, lat, lng, isDefault }) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('direcciones');
+
   if (!isLive()) {
     await delay(300);
     const nueva = {
@@ -305,6 +348,10 @@ export async function saveAddress({ label, address, detail, neighborhood, lat, l
 
 /** Marca una dirección como predeterminada */
 export async function setDefaultAddress(addressId) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('direcciones');
+
   if (!isLive()) {
     await delay(150);
     LOCAL_ADDRESSES.forEach((a) => { a.is_default = a.id === addressId; });
@@ -324,6 +371,10 @@ export async function setDefaultAddress(addressId) {
 }
 
 export async function deleteAddress(addressId) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('direcciones');
+
   if (!isLive()) {
     await delay(150);
     const i = LOCAL_ADDRESSES.findIndex((a) => a.id === addressId);
@@ -344,7 +395,7 @@ export async function deleteAddress(addressId) {
 // guardan: se capturan dentro del formulario de ePayco al pagar.
 // ============================================================
 
-export async function getPaymentMethods() {
+async function _getPaymentMethods() {
   if (!isLive()) {
     await delay();
     return LOCAL_METHODS;
@@ -362,6 +413,12 @@ export async function getPaymentMethods() {
 
   if (error) throw new Error(`No se pudieron cargar tus métodos: ${error.message}`);
   return data ?? [];
+}
+
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getPaymentMethods() {
+  return cached('pagos', () => _getPaymentMethods());
 }
 
 /**
@@ -445,6 +502,10 @@ export async function setDefaultPaymentMethod(id) {
 }
 
 export async function deletePaymentMethod(id) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('pagos');
+
   if (!isLive()) {
     await delay(150);
     const i = LOCAL_METHODS.findIndex((m) => m.id === id);
@@ -489,7 +550,7 @@ const writeLocalFavs = (ids) => {
   }
 };
 
-export async function getFavorites() {
+async function _getFavorites() {
   if (!isLive()) return readLocalFavs();
 
   const supabase = createClient();
@@ -505,7 +566,17 @@ export async function getFavorites() {
   return (data ?? []).map((f) => f.business_id);
 }
 
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getFavorites() {
+  return cached('favoritos', () => _getFavorites());
+}
+
 export async function toggleFavorite(businessId) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('favoritos');
+
   const local = readLocalFavs();
   const wasFav = local.includes(businessId);
 
@@ -694,7 +765,7 @@ const LOCAL_MESSAGES = [
 // CUPONES
 // ============================================================
 
-export async function getCoupons() {
+async function _getCoupons() {
   if (!isLive()) {
     await delay();
     return COUPONS;
@@ -708,6 +779,12 @@ export async function getCoupons() {
 
   if (error) throw new Error(`No se pudieron cargar los cupones: ${error.message}`);
   return data ?? [];
+}
+
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getCoupons() {
+  return cached('cupones', () => _getCoupons());
 }
 
 // ============================================================
@@ -726,6 +803,10 @@ export async function placeOrder({
   businessId, items, mode = 'delivery', addressId = null,
   tip = 0, couponCode = null, instructions = null, paymentMethod = 'cash',
 }) {
+  // Lo escrito deja vieja la caché: sin esto la pantalla
+  // siguiente mostraría el estado de antes.
+  invalidate('pedidos');
+
   if (!isLive()) {
     // Sin base de datos, replicamos el mismo cálculo del servidor para
     // que el checkout se pueda probar de punta a punta.
@@ -793,7 +874,7 @@ export async function placeOrder({
   return data;
 }
 
-export async function getOrders() {
+async function _getOrders() {
   if (!isLive()) {
     await delay();
     return LOCAL_ORDERS;
@@ -811,6 +892,12 @@ export async function getOrders() {
 
   if (error) throw new Error(`No se pudieron cargar tus pedidos: ${error.message}`);
   return data ?? [];
+}
+
+
+/** Con caché: volver atrás pinta de una y refresca detrás. */
+export async function getOrders() {
+  return cached('pedidos', () => _getOrders());
 }
 
 export async function getOrder(orderId) {
