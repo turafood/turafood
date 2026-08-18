@@ -345,9 +345,14 @@ export default function ResenasPage() {
       )}
 
       {loading && (
-        <div style={{ padding: 40, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
-          Cargando reseñas…
-        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 11, padding: 4 }}>
+              {/* Esqueleto con la forma de lo que viene: el salto de
+                  "cargando" a "listo" se siente mucho menor si la caja
+                  ya estaba donde va a quedar. */}
+              <span className="sk" style={{ display: 'block', height: 108, borderRadius: 16 }} />
+              <span className="sk" style={{ display: 'block', height: 108, borderRadius: 16 }} />
+              <span className="sk" style={{ display: 'block', height: 108, borderRadius: 16 }} />
+            </div>
       )}
     </>
   );
