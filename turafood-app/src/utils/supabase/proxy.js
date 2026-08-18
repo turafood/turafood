@@ -3,8 +3,12 @@ import { NextResponse } from 'next/server';
 
 /**
  * Rutas públicas: no exigen sesión.
+ *
+ * `/entrar` es la primera que ve quien llega sin cuenta: dos botones
+ * —negocio o repartidor— que abren una sesión anónima y lo dejan
+ * adentro. No es una pantalla de registro, es la puerta abierta.
  */
-const PUBLIC = ['/auth', '/registro'];
+const PUBLIC = ['/auth', '/registro', '/entrar'];
 
 /**
  * Prefijo que le corresponde a cada rol. Es lo que convierte
@@ -66,7 +70,9 @@ export async function updateSession(request) {
   };
 
   if (!user) {
-    return isPublic(pathname) ? response : redirect('/auth');
+    // A /entrar, no a /auth: quien llega por primera vez no viene a
+    // registrarse, viene a ver si esto le sirve.
+    return isPublic(pathname) ? response : redirect('/entrar');
   }
 
   const { data: profile } = await supabase

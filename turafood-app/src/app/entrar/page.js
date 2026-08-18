@@ -1,0 +1,211 @@
+'use client';
+
+/**
+ * LA PUERTA, SIN PUERTA
+ *
+ * Quien llega a app.turafood.com no viene a registrarse: viene a ver
+ * si esto le sirve. Pedirle una cuenta antes de dejarlo entrar es
+ * pedirle fe, y nadie tiene fe en una app que todavía no ha visto.
+ *
+ * Así que esto no es un formulario. Son dos botones: qué eres. Se toca
+ * uno y ya está adentro, con una sesión anónima que desde la base es un
+ * usuario como cualquier otro — su catálogo es suyo y nadie más lo ve.
+ *
+ * Puede trabajar de verdad: cargar el menú, recibir pedidos, cobrar. El
+ * tope de 20 pedidos diarios que la base le impone a quien no está
+ * verificado es la única diferencia, y se quita subiendo los papeles.
+ *
+ * El acceso con cuenta está abajo, para quien ya tiene una.
+ */
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { isConfigured } from '@/utils/supabase/client';
+import { probarComo } from '@/lib/sesion';
+import HeroBackdrop from '../components/HeroBackdrop';
+
+const ROLES = [
+  {
+    id: 'business',
+    icon: 'storefront',
+    titulo: 'Tengo un negocio',
+    detalle: 'Comida, mercado, farmacia o licores',
+    accent: '#FF7A4D',
+    destino: '/negocio',
+  },
+  {
+    id: 'courier',
+    icon: 'two_wheeler',
+    titulo: 'Quiero repartir',
+    detalle: 'Entregar pedidos en moto, bici o carro',
+    accent: '#4C8DFF',
+    destino: '/repartidor',
+  },
+];
+
+export default function EntrarPage() {
+  const router = useRouter();
+  const [busy, setBusy] = useState(null);
+  const [error, setError] = useState(null);
+
+  const entrar = async (rol) => {
+    setError(null);
+
+    if (!isConfigured()) {
+      // Sin base, el panel corre con los datos de la maqueta
+      router.replace(rol.destino);
+      return;
+    }
+
+    setBusy(rol.id);
+    try {
+      const user = await probarComo(rol.id);
+      if (!user) {
+        throw new Error('No se pudo abrir la sesión. Entra con tu cuenta o inténtalo de nuevo.');
+      }
+      // El proxy lee el rol del perfil y manda al panel que toca
+      router.replace('/');
+      router.refresh();
+    } catch (err) {
+      setError(err.message);
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div style={S.page}>
+      <HeroBackdrop brightness={0.28} />
+
+      <div className="sc" style={S.scroller}>
+        <div style={S.center}>
+
+          <div style={S.brand}>
+            <span style={S.logo}>t</span>
+            <span>
+              <span style={S.brandName}>TuraFood</span>
+              <span style={S.brandKicker}>NEGOCIOS Y REPARTIDORES</span>
+            </span>
+          </div>
+
+          <h1 style={S.title}>Entra y míralo<br />por dentro.</h1>
+          <p style={S.subtitle}>
+            Sin cuenta, sin papeles, sin llenar nada. Elige qué eres y estás adentro.
+          </p>
+
+          <div style={S.opciones}>
+            {ROLES.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => entrar(r)}
+                disabled={Boolean(busy)}
+                className="entrar-op"
+                style={{ ...S.opcion, opacity: busy && busy !== r.id ? 0.45 : 1 }}
+              >
+                <span style={{ ...S.opcionIcono, background: `${r.accent}22` }}>
+                  <span className="ms" style={{ fontSize: 25, color: r.accent }}>{r.icon}</span>
+                </span>
+                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                  <span style={S.opcionTitulo}>
+                    {busy === r.id ? 'Abriendo…' : r.titulo}
+                  </span>
+                  <span style={S.opcionDetalle}>{r.detalle}</span>
+                </span>
+                <span className="ms" style={{ fontSize: 21, color: 'rgba(255,255,255,.4)', flex: 'none' }}>
+                  arrow_forward
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {error && (
+            <div style={S.alert}>
+              <span className="ms" style={{ fontSize: 18, flex: 'none' }}>error</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <p style={S.nota}>
+            Trabajas de una, con un tope de 20 pedidos al día. Los documentos los
+            subes cuando quieras quitártelo — y si no los tienes, sigues operando igual.
+          </p>
+
+          <div style={S.pie}>
+            <span style={S.pieTexto}>¿Ya tienes cuenta?</span>
+            <Link href="/auth" style={S.pieEnlace}>Inicia sesión</Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const S = {
+  page: { position: 'relative', minHeight: '100dvh', background: '#080706', color: '#fff' },
+  scroller: {
+    position: 'relative', zIndex: 2, minHeight: '100dvh', maxHeight: '100dvh',
+    overflowY: 'auto', display: 'flex',
+  },
+  center: { margin: 'auto', width: '100%', maxWidth: 430, padding: '36px 22px 30px' },
+
+  brand: { display: 'flex', alignItems: 'center', gap: 11, marginBottom: 30 },
+  logo: {
+    width: 38, height: 38, borderRadius: 12, background: 'var(--primary)', color: '#fff',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22,
+    boxShadow: '0 6px 18px rgba(255,68,31,.45)',
+  },
+  brandName: {
+    display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 18, letterSpacing: '-.02em', lineHeight: 1.1,
+  },
+  brandKicker: {
+    display: 'block', fontSize: 9.5, fontWeight: 800, letterSpacing: '.11em',
+    color: 'rgba(255,255,255,.42)', marginTop: 3,
+  },
+
+  title: {
+    margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 'clamp(30px, 8vw, 38px)', lineHeight: 1.08,
+    letterSpacing: '-.035em', textWrap: 'balance',
+  },
+  subtitle: {
+    margin: '13px 0 0', fontSize: 14.5, lineHeight: 1.6, color: 'rgba(255,255,255,.62)',
+  },
+
+  opciones: { display: 'flex', flexDirection: 'column', gap: 11, marginTop: 28 },
+  opcion: {
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: 16,
+    borderRadius: 20,
+    background: 'rgba(255,255,255,.06)',
+    border: '1px solid rgba(255,255,255,.13)',
+    color: '#fff',
+  },
+  opcionIcono: {
+    width: 50, height: 50, borderRadius: 16, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  opcionTitulo: {
+    display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 16.5, letterSpacing: '-.01em',
+  },
+  opcionDetalle: {
+    display: 'block', fontSize: 12, color: 'rgba(255,255,255,.55)',
+    marginTop: 3, lineHeight: 1.4,
+  },
+
+  nota: { margin: '20px 0 0', fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,.45)' },
+  alert: {
+    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16, padding: '12px 14px',
+    borderRadius: 13, background: 'rgba(255,68,31,.14)',
+    border: '1px solid rgba(255,68,31,.32)', color: '#FFC7BA',
+    fontSize: 12.5, fontWeight: 600, lineHeight: 1.45,
+  },
+  pie: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+    marginTop: 26, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,.1)',
+    flexWrap: 'wrap',
+  },
+  pieTexto: { fontSize: 13.5, color: 'rgba(255,255,255,.5)' },
+  pieEnlace: { fontSize: 13.5, fontWeight: 700, color: '#fff', textDecoration: 'none' },
+};
