@@ -128,10 +128,13 @@ https://app.turafood.com/**
 https://dash.turafood.com/**
 ```
 
-Y activar los proveedores **Google** y **Facebook**. Esto es
-obligatorio antes del primer usuario: `app.turafood.com` ya no tiene
-entrada por correo y contraseña, así que sin proveedores activos nadie
-puede registrarse.
+Y activar los proveedores **Google** y **Facebook**: son la puerta
+principal de `app.turafood.com`. El correo y la contraseña siguen
+existiendo como enlace secundario, así que nadie queda encerrado si un
+proveedor falla, pero el registro de negocios nuevos pasa por ahí.
+
+`dash.turafood.com` no usa proveedores: solo correo y contraseña, y la
+cuenta se crea a mano.
 
 ---
 
@@ -181,3 +184,8 @@ volver a entrar con el correo que toca.
 5. Desplegar las tres aplicaciones en EasyPanel
 6. Crear el usuario administrador y ponerle `role = 'admin'`
 7. Entrar a `dash.turafood.com` y aprobar el primer negocio
+
+Para probar antes de tener negocios reales, en vez del paso 6 corre
+`supabase/seed-usuarios-prueba.sql` y `supabase/seed-catalogos.sql`:
+dejan una cuenta por cada lado y los menús de los negocios de
+demostración. Bórralos antes de abrirle la plataforma a nadie.
