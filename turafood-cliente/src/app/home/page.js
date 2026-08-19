@@ -227,74 +227,122 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Dos verticales grandes (solo móvil en el mockup).
-              El grid va en un hijo: si se pone inline en el elemento con
-              .mobile-only, el inline gana y se ve también en escritorio. */}
-          <div className="mobile-only">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
-              <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
-                <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                <span style={{ fontSize: 20, fontWeight: 500, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
-              </button>
-              <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
-                <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                <span style={{ fontSize: 20, fontWeight: 500, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Tira de verticales (móvil) */}
-          <div className="mobile-only">
-            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 4px' }}>
-            {STRIP_VERTICALS.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => (v.external
-                  ? window.open(v.external, '_blank', 'noopener,noreferrer')
-                  : router.push(`/list?v=${v.id}`))}
-                style={S.stripVertical}
-              >
-                <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
-                {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
-                <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>
-                  {v.label}
-                </span>
-              </button>
-            ))}
-            </div>
-          </div>
-
-          {/* Banners */}
-          <div style={{ padding: '18px 20px 0' }}>
+          {/* ============================================================
+              SLIDER PRO
+              Unificado: Combina categorías destacadas y promos
+              ============================================================ */}
+          <div className="mobile-only" style={{ padding: '16px 0 0' }}>
             <div
               className="hs"
-              style={{ display: 'flex', gap: 12, margin: '0 -20px', padding: '0 20px' }}
-              onScroll={(e) => setBanner(Math.round(e.currentTarget.scrollLeft / 314))}
+              style={{
+                display: 'flex', gap: 14, padding: '0 20px 20px',
+                scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+                overflowX: 'auto',
+              }}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                const index = Math.round(el.scrollLeft / (el.clientWidth * 0.85));
+                setBanner(index);
+              }}
             >
-              {HOME_BANNERS.map((b) => (
-                <div key={b.code} onClick={() => router.push('/offers')} style={{ ...S.banner, background: b.bg }}>
-                  <div style={S.bannerBubble} />
-                  <div style={{ position: 'relative', fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em', color: 'rgba(255,255,255,.9)' }}>
-                    {b.tag}
-                  </div>
-                  <div style={S.bannerTitle}>{b.title}</div>
-                  <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 12 }}>
-                    <span style={{ ...S.bannerCode, color: b.codeFg }}>
-                      <span className="ms" style={{ fontSize: 15 }}>local_activity</span>
-                      {b.code}
+              {[
+                {
+                  id: 'f1',
+                  image: '/images/food-fork.jpg',
+                  badge: 'TOP RESTAURANTE',
+                  title: 'Marisquería El Faro',
+                  subtitle: 'El mejor encocado de la semana',
+                  action: () => router.push('/store/b0000000-0000-4000-8000-000000000003'),
+                },
+                {
+                  id: 'f2',
+                  image: '/images/burger.jpg',
+                  badge: 'OFERTA LIMITADA',
+                  title: 'Hasta 40% OFF',
+                  subtitle: 'En tus hamburguesas favoritas',
+                  action: () => router.push('/offers'),
+                },
+                {
+                  id: 'f3',
+                  image: '/images/steak-ribeye.jpg',
+                  badge: 'NUEVO',
+                  title: 'Asadero El Puerto',
+                  subtitle: 'Disfruta las mejores picadas',
+                  action: () => router.push('/store/b0000000-0000-4000-8000-000000000001'),
+                },
+                {
+                  id: 'f4',
+                  image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop',
+                  badge: 'LICORES Y MÁS',
+                  title: 'Zona de Licores',
+                  subtitle: 'Bebidas frías para tu noche',
+                  action: () => router.push('/list?v=liquor'),
+                },
+              ].map((slide, i) => (
+                <button
+                  key={slide.id}
+                  onClick={slide.action}
+                  style={{
+                    flex: 'none',
+                    width: '85vw',
+                    maxWidth: 340,
+                    height: 190,
+                    borderRadius: 24,
+                    overflow: 'hidden',
+                    position: 'relative',
+                    scrollSnapAlign: 'center',
+                    padding: 0,
+                    textAlign: 'left',
+                    boxShadow: '0 16px 32px -10px rgba(0,0,0,0.15)',
+                    background: 'var(--surface2)',
+                    border: 'none',
+                  }}
+                >
+                  <Cover src={slide.image} alt={slide.title} sizes="400px" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+                  <div style={{
+                    position: 'absolute', inset: 0, zIndex: 2,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(20,16,10,0.85) 100%)',
+                  }} />
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3,
+                    padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 6,
+                  }}>
+                    <span style={{
+                      alignSelf: 'flex-start',
+                      background: 'rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: '.08em',
+                      padding: '5px 12px',
+                      borderRadius: 99,
+                      textTransform: 'uppercase',
+                      border: '1px solid rgba(255,255,255,0.15)'
+                    }}>
+                      {slide.badge}
+                    </span>
+                    <span style={{ color: '#fff', fontSize: 24, fontWeight: 800, lineHeight: 1.1, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', marginTop: 2 }}>
+                      {slide.title}
+                    </span>
+                    <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500 }}>
+                      {slide.subtitle}
                     </span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 12 }}>
-              {HOME_BANNERS.map((b, i) => (
+            
+            {/* Indicadores */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -6 }}>
+              {[0, 1, 2, 3].map((i) => (
                 <span
-                  key={b.code}
+                  key={i}
                   style={{
-                    width: i === banner ? 18 : 6, height: 6, borderRadius: 99,
-                    background: i === banner ? 'var(--primary)' : 'var(--faint)',
-                    transition: 'width .2s ease',
+                    width: i === banner ? 20 : 6, height: 6, borderRadius: 99,
+                    background: i === banner ? 'var(--primary)' : 'var(--border)',
+                    transition: 'all .3s cubic-bezier(.25,.8,.25,1)',
                   }}
                 />
               ))}
