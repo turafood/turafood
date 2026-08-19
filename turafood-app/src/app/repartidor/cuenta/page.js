@@ -232,11 +232,28 @@ export default function CuentaPage() {
         </div>
 
         {/* Datos */}
-        <div style={S.rowsCard}>
-          <Row icon="two_wheeler" label="Mi vehículo" value={`${VEHICLE[courier?.vehicle_type] ?? '—'}${courier?.plate ? ` · ${courier.plate}` : ''}`} />
-          <Row icon="call" label="Teléfono" value={courier?.profile?.phone ?? '—'} />
-          <Row icon="bolt" label="Conexión" value={online ? 'En línea' : 'Desconectado'} />
-          <Row icon="map" label="Zona de trabajo" value="Buenaventura" last />
+        <div style={S.filas}>
+          <Row
+            icon="two_wheeler" label="Mi vehículo"
+            tint="#FFF1EC" fg="#E2360F"
+            value={`${VEHICLE[courier?.vehicle_type] ?? 'Sin registrar'}${courier?.plate ? ` · ${courier.plate}` : ''}`}
+          />
+          <Row
+            icon="call" label="Teléfono"
+            tint="#EAF1FF" fg="#2E6BFF"
+            value={courier?.profile?.phone ?? 'Sin registrar'}
+          />
+          <Row
+            icon="bolt" label="Conexión"
+            tint={online ? '#E6F6EE' : 'var(--surface2)'}
+            fg={online ? '#0B8E54' : 'var(--muted)'}
+            value={online ? 'En línea, recibiendo pedidos' : 'Desconectado'}
+          />
+          <Row
+            icon="map" label="Zona de trabajo"
+            tint="#FFF7E6" fg="#A8730B"
+            value="Buenaventura"
+          />
         </div>
 
         <a href="https://wa.me/573137594713" target="_blank" rel="noopener noreferrer" style={S.support}>
@@ -257,24 +274,46 @@ export default function CuentaPage() {
   );
 }
 
-function Row({ icon, label, value, last }) {
+/**
+ * Una fila de la cuenta, como en el mockup (linea 276): tarjeta
+ * propia, icono grande con su tinte y el dato debajo del nombre.
+ *
+ * Antes era una lista plana con el valor alineado a la derecha, y en
+ * pantalla angosta el nombre y el dato se peleaban la misma linea: la
+ * placa quedaba cortada y todo se veia apretado.
+ */
+function Row({ icon, label, value, tint, fg }) {
   return (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', gap: 13, padding: '15px 0',
-        borderBottom: last ? 'none' : '1px solid var(--border)',
-      }}
-    >
-      <span className="ms" style={{ fontSize: 22, color: 'var(--muted)', flex: 'none' }}>{icon}</span>
-      <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{label}</span>
-      <span className="tr1" style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600, maxWidth: '50%', textAlign: 'right' }}>
-        {value}
+    <div style={S.fila}>
+      <span style={{ ...S.filaIcono, background: tint }}>
+        <span className="ms" style={{ fontSize: 21, color: fg }}>{icon}</span>
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={S.filaLabel}>{label}</span>
+        <span className="tr1" style={S.filaValor}>{value}</span>
+      </span>
+      <span className="ms" style={{ fontSize: 20, color: 'var(--faint)', flex: 'none' }}>
+        chevron_right
       </span>
     </div>
   );
 }
 
 const S = {
+  filas: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 },
+  fila: {
+    display: 'flex', alignItems: 'center', gap: 14, padding: 18,
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 18,
+  },
+  filaIcono: {
+    width: 42, height: 42, borderRadius: 13, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  filaLabel: { display: 'block', fontWeight: 700, fontSize: 14.5 },
+  filaValor: {
+    display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 3,
+  },
   header: { flex: 'none', padding: '18px 20px 10px' },
   scroll: { flex: 1, overflowY: 'auto', padding: '8px 20px 108px', minHeight: 0 },
   avatar: {
