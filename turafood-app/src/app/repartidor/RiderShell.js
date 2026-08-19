@@ -66,11 +66,15 @@ export default function RiderShell({ children }) {
       hecho: Boolean(courier?.vehicle_type && courier?.plate),
     },
     {
-      id: 'documentos', icono: 'verified_user',
-      titulo: 'Sube tus documentos',
-      detalle: 'Cédula, licencia, SOAT y tecnomecánica',
+      // Igual que el negocio: ya no se exigen papeles al día para
+      // empezar. Cédula, licencia y SOAT dejaban por fuera a media
+      // ciudad, y quien reparte en bicicleta no tiene ninguno de los
+      // tres. La verificación pasa en una videollamada corta.
+      id: 'llamada', icono: 'videocam',
+      titulo: 'Agenda tu videollamada',
+      detalle: 'Diez minutos con el equipo y quedas habilitado para rodar',
       href: '/repartidor/cuenta',
-      cta: 'Subirlos',
+      cta: 'Agendar',
       hecho: courier?.approval_status === 'active',
     },
   ];

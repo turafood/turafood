@@ -12,11 +12,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useRider } from '../RiderContext';
+import Videollamada from '../../components/Videollamada';
 
 const APPROVAL = {
   pending_review: {
     label: 'En revisión', color: '#A8730B', dot: 'var(--amber)', icon: 'schedule',
-    note: 'Estamos revisando tus documentos. Te avisamos apenas quede aprobada; mientras tanto no vas a recibir pedidos.',
+    note: 'Agenda una videollamada corta con el equipo y quedas habilitado. Mientras tanto puedes mirar todo por dentro.',
   },
   active: {
     label: 'Activa', color: 'var(--green)', dot: 'var(--green)', icon: 'check',
@@ -100,7 +101,10 @@ export default function CuentaPage() {
     if (vencido) {
       return {
         bg: '#FFF0ED', fg: '#C0341A', icon: 'error',
-        text: `${vencido.d.label}: ${vencido.s.label.toLowerCase()}. Sin esto no puedes salir a rodar — subelo desde soporte.`,
+        // Ya no bloquea: los documentos son opcionales. El aviso se
+        // queda porque a quien SÍ los tiene cargados le sirve saber
+        // que se le vencieron, pero sin la amenaza que era mentira.
+        text: `${vencido.d.label}: ${vencido.s.label.toLowerCase()}. Si lo tienes al día, actualízalo desde soporte.`,
       };
     }
     const pronto = states.find((x) => x.s.warn);
@@ -187,11 +191,25 @@ export default function CuentaPage() {
           </div>
         </div>
 
-        {/* Documentos */}
+        {/* La videollamada: es lo que de verdad habilita la cuenta */}
+        <div style={S.card}>
+          <Videollamada />
+        </div>
+
+        {/* Documentos — OPCIONALES.
+            Antes decían "sin esto no puedes salir a rodar", que era
+            falso y además dejaba por fuera a quien reparte en
+            bicicleta y no tiene licencia ni SOAT. Se dejan porque a
+            quien los tenga le sirve tenerlos cargados, pero ya no
+            bloquean nada. */}
         <div style={S.card}>
           <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 }}>
-            Documentos
+            Documentos <span style={S.opcional}>OPCIONAL</span>
           </div>
+          <p style={S.docsNota}>
+            No hacen falta para rodar. Si los tienes al día, cárgalos y te
+            ahorras preguntas en la videollamada.
+          </p>
 
           <div style={{ marginTop: 6 }}>
             {docs.map((d, i) => {
@@ -300,6 +318,16 @@ function Row({ icon, label, value, tint, fg }) {
 }
 
 const S = {
+  opcional: {
+    fontSize: 9.5, fontWeight: 800, letterSpacing: '.07em',
+    padding: '3px 8px', borderRadius: 999, marginLeft: 8,
+    background: 'var(--surface2)', color: 'var(--muted)',
+    verticalAlign: 'middle',
+  },
+  docsNota: {
+    margin: '6px 0 2px', fontSize: 12.5, lineHeight: 1.55, color: 'var(--muted)',
+  },
+
   filas: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 },
   fila: {
     display: 'flex', alignItems: 'center', gap: 14, padding: 18,

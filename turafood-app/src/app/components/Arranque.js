@@ -29,20 +29,50 @@
  *
  * Todas las respuestas son de tocar. En un celular, la diferencia
  * entre tocar y escribir es la diferencia entre contestar y cerrar.
+ *
+ * ICONOS, NO EMOJIS
+ *
+ * Los emojis los pinta el sistema operativo: en un Android viejo
+ * varios salen como un cuadrito, cada plataforma los dibuja distinto y
+ * ninguno respeta el tema. Ver `IconoArranque`.
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import IconoArranque from './IconoArranque';
+import { TEMAS, TEMA_INFO, useTheme } from '@/lib/prefs';
 
-export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
+/**
+ * El último paso no es una pregunta: es enseñarle que puede cambiar
+ * el aspecto. Nadie descubre solo un botón de tema en una barra
+ * superior llena de iconos, y quien trabaja de noche en una cocina
+ * agradece el oscuro. El del puerto lo agradecen todos.
+ *
+ * Va de último a propósito: es lo único que no configura nada del
+ * negocio, así que quien salte antes no se pierde nada importante.
+ */
+const PASO_TEMA = {
+  id: '__tema',
+  titulo: 'Una última cosa: ¿cómo lo quieres ver?',
+  bajada: 'Lo cambias cuando quieras desde el botón de arriba.',
+  tema: true,
+};
+
+export default function Arranque({ preguntas: base, onListo, onSaltar, guardando }) {
   const [i, setI] = useState(0);
   const [resp, setResp] = useState({});
+  const { theme, setTheme } = useTheme();
+
+  const preguntas = useMemo(() => [...base, PASO_TEMA], [base]);
 
   const paso = preguntas[i];
   const ultimo = i === preguntas.length - 1;
   const valor = resp[paso.id];
 
   // Contestada: en las de varias, con una alcanza
-  const contestada = paso.multiple ? Array.isArray(valor) && valor.length > 0 : Boolean(valor);
+  // El del tema siempre está contestado: ya hay uno puesto.
+  const contestada = paso.tema
+    ? true
+    : paso.multiple ? Array.isArray(valor) && valor.length > 0 : Boolean(valor);
 
   // Escape para salir. Quien lo busca sabe lo que hace.
   useEffect(() => {
@@ -75,7 +105,7 @@ export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
   };
 
   const avanzar = () => {
-    if (ultimo) onListo?.(resp);
+    if (ultimo) onListo?.(resp);   // `__tema` nunca entra a `resp`
     else setI((n) => n + 1);
   };
 
@@ -115,6 +145,43 @@ export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
           <h2 style={S.titulo}>{paso.titulo}</h2>
           {paso.bajada && <p style={S.bajada}>{paso.bajada}</p>}
 
+          {/* El paso del tema: tres muestras que se ven como se va a
+              ver la app, no tres nombres. Se aplica al tocar, así que
+              la prueba es la pantalla misma. */}
+          {paso.tema ? (
+            <div style={S.temas}>
+              {TEMAS.map((t) => {
+                const on = theme === t;
+                return (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    aria-pressed={on}
+                    style={{
+                      ...S.temaCard,
+                      borderColor: on ? 'var(--primary)' : 'var(--border)',
+                      boxShadow: on ? '0 6px 20px color-mix(in srgb, var(--primary) 22%, transparent)' : 'none',
+                    }}
+                  >
+                    <span style={{ ...S.temaMuestra, ...MUESTRA[t] }}>
+                      <span style={{ ...S.temaBarra, background: MUESTRA[t].acento }} />
+                      <span style={{ ...S.temaLinea, background: MUESTRA[t].linea, width: '62%' }} />
+                      <span style={{ ...S.temaLinea, background: MUESTRA[t].linea, width: '40%' }} />
+                    </span>
+
+                    <span style={S.temaNombre}>
+                      <span className="ms" style={{ fontSize: 16 }}>{TEMA_INFO[t].icono}</span>
+                      {TEMA_INFO[t].nombre}
+                    </span>
+
+                    {on && (
+                      <span className="ms" style={S.temaCheck}>check_circle</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
           <div
             style={{
               ...S.opciones,
@@ -142,7 +209,7 @@ export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
                     boxShadow: on ? '0 4px 16px rgba(226,54,15,.14)' : 'none',
                   }}
                 >
-                  <span style={S.emoji} aria-hidden="true">{o.emoji}</span>
+                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={40} />
 
                   <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                     <span style={{ ...S.opcionLabel, color: on ? 'var(--primary)' : 'var(--text)' }}>
@@ -170,6 +237,13 @@ export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
               );
             })}
           </div>
+          )}
+
+          {paso.tema && (
+            <p style={S.temaNota}>
+              El del puerto lleva los colores de la bandera de Buenaventura.
+            </p>
+          )}
         </div>
 
         {/* ---------------------------------------- pie fijo */}
@@ -203,7 +277,47 @@ export default function Arranque({ preguntas, onListo, onSaltar, guardando }) {
   );
 }
 
+/**
+ * Cómo se ve cada tema en la muestra. Son los mismos colores reales
+ * de `globals.css`, escritos acá porque la muestra tiene que pintar
+ * un tema que NO es el que está puesto — no puede leer las variables.
+ */
+const MUESTRA = {
+  light:  { background: '#F6F5F2', acento: '#FF441F', linea: 'rgba(23,20,15,.18)' },
+  dark:   { background: '#131110', acento: '#FF441F', linea: 'rgba(255,255,255,.22)' },
+  puerto: { background: '#FFFDF5', acento: '#009739', linea: 'rgba(0,151,57,.24)' },
+};
+
 const S = {
+  temas: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 18 },
+  temaCard: {
+    position: 'relative',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9,
+    padding: '13px 8px', borderRadius: 18,
+    border: '1.5px solid var(--border)', background: 'var(--surface)',
+    transition: 'border-color .22s cubic-bezier(.2,0,0,1), box-shadow .28s cubic-bezier(.2,0,0,1)',
+  },
+  temaMuestra: {
+    width: '100%', height: 54, borderRadius: 11,
+    display: 'flex', flexDirection: 'column', gap: 5,
+    padding: 9, overflow: 'hidden',
+    border: '1px solid rgba(128,128,128,.18)',
+  },
+  temaBarra: { height: 8, borderRadius: 4, width: '46%' },
+  temaLinea: { height: 5, borderRadius: 3 },
+  temaNombre: {
+    display: 'flex', alignItems: 'center', gap: 5,
+    fontSize: 12.5, fontWeight: 700, color: 'var(--text)',
+  },
+  temaCheck: {
+    position: 'absolute', top: 8, right: 8,
+    fontSize: 18, color: 'var(--primary)',
+  },
+  temaNota: {
+    margin: '14px 0 0', fontSize: 12, lineHeight: 1.5,
+    color: 'var(--muted)', textAlign: 'center',
+  },
+
   velo: {
     position: 'fixed', inset: 0, zIndex: 300,
     display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
@@ -266,16 +380,15 @@ const S = {
     display: 'grid', gap: 10, marginTop: 18,
   },
   opcion: {
-    display: 'flex', alignItems: 'center', gap: 12,
-    // 56 es el mínimo para que el pulgar acierte sin mirar
-    minHeight: 56, padding: '12px 14px',
-    borderRadius: 16, border: '1.5px solid var(--border)',
+    display: 'flex', alignItems: 'center', gap: 13,
+    // 62 en vez de 56: con el icono adentro, 56 apretaba. El pulgar
+    // acierta sin mirar a partir de 56, así que sobra margen.
+    minHeight: 62, padding: '11px 14px',
+    borderRadius: 18, border: '1.5px solid var(--border)',
     textAlign: 'left',
-    transition: 'border-color .16s ease, background .16s ease, box-shadow .16s ease',
-  },
-  emoji: {
-    fontSize: 24, lineHeight: 1, flex: 'none',
-    width: 30, textAlign: 'center',
+    // Curva larga y salida suave: el botón se siente pesado, no
+    // elástico. Es lo que separa "premium" de "app de plantilla".
+    transition: 'border-color .22s cubic-bezier(.2,0,0,1), background .22s cubic-bezier(.2,0,0,1), box-shadow .28s cubic-bezier(.2,0,0,1), transform .18s cubic-bezier(.2,0,0,1)',
   },
   opcionLabel: {
     display: 'block', fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em',
@@ -307,10 +420,15 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   avanzar: {
-    flex: 1, height: 52, borderRadius: 15,
+    flex: 1, height: 54, borderRadius: 17,
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    background: 'var(--primary)', color: '#fff',
+    // Degradado en vez de color plano, y una sombra del mismo color
+    // debajo: el botón se despega de la hoja en vez de estar pintado
+    // sobre ella.
+    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primaryDark) 100%)',
+    color: '#fff',
     fontSize: 15.5, fontWeight: 800, letterSpacing: '-.01em',
-    transition: 'opacity .16s ease',
+    boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 34%, transparent)',
+    transition: 'opacity .22s cubic-bezier(.2,0,0,1), box-shadow .22s cubic-bezier(.2,0,0,1)',
   },
 };
