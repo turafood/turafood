@@ -149,9 +149,9 @@ export default function HorariosPage() {
                     <button
                       onClick={() => toggleDay(day)}
                       aria-label={`${open ? 'Cerrar' : 'Abrir'} ${DAY_LABELS[day]}`}
-                      style={{ ...S.track, background: open ? 'var(--green)' : 'var(--faint)' }}
+                      style={{ ...S.track, background: open ? 'var(--green)' : 'var(--surface2)', boxShadow: open ? '0 0 10px rgba(16,185,129,0.3)' : 'none' }}
                     >
-                      <span style={{ ...S.knob, transform: open ? 'translateX(18px)' : 'none' }} />
+                      <span style={{ ...S.knob, transform: open ? 'translateX(20px)' : 'none' }} />
                     </button>
                     <span style={{ flex: 'none', width: 96, fontSize: 13.5, fontWeight: 700 }}>
                       {DAY_LABELS[day]}
@@ -179,7 +179,7 @@ export default function HorariosPage() {
                         </span>
                       </span>
                     ) : (
-                      <span style={{ flex: 1, fontSize: 13, color: 'var(--faint)', fontWeight: 600 }}>
+                      <span style={{ flex: 1, fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>
                         Cerrado todo el día
                       </span>
                     )}
@@ -233,13 +233,23 @@ export default function HorariosPage() {
             </div>
           </section>
 
-          <div style={S.warning}>
-            <span className="ms" style={{ fontSize: 21, color: '#A8730B', flex: 'none' }}>warning</span>
-            <span style={{ fontSize: 12.5, lineHeight: 1.5, color: '#7A5405' }}>
-              Cerrar la tienda más de 3 veces en horario publicado baja tu posición en el
-              listado. Usa la pausa temporal si tienes un imprevisto.
-            </span>
-          </div>
+          <section style={{ ...S.card, background: 'linear-gradient(180deg, rgba(255,68,31,0.03) 0%, rgba(255,68,31,0.01) 100%)', border: '1px solid rgba(255,68,31,0.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--ink)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em' }}>
+                <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Guía IA
+              </span>
+              <div style={S.cardTitle}>Consejos de disponibilidad</div>
+            </div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)', marginTop: 14 }}>
+              Cerrar la tienda de imprevisto más de 3 veces durante tu horario habitual <b>afecta negativamente tu posicionamiento</b> en la app.
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: 14, borderRadius: 14, border: '1px solid rgba(255,255,255,0.05)', marginTop: 12 }}>
+              <span className="ms" style={{ fontSize: 18, color: '#A8730B', marginBottom: 4 }}>lightbulb</span>
+              <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+                Si tienes un "pico" de trabajo en cocina y no das abasto, no apagues tu tienda. Usa la <b>Pausa Temporal</b> de 15 o 30 minutos arriba.
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </>
@@ -248,20 +258,28 @@ export default function HorariosPage() {
 
 const S = {
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 22, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+    transition: 'box-shadow 0.3s ease',
   },
   cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
-  track: { width: 42, height: 24, borderRadius: 99, padding: 2, display: 'flex', flex: 'none' },
-  knob: { width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'transform .18s ease' },
-  time: {
-    height: 38, padding: '0 13px', borderRadius: 11, border: '1px solid var(--border)',
-    background: 'var(--surface)', fontSize: 13, fontWeight: 700, outline: 'none',
+  track: { 
+    width: 44, height: 24, borderRadius: 99, padding: 3, display: 'flex', flex: 'none',
+    transition: 'background 0.3s ease, box-shadow 0.3s ease'
   },
-  chip: { height: 40, padding: '0 15px', borderRadius: 12, fontSize: 13, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
-  bar: { height: 7, borderRadius: 99, background: 'var(--surface2)', marginTop: 8, overflow: 'hidden' },
+  knob: { 
+    width: 18, height: 18, borderRadius: '50%', background: '#fff', 
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.15)'
+  },
+  time: {
+    height: 42, padding: '0 14px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--bg)', fontSize: 13.5, fontWeight: 700, outline: 'none',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', transition: 'border-color 0.2s',
+  },
+  chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, transition: 'all 0.2s ease' },
+  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
+  chipOff: { background: 'var(--surface2)', color: 'var(--text)', border: '1px solid transparent' },
+  bar: { height: 8, borderRadius: 99, background: 'var(--bg)', marginTop: 8, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.04)' },
   warning: {
     display: 'flex', gap: 11, background: '#FFF7E6', border: '1px solid #F0DCA8',
     borderRadius: 18, padding: 18,

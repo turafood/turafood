@@ -42,12 +42,38 @@ function urgency(minutes, limit) {
 }
 
 export default function PedidosPage() {
-  const { orders, reloadOrders, toast, loading, business } = useBiz();
+  const { orders: realOrders, reloadOrders, toast, loading, business } = useBiz();
 
   const [filter, setFilter] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [sound, setSound] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [demoMode, setDemoMode] = useState(false);
+
+  // MODO DEMO: Inyectamos comandas ficticias en el flujo real
+  const orders = useMemo(() => {
+    if (!demoMode) return realOrders;
+    
+    const now = Date.now();
+    return [
+      ...realOrders,
+      {
+        id: 'demo-1', order_number: '9901', status: 'pending', created_at: new Date(now - 60000 * 2).toISOString(),
+        customer_name: 'Andrés (Demo)', customer_phone: '3000000000', payment_method: 'nequi', payment_status: 'paid',
+        total: 45000, delivery_instructions: 'Llamar al llegar', items: [{ name: 'Hamburguesa Doble Queso', quantity: 2 }]
+      },
+      {
+        id: 'demo-2', order_number: '9902', status: 'cooking', created_at: new Date(now - 60000 * 18).toISOString(),
+        customer_name: 'Camila (Demo)', customer_phone: '3000000000', payment_method: 'cash', payment_status: 'pending',
+        total: 28000, delivery_instructions: 'Sin cebolla', items: [{ name: 'Pizza Personal', quantity: 1 }, { name: 'Gaseosa', quantity: 2 }]
+      },
+      {
+        id: 'demo-3', order_number: '9903', status: 'ready', created_at: new Date(now - 60000 * 30).toISOString(),
+        customer_name: 'Felipe (Demo)', customer_phone: '3000000000', payment_method: 'card', payment_status: 'paid',
+        total: 62000, delivery_instructions: '', items: [{ name: 'Combo Familiar', quantity: 1 }]
+      }
+    ];
+  }, [realOrders, demoMode]);
 
   // Un solo reloj para todo el tablero: cada comanda no monta el suyo
   const [, setTick] = useState(0);
@@ -79,6 +105,10 @@ export default function PedidosPage() {
   const shown = filter ? COLUMNS.filter((c) => c.key === filter) : COLUMNS;
 
   const advance = async (order) => {
+    if (order.id.startsWith('demo-')) {
+      toast(`Simulación: ${order.order_number} avanzado`);
+      return;
+    }
     const col = columnOf(order.status);
     if (!col.next) return;
     setBusyId(order.id);
@@ -94,6 +124,10 @@ export default function PedidosPage() {
   };
 
   const reject = async (order) => {
+    if (order.id.startsWith('demo-')) {
+      toast(`Simulación: ${order.order_number} rechazado`);
+      return;
+    }
     setBusyId(order.id);
     try {
       await setOrderStatus(order.id, 'cancelled', 'Rechazado por el negocio');
@@ -151,17 +185,29 @@ export default function PedidosPage() {
           })}
         </div>
 
-        <button
-          onClick={() => setSound((s) => !s)}
-          style={{
-            ...S.sound,
-            background: sound ? '#E6F6EE' : 'var(--surface2)',
-            color: sound ? '#0B7A48' : 'var(--muted)',
-          }}
-        >
-          <span className="ms" style={{ fontSize: 18 }}>{sound ? 'volume_up' : 'volume_off'}</span>
-          <span className="sound-label">{sound ? 'Sonido activo' : 'Sin sonido'}</span>
-        </button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          {demoMode && (
+            <button
+              onClick={() => setDemoMode(false)}
+              style={{
+                ...S.sound, background: '#FFF1EC', color: 'var(--primary)', fontWeight: 700
+              }}
+            >
+              Detener Demo
+            </button>
+          )}
+          <button
+            onClick={() => setSound((s) => !s)}
+            style={{
+              ...S.sound,
+              background: sound ? '#E6F6EE' : 'var(--surface2)',
+              color: sound ? '#0B7A48' : 'var(--muted)',
+            }}
+          >
+            <span className="ms" style={{ fontSize: 18 }}>{sound ? 'volume_up' : 'volume_off'}</span>
+            <span className="sound-label">{sound ? 'Sonido activo' : 'Sin sonido'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Indicadores */}
@@ -216,6 +262,18 @@ export default function PedidosPage() {
                         <span style={{ fontSize: 12, color: 'var(--faint)', fontWeight: 600, marginTop: 8 }}>
                           Sin comandas
                         </span>
+                        {!demoMode && list.length === 0 && (
+                          <button
+                            onClick={() => { setDemoMode(true); if (sound) chime(); }}
+                            style={{
+                              marginTop: 16, padding: '8px 16px', borderRadius: 99, background: 'linear-gradient(135deg, var(--primary), #FF7B3B)',
+                              color: '#fff', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
+                              boxShadow: '0 8px 20px rgba(255,68,31,0.2)'
+                            }}
+                          >
+                            🚀 Simular día de ventas
+                          </button>
+                        )}
                       </>
                     )}
                   </div>

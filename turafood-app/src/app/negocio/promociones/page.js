@@ -382,41 +382,44 @@ function Kpi({ label, value, icon, tint, fg, note }) {
 const S = {
   kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 },
   kpi: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: 16, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 22, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
   },
   kpiIcon: {
-    width: 28, height: 28, borderRadius: 9, flex: 'none',
+    width: 32, height: 32, borderRadius: 10, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   kpiValue: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24,
-    letterSpacing: '-.03em', marginTop: 9,
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26,
+    letterSpacing: '-.03em', marginTop: 12,
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
   },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 18, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 22, padding: 22, boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
   },
   icon: {
-    width: 38, height: 38, borderRadius: 11, flex: 'none',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  pill: { fontSize: 10.5, fontWeight: 800, padding: '5px 9px', borderRadius: 8, flex: 'none' },
-  metaLabel: { fontSize: 11, color: 'var(--muted)', fontWeight: 700 },
-  metaValue: { fontSize: 15, fontWeight: 800, marginTop: 3 },
+  pill: { fontSize: 11, fontWeight: 800, padding: '6px 10px', borderRadius: 10, flex: 'none' },
+  metaLabel: { fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 },
+  metaValue: { fontSize: 16, fontWeight: 800, marginTop: 4 },
   action: {
-    flex: 1, height: 38, borderRadius: 11, border: '1px solid var(--border)',
-    fontSize: 12.5, fontWeight: 700,
+    flex: 1, height: 42, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--bg)', fontSize: 13, fontWeight: 700,
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)',
   },
   newCard: {
-    minHeight: 250, border: '1.5px dashed var(--faint)', borderRadius: 18,
+    minHeight: 250, border: '1.5px dashed rgba(0,0,0,0.12)', borderRadius: 22,
     display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', gap: 12, padding: 20,
+    background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,68,31,0.03) 100%)',
+    justifyContent: 'center', gap: 14, padding: 24, transition: 'background 0.2s ease'
   },
   newIcon: {
-    width: 48, height: 48, borderRadius: 14, background: '#FFF1EC',
+    width: 54, height: 54, borderRadius: 16, background: '#FFF1EC',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(255,68,31,0.15)'
   },
   scrim: {
     position: 'fixed', inset: 0, background: 'rgba(20,16,10,.42)',
@@ -424,23 +427,24 @@ const S = {
     justifyContent: 'center', padding: 20, zIndex: 80, overflowY: 'auto',
   },
   modal: {
-    width: '100%', maxWidth: 520, background: 'var(--surface)', borderRadius: 22,
-    padding: 26, boxShadow: '0 30px 80px rgba(0,0,0,.3)', margin: 'auto',
+    width: '100%', maxWidth: 540, background: 'var(--surface)', borderRadius: 24,
+    padding: 32, boxShadow: '0 25px 60px rgba(0,0,0,.2)', margin: 'auto',
   },
   modalClose: {
-    width: 36, height: 36, borderRadius: 11, background: 'var(--surface2)',
+    width: 36, height: 36, borderRadius: 11, background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.04)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
   typeBtn: {
     display: 'flex', alignItems: 'center', gap: 11, padding: 14, borderRadius: 14,
   },
   input: {
-    width: '100%', height: 48, borderRadius: 13, border: '1px solid var(--border)',
-    background: 'var(--surface)', padding: '0 14px', fontSize: 16, outline: 'none',
+    width: '100%', height: 48, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   notice: {
-    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16,
-    background: 'var(--bg)', borderRadius: 13, padding: 13,
+    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18,
+    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 14, padding: 14,
   },
   cancel: {
     flex: 'none', height: 48, padding: '0 20px', borderRadius: 14,

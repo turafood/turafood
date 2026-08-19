@@ -237,14 +237,15 @@ export default function EquipoPage() {
 function Row({ icon, label, value, last }) {
   return (
     <div
+    <div
       style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0',
-        borderBottom: last ? 'none' : '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', gap: 12, padding: '16px 0',
+        borderBottom: last ? 'none' : '1px solid rgba(0,0,0,0.04)',
       }}
     >
-      <span className="ms" style={{ fontSize: 20, color: 'var(--muted)', flex: 'none' }}>{icon}</span>
-      <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700 }}>{label}</span>
-      <span className="tr1" style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600, maxWidth: '55%', textAlign: 'right' }}>
+      <span className="ms" style={{ fontSize: 22, color: 'var(--muted)', flex: 'none' }}>{icon}</span>
+      <span style={{ flex: 1, fontSize: 14, fontWeight: 700 }}>{label}</span>
+      <span className="tr1" style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, maxWidth: '55%', textAlign: 'right' }}>
         {value}
       </span>
     </div>
@@ -253,54 +254,57 @@ function Row({ icon, label, value, last }) {
 
 function PlanRow({ label, value }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
       <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontWeight: 800 }}>{value}</span>
+      <span style={{ fontWeight: 800, color: 'var(--text)' }}>{value}</span>
     </div>
   );
 }
 
 const S = {
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 28, padding: 26, boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
   },
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.01em' },
   avatar: {
-    width: 54, height: 54, borderRadius: '50%', background: 'var(--surface2)',
-    color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, flex: 'none',
+    width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, var(--surface2) 0%, var(--bg) 100%)',
+    color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, flex: 'none',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)'
   },
   dot: {
-    width: 26, height: 26, borderRadius: '50%', flex: 'none',
+    width: 32, height: 32, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   statusNote: {
-    display: 'flex', gap: 9, marginTop: 16, borderRadius: 12, padding: 12,
+    display: 'flex', gap: 12, marginTop: 20, borderRadius: 16, padding: 16,
   },
   teamNote: {
-    display: 'flex', gap: 9, marginTop: 16, background: 'var(--bg)',
-    borderRadius: 12, padding: 12,
+    display: 'flex', gap: 12, marginTop: 24, background: 'var(--bg)',
+    borderRadius: 16, padding: 16, border: '1px solid rgba(0,0,0,0.04)',
   },
   signOut: {
-    width: '100%', height: 46, borderRadius: 14, border: '1px solid var(--border)',
-    color: 'var(--primary)', fontWeight: 700, fontSize: 14, marginTop: 16,
+    width: '100%', height: 50, borderRadius: 16, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--surface)', color: 'var(--primary)', fontWeight: 800, fontSize: 14.5, 
+    marginTop: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
   },
   planRows: {
-    display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16,
-    paddingTop: 14, borderTop: '1px solid var(--border)',
+    display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20,
+    paddingTop: 16, borderTop: '1px solid rgba(0,0,0,0.04)',
   },
   proOffer: {
-    marginTop: 16, padding: 16, borderRadius: 16,
-    background: 'var(--bg)', border: '1px solid var(--border)',
+    marginTop: 20, padding: 22, borderRadius: 20,
+    background: 'linear-gradient(145deg, #FFF9EB 0%, #FFFDF8 100%)',
+    border: '1px solid #FFE7A0', boxShadow: '0 4px 15px rgba(217, 154, 21, 0.05)',
   },
   subscribe: {
-    width: '100%', height: 46, borderRadius: 14, background: 'var(--primary)',
-    color: '#fff', fontWeight: 700, fontSize: 14, marginTop: 14,
-    boxShadow: '0 8px 20px rgba(255,68,31,.28)',
+    width: '100%', height: 50, borderRadius: 16, background: '#D99A15',
+    color: '#fff', fontWeight: 800, fontSize: 14.5, marginTop: 18,
+    boxShadow: '0 8px 24px rgba(217,154,21,.3)',
   },
   error: {
-    display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, padding: '14px 16px',
+    borderRadius: 16, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13.5, fontWeight: 700,
   },
 };

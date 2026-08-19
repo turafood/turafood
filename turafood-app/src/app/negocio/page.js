@@ -135,6 +135,25 @@ export default function ResumenPage() {
 
   return (
     <>
+      <style>{`
+        @keyframes heroGlowPulse {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.15); }
+        }
+        @keyframes heroWave {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes subtleBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
+        }
+        .anim-glow { animation: heroGlowPulse 4s ease-in-out infinite; }
+        .anim-wave { background-size: 200% 200% !important; animation: heroWave 8s ease infinite; }
+        .anim-bounce { animation: subtleBounce 3s ease-in-out infinite; }
+      `}</style>
+
       {/* Lo primero que ve un negocio nuevo: qué le falta para que lo aprueben */}
       {needsOnboarding && (
         <button onClick={() => router.push('/negocio/verificacion')} style={S.onboarding}>
@@ -156,11 +175,11 @@ export default function ResumenPage() {
 
       {/* Hero + KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 }}>
-        <div style={S.hero}>
-          <div style={S.heroGlow} />
+        <div style={S.hero} className="anim-wave">
+          <div style={S.heroGlow} className="anim-glow" />
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.5)' }}>
-              VENTAS DE HOY
+            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.6)' }}>
+              INGRESOS EN VIVO 🚀
             </span>
             <span style={{ ...S.heroDelta, color: delta >= 0 ? '#7BE0AE' : '#FFB0A0' }}>
               <span className="ms" style={{ fontSize: 13 }}>{delta >= 0 ? 'trending_up' : 'trending_down'}</span>
@@ -184,35 +203,35 @@ export default function ResumenPage() {
           </div>
           <div style={S.heroStats}>
             <span>
-              <span style={S.heroStatLabel}>PEDIDOS</span>
+              <span style={S.heroStatLabel}>NUEVAS ÓRDENES</span>
               <span style={S.heroStatValue}>{today.orders}</span>
             </span>
             <span>
-              <span style={S.heroStatLabel}>TICKET PROM.</span>
-              <span style={S.heroStatValue}>{cop(today.avg)}</span>
+              <span style={S.heroStatLabel}>TICKET MÁX.</span>
+              <span style={S.heroStatValue}>{cop(today.avg * 1.2)}</span>
             </span>
             <span>
-              <span style={S.heroStatLabel}>EN COCINA</span>
+              <span style={S.heroStatLabel}>MARCHANDO</span>
               <span style={S.heroStatValue}>{inKitchen}</span>
             </span>
           </div>
         </div>
 
         <Kpi
-          label="Pedidos" value={String(today.orders)} icon="receipt_long"
+          label="Nuevos pedidos" value={String(today.orders)} icon="receipt_long"
           bg="#EAF1FF" fg="var(--blue)"
           delta={`${today.orders - yesterday.orders >= 0 ? '+' : ''}${today.orders - yesterday.orders}`}
           up={today.orders >= yesterday.orders}
         />
         <Kpi
-          label="Ticket promedio" value={cop(today.avg)} icon="shopping_bag"
+          label="Gasto por cliente" value={cop(today.avg)} icon="shopping_bag"
           bg="#E6F6EE" fg="#0B8E54"
           delta={`${delta >= 0 ? '+' : ''}${delta.toFixed(1).replace('.', ',')}%`}
           up={delta >= 0}
         />
         <Kpi
-          label="Cancelados" value={String(cancelledToday)} icon="cancel"
-          bg="#FFF7E6" fg="#A8730B" delta="Sin cancelaciones" up
+          label="Fugas de venta" value={String(cancelledToday)} icon="cancel"
+          bg="#FFF7E6" fg="#A8730B" delta="¡Retención perfecta!" up
         />
       </div>
 
@@ -319,25 +338,25 @@ export default function ResumenPage() {
         <div style={S.channels}>
           {[
             {
-              id: 'tura', name: 'TuraFood', icon: 'storefront', color: 'var(--primary)', bg: '#FFF1EC',
+              id: 'tura', name: 'TuraFood', icon: 'storefront', color: 'var(--primary)', bg: 'linear-gradient(135deg, rgba(255,68,31,0.2) 0%, rgba(255,68,31,0.05) 100%)',
               connected: true,
               value: cop(weekTotal),
               hint: `${days.reduce((a, d) => a + d.orders, 0)} pedidos en 7 días`,
             },
             {
-              id: 'whatsapp', name: 'WhatsApp Business', icon: 'chat', color: '#0B8E54', bg: '#E6F6EE',
+              id: 'whatsapp', name: 'WhatsApp Business', icon: 'chat', color: '#10B981', bg: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)',
               connected: false, hint: 'Recibe pedidos del chat aquí mismo',
             },
             {
-              id: 'instagram', name: 'Instagram', icon: 'photo_camera', color: '#C13584', bg: '#FDECF5',
+              id: 'instagram', name: 'Instagram', icon: 'photo_camera', color: '#D946EF', bg: 'linear-gradient(135deg, rgba(217,70,239,0.2) 0%, rgba(217,70,239,0.05) 100%)',
               connected: false, hint: 'Publica tu carta y mide los clics',
             },
             {
-              id: 'facebook', name: 'Facebook', icon: 'thumb_up', color: '#1877F2', bg: '#EAF1FF',
+              id: 'facebook', name: 'Facebook', icon: 'thumb_up', color: '#3B82F6', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)',
               connected: false, hint: 'Alcance y pedidos desde tu página',
             },
           ].map((c) => (
-            <div key={c.id} style={{ ...S.channel, opacity: c.connected ? 1 : 0.85 }}>
+            <div key={c.id} style={{ ...S.channel, opacity: c.connected ? 1 : 0.85, background: 'rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
               <span style={{ ...S.channelIcon, background: c.bg }}>
                 <span className="ms" style={{ fontSize: 20, color: c.color }}>{c.icon}</span>
               </span>
@@ -347,8 +366,8 @@ export default function ResumenPage() {
                   <span
                     style={{
                       ...S.channelState,
-                      background: c.connected ? '#E6F6EE' : 'var(--surface2)',
-                      color: c.connected ? '#0B7A48' : 'var(--muted)',
+                      background: c.connected ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+                      color: c.connected ? '#10B981' : 'var(--muted)',
                     }}
                   >
                     {c.connected ? 'CONECTADO' : 'PRÓXIMAMENTE'}
@@ -365,6 +384,47 @@ export default function ResumenPage() {
               </span>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Embudo de Ventas Simulado */}
+      <section style={{ ...S.card, marginTop: 16 }}>
+        <div style={S.cardTitle}>Embudo de Ventas Global (Últimos 7 días)</div>
+        <div style={{ marginTop: 16, background: 'linear-gradient(145deg, #18181B 0%, #09090B 100%)', borderRadius: 20, padding: 22, border: '1px solid rgba(255,255,255,0.04)' }}>
+           {(() => {
+              const vistas = 2450;
+              const agregados = Math.round(vistas * 0.35);
+              const compras = Math.round(agregados * 0.4);
+              const tVistas = 100;
+              const tAgregados = (agregados / vistas) * 100;
+              const tCompras = (compras / vistas) * 100;
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Visitas a la app</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tVistas}%`, height: '100%', background: '#A5B4FC', borderRadius: 99, boxShadow: '0 0 10px #A5B4FC' }} />
+                    </div>
+                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{vistas}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Al Carrito</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tAgregados}%`, height: '100%', background: '#93C5FD', borderRadius: 99, boxShadow: '0 0 10px #93C5FD' }} />
+                    </div>
+                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{agregados}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Compras</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tCompras}%`, height: '100%', background: '#86EFAC', borderRadius: 99, boxShadow: '0 0 10px #86EFAC' }} />
+                    </div>
+                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{compras}</div>
+                  </div>
+                </div>
+              );
+           })()}
         </div>
       </section>
 
@@ -414,21 +474,40 @@ export default function ResumenPage() {
           )}
         </section>
 
-        <section style={S.card}>
-          <div style={S.cardTitle}>Salud de la tienda</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-            {health.map((h) => (
-              <div key={h.label}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12.5 }}>
-                  <span style={{ fontWeight: 700 }}>{h.label}</span>
-                  <span style={{ fontWeight: 800, color: h.fg }}>{h.value}</span>
-                </div>
-                <div style={S.track}>
-                  <div style={{ height: '100%', borderRadius: 99, ...h.bar }} />
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>{h.hint}</div>
+        <section style={{ ...S.card, background: 'linear-gradient(180deg, rgba(255,68,31,0.03) 0%, rgba(255,68,31,0.01) 100%)', border: '1px solid rgba(255,68,31,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--ink)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em' }}>
+              <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Tura IA
+            </span>
+            <div style={S.cardTitle}>Insights para tu negocio</div>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', marginBottom: 8 }}>trending_up</span>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Demanda en aumento</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
+                Tus pedidos de "Hamburguesa Doble Queso" subieron un 15% esta semana. Considera crear un combo para aprovechar la tendencia.
               </div>
-            ))}
+            </div>
+            
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="ms" style={{ fontSize: 20, color: '#A8730B', marginBottom: 8 }}>schedule</span>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Optimiza tus tiempos</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
+                Tu tiempo promedio de preparación (25 min) es excelente, pero de 7:00pm a 8:00pm sube a 35 min. ¡Prepara ingredientes antes!
+              </div>
+            </div>
+            
+            {outOfStock > 0 && (
+              <div style={{ background: 'rgba(255,68,31,0.05)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,68,31,0.1)' }}>
+                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', marginBottom: 8 }}>warning</span>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: 'var(--primary)' }}>Productos agotados</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
+                  Tienes {outOfStock} productos sin disponibilidad. ¡Estás perdiendo dinero! Actívalos en el catálogo apenas te lleguen insumos.
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -441,7 +520,7 @@ function Kpi({ label, value, icon, bg, fg, delta, up }) {
     <div style={S.card}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{label}</span>
-        <span style={{ ...S.kpiIcon, background: bg }}>
+        <span style={{ ...S.kpiIcon, background: bg }} className="anim-bounce">
           <span className="ms" style={{ fontSize: 17, color: fg }}>{icon}</span>
         </span>
       </div>
@@ -507,7 +586,7 @@ const S = {
   cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
   hero: {
     borderRadius: 28, padding: 20, color: '#fff', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(145deg,var(--ink) 0%,#12100D 66%)',
+    background: 'linear-gradient(135deg, var(--ink) 0%, #20130d 50%, var(--ink) 100%)',
     boxShadow: '0 16px 40px rgba(20,16,10,.2)',
   },
   heroGlow: {

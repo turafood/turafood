@@ -54,165 +54,193 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
   /* -------------------------------------------------- plegado */
   if (plegado) {
     return (
-      <button data-tour="progreso" onClick={() => plegar(false)} style={S.pildora} title="Ver qué te falta">
+      <button data-tour="progreso" onClick={() => plegar(false)} style={S.pildora} title="Continuar configuración" className="anim-slidedown">
         <span style={S.anillo}>
-          <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2.5" />
+          <svg width="24" height="24" viewBox="0 0 22 22" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2.5" />
             <circle
-              cx="11" cy="11" r="9" fill="none" stroke="#fff" strokeWidth="2.5"
+              cx="11" cy="11" r="9" fill="none" stroke="var(--primary)" strokeWidth="2.5"
               strokeLinecap="round"
               strokeDasharray={2 * Math.PI * 9}
               strokeDashoffset={2 * Math.PI * 9 * (1 - hechos / total)}
             />
           </svg>
         </span>
-        <span style={{ fontSize: 12.5, fontWeight: 700 }}>
-          {hechos} de {total} listos
+        <span style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '-.01em' }}>
+          {hechos}/{total} completados
         </span>
-        <span className="ms" style={{ fontSize: 18 }}>expand_more</span>
+        <span className="ms" style={{ fontSize: 20 }}>expand_more</span>
       </button>
     );
   }
 
   /* -------------------------------------------------- desplegado */
   return (
-    <section data-tour="progreso" style={S.caja}>
-      <span style={S.brillo} />
+    <>
+      <style>{`
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
+        .bounce-icon { animation: bounce-subtle 2s ease-in-out infinite; }
+        .anim-slideup { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .anim-slidedown { animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+      <section data-tour="progreso" style={S.caja} className="anim-slideup">
+        <span style={S.brillo} />
 
-      <header style={S.cabecera}>
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={S.titulo}>{titulo}</span>
-          <span style={S.bajada}>
-            {hechos} de {total} pasos · te falta poco
+        <header style={S.cabecera}>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={S.titulo}>{titulo || 'Desbloquea todo tu potencial 🚀'}</span>
+            <span style={S.bajada}>
+              ¡Genial! Has completado {hechos} de {total} pasos. Estás muy cerca.
+            </span>
           </span>
-        </span>
-        <button onClick={() => plegar(true)} style={S.plegar} aria-label="Plegar">
-          <span className="ms" style={{ fontSize: 19 }}>expand_less</span>
-        </button>
-      </header>
+          <button onClick={() => plegar(true)} style={S.plegarBtn} aria-label="Ocultar para ver el panel">
+            <span style={{ fontSize: 12, fontWeight: 600 }}>Ver panel</span>
+            <span className="ms bounce-icon" style={{ fontSize: 18 }}>keyboard_arrow_up</span>
+          </button>
+        </header>
 
-      <div style={S.barra}>
-        <span style={{ ...S.relleno, width: `${pct}%` }} />
-      </div>
+        <div style={S.barra}>
+          <span style={{ ...S.relleno, width: `${pct}%` }} />
+        </div>
 
-      <ol style={S.lista}>
-        {pasos.map((p) => {
-          const esSiguiente = p === siguiente;
-          return (
-            <li key={p.id} style={{ ...S.paso, opacity: p.hecho ? 0.6 : 1 }}>
-              <span
-                style={{
-                  ...S.marca,
-                  background: p.hecho ? 'var(--green)' : esSiguiente ? '#fff' : 'rgba(255,255,255,.14)',
-                  color: p.hecho ? '#fff' : esSiguiente ? 'var(--ink)' : 'rgba(255,255,255,.5)',
-                }}
-              >
-                {p.hecho
-                  ? <span className="ms" style={{ fontSize: 14 }}>check</span>
-                  : <span className="ms" style={{ fontSize: 15 }}>{p.icono}</span>}
-              </span>
-
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ ...S.pasoTitulo, textDecoration: p.hecho ? 'line-through' : 'none' }}>
-                  {p.titulo}
+        <ol style={S.lista}>
+          {pasos.map((p) => {
+            const esSiguiente = p === siguiente;
+            return (
+              <li key={p.id} style={{ ...S.paso, opacity: p.hecho ? 0.5 : 1 }}>
+                <span
+                  style={{
+                    ...S.marca,
+                    background: p.hecho ? 'var(--green)' : esSiguiente ? 'var(--primary)' : 'rgba(255,255,255,.08)',
+                    color: p.hecho ? '#fff' : esSiguiente ? '#fff' : 'rgba(255,255,255,.3)',
+                    boxShadow: esSiguiente ? '0 4px 12px rgba(255,68,31,.3)' : 'none',
+                    border: esSiguiente ? 'none' : '1px solid rgba(255,255,255,0.1)'
+                  }}
+                >
+                  {p.hecho
+                    ? <span className="ms" style={{ fontSize: 14 }}>check</span>
+                    : <span className="ms" style={{ fontSize: 15 }}>{p.icono}</span>}
                 </span>
-                {esSiguiente && p.detalle && (
-                  <span style={S.pasoDetalle}>{p.detalle}</span>
+
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ ...S.pasoTitulo, textDecoration: p.hecho ? 'line-through' : 'none', color: esSiguiente ? '#fff' : 'inherit' }}>
+                    {p.titulo}
+                  </span>
+                  {esSiguiente && p.detalle && (
+                    <span style={S.pasoDetalle}>{p.detalle}</span>
+                  )}
+                </span>
+
+                {esSiguiente && (
+                  <Link href={p.href} style={S.ir}>
+                    {p.cta ?? 'Completar ahora'}
+                    <span className="ms" style={{ fontSize: 16 }}>arrow_forward</span>
+                  </Link>
                 )}
-              </span>
+              </li>
+            );
+          })}
+        </ol>
 
-              {esSiguiente && (
-                <Link href={p.href} style={S.ir}>
-                  {p.cta ?? 'Hacerlo'}
-                  <span className="ms" style={{ fontSize: 16 }}>arrow_forward</span>
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-
-      <p style={S.pie}>
-        Mientras tanto puedes trabajar con un tope de 20 pedidos al día.
-        Al terminar esto, se quita.
-      </p>
-    </section>
+        <div style={S.pieContenedor}>
+          <p style={S.pie}>
+            💡 <strong>¡Ya puedes empezar a generar ingresos!</strong> Tienes un límite de 20 pedidos diarios. Termina estos pasos a tu ritmo para eliminar el límite y crecer sin frenos.
+          </p>
+        </div>
+      </section>
+    </>
   );
 }
 
 const S = {
   caja: {
     position: 'relative', overflow: 'hidden',
-    borderRadius: 22, padding: 18, marginBottom: 18,
-    background: 'linear-gradient(140deg, var(--ink) 0%, var(--ink2) 68%)',
-    border: '1px solid rgba(255,255,255,.09)',
+    borderRadius: 24, padding: 22, marginBottom: 24,
+    background: 'linear-gradient(145deg, #111111 0%, #0a0a0a 100%)',
+    border: '1px solid rgba(255,255,255,.06)',
     color: '#fff',
-    boxShadow: '0 14px 36px rgba(20,16,10,.22)',
+    boxShadow: '0 20px 50px rgba(0,0,0,.4)',
   },
   brillo: {
     position: 'absolute', right: -60, top: -80, width: 200, height: 200,
     borderRadius: '50%', pointerEvents: 'none',
-    background: 'radial-gradient(circle, rgba(255,122,77,.26), transparent 70%)',
+    background: 'radial-gradient(circle, rgba(255,122,77,.15), transparent 70%)',
   },
   cabecera: {
-    position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 12,
+    position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 12, justifyContent: 'space-between',
   },
   titulo: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 16.5, letterSpacing: '-.01em',
+    fontSize: 18, letterSpacing: '-.02em', color: '#fff',
   },
   bajada: {
-    display: 'block', fontSize: 12, color: 'rgba(255,255,255,.55)', marginTop: 3,
+    display: 'block', fontSize: 13, color: 'rgba(255,255,255,.6)', marginTop: 4,
   },
-  plegar: {
-    width: 30, height: 30, borderRadius: '50%', flex: 'none',
+  plegarBtn: {
+    display: 'flex', alignItems: 'center', gap: 4, flex: 'none',
+    padding: '6px 12px', borderRadius: 999,
     background: 'rgba(255,255,255,.08)', color: '#fff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    border: '1px solid rgba(255,255,255,.1)',
+    transition: 'background .2s',
+    cursor: 'pointer',
   },
 
   barra: {
-    position: 'relative', height: 5, borderRadius: 99, marginTop: 14,
-    background: 'rgba(255,255,255,.12)', overflow: 'hidden',
+    position: 'relative', height: 6, borderRadius: 99, marginTop: 18,
+    background: 'rgba(255,255,255,.08)', overflow: 'hidden',
   },
   relleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    background: 'linear-gradient(90deg,#FFB57A,#FF7A4D)',
-    transition: 'width .45s cubic-bezier(.2,0,0,1)',
+    background: 'var(--primary)',
+    transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 
   lista: {
-    position: 'relative', listStyle: 'none', margin: '16px 0 0', padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 11,
+    position: 'relative', listStyle: 'none', margin: '20px 0 0', padding: 0,
+    display: 'flex', flexDirection: 'column', gap: 14,
   },
-  paso: { display: 'flex', alignItems: 'center', gap: 11 },
+  paso: { display: 'flex', alignItems: 'center', gap: 14, transition: 'all .3s ease' },
   marca: {
-    width: 26, height: 26, borderRadius: '50%', flex: 'none',
+    width: 30, height: 30, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .25s ease',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
-  pasoTitulo: { display: 'block', fontSize: 13.5, fontWeight: 700 },
+  pasoTitulo: { display: 'block', fontSize: 14.5, fontWeight: 700 },
   pasoDetalle: {
-    display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,.5)',
-    marginTop: 2, lineHeight: 1.4,
+    display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,.5)',
+    marginTop: 3, lineHeight: 1.4,
   },
   ir: {
-    display: 'inline-flex', alignItems: 'center', gap: 5, flex: 'none',
-    height: 32, padding: '0 13px', borderRadius: 999,
-    background: '#fff', color: 'var(--ink)',
-    fontSize: 12.5, fontWeight: 800, textDecoration: 'none',
+    display: 'inline-flex', alignItems: 'center', gap: 6, flex: 'none',
+    height: 36, padding: '0 16px', borderRadius: 999,
+    background: '#fff', color: '#000',
+    fontSize: 13, fontWeight: 800, textDecoration: 'none',
+    boxShadow: '0 4px 12px rgba(255,255,255,0.15)',
+    transition: 'transform .2s',
   },
 
+  pieContenedor: {
+    margin: '20px 0 0', paddingTop: 16,
+    borderTop: '1px solid rgba(255,255,255,.06)',
+  },
   pie: {
-    position: 'relative', margin: '16px 0 0', paddingTop: 13,
-    borderTop: '1px solid rgba(255,255,255,.09)',
-    fontSize: 11.5, lineHeight: 1.5, color: 'rgba(255,255,255,.45)',
+    fontSize: 12.5, lineHeight: 1.6, color: 'rgba(255,255,255,.6)',
+    margin: 0,
   },
 
   pildora: {
-    display: 'flex', alignItems: 'center', gap: 9,
-    padding: '9px 14px', borderRadius: 999, marginBottom: 16,
-    background: 'linear-gradient(120deg, var(--ink), var(--ink2))',
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 16px', borderRadius: 999, marginBottom: 24,
+    background: '#111',
     border: '1px solid rgba(255,255,255,.1)', color: '#fff',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
+    cursor: 'pointer',
   },
   anillo: { display: 'flex', flex: 'none' },
 };

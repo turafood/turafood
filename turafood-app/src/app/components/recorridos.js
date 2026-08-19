@@ -24,65 +24,65 @@
 export const PASOS_NEGOCIO = [
   {
     arte: 'tienda',
-    titulo: 'Este es tu panel',
+    titulo: 'Descubre tu panel',
     texto:
-      'Estás dentro sin haber dado un dato. Te dejamos un menú y unas comandas de ejemplo para que veas cómo se ve tu negocio trabajando — puedes borrarlos cuando quieras.',
+      'Estás dentro sin fricción. Cargamos un menú y pedidos de prueba para que explores. Cuando estés listo, bórralos y empieza a vender.',
   },
   {
     selector: '[data-tour="nav"]',
     arte: 'menu',
-    titulo: 'Todo vive acá',
+    titulo: 'El control en tus manos',
     texto:
-      'Los pedidos que entran, tu carta, las promociones, lo que te vamos a consignar. Lo que más vas a usar está de primero.',
+      'Pedidos, menú, finanzas y reportes. Todo organizado a un clic para que gestiones tu negocio sin perder un solo segundo.',
   },
   {
     selector: '[data-tour="contenido"]',
     arte: 'comandas',
-    titulo: 'El tablero de comandas',
+    titulo: 'Comandas en tiempo real',
     texto:
-      'Cada pedido pasa por cuatro columnas: entra, se cocina, queda listo, sale. Se mueve con un toque y el cliente lo ve al instante en su app.',
+      'De la cocina a la entrega de forma fluida. Mueve pedidos con un toque y mantén a tus clientes informados al instante.',
   },
   {
     selector: '[data-tour="progreso"]',
     arte: 'progreso',
-    titulo: 'Lo que te falta',
+    titulo: 'Empieza a vender hoy',
     texto:
-      'Mientras no subas tus documentos puedes recibir 20 pedidos al día. Esta barra te dice qué sigue; si estorba, se pliega.',
+      'Puedes recibir hasta 20 pedidos diarios ahora mismo. Completa tu perfil cuando quieras para quitar el límite y crecer sin frenos.',
   },
   {
     selector: '[data-tour="ia"]',
     arte: 'ia',
-    titulo: 'Tura IA',
+    titulo: 'IA que trabaja para ti',
     texto:
-      'Te avisa qué conviene hacer hoy: qué plato subir de precio, qué reseña contestar, cuándo abrir más temprano.',
+      'Tu asistente inteligente. Recibe sugerencias clave para ajustar precios, impulsar platos y llevar tus ventas al siguiente nivel.',
   },
 ];
 
 export const PASOS_REPARTIDOR = [
   {
     arte: 'ruta',
-    titulo: 'Bienvenido',
+    titulo: 'Listo para arrancar',
     texto:
-      'Entraste sin registrarte. Puedes mirar todo y entender cómo funciona antes de subir un solo papel.',
+      'Estás dentro. Explora la app y descubre cómo funciona todo libremente antes de subir tu primer documento.',
   },
   {
     selector: '[data-tour="progreso"]',
     arte: 'progreso',
-    titulo: 'Para empezar a rodar',
+    titulo: 'Activa tus ganancias',
     texto:
-      'Tres pasos: tus datos, tu vehículo y tus documentos. Hasta que no estén, no te van a llegar pedidos.',
+      'Tus datos, tu vehículo y tus documentos. Completa estos 3 pasos rápidos y empieza a recibir pedidos de inmediato.',
   },
   {
     selector: '[data-tour="nav"], [data-tour="nav-movil"]',
     arte: 'menu',
-    titulo: 'Tus cuatro pantallas',
+    titulo: 'Todo lo que necesitas',
     texto:
-      'Inicio para recibir pedidos, Ganancias para retirar tu plata, Entregas para tu historial y Cuenta para tus papeles.',
+      'Inicio para pedidos, Ganancias para retirar tu dinero y Cuenta para tus datos. Diseñado para ser ultra rápido.',
   },
   {
     arte: 'panel',
-    titulo: 'Cómo llega un pedido',
+    titulo: 'Pedidos al instante',
     texto:
-      'Aparece con el pago, la distancia y a dónde va. Tienes 20 segundos para tomarlo — si se vence no cuenta como rechazo.',
+      'Mira cuánto ganas, la distancia y el destino. Tienes 20 segundos para aceptar, sin penalidad alguna si lo dejas pasar.',
   },
 ];

@@ -220,8 +220,9 @@ export default function PagosPage() {
               key={b.id}
               style={{
                 ...S.tarjeta,
-                borderColor: faltaCampo ? ROJO : on ? 'var(--green)' : 'var(--border)',
-                boxShadow: on ? '0 6px 20px rgba(11,122,72,.10)' : '0 1px 2px rgba(0,0,0,.03)',
+                borderColor: faltaCampo ? ROJO : on ? 'rgba(16,185,129,0.3)' : 'rgba(0,0,0,0.04)',
+                background: on ? 'linear-gradient(180deg, rgba(16,185,129,0.03) 0%, rgba(16,185,129,0) 100%)' : 'var(--surface)',
+                boxShadow: on ? '0 8px 30px rgba(16,185,129,0.08), inset 0 1px 0 rgba(255,255,255,0.8)' : '0 2px 8px rgba(0,0,0,0.02)',
               }}
             >
               <button onClick={() => alternarBloque(b)} style={S.fila} aria-pressed={on}>
@@ -239,8 +240,8 @@ export default function PagosPage() {
                   <span style={S.detalle}>{b.detalle}</span>
                 </span>
 
-                <span style={{ ...S.switchTrack, background: on ? 'var(--green)' : 'var(--faint)' }}>
-                  <span style={{ ...S.switchKnob, transform: on ? 'translateX(16px)' : 'none' }} />
+                <span style={{ ...S.switchTrack, background: on ? 'var(--green)' : 'var(--surface2)', boxShadow: on ? '0 0 10px rgba(16,185,129,0.4)' : 'none' }}>
+                  <span style={{ ...S.switchKnob, transform: on ? 'translateX(20px)' : 'none' }} />
                 </span>
               </button>
 
@@ -261,8 +262,8 @@ export default function PagosPage() {
                           <span style={{ flex: 1, textAlign: 'left', fontSize: 13.5, fontWeight: 700 }}>
                             {w.nombre}
                           </span>
-                          <span style={{ ...S.switchMini, background: wOn ? 'var(--green)' : 'var(--faint)' }}>
-                            <span style={{ ...S.switchMiniKnob, transform: wOn ? 'translateX(13px)' : 'none' }} />
+                          <span style={{ ...S.switchMini, background: wOn ? 'var(--green)' : 'var(--surface2)' }}>
+                            <span style={{ ...S.switchMiniKnob, transform: wOn ? 'translateX(16px)' : 'none' }} />
                           </span>
                         </button>
 
@@ -399,17 +400,17 @@ const S = {
   },
 
   tarjeta: {
-    borderRadius: 20, background: 'var(--surface)',
-    border: '1.5px solid var(--border)', overflow: 'hidden',
-    transition: 'border-color .2s ease, box-shadow .2s ease',
+    borderRadius: 22, background: 'var(--surface)',
+    border: '1px solid rgba(0,0,0,0.04)', overflow: 'hidden',
+    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   fila: {
-    display: 'flex', alignItems: 'center', gap: 14,
-    width: '100%', padding: 16, background: 'none', textAlign: 'left',
+    display: 'flex', alignItems: 'center', gap: 16,
+    width: '100%', padding: '18px 20px', background: 'none', textAlign: 'left',
   },
   marca: {
-    flex: 'none', display: 'flex',
-    transition: 'filter .2s ease, opacity .2s ease',
+    flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all .3s ease',
   },
   nombre: {
     display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
@@ -424,42 +425,42 @@ const S = {
     display: 'block', marginTop: 4, fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)',
   },
   switchTrack: {
-    width: 38, height: 22, borderRadius: 99, padding: 2,
-    display: 'flex', flex: 'none', transition: 'background .18s ease',
+    width: 44, height: 24, borderRadius: 99, padding: 3,
+    display: 'flex', flex: 'none', transition: 'background 0.3s ease, box-shadow 0.3s ease',
   },
   switchKnob: {
     width: 18, height: 18, borderRadius: '50%', background: '#fff',
-    transition: 'transform .18s ease', boxShadow: '0 1px 3px rgba(0,0,0,.25)',
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.15)',
   },
 
   interior: {
-    padding: '0 16px 16px 74px',
-    display: 'flex', flexDirection: 'column', gap: 10,
+    padding: '0 20px 20px 76px',
+    display: 'flex', flexDirection: 'column', gap: 12,
   },
-  billetera: { display: 'flex', flexDirection: 'column', gap: 8 },
+  billetera: { display: 'flex', flexDirection: 'column', gap: 10, padding: '4px 0' },
   billeteraFila: {
-    display: 'flex', alignItems: 'center', gap: 11, width: '100%',
-    background: 'none', padding: 0,
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+    background: 'none', padding: 0, transition: 'opacity 0.2s',
   },
   switchMini: {
-    width: 32, height: 19, borderRadius: 99, padding: 2,
-    display: 'flex', flex: 'none', transition: 'background .18s ease',
+    width: 36, height: 20, borderRadius: 99, padding: 2,
+    display: 'flex', flex: 'none', transition: 'background 0.3s ease',
   },
   switchMiniKnob: {
-    width: 15, height: 15, borderRadius: '50%', background: '#fff',
-    transition: 'transform .18s ease', boxShadow: '0 1px 2px rgba(0,0,0,.22)',
+    width: 16, height: 16, borderRadius: '50%', background: '#fff',
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 1px 3px rgba(0,0,0,.15)',
   },
 
   campoCaja: {
     display: 'flex', alignItems: 'center', gap: 10,
-    height: 46, padding: '0 14px', borderRadius: 13,
-    border: '1.5px solid var(--border)', background: 'var(--surface2)',
-    transition: 'border-color .2s ease',
+    height: 48, padding: '0 16px', borderRadius: 14,
+    border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)',
+    transition: 'all .2s ease', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)',
   },
-  prefijo: { fontSize: 14, fontWeight: 700, color: 'var(--muted)', flex: 'none' },
+  prefijo: { fontSize: 14.5, fontWeight: 700, color: 'var(--muted)', flex: 'none' },
   input: {
     flex: 1, minWidth: 0, border: 'none', background: 'none', outline: 'none',
-    fontSize: 16, fontWeight: 700, color: 'var(--text)', letterSpacing: '.02em',
+    fontSize: 15.5, fontWeight: 700, color: 'var(--text)', letterSpacing: '.03em',
   },
   ayuda: { fontSize: 11.5, lineHeight: 1.45, color: 'var(--muted)' },
 

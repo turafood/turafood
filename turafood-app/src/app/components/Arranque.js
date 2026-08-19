@@ -204,33 +204,30 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
                   aria-pressed={on}
                   style={{
                     ...S.opcion,
-                    borderColor: on ? 'var(--primary)' : 'var(--border)',
-                    background: on ? 'var(--primary-tint)' : 'var(--surface)',
-                    boxShadow: on ? '0 4px 16px rgba(226,54,15,.14)' : 'none',
+                    borderColor: on ? 'var(--text)' : 'rgba(128,128,128,0.15)',
+                    background: on ? 'rgba(128,128,128,0.04)' : 'transparent',
+                    boxShadow: on ? '0 4px 20px rgba(0,0,0,0.06)' : 'none',
                   }}
                 >
-                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={40} />
+                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={44} />
 
                   <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <span style={{ ...S.opcionLabel, color: on ? 'var(--primary)' : 'var(--text)' }}>
+                    <span style={{ ...S.opcionLabel, color: on ? 'var(--text)' : 'var(--text)' }}>
                       {o.label}
                     </span>
                     {o.detalle && <span style={S.opcionDetalle}>{o.detalle}</span>}
                   </span>
 
-                  {/* Cuadrito en las de varias, círculo en las de una:
-                      la forma dice cuántas se pueden marcar antes de
-                      que alguien lo averigüe tocando. */}
                   <span
                     style={{
                       ...S.marca,
-                      borderRadius: paso.multiple ? 7 : '50%',
-                      borderColor: on ? 'var(--primary)' : 'var(--border)',
-                      background: on ? 'var(--primary)' : 'transparent',
+                      borderRadius: paso.multiple ? 8 : '50%',
+                      borderColor: on ? 'var(--text)' : 'rgba(128,128,128,0.25)',
+                      background: on ? 'var(--text)' : 'transparent',
                     }}
                   >
                     {on && (
-                      <span className="ms" style={{ fontSize: 15, color: '#fff' }}>check</span>
+                      <span className="ms" style={{ fontSize: 16, color: 'var(--bg)' }}>check</span>
                     )}
                   </span>
                 </button>
@@ -289,146 +286,135 @@ const MUESTRA = {
 };
 
 const S = {
-  temas: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 18 },
+  temas: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 24 },
   temaCard: {
     position: 'relative',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9,
-    padding: '13px 8px', borderRadius: 18,
-    border: '1.5px solid var(--border)', background: 'var(--surface)',
-    transition: 'border-color .22s cubic-bezier(.2,0,0,1), box-shadow .28s cubic-bezier(.2,0,0,1)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+    padding: '14px 10px', borderRadius: 20,
+    border: '1px solid var(--border)', background: 'var(--surface)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   temaMuestra: {
-    width: '100%', height: 54, borderRadius: 11,
-    display: 'flex', flexDirection: 'column', gap: 5,
-    padding: 9, overflow: 'hidden',
-    border: '1px solid rgba(128,128,128,.18)',
+    width: '100%', height: 56, borderRadius: 12,
+    display: 'flex', flexDirection: 'column', gap: 6,
+    padding: 10, overflow: 'hidden',
+    border: '1px solid rgba(128,128,128,.12)',
   },
   temaBarra: { height: 8, borderRadius: 4, width: '46%' },
   temaLinea: { height: 5, borderRadius: 3 },
   temaNombre: {
-    display: 'flex', alignItems: 'center', gap: 5,
-    fontSize: 12.5, fontWeight: 700, color: 'var(--text)',
+    display: 'flex', alignItems: 'center', gap: 6,
+    fontSize: 13, fontWeight: 600, color: 'var(--text)',
   },
   temaCheck: {
-    position: 'absolute', top: 8, right: 8,
-    fontSize: 18, color: 'var(--primary)',
+    position: 'absolute', top: -8, right: -8,
+    fontSize: 20, color: 'var(--text)',
+    background: 'var(--bg)', borderRadius: '50%',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
   temaNota: {
-    margin: '14px 0 0', fontSize: 12, lineHeight: 1.5,
+    margin: '20px 0 0', fontSize: 13, lineHeight: 1.5,
     color: 'var(--muted)', textAlign: 'center',
   },
 
   velo: {
     position: 'fixed', inset: 0, zIndex: 300,
     display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-    background: 'rgba(12,10,9,.55)',
-    backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
+    background: 'rgba(0,0,0,.6)',
+    backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)',
   },
 
-  /**
-   * En celular: pegada abajo, hasta 92% del alto.
-   * En escritorio: centrada. El resto de la responsividad vive en
-   * globals.css (`.arranque-hoja`), porque un estilo en línea le gana
-   * a cualquier media query.
-   */
   hoja: {
     position: 'relative',
-    width: '100%', maxWidth: 560,
-    maxHeight: '92dvh',
+    width: '100%', maxWidth: 580,
+    maxHeight: '94dvh',
     display: 'flex', flexDirection: 'column',
     background: 'var(--surface)',
-    borderRadius: '26px 26px 0 0',
-    boxShadow: '0 -20px 60px rgba(12,10,9,.32)',
+    borderRadius: '32px 32px 0 0',
+    boxShadow: '0 -24px 80px rgba(0,0,0,.4)',
     overflow: 'hidden',
   },
 
-  cabecera: { flex: 'none', padding: '14px 18px 0' },
+  cabecera: { flex: 'none', padding: '16px 24px 0' },
   barra: {
-    height: 4, borderRadius: 99, background: 'var(--border)', overflow: 'hidden',
+    height: 3, borderRadius: 99, background: 'rgba(128,128,128,0.15)', overflow: 'hidden',
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    background: 'linear-gradient(90deg, #FFB57A, var(--primary))',
-    transition: 'width .35s cubic-bezier(.2,0,0,1)',
+    background: 'var(--text)',
+    transition: 'width .4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   cabeceraFila: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: 11,
+    marginTop: 16,
   },
   paso: {
-    fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: 'var(--muted)',
+    fontSize: 12, fontWeight: 700, letterSpacing: '.05em', color: 'var(--muted)', textTransform: 'uppercase',
   },
   saltar: {
-    fontSize: 12.5, fontWeight: 700, color: 'var(--muted)',
-    background: 'none', padding: '6px 4px',
+    fontSize: 13, fontWeight: 600, color: 'var(--muted)',
+    background: 'none', padding: '4px 0',
+    transition: 'color .2s',
   },
 
   cuerpo: {
     flex: 1, minHeight: 0, overflowY: 'auto',
-    padding: '16px 18px 8px',
+    padding: '24px 24px 8px',
     WebkitOverflowScrolling: 'touch',
   },
   titulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 22, lineHeight: 1.2, letterSpacing: '-.02em', color: 'var(--text)',
+    fontSize: 26, lineHeight: 1.15, letterSpacing: '-.03em', color: 'var(--text)',
   },
   bajada: {
-    margin: '8px 0 0', fontSize: 13.5, lineHeight: 1.55, color: 'var(--muted)',
+    margin: '10px 0 0', fontSize: 15, lineHeight: 1.5, color: 'var(--muted)',
   },
 
   opciones: {
-    display: 'grid', gap: 10, marginTop: 18,
+    display: 'grid', gap: 12, marginTop: 28,
   },
   opcion: {
-    display: 'flex', alignItems: 'center', gap: 13,
-    // 62 en vez de 56: con el icono adentro, 56 apretaba. El pulgar
-    // acierta sin mirar a partir de 56, así que sobra margen.
-    minHeight: 62, padding: '11px 14px',
-    borderRadius: 18, border: '1.5px solid var(--border)',
+    display: 'flex', alignItems: 'center', gap: 16,
+    minHeight: 68, padding: '12px 18px',
+    borderRadius: 22, border: '1px solid rgba(128,128,128,0.15)',
     textAlign: 'left',
-    // Curva larga y salida suave: el botón se siente pesado, no
-    // elástico. Es lo que separa "premium" de "app de plantilla".
-    transition: 'border-color .22s cubic-bezier(.2,0,0,1), background .22s cubic-bezier(.2,0,0,1), box-shadow .28s cubic-bezier(.2,0,0,1), transform .18s cubic-bezier(.2,0,0,1)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   opcionLabel: {
-    display: 'block', fontSize: 14.5, fontWeight: 700, letterSpacing: '-.01em',
+    display: 'block', fontSize: 16, fontWeight: 700, letterSpacing: '-.01em',
   },
   opcionDetalle: {
-    display: 'block', marginTop: 2, fontSize: 11.8, lineHeight: 1.4,
+    display: 'block', marginTop: 3, fontSize: 13, lineHeight: 1.4,
     color: 'var(--muted)',
   },
   marca: {
-    width: 22, height: 22, flex: 'none',
-    border: '2px solid var(--border)',
+    width: 24, height: 24, flex: 'none',
+    border: '2px solid rgba(128,128,128,0.25)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .16s ease, border-color .16s ease',
+    transition: 'all .25s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 
   pie: {
-    flex: 'none', display: 'flex', gap: 10, alignItems: 'center',
-    padding: '12px 18px',
-    // El área segura del iPhone: sin esto el botón queda debajo de la
-    // barra del gesto y no se puede tocar.
-    paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
-    borderTop: '1px solid var(--border)',
+    flex: 'none', display: 'flex', gap: 12, alignItems: 'center',
+    padding: '16px 24px',
+    paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+    borderTop: '1px solid rgba(128,128,128,0.1)',
     background: 'var(--surface)',
   },
   atras: {
-    width: 48, height: 52, borderRadius: 15, flex: 'none',
-    border: '1.5px solid var(--border)', background: 'var(--surface)',
+    width: 52, height: 56, borderRadius: 18, flex: 'none',
+    border: '1px solid rgba(128,128,128,0.2)', background: 'transparent',
     color: 'var(--text)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'background .2s',
   },
   avanzar: {
-    flex: 1, height: 54, borderRadius: 17,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    // Degradado en vez de color plano, y una sombra del mismo color
-    // debajo: el botón se despega de la hoja en vez de estar pintado
-    // sobre ella.
-    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primaryDark) 100%)',
-    color: '#fff',
-    fontSize: 15.5, fontWeight: 800, letterSpacing: '-.01em',
-    boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 34%, transparent)',
-    transition: 'opacity .22s cubic-bezier(.2,0,0,1), box-shadow .22s cubic-bezier(.2,0,0,1)',
+    flex: 1, height: 56, borderRadius: 20,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+    background: 'var(--text)',
+    color: 'var(--bg)',
+    fontSize: 16, fontWeight: 700, letterSpacing: '-.01em',
+    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 };

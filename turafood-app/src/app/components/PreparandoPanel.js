@@ -134,61 +134,84 @@ const S = {
     position: 'fixed', inset: 0, zIndex: 400,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: 24,
-    background: '#080706', // Fondo súper oscuro, muy Apple
+    // Un fondo oscuro muy premium con un mesh gradient sutil en CSS puro
+    background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 60%), #050505',
     color: '#fff',
   },
   centro: {
-    width: '100%', maxWidth: 340,
+    width: '100%', maxWidth: 360,
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     textAlign: 'center',
+    position: 'relative',
+    zIndex: 2,
   },
 
   escena: {
     position: 'relative', width: 140, height: 140,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   glow: {
-    position: 'absolute', inset: 10,
+    position: 'absolute', inset: 0,
     borderRadius: '50%',
-    filter: 'blur(35px)',
+    filter: 'blur(40px)',
+    opacity: 0.5,
     zIndex: 0,
   },
   ringContainer: {
-    position: 'relative', width: '100%', height: '100%',
+    position: 'relative', width: 110, height: 110,
     zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: '50%',
+    background: 'rgba(255,255,255,0.02)',
+    boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02), 0 8px 32px rgba(0,0,0,0.5)',
+    border: '1px solid rgba(255,255,255,0.05)',
+    backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
   },
-  ringSvg: {
-    position: 'absolute', inset: 0, width: '100%', height: '100%',
-    overflow: 'visible',
+  // El anillo giratorio estilo Vercel / Stripe usando conic-gradient
+  ringConic: {
+    position: 'absolute', inset: -2, borderRadius: '50%',
+    maskImage: 'radial-gradient(transparent 52px, black 53px)',
+    WebkitMaskImage: 'radial-gradient(transparent 52px, black 53px)',
   },
   centerIcon: {
-    fontSize: 48,
-    textShadow: '0 4px 16px rgba(0,0,0,0.5)',
+    fontSize: 42,
+    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))',
+    zIndex: 2,
   },
 
   titulo: {
-    margin: '18px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 24, letterSpacing: '-.03em',
+    margin: '24px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 26, letterSpacing: '-.03em', color: '#fff',
   },
   bajada: {
-    margin: '6px 0 0', fontSize: 14, lineHeight: 1.5,
+    margin: '8px 0 0', fontSize: 15, lineHeight: 1.5,
     color: 'rgba(255,255,255,.5)',
   },
 
+  pasosCaja: {
+    width: '100%', marginTop: 36,
+    padding: '20px 24px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: 24,
+    border: '1px solid rgba(255,255,255,0.05)',
+    boxShadow: '0 16px 40px rgba(0,0,0,0.3)',
+  },
   pasos: {
-    listStyle: 'none', margin: '32px 0 0', padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 14,
+    listStyle: 'none', margin: 0, padding: 0,
+    display: 'flex', flexDirection: 'column', gap: 18,
     width: '100%', textAlign: 'left',
   },
   paso: {
-    display: 'flex', alignItems: 'center', gap: 14,
-    fontSize: 14.5, transition: 'all .4s cubic-bezier(.2,0,0,1)',
+    display: 'flex', alignItems: 'center', gap: 16,
+    fontSize: 15, transition: 'all .5s cubic-bezier(.2,0,0,1)',
   },
   marca: {
-    width: 24, height: 24, borderRadius: '50%', flex: 'none',
-    border: '2px solid transparent',
+    width: 26, height: 26, borderRadius: '50%', flex: 'none',
+    border: '1.5px solid transparent',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'all .4s cubic-bezier(.2,0,0,1)',
   },
+  textoPaso: {
+    transition: 'color .4s',
+  }
 };

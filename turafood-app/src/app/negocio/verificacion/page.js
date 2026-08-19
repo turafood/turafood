@@ -248,25 +248,36 @@ export default function VerificacionPage() {
         </ol>
       </section>
 
-      {/* Paso actual */}
-      <section style={S.card}>
+      {/* Carrusel de pasos (Wizard) */}
+      <div style={{ overflow: 'hidden', padding: '4px 0', margin: '-4px 0' }}>
+        <div style={{ 
+          display: 'flex', 
+          transform: `translateX(-${step * 100}%)`, 
+          transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          alignItems: 'flex-start'
+        }}>
+          {STEPS.map((s, i) => {
+            const isCurrent = i === step;
+            return (
+              <div key={s.id} style={{ flex: '0 0 100%', minWidth: 0, paddingRight: i < STEPS.length - 1 ? 16 : 0, opacity: Math.abs(step - i) > 1 ? 0 : 1, transition: 'opacity 0.3s' }}>
+                <section style={{ ...S.card, opacity: isCurrent ? 1 : 0.5, pointerEvents: isCurrent ? 'auto' : 'none', transition: 'opacity 0.4s' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          <span style={{ ...S.stepIcon, background: checklist[step].done ? '#E6F6EE' : '#FFF1EC' }}>
-            <span className="ms" style={{ fontSize: 22, color: checklist[step].done ? '#0B8E54' : 'var(--primary)' }}>
-              {checklist[step].done ? 'check' : current.icon}
+          <span style={{ ...S.stepIcon, background: checklist[i].done ? '#E6F6EE' : '#FFF1EC' }}>
+            <span className="ms" style={{ fontSize: 22, color: checklist[i].done ? '#0B8E54' : 'var(--primary)' }}>
+              {checklist[i].done ? 'check' : s.icon}
             </span>
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em' }}>
-              PASO {step + 1} DE {STEPS.length}
+              PASO {i + 1} DE {STEPS.length}
             </div>
-            <h2 style={S.stepTitle}>{current.title}</h2>
-            <p style={S.stepSub}>{current.sub}</p>
+            <h2 style={S.stepTitle}>{s.title}</h2>
+            <p style={S.stepSub}>{s.sub}</p>
           </div>
         </div>
 
         <div style={{ marginTop: 22 }}>
-          {current.id === 'datos' && (
+          {s.id === 'datos' && (
             <>
               <Field label="Tu nombre" value={form.owner_name} onChange={(v) => set('owner_name', v)} placeholder="Como te presentas" />
               <Field label="WhatsApp" value={form.phone} onChange={(v) => set('phone', v)} placeholder="313 759 4713" />
@@ -278,7 +289,7 @@ export default function VerificacionPage() {
             </>
           )}
 
-          {current.id === 'negocio' && (
+          {s.id === 'negocio' && (
             <>
               <Field label="Nombre comercial" value={form.name} onChange={(v) => set('name', v)} placeholder="Ej. Asadero El Puerto" />
               <Chips label="Tipo de negocio" options={VERTICALS} value={form.vertical} onChange={(v) => set('vertical', v)} />
@@ -291,7 +302,7 @@ export default function VerificacionPage() {
             </>
           )}
 
-          {current.id === 'llamada' && <Videollamada />}
+          {s.id === 'llamada' && <Videollamada />}
         </div>
 
         {error && (
@@ -302,24 +313,29 @@ export default function VerificacionPage() {
         )}
 
         <div style={S.nav}>
-          {step > 0 && (
-            <button onClick={() => setStep(step - 1)} style={S.back}>
+          {i > 0 && (
+            <button onClick={() => setStep(i - 1)} style={S.back}>
               <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
               Atrás
             </button>
           )}
           <div style={{ flex: 1 }} />
           <button
-            onClick={() => saveAndGo(isLast ? 'done' : step + 1)}
+            onClick={() => saveAndGo(i === STEPS.length - 1 ? 'done' : i + 1)}
             disabled={saving}
             className="md3-btn"
             style={S.next}
           >
-            {saving ? 'Guardando…' : isLast ? 'Guardar' : 'Guardar y continuar'}
-            {!isLast && <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>}
+            {saving ? 'Guardando…' : i === STEPS.length - 1 ? 'Guardar' : 'Guardar y continuar'}
+            {i < STEPS.length - 1 && <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>}
           </button>
         </div>
       </section>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Cierre: qué falta y el botón de enviar */}
       {!approved && (
@@ -487,8 +503,8 @@ function Note({ children }) {
 
 const S = {
   head: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)', marginBottom: 16,
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 24, padding: 26, boxShadow: '0 4px 15px rgba(0,0,0,0.03)', marginBottom: 20,
   },
   headTop: { display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
   headTitle: {
@@ -517,10 +533,10 @@ const S = {
     width: 24, height: 24, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  railLine: { width: 18, height: 2, background: 'var(--border)', borderRadius: 2, flex: 'none' },
+  railLine: { width: 18, height: 2, background: 'rgba(0,0,0,0.06)', borderRadius: 2, flex: 'none' },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 24, padding: 26, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
   },
   stepIcon: {
     width: 46, height: 46, borderRadius: 14, flex: 'none',
@@ -531,32 +547,33 @@ const S = {
     fontSize: 21, letterSpacing: '-.02em',
   },
   stepSub: { margin: '6px 0 0', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 },
-  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 7 },
+  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 8 },
   input: {
-    width: '100%', height: 48, borderRadius: 13, border: '1px solid var(--border)',
-    background: 'var(--bg)', padding: '0 14px', fontSize: 16, outline: 'none',
+    width: '100%', height: 50, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', transition: 'border-color 0.2s',
   },
-  chip: { height: 40, padding: '0 15px', borderRadius: 12, fontSize: 13, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  chip: { height: 42, padding: '0 16px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
+  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
+  chipOff: { background: 'var(--surface2)', color: 'var(--text)', border: '1px solid transparent' },
   nav: {
-    display: 'flex', alignItems: 'center', gap: 11, marginTop: 24,
-    paddingTop: 18, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 11, marginTop: 26,
+    paddingTop: 20, borderTop: '1px solid rgba(0,0,0,0.04)', flexWrap: 'wrap',
   },
   back: {
     display: 'flex', alignItems: 'center', gap: 7, height: 48, padding: '0 18px',
-    borderRadius: 14, border: '1px solid var(--border)', fontSize: 14, fontWeight: 700,
+    borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)', fontSize: 14, fontWeight: 700,
   },
   next: {
     display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 22px',
     borderRadius: 14, background: 'var(--text)', color: '#fff', fontSize: 14.5, fontWeight: 700,
   },
   submit: {
-    width: '100%', height: 50, borderRadius: 15, fontWeight: 700, fontSize: 14.5, marginTop: 18,
+    width: '100%', height: 52, borderRadius: 16, fontWeight: 800, fontSize: 14.5, marginTop: 20,
   },
   docRow: {
-    display: 'flex', alignItems: 'center', gap: 12, padding: 13,
-    borderRadius: 14, border: '1px solid var(--border)', flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 12, padding: 14,
+    borderRadius: 16, border: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap',
   },
   docIcon: {
     width: 40, height: 40, borderRadius: 12, flex: 'none',
@@ -568,11 +585,11 @@ const S = {
     background: 'var(--surface2)', color: 'var(--muted)',
   },
   docBtn: {
-    height: 36, padding: '0 14px', borderRadius: 10,
-    border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 700,
+    height: 38, padding: '0 16px', borderRadius: 12,
+    border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)', fontSize: 13, fontWeight: 700,
   },
   docIconBtn: {
-    width: 36, height: 36, borderRadius: 10, border: '1px solid var(--border)',
+    width: 38, height: 38, borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   note: {

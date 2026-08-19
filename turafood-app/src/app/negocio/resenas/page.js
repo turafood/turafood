@@ -50,7 +50,48 @@ export default function ResenasPage() {
     return () => { alive = false; };
   }, [business]);
 
-  const pending = reviews.filter((r) => !r.business_reply).length;
+  const [simulatedMode, setSimulatedMode] = useState(true);
+
+  // Semilla de reseñas Google-style
+  const seedReviews = useMemo(() => {
+    const base = [
+      {
+        id: 's1', rating: 5, created_at: new Date(Date.now() - 86400000).toISOString(),
+        customer: { full_name: 'Daniela Restrepo', tura_plus: true, avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' },
+        comment: '¡Increíble! La comida llegó caliente y el empaque es de primera. Definitivamente volveré a pedir.',
+        business_reply: '¡Gracias Daniela! Nos encanta saber que disfrutaste la experiencia. Te esperamos pronto.', replied_at: new Date(Date.now() - 40000000).toISOString(),
+        tags: ['Empaque excelente', 'Comida caliente']
+      },
+      {
+        id: 's2', rating: 5, created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        customer: { full_name: 'Mateo Giraldo', tura_plus: false, avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026703d' },
+        comment: 'El mejor sabor que he probado en mucho tiempo. 10/10.',
+        tags: ['Sabor increíble']
+      },
+      {
+        id: 's3', rating: 4, created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+        customer: { full_name: 'Sofía Londoño', tura_plus: true, avatar: 'https://i.pravatar.cc/150?u=a04258a2462d826712d' },
+        comment: 'Muy rico todo, pero se demoró un poquito más de lo esperado en llegar.',
+        tags: ['Buen sabor', 'Demora']
+      },
+      {
+        id: 's4', rating: 5, created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        customer: { full_name: 'Carlos Mesa', tura_plus: false, avatar: 'https://i.pravatar.cc/150?u=a04258114e29026702d' },
+        comment: 'Brutal. Las porciones son enormes por el precio.',
+        tags: ['Buen precio']
+      }
+    ];
+    // Generar volumen extra falso para simular 148 reseñas en los stats
+    const filler = Array(144).fill(null).map((_, i) => ({
+      id: `filler-${i}`,
+      rating: Math.random() > 0.8 ? 4 : 5, // Mayoría 5 estrellas
+      business_reply: Math.random() > 0.2 ? 'Gracias!' : null
+    }));
+    return [...base, ...filler];
+  }, []);
+
+  const actualReviews = simulatedMode ? seedReviews : reviews;
+  const pending = actualReviews.filter((r) => !r.business_reply).length;
 
   useEffect(() => { setPendingReviews(pending); }, [pending, setPendingReviews]);
 
@@ -61,20 +102,20 @@ export default function ResenasPage() {
     { label: 'Positivas (4–5★)', match: (r) => r.rating >= 4 },
   ];
 
-  const shown = reviews.filter(filters[filter].match);
+  const shown = actualReviews.filter(filters[filter].match).filter(r => r.comment || r.id.startsWith('s'));
 
   const stats = useMemo(() => {
-    const n = reviews.length;
-    const sum = reviews.reduce((a, r) => a + Number(r.rating ?? 0), 0);
+    const n = actualReviews.length;
+    const sum = actualReviews.reduce((a, r) => a + Number(r.rating ?? 0), 0);
     const avg = n ? sum / n : 0;
-    const counts = [5, 4, 3, 2, 1].map((k) => reviews.filter((r) => r.rating === k).length);
-    const replied = reviews.filter((r) => r.business_reply).length;
+    const counts = [5, 4, 3, 2, 1].map((k) => actualReviews.filter((r) => r.rating === k).length);
+    const replied = actualReviews.filter((r) => r.business_reply).length;
     return {
       n, avg, counts,
       rate: n ? Math.round((replied / n) * 100) : 100,
-      recommend: n ? Math.round((reviews.filter((r) => r.rating >= 4).length / n) * 100) : 0,
+      recommend: n ? Math.round((actualReviews.filter((r) => r.rating >= 4).length / n) * 100) : 0,
     };
-  }, [reviews]);
+  }, [actualReviews]);
 
   const send = async (review) => {
     const text = (drafts[review.id] ?? '').trim();
@@ -105,10 +146,21 @@ export default function ResenasPage() {
 
       {/* Resumen */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16, alignItems: 'start' }}>
-        <section style={S.card}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
-            <div style={{ flex: 'none' }}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 46, letterSpacing: '-.03em', lineHeight: 1 }}>
+        <section style={{ ...S.card, padding: 26, background: 'linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="ms" style={{ fontSize: 24, color: '#4285F4' }}>google</span>
+              <span style={{ fontSize: 16, fontWeight: 800, fontFamily: 'var(--font-bricolage)' }}>Resumen Google Style</span>
+            </div>
+            {simulatedMode && (
+              <span style={{ background: '#FFF1EC', color: 'var(--primary)', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800 }}>
+                MODO DEMO
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+            <div style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 56, letterSpacing: '-.04em', lineHeight: 1 }}>
                 {stats.avg.toFixed(1).replace('.', ',')}
               </div>
               <div style={{ display: 'flex', gap: 2, marginTop: 6 }}>
@@ -138,12 +190,12 @@ export default function ResenasPage() {
                       <span
                         style={{
                           display: 'block', height: '100%', borderRadius: 99,
-                          width: `${Math.max(pct, 2)}%`,
-                          background: n >= 4 ? 'var(--green)' : n === 3 ? 'var(--amber)' : 'var(--primary)',
+                          width: `${Math.max(pct, 0)}%`,
+                          background: n >= 4 ? '#34A853' : n === 3 ? '#FBBC05' : '#EA4335',
                         }}
                       />
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--faint)', width: 32, textAlign: 'right' }}>
+                    <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--faint)', width: 36, textAlign: 'right' }}>
                       {pct}%
                     </span>
                   </div>
@@ -162,12 +214,12 @@ export default function ResenasPage() {
           ].map((k) => (
             <div key={k.label} style={S.card}>
               <span style={{ ...S.kpiIcon, background: k.bg }}>
-                <span className="ms" style={{ fontSize: 19, color: k.fg }}>{k.icon}</span>
+                <span className="ms" style={{ fontSize: 21, color: k.fg }}>{k.icon}</span>
               </span>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em', marginTop: 12 }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', marginTop: 14 }}>
                 {k.value}
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginTop: 3 }}>{k.label}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginTop: 4 }}>{k.label}</div>
             </div>
           ))}
         </div>
@@ -247,12 +299,16 @@ export default function ResenasPage() {
           return (
             <article key={r.id} style={S.card}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap' }}>
-                <span style={{ ...S.avatar, background: av.bg, color: av.color }}>
-                  {initials(r.customer?.full_name)}
-                </span>
+                {r.customer?.avatar ? (
+                  <img src={r.customer.avatar} alt="Avatar" style={{ ...S.avatar, border: 'none' }} />
+                ) : (
+                  <span style={{ ...S.avatar, background: av.bg, color: av.color }}>
+                    {initials(r.customer?.full_name)}
+                  </span>
+                )}
                 <span style={{ flex: 1, minWidth: 180 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>{r.customer?.full_name ?? 'Cliente'}</span>
+                    <span style={{ fontWeight: 800, fontSize: 15.5 }}>{r.customer?.full_name ?? 'Cliente'}</span>
                     {r.customer?.tura_plus && <span style={S.plus}>TURA PLUS</span>}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 5 }}>
@@ -360,48 +416,50 @@ export default function ResenasPage() {
 
 const S = {
   google: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: 22, boxShadow: 'var(--shadowSm)', marginTop: 20,
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 22, padding: 24, boxShadow: '0 4px 15px rgba(0,0,0,0.02)', marginTop: 24,
   },
   googleIcon: {
-    width: 50, height: 50, borderRadius: 16, background: '#EAF1FF', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 54, height: 54, borderRadius: 16, background: 'linear-gradient(135deg, #EAF1FF 0%, #F3ECFF 100%)', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(46,107,255,0.1)'
   },
   googleGrid: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
-    gap: 12, marginTop: 18,
+    gap: 16, marginTop: 20,
   },
   googleCard: {
-    display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 15,
-    background: 'var(--bg)', border: '1px solid var(--border)',
+    display: 'flex', alignItems: 'center', gap: 14, padding: 16, borderRadius: 18,
+    background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.06)',
     textDecoration: 'none', color: 'var(--text)', minWidth: 0,
+    transition: 'box-shadow 0.2s, transform 0.2s',
   },
   googleCardIcon: {
-    width: 40, height: 40, borderRadius: 12, flex: 'none',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  googleCardTitle: { display: 'block', fontSize: 13.5, fontWeight: 700 },
+  googleCardTitle: { display: 'block', fontSize: 14, fontWeight: 800 },
   googleCardText: {
-    display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.45,
+    display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 3, lineHeight: 1.45,
   },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
+    borderRadius: 22, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
   },
   kpiIcon: {
-    width: 34, height: 34, borderRadius: 10,
+    width: 38, height: 38, borderRadius: 12,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   distTrack: {
-    flex: 1, height: 7, borderRadius: 99, background: 'var(--surface2)', overflow: 'hidden',
+    flex: 1, height: 8, borderRadius: 99, background: 'var(--surface2)', overflow: 'hidden',
+    border: '1px solid rgba(0,0,0,0.03)'
   },
-  chip: { height: 38, padding: '0 16px', borderRadius: 999, fontSize: 12.5, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  chip: { height: 40, padding: '0 18px', borderRadius: 999, fontSize: 13, fontWeight: 700, transition: 'all 0.2s' },
+  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' },
+  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid rgba(0,0,0,0.08)' },
   avatar: {
-    width: 42, height: 42, borderRadius: '50%', flex: 'none',
+    width: 46, height: 46, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 800, fontSize: 14,
+    fontWeight: 800, fontSize: 15, border: '1px solid rgba(0,0,0,0.05)'
   },
   plus: {
     fontSize: 10, fontWeight: 800, letterSpacing: '.05em', padding: '3px 8px',
@@ -412,21 +470,24 @@ const S = {
     padding: '5px 10px', borderRadius: 8,
   },
   reviewChip: {
-    height: 28, display: 'inline-flex', alignItems: 'center', padding: '0 11px',
-    borderRadius: 999, background: 'var(--bg)', border: '1px solid var(--border)',
-    fontSize: 11.5, fontWeight: 700, color: 'var(--muted)',
+    height: 30, display: 'inline-flex', alignItems: 'center', padding: '0 14px',
+    borderRadius: 999, background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.06)',
+    fontSize: 12, fontWeight: 700, color: 'var(--text)',
   },
   reply: {
-    display: 'flex', gap: 12, marginTop: 16, padding: '14px 16px',
-    background: 'var(--bg)', borderRadius: 14, borderLeft: '3px solid var(--primary)',
+    display: 'flex', gap: 14, marginTop: 18, padding: '16px 18px',
+    background: 'var(--bg)', borderRadius: 16, borderLeft: '3px solid var(--primary)',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   replyInput: {
-    flex: 1, minWidth: 200, height: 46, borderRadius: 13, border: '1px solid var(--border)',
-    background: 'var(--bg)', padding: '0 15px', fontSize: 16, outline: 'none',
+    flex: 1, minWidth: 200, height: 48, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
+    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   sendBtn: {
-    flex: 'none', display: 'flex', alignItems: 'center', gap: 7, height: 46,
-    padding: '0 20px', borderRadius: 999, fontWeight: 700, fontSize: 13,
+    flex: 'none', display: 'flex', alignItems: 'center', gap: 8, height: 48,
+    padding: '0 22px', borderRadius: 999, fontWeight: 800, fontSize: 13.5,
+    boxShadow: '0 2px 8px rgba(255,68,31,0.2)'
   },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',

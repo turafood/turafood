@@ -107,9 +107,9 @@ const NAV_GROUPS = [
     label: 'CRECER',
     items: [
       { label: 'Growth Partner', icon: 'rocket_launch', href: '/negocio/crecimiento' },
-      { label: 'Tura Business Suite', icon: 'auto_awesome', href: '/negocio/suite' },
-      { label: 'Redes Sociales AI', icon: 'share', href: '/negocio/redes' },
-      { label: 'Google Ads AI', icon: 'travel_explore', href: '/negocio/crecimiento/google' },
+      { label: 'Tura Business Suite', icon: 'auto_awesome', href: '/negocio/suite', disabled: true },
+      { label: 'Redes Sociales AI', icon: 'share', href: '/negocio/redes', disabled: true },
+      { label: 'Google Ads AI', icon: 'travel_explore', href: '/negocio/crecimiento/google', disabled: true },
     ],
   },
   {
@@ -388,6 +388,25 @@ export default function BizShell({ children }) {
                 {g.items.map((i) => {
                   const on = path === i.href;
                   const badge = badgeValue(i.badge);
+
+                  if (i.disabled) {
+                    return (
+                      <div
+                        key={i.href}
+                        style={{ ...S.navItem, opacity: 0.45, cursor: 'not-allowed', pointerEvents: 'none' }}
+                        title="Próximamente"
+                      >
+                        <span className="ms" style={{ fontSize: 20, flex: 'none', color: 'var(--faint)' }}>
+                          {i.icon}
+                        </span>
+                        <span className="rail-hide" style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: 'var(--muted)' }}>{t(i.label)}</span>
+                        <span className="rail-hide" style={{ fontSize: 9, fontWeight: 800, background: 'var(--surface2)', padding: '3px 6px', borderRadius: 6, color: 'var(--muted)', letterSpacing: '.05em' }}>
+                          PRÓX.
+                        </span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={i.href}
