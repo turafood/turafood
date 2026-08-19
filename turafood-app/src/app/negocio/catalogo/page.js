@@ -20,6 +20,7 @@ import {
 import { STARTER_MENUS, starterSize, loadStarterMenu } from '@/lib/menuDemo';
 import Vertical3D, { ProductThumb } from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
+import MetricasProducto from './MetricasProducto';
 import ProductSheet from './ProductSheet';
 
 const norm = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
@@ -28,6 +29,7 @@ export default function CatalogoPage() {
   const { business, toast } = useBiz();
 
   const [products, setProducts] = useState([]);
+  const [metricas, setMetricas] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cat, setCat] = useState('Todos');
   const [query, setQuery] = useState('');
@@ -161,7 +163,7 @@ export default function CatalogoPage() {
           </div>
         </section>
 
-        <ProductSheet
+      <ProductSheet
           open={sheet.open}
           product={sheet.product}
           categories={categories}
@@ -271,9 +273,21 @@ export default function CatalogoPage() {
                 </div>
 
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
-                    {p.sold ?? 0} vendidos
-                  </div>
+                  {/* La celda entera abre las metricas. Antes solo
+                      decia "0 vendidos" y no llevaba a ningun lado —
+                      un dato muerto en la fila mas visible. */}
+                  <button
+                    onClick={() => setMetricas(p)}
+                    style={S.perfBtn}
+                    title={`Ver como le va a ${p.name}`}
+                  >
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>
+                      {p.sold ?? 0} vendidos
+                    </span>
+                    <span className="ms" style={{ fontSize: 15, color: 'var(--primary)' }}>
+                      monitoring
+                    </span>
+                  </button>
                   <div style={S.perfTrack}>
                     <div
                       style={{
@@ -334,6 +348,14 @@ export default function CatalogoPage() {
           )}
         </section>
       </div>
+
+      {/* Las metricas del producto. Va acá y no dentro de la rama
+          de "catalogo vacio": ahi solo aparecia cuando no habia
+          ningun producto, que es justo cuando no hay nada que
+          medir. */}
+      {metricas && (
+        <MetricasProducto producto={metricas} onClose={() => setMetricas(null)} />
+      )}
 
       <ProductSheet
         open={sheet.open}
@@ -406,6 +428,10 @@ const S = {
   top: {
     flex: 'none', fontSize: 9.5, fontWeight: 800, padding: '2px 6px',
     borderRadius: 5, background: '#FFF0CC', color: '#A8730B',
+  },
+  perfBtn: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    background: 'none', padding: 0,
   },
   perfTrack: {
     height: 5, borderRadius: 99, background: 'var(--surface2)', marginTop: 6, overflow: 'hidden',

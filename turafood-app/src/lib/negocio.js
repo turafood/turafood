@@ -887,36 +887,33 @@ export async function submitForReview() {
  * Qué le falta al negocio, calculado igual que en la base.
  * Sirve para pintar la lista; la validación de verdad es del servidor.
  */
-export function checklistOf(business, documents = []) {
+export function checklistOf(business) {
   const has = (v) => Boolean(String(v ?? '').trim());
-  const kinds = documents.map((d) => d.kind);
 
+  // Tres, igual que los pasos de la pantalla. Antes eran cuatro e
+  // incluían "Documentos": ya no se piden papeles, así que ese ítem
+  // dejaba el progreso clavado en 75% para siempre.
+  //
+  // La lista y `STEPS` tienen que ir en el mismo orden y con el mismo
+  // largo — la pantalla los cruza por índice.
   return [
     {
       id: 'datos',
-      label: 'Datos del negocio',
-      hint: 'Nombre, tipo, NIT y celular',
-      done: has(business?.name) && has(business?.nit) && has(business?.phone),
+      label: 'Tus datos',
+      hint: 'Un WhatsApp donde contestar',
+      done: has(business?.phone),
     },
     {
-      id: 'direccion',
-      label: 'Dirección',
-      hint: 'Dónde queda tu punto de venta',
-      done: has(business?.address),
+      id: 'negocio',
+      label: 'Tu negocio',
+      hint: 'Nombre y dónde queda',
+      done: has(business?.name) && has(business?.address),
     },
     {
-      id: 'documentos',
-      label: 'Documentos',
-      hint: 'RUT, cámara de comercio y cédula',
-      done: REQUIRED_DOCS.every((k) => kinds.includes(k)),
-    },
-    {
-      id: 'banco',
-      label: 'Cuenta bancaria',
-      hint: 'Dónde te consignamos los viernes',
-      done: has(business?.bank_name)
-        && has(business?.bank_account_number)
-        && has(business?.bank_account_holder),
+      id: 'llamada',
+      label: 'Videollamada',
+      hint: 'Con el equipo de TuraFood',
+      done: Boolean(business?.verification_call_at),
     },
   ];
 }
@@ -1249,3 +1246,35 @@ const LOCAL_PAYOUTS = [
   { id: 'y4', period: '4 – 10 ago', orders: 96, gross: 2210000, fee: 221000, net: 1989000, status: 'pending' },
   { id: 'y5', period: '7 – 13 jul', orders: 104, gross: 2088000, fee: 208800, net: 1879200, status: 'paid' },
 ];
+
+
+// ============================================================
+// CÓMO LE VA A CADA PRODUCTO
+//
+// Las métricas se calculan en el servidor (`metricas_producto`) y no
+// acá: si se hiciera en el navegador habría que bajarse miles de
+// filas de eventos para contar cuatro números.
+//
+// La función de la base ya comprueba que quien pregunta sea el dueño
+// del producto o un admin.
+// ============================================================
+export async function metricasProducto(productId, dias = 30) {
+  if (!isLive()) {
+    await delay();
+    return { vistas: 0, agregados: 0, en_checkout: 0, comprados: 0, vendidos: 0, ingresos: 0, tasa_conversion: null, abandono_carrito: null };
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc('metricas_producto', {
+    p_product_id: productId,
+    p_dias: dias,
+  });
+
+  if (error) throw new Error(`No se pudieron cargar las métricas: ${error.message}`);
+
+  const fila = Array.isArray(data) ? data[0] : data;
+  return fila ?? {
+    vistas: 0, agregados: 0, en_checkout: 0, comprados: 0,
+    vendidos: 0, ingresos: 0, tasa_conversion: null, abandono_carrito: null,
+  };
+}

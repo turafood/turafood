@@ -17,7 +17,7 @@ import { createClient } from '@/utils/supabase/client';
 import {
   getMyBusiness, getLiveOrders, getReviews, setStoreOpen, subscribeToOrders, columnOf,
 } from '@/lib/negocio';
-import { useRail, useTheme, useLang } from '@/lib/prefs';
+import { useRail, useTheme, useLang, TEMA_INFO } from '@/lib/prefs';
 import { makeT } from '@/lib/i18n';
 import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
@@ -25,6 +25,7 @@ import { useDialogOpen } from '@/lib/useDialogOpen';
 import ProgresoCuenta from '../components/ProgresoCuenta';
 import Recorrido from '../components/Recorrido';
 import { PASOS_NEGOCIO } from '../components/recorridos';
+import LocalMini from '../components/LocalMini';
 
 /** Títulos de cada sección — PAGES del mockup, línea 1126 */
 const PAGES = {
@@ -338,13 +339,19 @@ export default function BizShell({ children }) {
           </div>
 
           <Link href="/negocio/sucursales" style={S.branch}>
-            <span
-              style={{
-                ...S.branchImg,
-                backgroundImage: business?.cover_url ? `url('${business.cover_url}')` : 'none',
-                background: business?.cover_url ? undefined : 'var(--faint)',
-              }}
-            />
+            {/* Con foto, manda la foto. Sin foto, un localito con el
+                color de su nicho — antes acá había un cuadrado gris
+                plano, que es lo que se ve cuando algo está a medias. */}
+            {business?.cover_url ? (
+              <span
+                style={{
+                  ...S.branchImg,
+                  backgroundImage: `url('${business.cover_url}')`,
+                }}
+              />
+            ) : (
+              <LocalMini nicho={business?.nicho} size={38} radius={11} />
+            )}
             <span className="rail-hide" style={{ flex: 1, minWidth: 0 }}>
               <span className="tr1" style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
                 {business?.name ?? 'Tu negocio'}
@@ -477,11 +484,14 @@ export default function BizShell({ children }) {
             <button
               onClick={toggleTheme}
               style={S.iconBtn}
-              aria-label={theme === 'dark' ? t('Cambiar a tema claro') : t('Cambiar a tema oscuro')}
-              title={theme === 'dark' ? t('Cambiar a tema claro') : t('Cambiar a tema oscuro')}
+              aria-label={`Tema: ${TEMA_INFO[theme]?.nombre ?? 'Claro'}. Tocar para cambiar`}
+              title={`Tema: ${TEMA_INFO[theme]?.nombre ?? 'Claro'} — toca para cambiar`}
             >
               <span className="ms" style={{ fontSize: 20 }}>
-                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                {/* El icono muestra el tema ACTUAL, no el siguiente.
+                    Con tres temas, "el siguiente" ya no se adivina y
+                    el botón se vuelve una lotería. */}
+                {TEMA_INFO[theme]?.icono ?? 'light_mode'}
               </span>
             </button>
 

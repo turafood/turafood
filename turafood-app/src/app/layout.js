@@ -28,10 +28,36 @@ export const viewport = {
   initialScale: 1,
 };
 
+/**
+ * EL TEMA, ANTES DE PINTAR
+ *
+ * Se corría en un `useEffect`, o sea DESPUÉS del primer render. En un
+ * celular con el sistema en oscuro eso dejaba un instante sin
+ * `data-theme`: las pantallas que leen las variables salían claras y
+ * las que tienen algún color fijo salían oscuras. Eso es lo que se
+ * veía "entremezclado" al cambiar de tema.
+ *
+ * Este script va en el <head> y corre antes del primer pixel, así que
+ * no hay un solo frame sin tema.
+ *
+ * Y el valor por defecto es CLARO, no el del sistema. La app se usa a
+ * plena luz en el puerto, con el celular en la mano y una parrilla al
+ * lado; el claro se lee mejor ahí. Quien prefiera oscuro lo prende con
+ * el botón de la barra y se le recuerda para siempre.
+ */
+const TEMA_INICIAL = `(function(){try{
+  var t = localStorage.getItem('turafood-theme');
+  var ok = ['light','dark','puerto'];
+  document.documentElement.setAttribute('data-theme', ok.indexOf(t) >= 0 ? t : 'light');
+}catch(e){
+  document.documentElement.setAttribute('data-theme','light');
+}})();`;
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${jakarta.variable} ${bricolage.variable}`}>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: TEMA_INICIAL }} />
         {/* Los iconos vienen de Google en dos saltos: googleapis
             entrega la hoja y gstatic el archivo de la fuente. Sin
             preconnect el navegador descubre el segundo solo cuando ya

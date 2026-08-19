@@ -58,12 +58,17 @@ export default function PreparandoPanel({ nicho, pasos = [], listo }) {
   const [visto, setVisto] = useState(0);
   const escena = ESCENAS[nicho] ?? POR_DEFECTO;
 
-  // Los pasos se van marcando solos cada 700 ms. No es mentira: son
-  // los pasos que de verdad están corriendo detrás, solo que ninguno
-  // avisa cuándo termina. Lo que se muestra es el orden real.
+  // Los pasos se marcan cada 280 ms. Son los que de verdad están
+  // corriendo detrás, solo que ninguno avisa cuándo termina; lo que
+  // se muestra es el orden real.
+  //
+  // Iban a 700 ms, o sea 2,8 s para cuatro pasos — más de lo que
+  // dura la espera real. La lista quedaba a medias cuando ya se
+  // estaba entrando al panel, que es la peor combinación: se ve
+  // lento Y se ve incompleto.
   useEffect(() => {
     if (visto >= pasos.length) return undefined;
-    const id = setTimeout(() => setVisto((n) => n + 1), 700);
+    const id = setTimeout(() => setVisto((n) => n + 1), 280);
     return () => clearTimeout(id);
   }, [visto, pasos.length]);
 

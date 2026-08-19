@@ -23,6 +23,7 @@ import {
 } from '@/lib/negocio';
 import Vertical3D from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
+import Videollamada from '../../components/Videollamada';
 
 const VERTICALS = [
   { value: 'restaurant', label: 'Restaurante' },
@@ -37,30 +38,40 @@ const ACCOUNT_TYPES = ['Ahorros', 'Corriente'];
 const DOC_ORDER = ['rut', 'chamber', 'id_card', 'health'];
 
 /** Los cuatro pasos, con los campos que guarda cada uno */
+/**
+ * TRES PASOS, NINGUNO OBLIGATORIO
+ *
+ * Antes eran cuatro y pedían NIT, cámara de comercio, RUT, concepto
+ * sanitario y cuenta bancaria antes de aprobar. Eso dejaba por fuera a
+ * la mitad de los negocios del puerto — los que trabajan hace años sin
+ * papeles al día — que es justo a quienes queremos adentro.
+ *
+ * Ahora se piden datos livianos y la verificación de verdad pasa en
+ * una videollamada con el equipo. Ahí se conoce el negocio, se
+ * resuelven dudas y se decide si se le levantan los topes. Un humano
+ * decidiendo en 30 minutos es mejor filtro que un PDF que nadie mira.
+ *
+ * Los tres pasos se pueden saltar. Lo único que hace falta para
+ * agendar la llamada es un WhatsApp donde contestar.
+ */
 const STEPS = [
   {
-    id: 'datos', icon: 'storefront', short: 'Datos',
+    id: 'datos', icon: 'person', short: 'Tus datos',
+    title: '¿Con quién hablamos?',
+    sub: 'Solo lo básico para poder llamarte. Nada de esto sale en la app.',
+    fields: ['owner_name', 'nit', 'phone'],
+  },
+  {
+    id: 'negocio', icon: 'storefront', short: 'Tu negocio',
     title: 'Cuéntanos de tu negocio',
-    sub: 'Así aparece tu tienda en la app de clientes. Puedes cambiarlo después.',
-    fields: ['name', 'vertical', 'nit', 'phone'],
+    sub: 'Así aparece tu tienda para los clientes. Lo cambias cuando quieras.',
+    fields: ['name', 'vertical', 'address', 'neighborhood'],
   },
   {
-    id: 'direccion', icon: 'location_on', short: 'Dirección',
-    title: '¿Dónde queda tu punto de venta?',
-    sub: 'La usamos para calcular tiempos de entrega y a qué zonas llegas.',
-    fields: ['address', 'neighborhood', 'courier_notes'],
-  },
-  {
-    id: 'documentos', icon: 'folder_open', short: 'Documentos',
-    title: 'Sube tus documentos',
-    sub: 'Los revisamos en menos de 24 horas. Máximo 8 MB por archivo, en PDF o imagen.',
+    id: 'llamada', icon: 'videocam', short: 'Videollamada',
+    title: 'Agenda tu videollamada',
+    sub: 'El equipo de TuraFood te conoce y te levanta los topes.',
     fields: [],
-  },
-  {
-    id: 'banco', icon: 'account_balance', short: 'Banco',
-    title: '¿Dónde te consignamos?',
-    sub: 'Liquidamos todos los viernes con el corte del domingo anterior.',
-    fields: ['bank_name', 'bank_account_type', 'bank_account_number', 'bank_account_holder'],
   },
 ];
 
@@ -110,7 +121,7 @@ export default function VerificacionPage() {
     () => (business && form ? { ...business, ...form } : business),
     [business, form],
   );
-  const checklist = useMemo(() => checklistOf(merged, docs), [merged, docs]);
+  const checklist = useMemo(() => checklistOf(merged), [merged]);
   const doneCount = checklist.filter((c) => c.done).length;
   const pct = Math.round((doneCount / checklist.length) * 100);
   const complete = doneCount === checklist.length;
@@ -246,64 +257,30 @@ export default function VerificacionPage() {
         <div style={{ marginTop: 22 }}>
           {current.id === 'datos' && (
             <>
+              <Field label="Tu nombre" value={form.owner_name} onChange={(v) => set('owner_name', v)} placeholder="Como te presentas" />
+              <Field label="WhatsApp" value={form.phone} onChange={(v) => set('phone', v)} placeholder="313 759 4713" />
+              <Field label="Cédula o NIT (opcional)" value={form.nit} onChange={(v) => set('nit', v)} placeholder="Lo puedes dejar en blanco" />
+              <Note>
+                Con el WhatsApp nos basta para coordinar la llamada. Lo demás
+                lo puedes llenar después o decirlo ahí mismo.
+              </Note>
+            </>
+          )}
+
+          {current.id === 'negocio' && (
+            <>
               <Field label="Nombre comercial" value={form.name} onChange={(v) => set('name', v)} placeholder="Ej. Asadero El Puerto" />
               <Chips label="Tipo de negocio" options={VERTICALS} value={form.vertical} onChange={(v) => set('vertical', v)} />
-              <Field label="NIT o cédula del propietario" value={form.nit} onChange={(v) => set('nit', v)} placeholder="901.234.567-8" />
-              <Field label="Celular de contacto" value={form.phone} onChange={(v) => set('phone', v)} placeholder="+57 320 000 0000" />
-              {(form.vertical === 'pharmacy' || form.vertical === 'liquor') && (
-                <Note>
-                  Farmacias y licoreras pagan 15% de comisión por pedido en vez de 10%.
-                  Con Biz Pro pasa a 0% en cualquier vertical.
-                </Note>
-              )}
-            </>
-          )}
-
-          {current.id === 'direccion' && (
-            <>
               <Field label="Dirección" value={form.address} onChange={(v) => set('address', v)} placeholder="Cra. 3 # 4-58" />
               <Field label="Barrio o comuna" value={form.neighborhood} onChange={(v) => set('neighborhood', v)} placeholder="Centro, Comuna 1" />
-              <Field label="Indicaciones para el repartidor" value={form.courier_notes} onChange={(v) => set('courier_notes', v)} placeholder="Local esquinero, al lado de la droguería" />
               <Note>
-                Entre más claras las indicaciones, menos llamadas recibes del repartidor
-                y más rápido sale el pedido.
+                Entre más clara la dirección, menos llamadas recibes del
+                repartidor y más rápido sale el pedido.
               </Note>
             </>
           )}
 
-          {current.id === 'documentos' && (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {DOC_ORDER.map((kind) => (
-                  <DocRow
-                    key={kind}
-                    kind={kind}
-                    doc={docs.find((d) => d.kind === kind)}
-                    businessId={business.id}
-                    onChange={setDocs}
-                    onError={setError}
-                  />
-                ))}
-              </div>
-              <Note>
-                Los archivos quedan en un espacio privado: no tienen dirección pública y
-                solo los vemos tú y el equipo de TuraFood.
-              </Note>
-            </>
-          )}
-
-          {current.id === 'banco' && (
-            <>
-              <Chips label="Banco" options={BANKS.map((b) => ({ value: b, label: b }))} value={form.bank_name} onChange={(v) => set('bank_name', v)} />
-              <Chips label="Tipo de cuenta" options={ACCOUNT_TYPES.map((a) => ({ value: a, label: a }))} value={form.bank_account_type} onChange={(v) => set('bank_account_type', v)} />
-              <Field label="Número de cuenta" value={form.bank_account_number} onChange={(v) => set('bank_account_number', v)} placeholder="000-000000-00" />
-              <Field label="Titular de la cuenta" value={form.bank_account_holder} onChange={(v) => set('bank_account_holder', v)} placeholder="Como aparece en el banco" />
-              <Note>
-                El titular debe coincidir con el NIT o la cédula que registraste. Si no
-                coincide, el banco rechaza la consignación.
-              </Note>
-            </>
-          )}
+          {current.id === 'llamada' && <Videollamada />}
         </div>
 
         {error && (

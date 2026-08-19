@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { anotar } from '@/lib/eventos';
 
 /**
  * CARRITO
@@ -34,7 +35,12 @@ export const useCartStore = create(
        * Cambiar de negocio vacía el carrito: el mockup solo permite
        * pedir de un sitio a la vez.
        */
-      addLine: (line, business) => set((state) => {
+      addLine: (line, business) => {
+        // Se anota fuera del `set`: zustand puede correr el
+        // actualizador dos veces en modo estricto, y contar dos veces
+        // el mismo "agregado" arruina la metrica.
+        anotar(line?.productId, 'add');
+        return set((state) => {
         const key = lineKey(line.productId, line.extraIds, line.notes);
         const switching = state.businessId && state.businessId !== business.id;
 
@@ -59,7 +65,8 @@ export const useCartStore = create(
         }
 
         return { ...base, items: [...state.items, { ...line, lineId: key, qty: line.qty ?? 1 }] };
-      }),
+        });
+      },
 
       removeLine: (lineId) => set((state) => {
         const items = state.items.filter((i) => i.lineId !== lineId);

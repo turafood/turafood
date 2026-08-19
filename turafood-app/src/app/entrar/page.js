@@ -109,7 +109,11 @@ export default function EntrarPage() {
       nicho: preguntando === 'business' ? respuestas.nicho : 'repartidor',
     });
 
-    const minimo = new Promise((r) => setTimeout(r, 2200));
+    // 1,1 s es lo que tarda el ojo en registrar la escena y leer el
+    // título. Antes eran 2,2 s "para que se aprecie", y se sentían
+    // eternos: la persona ya contestó seis preguntas y lo único que
+    // quiere es entrar.
+    const minimo = new Promise((r) => setTimeout(r, 1100));
 
     try {
       await Promise.all([guardarArranque(preguntando, respuestas), minimo]);
@@ -122,11 +126,22 @@ export default function EntrarPage() {
   };
 
   const entrarAlPanel = () => {
+    // Directo a su panel, NO a '/'.
+    //
+    // Ir a '/' obligaba al proxy a leer el perfil en la base para
+    // saber el rol y recién ahí redirigir: un viaje completo al
+    // servidor, con la pantalla ya en blanco, después de la
+    // animación. El rol lo sabemos acá desde que tocó el botón.
+    const destino = preguntando === 'business' ? '/negocio' : '/repartidor';
+
+    // El orden importa: primero se pide la navegación y DESPUÉS se
+    // apaga la escena. Al revés queda un parpadeo en blanco entre que
+    // desaparece la olla y aparece el panel.
+    router.replace(destino);
+
     setPreguntando(null);
     setPreparando(null);
     setGuardandoArranque(false);
-    router.replace('/');
-    router.refresh();
   };
 
   if (preparando) {

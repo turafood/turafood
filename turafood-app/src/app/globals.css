@@ -821,3 +821,90 @@ button:disabled {
   }
   .planes-grid > article:nth-child(3) { order: 0; }
 }
+
+/* ============================================================
+   TEMA PUERTO — la bandera de Buenaventura
+
+   Verde y amarillo, los colores de la ciudad. No es un filtro
+   encima: es un juego de tokens completo, así que TODA la app se
+   viste sola sin tocar una sola pantalla.
+
+   DECISIONES DE COLOR
+
+   · El verde de la bandera (#009739) es el color de acción, donde
+     antes iba el naranja. Es oscuro y contrasta con blanco, así que
+     los botones siguen siendo legibles.
+
+   · El amarillo (#FFD100) NO se usa para botones ni texto: sobre
+     blanco no llega ni a 2:1 de contraste, y todo lo escrito encima
+     quedaría ilegible. Va donde de verdad brilla — acentos, luces,
+     degradados y bordes.
+
+   · El fondo lleva un tinte cálido casi imperceptible (#FFFDF5) en
+     vez de blanco puro. Es lo que hace que se sienta tropical y no
+     como la app de un banco con otro color.
+
+   Se prende desde el mismo botón del tema, que cicla claro →
+   oscuro → puerto.
+   ============================================================ */
+:root[data-theme='puerto'] {
+  --backdrop: #F2F7F0;
+  --bg: #FFFDF5;
+  --surface: #FFFFFF;
+  --surface2: #F5F9F2;
+
+  --text: #14261A;
+  --muted: #5C7263;
+  --faint: #93A897;
+  --border: rgba(0, 151, 57, 0.16);
+
+  /* El verde de la bandera manda */
+  --primary: #009739;
+  --primaryDark: #00762C;
+  --onPrimary: #FFFFFF;
+
+  --green: #00A83F;
+  /* El amarillo de la bandera, solo para acentos */
+  --amber: #FFD100;
+  --blue: #0F7B8A;
+
+  --primary-tint: color-mix(in srgb, var(--primary) 11%, transparent);
+  --green-tint: color-mix(in srgb, var(--green) 13%, transparent);
+  --amber-tint: color-mix(in srgb, var(--amber) 22%, transparent);
+  --blue-tint: color-mix(in srgb, var(--blue) 12%, transparent);
+
+  --shadow: 0 14px 40px rgba(0, 90, 34, 0.12);
+  --shadowSm: 0 3px 14px rgba(0, 90, 34, 0.08);
+}
+
+/* El fondo con la diagonal de la bandera, muy diluida. La diagonal
+   va de abajo-izquierda a arriba-derecha, como en la bandera real.
+   Al 6% no compite con nada: se siente, no se mira. */
+:root[data-theme='puerto'] body {
+  background:
+    linear-gradient(
+      42deg,
+      color-mix(in srgb, #FFD100 16%, transparent) 0%,
+      color-mix(in srgb, #FFD100 5%, transparent) 38%,
+      transparent 52%,
+      color-mix(in srgb, #009739 6%, transparent) 70%,
+      color-mix(in srgb, #009739 14%, transparent) 100%
+    ),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* La marca en la barra: degradado verde→amarillo, como la bandera */
+:root[data-theme='puerto'] .marca-puerto {
+  background: linear-gradient(135deg, #009739 0%, #00A83F 45%, #FFD100 100%) !important;
+}
+
+/* Métricas del producto: hoja abajo en celular, tarjeta centrada en
+   escritorio. Igual que el arranque — misma familia, mismo gesto. */
+@media (min-width: 600px) {
+  .metricas-hoja {
+    border-radius: 24px !important;
+    max-height: 86dvh !important;
+    margin-bottom: 5vh;
+  }
+}

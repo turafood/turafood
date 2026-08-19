@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
+import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder } from '@/lib/data';
 import { quote, validateCoupon } from '@/lib/pricing';
 import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
@@ -69,6 +70,12 @@ export default function CheckoutPage() {
 
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState(null);
+
+  // Llegaron hasta acá con estos productos. Lo que pase después
+  // -que compren o que se vayan- lo dice el evento 'purchase'.
+  useEffect(() => {
+    if (items.length) anotarVarios(items.map((i) => i.productId), 'checkout');
+  }, [items]);
 
   useEffect(() => {
     if (!businessId) return;
@@ -161,6 +168,9 @@ export default function CheckoutPage() {
 
       // Si el usuario cancela en la pasarela, el pedido queda pendiente
       // y lo puede retomar desde Mis pedidos.
+      // De `items`, no de `productos`: ese ya viene mapeado para la
+      // comanda de WhatsApp y no lleva el id del producto.
+      anotarVarios(items.map((i) => i.productId), 'purchase');
       clearCart();
 
       // WhatsApp se abre con `window.open` y no con un <a>: el navegador

@@ -15,6 +15,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { getProduct, getBusiness } from '@/lib/data';
 import { cop } from '@/lib/format';
+import { anotar } from '@/lib/eventos';
 const MAX_EXTRAS = 3;
 
 export default function ProductPage() {
@@ -32,6 +33,12 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
 
   const addLine = useCartStore((s) => s.addLine);
+
+  // Se anota la vista cuando el producto ya cargó de verdad: si se
+  // anotara al montar, contaria tambien las cargas que fallan.
+  useEffect(() => {
+    if (product?.id) anotar(product.id, 'view');
+  }, [product?.id]);
 
   useEffect(() => {
     let alive = true;

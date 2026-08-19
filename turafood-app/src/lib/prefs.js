@@ -17,36 +17,54 @@ const KEY = {
 };
 
 /**
- * Tema claro/oscuro. `null` significa "lo que diga el sistema", que es
- * el arranque por defecto: la mayoría no quiere elegir.
+ * Tema claro/oscuro.
+ *
+ * El valor por defecto es CLARO, no el del sistema. La app se usa a
+ * plena luz en el puerto; el claro se lee mejor ahí. Quien prefiera
+ * oscuro lo prende con el botón de la barra y se le recuerda.
+ *
+ * El atributo ya viene puesto desde el <head> (ver layout.js), así que
+ * este hook solo tiene que leer en qué quedó — no aplicarlo de nuevo.
+ * Aplicarlo acá otra vez causaba un frame con el tema equivocado.
  */
+/** El orden del ciclo del botón */
+export const TEMAS = ['light', 'dark', 'puerto'];
+
+/** Cómo se llama y se ve cada uno en el botón */
+export const TEMA_INFO = {
+  light:  { icono: 'light_mode', nombre: 'Claro' },
+  dark:   { icono: 'dark_mode',  nombre: 'Oscuro' },
+  puerto: { icono: 'sailing',    nombre: 'Puerto' },
+};
+
 export function useTheme() {
-  const [theme, setTheme] = useState(null);
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     const saved = localStorage.getItem(KEY.theme);
-    if (saved === 'dark' || saved === 'light') {
-      setTheme(saved);
-      document.documentElement.setAttribute('data-theme', saved);
-    }
+    setTheme(TEMAS.includes(saved) ? saved : 'light');
   }, []);
 
   const apply = useCallback((next) => {
-    setTheme(next);
-    if (next) {
-      localStorage.setItem(KEY.theme, next);
-      document.documentElement.setAttribute('data-theme', next);
-    } else {
-      localStorage.removeItem(KEY.theme);
-      document.documentElement.removeAttribute('data-theme');
-    }
+    const valor = TEMAS.includes(next) ? next : 'light';
+    setTheme(valor);
+    localStorage.setItem(KEY.theme, valor);
+    // Siempre queda un `data-theme` explícito: nunca se vuelve al
+    // "lo que diga el sistema", que era de donde salía la mezcla.
+    document.documentElement.setAttribute('data-theme', valor);
   }, []);
 
-  /** Alterna entre claro y oscuro tomando el estado real de la pantalla */
+  /**
+   * Cicla claro → oscuro → puerto → claro.
+   *
+   * "Puerto" va de último a propósito: es el que menos gente va a
+   * querer de entrada, pero el que más va a gustar cuando lo
+   * descubran. Ponerlo segundo obligaría a pasar por él a todo el que
+   * solo quiere oscuro.
+   */
   const toggle = useCallback(() => {
-    const current = theme
-      ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    apply(current === 'dark' ? 'light' : 'dark');
+    const i = TEMAS.indexOf(theme);
+    apply(TEMAS[(i + 1) % TEMAS.length]);
   }, [theme, apply]);
 
   return { theme, setTheme: apply, toggle };
