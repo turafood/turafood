@@ -412,3 +412,23 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# ============================================================
+# Edge Functions
+# ============================================================
+
+# ePayco llama acá para avisar si un pago quedó bueno. Llega desde
+# los servidores de ePayco, no desde un navegador con sesión: no
+# trae ni puede traer un JWT de Supabase. Con la verificación
+# encendida (el valor por defecto) Supabase le responde 401 y NINGÚN
+# pago se confirma nunca.
+#
+# Que quede abierta no la deja sin llave: la función valida la firma
+# `x_signature` de ePayco contra P_CUST_ID_CLIENTE y P_KEY, que es
+# la autenticación que ePayco define para esto.
+[functions.epayco-webhook]
+verify_jwt = false
+
+# Ésta sí exige JWT: la llama el cron con la llave de servicio.
+[functions.mailerlite-sync]
+verify_jwt = true
