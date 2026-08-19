@@ -1,199 +1,34 @@
 -- ============================================================================
---  TURAFOOD — TRES COSAS EN UNA
+--  TURAFOOD — LO QUE TE FALTA CORRER (solo esto)
 --
---  Pegá TODO esto en:  Supabase -> SQL Editor -> New query -> Run
+--  Pegá TODO en:  Supabase -> SQL Editor -> New query -> Run
 --
---   1. LA COMISION SIGUE AL NICHO (es plata)
---      Hoy una licoreria o drogueria que entra por el arranque queda
---      pagando 10% cuando le corresponde 15%. Incluye la reparacion
---      de los que ya quedaron mal.
+--  Verifiqué contra tu base cuál faltaba. La de la comisión YA la
+--  corriste, así que no está acá. Estas dos son las que faltan:
 --
---   2. VERIFICACION SIN PAPELES
---      Se acabaron RUT, camara de comercio y concepto sanitario. Dos
---      columnas nuevas: con quien se habla y cuando quedo la
---      videollamada.
+--   1. VERIFICACION SIN PAPELES
+--      Dos columnas: con quién habla el equipo y cuándo quedó la
+--      videollamada. Sin esto, el primer paso de la verificación
+--      no guarda.
+--
+--   2. EL REPARTIDOR NO ACUMULA SUS ENTREGAS  (es plata)
+--      Entrega, se le paga bien en el pedido, pero su historial no
+--      se mueve: sigue en las mismas entregas y las mismas
+--      ganancias. La pantalla de Ganancias muestra siempre el mismo
+--      numero y el nivel nunca sube.
 --
 --   3. METRICAS DE PRODUCTO
---      Se empieza a medir cuanta gente ve cada plato, cuantos lo
---      echan al carrito y cuantos lo compran. Antes no existia
---      NINGUN registro de eso.
+--      Empieza a medir cuánta gente ve cada plato, cuántos lo echan
+--      al carrito y cuántos lo compran. Sin esto, el popup de
+--      métricas muestra un error.
+--
+--      Trae corregido el error 42P17 que te salió: el índice usaba
+--      `created_at::date`, que depende de la zona horaria de quien
+--      pregunta. Ahora va fijo a la hora de Colombia.
 --
 --  Es seguro correrlo dos veces.
 -- ============================================================================
 
-
-
--- ############################################################
--- ##  20260818000011_comision_sigue_al_nicho.sql
--- ############################################################
-
--- ============================================================
--- TURAFOOD — Que la comisión siga al nicho de verdad
---
--- Al escribir `guardar_onboarding` puse este comentario: "la comisión
--- sale del vertical, y el vertical del nicho. Nunca de lo que mande
--- el navegador". Era falso, y lo comprobé probándolo: una licorería
--- que contesta el arranque queda con vertical = 'liquor' y comisión
--- del 10%, cuando licores paga 15%.
---
--- POR QUÉ PASABA
---
--- El trigger `set_default_commission` corre BEFORE INSERT y clava
--- `commission_rate` con el valor del vertical de ese momento — que al
--- crear la cuenta siempre es 'restaurant', porque el nicho todavía no
--- se ha preguntado. Después `effective_commission_rate` hace
--- COALESCE(commission_rate, default_commission_rate(vertical)): como
--- `commission_rate` ya tiene un número, el vertical nunca se mira.
---
--- Cambiar el vertical no cambiaba nada. Cada droguería y cada
--- licorería que entrara por el arranque nuevo pagaría 10% en vez de
--- 15%, para siempre y sin que nadie lo notara.
---
--- CÓMO SE ARREGLA
---
--- `guardar_onboarding` mueve la comisión junto con el vertical, pero
--- SOLO si todavía tiene el valor por defecto del vertical anterior.
--- Si un admin le negoció una tarifa especial, esa no se toca — es
--- justo el caso que la columna existe para soportar.
--- ============================================================
-
-
--- ------------------------------------------------------------
--- 1. Una puerta para las funciones de la casa
---
--- `guard_business_privileged_fields` revierte `commission_rate` en
--- todo UPDATE que no venga de un admin. `guardar_onboarding` es
--- SECURITY DEFINER, pero `auth.uid()` adentro sigue siendo el
--- negocio, así que `is_admin()` da falso y el guard le revertiría el
--- cambio.
---
--- Misma solución que ya usa `place_order` con los montos: una marca
--- que solo vive dentro de la transacción que la encendió. No la puede
--- prender nadie desde el navegador — `set_config` no se expone por
--- PostgREST.
--- ------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.guard_business_privileged_fields()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-    IF public.is_admin() THEN
-        RETURN NEW;
-    END IF;
-
-    -- Las funciones de la base que sí tienen derecho a mover esto
-    IF COALESCE(current_setting('turafood.sella_negocio', true), '') = 'on' THEN
-        RETURN NEW;
-    END IF;
-
-    NEW.status           := OLD.status;
-    NEW.commission_rate  := OLD.commission_rate;
-    NEW.reviewed_at      := OLD.reviewed_at;
-    NEW.reviewed_by      := OLD.reviewed_by;
-    NEW.rejection_reason := OLD.rejection_reason;
-    NEW.rating           := OLD.rating;
-    NEW.reviews_count    := OLD.reviews_count;
-    NEW.total_orders     := OLD.total_orders;
-    NEW.pro_plan         := OLD.pro_plan;
-    NEW.pro_plan_expires_at := OLD.pro_plan_expires_at;
-
-    RETURN NEW;
-END;
-$$;
-
-
--- ------------------------------------------------------------
--- 2. El arranque mueve la comisión con el vertical
--- ------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.guardar_onboarding(p_respuestas JSONB)
-RETURNS public.business_profiles
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-    v_biz       UUID := auth.uid();
-    v_nicho     TEXT := NULLIF(TRIM(p_respuestas->>'nicho'), '');
-    v_actual    public.business_profiles%ROWTYPE;
-    v_vertical  TEXT;
-    v_comision  NUMERIC;
-    v_fila      public.business_profiles%ROWTYPE;
-BEGIN
-    IF v_biz IS NULL THEN
-        RAISE EXCEPTION 'Hay que estar dentro de una sesión';
-    END IF;
-
-    SELECT * INTO v_actual FROM business_profiles WHERE id = v_biz;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Esta cuenta no tiene un negocio';
-    END IF;
-
-    v_vertical := COALESCE(public.vertical_de_nicho(v_nicho), v_actual.vertical);
-
-    -- La comisión se mueve SOLO si todavía es la de por defecto del
-    -- vertical viejo. Si un admin le puso una tarifa negociada, esa
-    -- manda: es exactamente para eso que existe la columna.
-    v_comision := v_actual.commission_rate;
-
-    IF v_vertical IS DISTINCT FROM v_actual.vertical
-       AND v_actual.commission_rate IS NOT DISTINCT FROM
-           public.default_commission_rate(v_actual.vertical)
-    THEN
-        v_comision := public.default_commission_rate(v_vertical);
-    END IF;
-
-    PERFORM set_config('turafood.sella_negocio', 'on', true);
-
-    UPDATE business_profiles
-       SET nicho           = COALESCE(v_nicho, nicho),
-           vertical        = v_vertical,
-           commission_rate = v_comision,
-           onboarding      = p_respuestas,
-           onboarding_at   = now()
-     WHERE id = v_biz
-    RETURNING * INTO v_fila;
-
-    PERFORM set_config('turafood.sella_negocio', 'off', true);
-
-    RETURN v_fila;
-END;
-$$;
-
-REVOKE ALL ON FUNCTION public.guardar_onboarding(JSONB) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.guardar_onboarding(JSONB) TO authenticated;
-
-
--- ------------------------------------------------------------
--- 3. Reparar a los que ya quedaron con la comisión equivocada
---
--- Solo los que tienen exactamente la tarifa por defecto de OTRO
--- vertical. A quien tenga una tarifa negociada no se le toca.
--- ------------------------------------------------------------
-DO $$
-DECLARE
-    v_n INT;
-BEGIN
-    PERFORM set_config('turafood.sella_negocio', 'on', true);
-
-    UPDATE public.business_profiles b
-       SET commission_rate = public.default_commission_rate(b.vertical)
-     WHERE b.commission_rate IS DISTINCT FROM public.default_commission_rate(b.vertical)
-       -- Solo si lo que tiene es el default de algún vertical, o sea
-       -- que nadie se lo negoció a mano.
-       AND b.commission_rate IN (
-           SELECT DISTINCT public.default_commission_rate(v)
-             FROM unnest(ARRAY['restaurant','market','pharmacy','liquor','store','turbo','boat']) AS v
-       );
-
-    GET DIAGNOSTICS v_n = ROW_COUNT;
-
-    PERFORM set_config('turafood.sella_negocio', 'off', true);
-
-    RAISE NOTICE 'Negocios con la comisión corregida a la de su vertical: %', v_n;
-END;
-$$;
 
 
 -- ############################################################
@@ -297,8 +132,22 @@ CREATE INDEX IF NOT EXISTS idx_pevents_negocio
 -- Una persona, un evento de cada tipo por producto y por día. Sin
 -- esto, alguien que abre la ficha cinco veces cuenta como cinco
 -- personas y el número deja de significar algo.
+--
+-- OJO CON EL DÍA: la primera versión usaba `created_at::date` y
+-- Postgres la rechazó con 42P17 —"functions in index expression must
+-- be marked IMMUTABLE"— y con razón: pasar de `timestamptz` a `date`
+-- depende de la zona horaria de quien pregunta, así que el mismo dato
+-- caería en días distintos según quién lo lea. Un índice no puede
+-- depender de eso.
+--
+-- Fijar la zona a Bogotá lo vuelve inmutable y además es lo correcto
+-- para el negocio: el "día" de una venta en Buenaventura es el día en
+-- Buenaventura, no el del servidor.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_pevents_unico
-    ON public.product_events (product_id, kind, huella, (created_at::date))
+    ON public.product_events (
+        product_id, kind, huella,
+        ((created_at AT TIME ZONE 'America/Bogota')::date)
+    )
     WHERE huella IS NOT NULL;
 
 COMMENT ON TABLE public.product_events IS
@@ -453,4 +302,188 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.metricas_producto(UUID, INT) TO authenticated;
+
+
+
+-- ############################################################
+-- ##  20260818000014_historial_repartidor.sql
+-- ############################################################
+
+-- ============================================================
+-- TURAFOOD — Que al repartidor le cuenten las entregas
+--
+-- Encontrado haciendo una entrega completa: el pedido queda
+-- `delivered`, con `courier_earnings` de $6.900 bien calculado… y el
+-- historial del repartidor no se movió. Seguía en 1.284 entregas y
+-- $4.820.000, exactamente igual que antes.
+--
+-- POR QUÉ
+--
+-- `complete_delivery` termina con:
+--
+--     UPDATE courier_profiles
+--        SET total_deliveries = total_deliveries + 1,
+--            total_earnings   = total_earnings + courier_earnings
+--
+-- Pero sobre esa tabla vive `guard_courier_privileged_fields`, que
+-- revierte justo esas dos columnas para todo el que no sea admin. La
+-- función es SECURITY DEFINER, sí — pero `auth.uid()` adentro sigue
+-- siendo el repartidor, así que `is_admin()` da falso y el guard le
+-- deshace el UPDATE.
+--
+-- El guard está bien: sin él, cualquier repartidor se pondría un
+-- millón de ganancias desde el navegador. Lo que faltaba era una
+-- puerta para las funciones de la casa.
+--
+-- CONSECUENCIA SI NO SE ARREGLA
+--
+-- La pantalla de Ganancias muestra siempre el mismo número, el nivel
+-- (Bronce, Plata…) nunca sube, y lo que se le debe a cada repartidor
+-- no queda registrado en ningún lado. Es plata.
+--
+-- Es la tercera vez que aparece este mismo patrón —montos del pedido,
+-- comisión del negocio y ahora esto—: una función SECURITY DEFINER
+-- chocando contra un guard que solo deja pasar a `is_admin()`.
+-- ============================================================
+
+
+-- ------------------------------------------------------------
+-- 1. La puerta para las funciones de la casa
+-- ------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.guard_courier_privileged_fields()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    IF public.is_admin() THEN
+        RETURN NEW;
+    END IF;
+
+    -- Las funciones de la base que sí tienen derecho a mover esto.
+    -- La marca solo vive dentro de la transacción que la encendió y
+    -- no se puede prender desde el navegador: `set_config` no se
+    -- expone por PostgREST.
+    IF COALESCE(current_setting('turafood.sella_repartidor', true), '') = 'on' THEN
+        RETURN NEW;
+    END IF;
+
+    NEW.approval_status  := OLD.approval_status;
+    NEW.commission_rate  := OLD.commission_rate;
+    NEW.total_earnings   := OLD.total_earnings;
+    NEW.total_deliveries := OLD.total_deliveries;
+    NEW.pro_plan         := OLD.pro_plan;
+    NEW.pro_plan_expires_at := OLD.pro_plan_expires_at;
+
+    RETURN NEW;
+END;
+$$;
+
+
+-- ------------------------------------------------------------
+-- 2. `complete_delivery`, marcada
+--
+-- Se reescribe completa para no perder nada de lo que ya hacía: el
+-- bloqueo de la fila, el código de entrega y la idempotencia.
+-- ------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.complete_delivery(
+    p_order_id UUID,
+    p_code     TEXT
+)
+RETURNS public.orders
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_row      public.orders%ROWTYPE;
+    v_expected TEXT;
+BEGIN
+    SELECT * INTO v_row
+      FROM public.orders
+     WHERE id = p_order_id AND courier_id = auth.uid()
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Ese pedido no está asignado a ti';
+    END IF;
+
+    IF v_row.status = 'delivered' THEN
+        RETURN v_row;   -- idempotente: reintentar no suma dos veces
+    END IF;
+
+    v_expected := right(regexp_replace(v_row.order_number, '\D', '', 'g'), 4);
+
+    IF p_code IS DISTINCT FROM v_expected THEN
+        RAISE EXCEPTION 'Código incorrecto';
+    END IF;
+
+    UPDATE public.orders
+       SET status       = 'delivered',
+           delivered_at = now()
+     WHERE id = p_order_id
+    RETURNING * INTO v_row;
+
+    -- Acá estaba el problema: sin la marca, el guard revertía las dos
+    -- columnas y la entrega no se le contaba a nadie.
+    PERFORM set_config('turafood.sella_repartidor', 'on', true);
+
+    UPDATE public.courier_profiles
+       SET total_deliveries = total_deliveries + 1,
+           total_earnings   = total_earnings + COALESCE(v_row.courier_earnings, 0)
+     WHERE id = auth.uid();
+
+    PERFORM set_config('turafood.sella_repartidor', 'off', true);
+
+    RETURN v_row;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.complete_delivery(UUID, TEXT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.complete_delivery(UUID, TEXT) TO authenticated;
+
+
+-- ------------------------------------------------------------
+-- 3. Reconstruir el historial de quien ya entregó
+--
+-- Las entregas que se hicieron mientras el guard las revertía no se
+-- contaron. Se recalculan desde `orders`, que es la fuente de verdad.
+--
+-- OJO: los repartidores de prueba traen números sembrados a mano
+-- (1.284 entregas, $4.820.000) que no corresponden a ningún pedido
+-- real. Recalcular los dejaría en su cifra real, que es lo correcto —
+-- pero se hace solo para quien TIENE pedidos entregados de verdad,
+-- para no borrar la demo de un plumazo.
+-- ------------------------------------------------------------
+DO $$
+DECLARE
+    v_n INT;
+BEGIN
+    PERFORM set_config('turafood.sella_repartidor', 'on', true);
+
+    WITH reales AS (
+        SELECT courier_id,
+               count(*)                              AS entregas,
+               COALESCE(sum(courier_earnings), 0)    AS ganado
+          FROM public.orders
+         WHERE status = 'delivered'
+           AND courier_id IS NOT NULL
+           AND NOT is_demo
+         GROUP BY courier_id
+    )
+    UPDATE public.courier_profiles c
+       SET total_deliveries = GREATEST(c.total_deliveries, r.entregas),
+           total_earnings   = GREATEST(c.total_earnings, r.ganado)
+      FROM reales r
+     WHERE c.id = r.courier_id
+       AND (c.total_deliveries < r.entregas OR c.total_earnings < r.ganado);
+
+    GET DIAGNOSTICS v_n = ROW_COUNT;
+
+    PERFORM set_config('turafood.sella_repartidor', 'off', true);
+
+    RAISE NOTICE 'Repartidores con el historial al día: %', v_n;
+END;
+$$;
 
