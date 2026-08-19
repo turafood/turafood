@@ -42,7 +42,10 @@ BEGIN
             phone, phone_confirmed_at,
             encrypted_password,
             raw_app_meta_data, raw_user_meta_data,
-            created_at, updated_at
+            created_at, updated_at,
+            -- Ver seed-usuarios-prueba.sql: en NULL rompen el login
+            confirmation_token, email_change,
+            email_change_token_new, recovery_token
         ) VALUES (
             '00000000-0000-0000-0000-000000000000', v_id,
             'authenticated', 'authenticated',
@@ -50,7 +53,8 @@ BEGIN
             extensions.crypt(v_pass, extensions.gen_salt('bf')),
             '{"provider":"phone","providers":["phone"]}'::jsonb,
             jsonb_build_object('full_name', v_nombre, 'role', v_rol),
-            now(), now()
+            now(), now(),
+            '', '', '', ''
         );
     ELSE
         UPDATE auth.users

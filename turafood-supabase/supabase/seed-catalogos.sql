@@ -93,14 +93,18 @@ BEGIN
             INSERT INTO auth.users (
                 instance_id, id, aud, role, email, encrypted_password,
                 email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
-                created_at, updated_at
+                created_at, updated_at,
+                -- Ver seed-usuarios-prueba.sql: en NULL rompen el login
+                confirmation_token, email_change,
+                email_change_token_new, recovery_token
             ) VALUES (
                 '00000000-0000-0000-0000-000000000000', r.id,
                 'authenticated', 'authenticated', r.email,
                 extensions.crypt(v_password, extensions.gen_salt('bf')), now(),
                 '{"provider":"email","providers":["email"]}'::jsonb,
                 jsonb_build_object('full_name', r.name, 'role', 'business'),
-                now(), now()
+                now(), now(),
+                '', '', '', ''
             );
             v_id := r.id;
         END IF;

@@ -69,6 +69,15 @@ BEGIN
         RETURN 0;
     END IF;
 
+    -- Sin menú no hay comanda que sembrar. Cuatro pedidos vacíos, sin
+    -- productos y en cero pesos, enseñan menos que un tablero vacío:
+    -- parecen un error del sistema y no un ejemplo.
+    IF NOT EXISTS (
+        SELECT 1 FROM products WHERE business_id = v_biz AND is_available
+    ) THEN
+        RETURN 0;
+    END IF;
+
     -- Volver a llamarla no acumula: se borran los de antes
     DELETE FROM order_items
      WHERE order_id IN (SELECT id FROM orders WHERE business_id = v_biz AND is_demo);

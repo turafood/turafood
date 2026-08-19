@@ -64,7 +64,12 @@ BEGIN
                 instance_id, id, aud, role, email,
                 encrypted_password, email_confirmed_at,
                 raw_app_meta_data, raw_user_meta_data,
-                created_at, updated_at
+                created_at, updated_at,
+                -- GoTrue lee estas columnas como texto: en NULL no las
+                -- puede leer y el login devuelve "Database error
+                -- querying schema". Van en cadena vacia, no nulas.
+                confirmation_token, email_change,
+                email_change_token_new, recovery_token
             )
             VALUES (
                 '00000000-0000-0000-0000-000000000000',
@@ -74,7 +79,8 @@ BEGIN
                 now(),
                 '{"provider":"email","providers":["email"]}'::jsonb,
                 jsonb_build_object('full_name', r.full_name, 'role', r.role),
-                now(), now()
+                now(), now(),
+                '', '', '', ''
             );
         END IF;
     END LOOP;
