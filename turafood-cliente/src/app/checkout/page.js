@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { anotarVarios } from '@/lib/eventos';
-import { getBusiness, getAddresses, getCoupons, placeOrder } from '@/lib/data';
+import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '@/lib/data';
 import AddressSheet from '../components/AddressSheet';
 import { quote, validateCoupon } from '@/lib/pricing';
 import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
@@ -570,8 +570,10 @@ export default function CheckoutPage() {
         <AddressSheet
           open={addressOpen}
           onClose={() => setAddressOpen(false)}
-          onSave={(nueva) => {
-            setAddresses([nueva, ...addresses.filter((a) => a.id !== nueva.id)]);
+          onSave={async (payload) => {
+            const nueva = await saveAddress(payload);
+            // Replace old array so the new default is at the top
+            setAddresses([nueva, ...addresses.map(a => ({ ...a, is_default: false }))]);
             setAddressOpen(false);
           }}
         />

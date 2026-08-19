@@ -66,14 +66,9 @@ export default function PaymentSheet({
 
         <div style={{ padding: '4px 22px 0' }}>
           <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.07em' }}>
-            TOTAL A PAGAR
+            TOTAL
           </div>
           <div style={S.amount}>{cop(totals.total)}</div>
-          {businessName && (
-            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 3 }}>
-              Pedido en {businessName}
-            </div>
-          )}
         </div>
 
         {/* Desglose */}
@@ -145,13 +140,9 @@ export default function PaymentSheet({
         {transferir && (
           <div style={S.transferir}>
             <span style={S.transferirLabel}>
-              {method === 'nequi' ? 'TRANSFIERE A ESTE NEQUI' : 'TRANSFIERE A ESTE DAVIPLATA'}
+              {method === 'nequi' ? 'TRANSFIERE A NEQUI' : 'TRANSFIERE A DAVIPLATA'}
             </span>
             <span style={S.transferirNumero}>{formatearCel(transferir)}</span>
-            <span style={S.transferirNota}>
-              {businessName ? `La cuenta es de ${businessName}.` : ''} Guarda el
-              comprobante: te lo pueden pedir al recibir.
-            </span>
           </div>
         )}
 
@@ -166,12 +157,9 @@ export default function PaymentSheet({
             {porWhatsapp ? 'chat' : 'lock'}
           </span>
           <span>
-            {porWhatsapp &&
-              `Tu pedido queda hecho y le llega a ${businessName ?? 'el restaurante'} por WhatsApp con todo el detalle. El pago lo acuerdas ahí mismo con ellos.`}
-            {!porWhatsapp && online &&
-              'Pago cifrado procesado por ePayco. Tus datos de tarjeta no pasan por TuraFood.'}
-            {!porWhatsapp && !online &&
-              'Pagas en efectivo al recibir. Ten el monto listo para el repartidor.'}
+            {porWhatsapp && 'El pedido se enviará por WhatsApp.'}
+            {!porWhatsapp && online && 'Pago 100% seguro por ePayco.'}
+            {!porWhatsapp && !online && 'Pagas en efectivo al recibir.'}
           </span>
         </div>
 
@@ -186,15 +174,15 @@ export default function PaymentSheet({
                 <span className="ms" style={{ fontSize: 19, animation: 'spin 1s linear infinite' }}>
                   progress_activity
                 </span>
-                {porWhatsapp ? 'Armando tu pedido…' : 'Conectando con la pasarela…'}
+                {porWhatsapp ? 'Enviando…' : 'Cargando…'}
               </>
             ) : (
               <>
                 {online && <span className="ms" style={{ fontSize: 19 }}>lock</span>}
                 {porWhatsapp && <span className="ms" style={{ fontSize: 19 }}>chat</span>}
-                {porWhatsapp && `Continuar por WhatsApp · ${cop(totals.total)}`}
-                {!porWhatsapp && online && `Pagar ${cop(totals.total)}`}
-                {!porWhatsapp && !online && `Confirmar pedido · ${cop(totals.total)}`}
+                {porWhatsapp && `Pedir por WhatsApp · ${cop(totals.total)}`}
+                {!porWhatsapp && online && `Pagar · ${cop(totals.total)}`}
+                {!porWhatsapp && !online && `Confirmar · ${cop(totals.total)}`}
               </>
             )}
           </button>
