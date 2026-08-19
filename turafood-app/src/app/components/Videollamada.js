@@ -35,8 +35,10 @@ import { useEffect, useRef, useState } from 'react';
 
 const WHATSAPP_EQUIPO = '573137594713';
 const ORIGEN = 'https://app.cal.com';
-const ESPACIO = '30min';
-const ENLACE = 'turafood/30min';
+// El evento real del equipo. `ESPACIO` es solo el nombre interno con
+// el que el embed guarda su instancia; `ENLACE` es el que importa.
+const ESPACIO = 'reunion';
+const ENLACE = 'turafood/reunion';
 
 /** Para no volver a inyectar el script si ya está */
 let scriptPedido = false;
