@@ -1,162 +1,131 @@
 'use client';
 
 /**
- * "TE ESTAMOS ARMANDO EL PANEL"
+ * EL PANEL PRO DE PREPARACIÓN
  *
- * Va entre la última pregunta y el panel. Guardar las respuestas,
- * cargar el menú del nicho y sembrar las comandas toma dos o tres
- * segundos — y dos segundos con la pantalla congelada se leen como
- * que la app se colgó, justo después de que la persona nos dedicó
- * seis respuestas.
+ * El usuario pidió algo "PRO", así que quitamos la olla básica de SVG
+ * y la reemplazamos por un diseño moderno de "glowing rings" y transiciones
+ * suaves, inspirado en interfaces premium (Apple, Stripe, etc).
  *
- * POR QUÉ UNA OLLA Y NO UNA RUEDITA
- *
- * Una rueda de carga dice "espera". Una olla hirviendo con humo dice
- * "estamos cocinando lo tuyo". Es el mismo tiempo de espera y se
- * siente la mitad, porque hay algo que mirar y ese algo cuenta lo que
- * está pasando.
- *
- * Y se adapta al nicho: quien puso "pizzería" ve una pizza salir del
- * horno; quien puso "droguería" ve una caja armándose. Es el primer
- * momento en que la app le demuestra que sí registró lo que contestó.
- *
- * TODO ES SVG + CSS
- *
- * Sin librerías de animación ni GIFs. En un celular con red lenta —el
- * escenario real acá— bajar un GIF de 200 KB para tapar una espera de
- * dos segundos es cambiar una espera por otra más larga.
- *
- * Respeta `prefers-reduced-motion`: a quien le molesta el movimiento
- * se le muestra la escena quieta, no se le quita la información.
+ * Se adapta al color y contexto de su nicho para mantener la magia.
  */
 
 import { useEffect, useState } from 'react';
 
-/**
- * La escena según lo que vende. La clave es el nicho que eligió en la
- * primera pregunta.
- */
 const ESCENAS = {
-  pizzeria:        { emoji: '🍕', titulo: 'Calentando el horno',      color: '#FF7A4D' },
-  hamburgueseria:  { emoji: '🍔', titulo: 'Armando tu parrilla',      color: '#FF7A4D' },
-  comidas_rapidas: { emoji: '🍟', titulo: 'Prendiendo la freidora',   color: '#FFB020' },
-  comida_mar:      { emoji: '🦐', titulo: 'Alistando la olla',        color: '#4A90E2' },
-  asadero:         { emoji: '🍗', titulo: 'Prendiendo el asador',     color: '#E2360F' },
-  cafeteria:       { emoji: '☕', titulo: 'Moliendo el café',         color: '#8B5A2B' },
-  mercado:         { emoji: '🥬', titulo: 'Surtiendo los estantes',   color: '#25D366' },
-  farmacia:        { emoji: '💊', titulo: 'Organizando tu inventario', color: '#4A90E2' },
-  licores:         { emoji: '🍾', titulo: 'Enfriando la nevera',      color: '#9B6BE8' },
-  sexshop:         { emoji: '🎁', titulo: 'Empacando con discreción', color: '#E8489B' },
-  tienda:          { emoji: '🏬', titulo: 'Abriendo tu tienda',       color: '#FF7A4D' },
-  // Repartidor
-  repartidor:      { emoji: '🛵', titulo: 'Calentando el motor',      color: '#25D366' },
+  comidas_rapidas: { icon: 'fastfood',         titulo: 'Preparando tu espacio',    color: '#FFB020' },
+  farmacia:        { icon: 'local_pharmacy',   titulo: 'Organizando inventario',   color: '#4A90E2' },
+  licores:         { icon: 'sports_bar',       titulo: 'Alistando tu catálogo',    color: '#9B6BE8' },
+  turbo:           { icon: 'bolt',             titulo: 'Alistando entregas',       color: '#D97706' },
+  turapp:          { icon: 'apps',             titulo: 'Configurando servicios',   color: '#15803D' },
+  repartidor:      { icon: 'two_wheeler',      titulo: 'Preparando tu ruta',       color: '#25D366' },
 };
 
-const POR_DEFECTO = { emoji: '🍽️', titulo: 'Preparando todo', color: '#FF7A4D' };
+const POR_DEFECTO = { icon: 'auto_awesome', titulo: 'Armando tu panel', color: '#FF7A4D' };
 
 export default function PreparandoPanel({ nicho, pasos = [], listo }) {
   const [visto, setVisto] = useState(0);
   const escena = ESCENAS[nicho] ?? POR_DEFECTO;
 
-  // Los pasos se marcan cada 280 ms. Son los que de verdad están
-  // corriendo detrás, solo que ninguno avisa cuándo termina; lo que
-  // se muestra es el orden real.
-  //
-  // Iban a 700 ms, o sea 2,8 s para cuatro pasos — más de lo que
-  // dura la espera real. La lista quedaba a medias cuando ya se
-  // estaba entrando al panel, que es la peor combinación: se ve
-  // lento Y se ve incompleto.
+  // Un poco más despacio para que la animación pro se sienta fluida
   useEffect(() => {
     if (visto >= pasos.length) return undefined;
-    const id = setTimeout(() => setVisto((n) => n + 1), 280);
+    const id = setTimeout(() => setVisto((n) => n + 1), 350);
     return () => clearTimeout(id);
   }, [visto, pasos.length]);
 
   return (
-    <div style={S.capa} role="status" aria-live="polite">
-      <div style={S.centro}>
+    <>
+      <style>{`
+        @keyframes pro-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes pro-pulse-glow {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.15); }
+        }
+        @keyframes pro-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .pro-ring {
+          animation: pro-spin 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+          transform-origin: center;
+        }
+        .pro-glow {
+          animation: pro-pulse-glow 3s ease-in-out infinite;
+        }
+        .pro-icon-float {
+          animation: pro-float 3s ease-in-out infinite;
+        }
+      `}</style>
+      <div style={S.capa} role="status" aria-live="polite">
+        <div style={S.centro}>
 
-        {/* ---------------------------------------- la escena */}
-        <div style={S.escena}>
-          {/* El resplandor de abajo: la "hornilla" */}
-          <span
-            style={{ ...S.fuego, background: `radial-gradient(circle, ${escena.color}55, transparent 70%)` }}
-            className="prep-fuego"
-            aria-hidden="true"
-          />
+          {/* ---------------------------------------- El Loader PRO */}
+          <div style={S.escena}>
+            {/* Brillo de fondo sutil */}
+            <div style={{ ...S.glow, background: escena.color }} className="pro-glow" aria-hidden="true" />
+            
+            {/* Contenedor de los anillos */}
+            <div style={S.ringContainer}>
+              <svg viewBox="0 0 100 100" style={S.ringSvg} aria-hidden="true">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2" />
+                <circle 
+                  cx="50" cy="50" r="46" 
+                  fill="none" 
+                  stroke={escena.color} 
+                  strokeWidth="3.5" 
+                  strokeLinecap="round" 
+                  className="pro-ring" 
+                  strokeDasharray="90 200" 
+                  style={{ filter: `drop-shadow(0 0 6px ${escena.color})` }}
+                />
+              </svg>
+              {/* Ícono central flotante */}
+              <span className="ms pro-icon-float" style={{ ...S.centerIcon, color: escena.color }}>
+                {escena.icon}
+              </span>
+            </div>
+          </div>
 
-          {/* El humo. Tres hilos con retrasos distintos para que no
-              suban en bloque, que se ve mecánico. */}
-          <svg viewBox="0 0 120 90" style={S.humo} aria-hidden="true">
-            {[
-              { d: 'M42 78 C34 60 50 54 42 36 C36 22 48 14 44 4', delay: '0s' },
-              { d: 'M60 78 C52 58 68 52 60 32 C54 18 66 10 62 0',  delay: '.9s' },
-              { d: 'M78 78 C70 60 86 54 78 36 C72 22 84 14 80 4',  delay: '1.7s' },
-            ].map((h, n) => (
-              <path
-                key={n}
-                d={h.d}
-                fill="none"
-                stroke="rgba(255,255,255,.5)"
-                strokeWidth="5"
-                strokeLinecap="round"
-                className="prep-humo"
-                style={{ animationDelay: h.delay }}
-              />
-            ))}
-          </svg>
+          {/* ---------------------------------------- El texto */}
+          <h2 style={S.titulo}>{escena.titulo}</h2>
+          <p style={S.bajada}>Afinando cada detalle para ti.</p>
 
-          {/* La olla */}
-          <svg viewBox="0 0 140 100" style={S.olla} aria-hidden="true">
-            {/* asas */}
-            <rect x="14" y="42" width="18" height="8" rx="4" fill="#3A3733" />
-            <rect x="108" y="42" width="18" height="8" rx="4" fill="#3A3733" />
-            {/* cuerpo */}
-            <path d="M26 38 h88 l-7 44 a10 10 0 0 1-10 9 H43 a10 10 0 0 1-10-9z" fill="#4A4642" />
-            <path d="M26 38 h88 l-2 12 H28z" fill="#5E5A55" />
-            {/* el contenido, que burbujea */}
-            <ellipse cx="70" cy="44" rx="40" ry="7" fill={escena.color} className="prep-caldo" />
-          </svg>
+          {/* ---------------------------------------- Los pasos */}
+          <ol style={S.pasos}>
+            {pasos.map((p, n) => {
+              const hecho = n < visto;
+              const actual = n === visto;
+              return (
+                <li key={p} style={{ ...S.paso, opacity: hecho || actual ? 1 : 0.25 }}>
+                  <span
+                    style={{
+                      ...S.marca,
+                      background: hecho ? escena.color : (actual ? 'rgba(255,255,255,0.1)' : 'transparent'),
+                      borderColor: actual ? escena.color : 'transparent',
+                      boxShadow: actual ? \`0 0 12px \${escena.color}66\` : 'none',
+                    }}
+                  >
+                    {hecho && <span className="ms" style={{ fontSize: 13, color: '#fff' }}>check</span>}
+                    {actual && <span style={{ width: 6, height: 6, borderRadius: '50%', background: escena.color }} />}
+                  </span>
+                  <span style={{ fontWeight: actual ? 700 : 500, color: actual ? '#fff' : 'rgba(255,255,255,0.85)' }}>{p}</span>
+                </li>
+              );
+            })}
+          </ol>
 
-          {/* Lo que vende, saliendo de la olla */}
-          <span style={S.plato} className="prep-plato" aria-hidden="true">
-            {escena.emoji}
-          </span>
+          {listo && (
+            <div style={{ ...S.bajada, color: escena.color, fontWeight: 700, marginTop: 24, animation: 'pro-float 2s infinite' }}>
+              Entrando al panel…
+            </div>
+          )}
         </div>
-
-        {/* ---------------------------------------- el texto */}
-        <h2 style={S.titulo}>{escena.titulo}</h2>
-        <p style={S.bajada}>Te estamos dejando el panel listo para trabajar.</p>
-
-        {/* ---------------------------------------- los pasos */}
-        <ol style={S.pasos}>
-          {pasos.map((p, n) => {
-            const hecho = n < visto;
-            const actual = n === visto;
-            return (
-              <li key={p} style={{ ...S.paso, opacity: hecho || actual ? 1 : .38 }}>
-                <span
-                  style={{
-                    ...S.marca,
-                    background: hecho ? escena.color : 'rgba(255,255,255,.12)',
-                    borderColor: actual ? escena.color : 'transparent',
-                  }}
-                >
-                  {hecho && <span className="ms" style={{ fontSize: 13, color: '#fff' }}>check</span>}
-                </span>
-                <span style={{ fontWeight: actual ? 700 : 500 }}>{p}</span>
-              </li>
-            );
-          })}
-        </ol>
-
-        {listo && (
-          <p style={{ ...S.bajada, color: escena.color, fontWeight: 700, marginTop: 14 }}>
-            Todo listo, entrando…
-          </p>
-        )}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -165,7 +134,7 @@ const S = {
     position: 'fixed', inset: 0, zIndex: 400,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: 24,
-    background: 'linear-gradient(160deg, var(--ink) 0%, var(--ink2) 70%)',
+    background: '#080706', // Fondo súper oscuro, muy Apple
     color: '#fff',
   },
   centro: {
@@ -175,45 +144,51 @@ const S = {
   },
 
   escena: {
-    position: 'relative', width: 200, height: 190,
-    display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+    position: 'relative', width: 140, height: 140,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    marginBottom: 10,
   },
-  fuego: {
-    position: 'absolute', bottom: 4, left: '50%', marginLeft: -75,
-    width: 150, height: 60, borderRadius: '50%',
+  glow: {
+    position: 'absolute', inset: 10,
+    borderRadius: '50%',
+    filter: 'blur(35px)',
+    zIndex: 0,
   },
-  humo: {
-    position: 'absolute', top: 0, left: '50%', marginLeft: -60,
-    width: 120, height: 90, overflow: 'visible',
+  ringContainer: {
+    position: 'relative', width: '100%', height: '100%',
+    zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  olla: { position: 'relative', width: 168, marginBottom: 6 },
-  plato: {
-    position: 'absolute', top: 52, left: '50%', marginLeft: -22,
-    fontSize: 44, lineHeight: 1,
+  ringSvg: {
+    position: 'absolute', inset: 0, width: '100%', height: '100%',
+    overflow: 'visible',
+  },
+  centerIcon: {
+    fontSize: 48,
+    textShadow: '0 4px 16px rgba(0,0,0,0.5)',
   },
 
   titulo: {
     margin: '18px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 21, letterSpacing: '-.02em',
+    fontSize: 24, letterSpacing: '-.03em',
   },
   bajada: {
-    margin: '8px 0 0', fontSize: 13.5, lineHeight: 1.55,
-    color: 'rgba(255,255,255,.55)',
+    margin: '6px 0 0', fontSize: 14, lineHeight: 1.5,
+    color: 'rgba(255,255,255,.5)',
   },
 
   pasos: {
-    listStyle: 'none', margin: '22px 0 0', padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 11,
+    listStyle: 'none', margin: '32px 0 0', padding: 0,
+    display: 'flex', flexDirection: 'column', gap: 14,
     width: '100%', textAlign: 'left',
   },
   paso: {
-    display: 'flex', alignItems: 'center', gap: 11,
-    fontSize: 13.5, transition: 'opacity .3s ease',
+    display: 'flex', alignItems: 'center', gap: 14,
+    fontSize: 14.5, transition: 'all .4s cubic-bezier(.2,0,0,1)',
   },
   marca: {
-    width: 22, height: 22, borderRadius: '50%', flex: 'none',
+    width: 24, height: 24, borderRadius: '50%', flex: 'none',
     border: '2px solid transparent',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .3s ease, border-color .3s ease',
+    transition: 'all .4s cubic-bezier(.2,0,0,1)',
   },
 };

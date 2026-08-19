@@ -109,39 +109,29 @@ export default function EntrarPage() {
       nicho: preguntando === 'business' ? respuestas.nicho : 'repartidor',
     });
 
-    // 1,1 s es lo que tarda el ojo en registrar la escena y leer el
-    // título. Antes eran 2,2 s "para que se aprecie", y se sentían
-    // eternos: la persona ya contestó seis preguntas y lo único que
-    // quiere es entrar.
-    const minimo = new Promise((r) => setTimeout(r, 1100));
+    // Subimos el tiempo mínimo a 2,8s para que tengan el tiempo
+    // de apreciar el nuevo "Motion Graphic PRO" que implementamos.
+    // Antes estaba en 1,1s y parpadeaba muy rápido.
+    const minimo = new Promise((r) => setTimeout(r, 2800));
 
     try {
       await Promise.all([guardarArranque(preguntando, respuestas), minimo]);
     } catch {
-      // Perder las respuestas es molesto; dejarlo trancado en la
-      // puerta es peor. Entra igual y el panel se arma genérico.
       await minimo;
     }
     entrarAlPanel();
   };
 
   const entrarAlPanel = () => {
-    // Directo a su panel, NO a '/'.
-    //
-    // Ir a '/' obligaba al proxy a leer el perfil en la base para
-    // saber el rol y recién ahí redirigir: un viaje completo al
-    // servidor, con la pantalla ya en blanco, después de la
-    // animación. El rol lo sabemos acá desde que tocó el botón.
+    // Directo a su panel.
     const destino = preguntando === 'business' ? '/negocio' : '/repartidor';
 
-    // El orden importa: primero se pide la navegación y DESPUÉS se
-    // apaga la escena. Al revés queda un parpadeo en blanco entre que
-    // desaparece la olla y aparece el panel.
+    // No limpiamos el estado (setPreparando(null)).
+    // Si lo hacemos, React desmonta el loader inmediatamente y el usuario
+    // ve la pantalla de login de nuevo por un segundo mientras Next.js
+    // navega a la siguiente ruta. Al cambiar de ruta, la página entera
+    // se desmontará sola de todas formas.
     router.replace(destino);
-
-    setPreguntando(null);
-    setPreparando(null);
-    setGuardandoArranque(false);
   };
 
   if (preparando) {

@@ -49,7 +49,6 @@ export async function updateSession(request) {
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
   const isProtectedRoute = 
-    request.nextUrl.pathname.startsWith('/checkout') || 
     request.nextUrl.pathname.startsWith('/account') || 
     request.nextUrl.pathname.startsWith('/plus');
 

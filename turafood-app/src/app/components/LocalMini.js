@@ -21,17 +21,11 @@
 
 /** El toldo toma el color del nicho. Si no hay nicho, el de la marca. */
 const TOLDO = {
-  pizzeria:        ['#FF8A5C', '#E2360F'],
-  hamburgueseria:  ['#FFB57A', '#E2360F'],
   comidas_rapidas: ['#FFD08A', '#F59E0B'],
-  comida_mar:      ['#8ECBFF', '#2E6BFF'],
-  asadero:         ['#FF9A6C', '#C2410C'],
-  cafeteria:       ['#C9A27A', '#7C4A1E'],
-  mercado:         ['#8FE3B0', '#11B26A'],
   farmacia:        ['#8FD6FF', '#0E7490'],
   licores:         ['#C9A7FF', '#7C3AED'],
-  sexshop:         ['#FFA6D2', '#DB2777'],
-  tienda:          ['#FFB57A', '#FF7A4D'],
+  turbo:           ['#FDE68A', '#D97706'],
+  turapp:          ['#86EFAC', '#15803D'],
 };
 
 const POR_DEFECTO = ['#FFB57A', '#FF7A4D'];

@@ -27,61 +27,16 @@ export const PREGUNTAS_NEGOCIO = [
   {
     id: 'nicho',
     titulo: '¿Qué vendes?',
-    bajada: 'Con esto te armamos el menú de ejemplo y el panel a tu medida.',
-    columnas: 2,
+    bajada: 'Con esto te armamos el panel a tu medida.',
+    columnas: 1,
     opciones: [
-      { id: 'comidas_rapidas', label: 'Comidas rápidas' },
-      { id: 'hamburgueseria',  label: 'Hamburguesas' },
-      { id: 'pizzeria',        label: 'Pizzería' },
-      { id: 'comida_mar',      label: 'Comida de mar' },
-      { id: 'asadero',         label: 'Asadero / pollo' },
-      { id: 'cafeteria',       label: 'Café o repostería' },
-      { id: 'mercado',         label: 'Mercado o fruver' },
-      { id: 'farmacia',        label: 'Droguería' },
-      { id: 'licores',         label: 'Licores' },
-      { id: 'sexshop',         label: 'Sexshop' },
-      { id: 'tienda',          label: 'Otra tienda' },
+      { id: 'comidas_rapidas', label: 'Comidas Rápidas', detalle: 'Pizzería, hamburguesas, salchipapas...', ms: 'fastfood' },
+      { id: 'licores',         label: 'Licores',         detalle: 'Bebidas y estanco', ms: 'sports_bar' },
+      { id: 'farmacia',        label: 'Farmacias',       detalle: 'Droguería y salud', ms: 'local_pharmacy' },
+      { id: 'turbo',           label: 'Turbo',           detalle: 'Entregas ultra rápidas', ms: 'bolt' },
+      { id: 'turapp',          label: 'Turapp',          detalle: 'Otros servicios', ms: 'apps' },
     ],
   },
-
-  {
-    id: 'volumen',
-    titulo: '¿Cuántos pedidos manejas al día?',
-    bajada: 'Más o menos. Es para saber qué tan grande armarte el tablero.',
-    opciones: [
-      { id: '0-10',   label: 'Menos de 10',  detalle: 'Voy arrancando', ms: 'eco', tono: 'bueno' },
-      { id: '10-30',  label: 'Entre 10 y 30', detalle: 'Ya tengo movimiento', ms: 'trending_up', tono: 'bueno' },
-      { id: '30-100', label: 'Entre 30 y 100', detalle: 'Día full', ms: 'local_fire_department', tono: 'ojo' },
-      { id: 'mas100', label: 'Más de 100',   detalle: 'Esto no para', ms: 'rocket_launch', tono: 'ojo' },
-    ],
-  },
-
-  {
-    id: 'canal',
-    titulo: '¿Por dónde te piden hoy?',
-    bajada: 'Puedes marcar varias.',
-    multiple: true,
-    opciones: [
-      { id: 'whatsapp',  label: 'WhatsApp',            ms: 'forum', tono: 'bueno' },
-      { id: 'llamada',   label: 'Me llaman',           ms: 'call', tono: 'neutro' },
-      { id: 'otra_app',  label: 'Otra app de domicilios', ms: 'smartphone', tono: 'frio' },
-      { id: 'local',     label: 'Solo en el local',    ms: 'storefront', tono: 'neutro' },
-      { id: 'redes',     label: 'Instagram o Facebook', ms: 'photo_camera', tono: 'frio' },
-    ],
-  },
-
-  {
-    id: 'reparto',
-    titulo: '¿Quién lleva los pedidos?',
-    bajada: 'Si no tienes, te conectamos con repartidores del puerto.',
-    opciones: [
-      { id: 'propios',  label: 'Tengo mis domiciliarios', detalle: 'Solo necesito organizarlos', ms: 'two_wheeler', tono: 'bueno' },
-      { id: 'ninguno',  label: 'No tengo',                detalle: 'Quiero que ustedes lleven',  ms: 'handshake', tono: 'frio' },
-      { id: 'mixto',    label: 'Tengo, pero no alcanzan', detalle: 'A veces necesito refuerzo',  ms: 'bolt', tono: 'ojo' },
-      { id: 'recogen',  label: 'Me lo recogen',           detalle: 'No mando domicilios',        ms: 'directions_run', tono: 'neutro' },
-    ],
-  },
-
   {
     id: 'dolor',
     titulo: '¿Qué es lo que más te cuesta hoy?',
@@ -92,17 +47,6 @@ export const PREGUNTAS_NEGOCIO = [
       { id: 'cobrar',    label: 'Cobrar y cuadrar caja',   detalle: 'No sé bien cuánto entra',     ms: 'payments', tono: 'bueno' },
       { id: 'entregas',  label: 'Que lleguen a tiempo',    detalle: 'Los domicilios se demoran',   ms: 'timer', tono: 'ojo' },
       { id: 'todo',      label: 'Todo un poco',            detalle: 'Vengo a ver qué me sirve',    ms: 'explore', tono: 'neutro' },
-    ],
-  },
-
-  {
-    id: 'cuando',
-    titulo: '¿Cuándo quieres empezar a vender?',
-    bajada: 'Sin compromiso. Es para saber si te ayudamos ya o te damos tiempo.',
-    opciones: [
-      { id: 'ya',       label: 'Ya mismo',        detalle: 'Quiero recibir pedidos hoy',   ms: 'bolt', tono: 'ojo' },
-      { id: 'semana',   label: 'Esta semana',     detalle: 'Estoy alistando todo',          ms: 'event', tono: 'frio' },
-      { id: 'mirando',  label: 'Estoy mirando',   detalle: 'Primero quiero entender bien',  ms: 'search', tono: 'neutro' },
     ],
   },
 ];

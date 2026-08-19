@@ -33,16 +33,10 @@
 /** [claro, oscuro] de cada baldosa */
 const TONO = {
   comidas_rapidas: ['#FFD08A', '#F59E0B'],
-  hamburgueseria:  ['#FFB57A', '#E2360F'],
-  pizzeria:        ['#FF8A5C', '#C2410C'],
-  comida_mar:      ['#8ECBFF', '#2E6BFF'],
-  asadero:         ['#FF9A6C', '#B91C1C'],
-  cafeteria:       ['#C9A27A', '#7C4A1E'],
-  mercado:         ['#8FE3B0', '#059669'],
   farmacia:        ['#8FD6FF', '#0E7490'],
   licores:         ['#C9A7FF', '#7C3AED'],
-  sexshop:         ['#FFA6D2', '#DB2777'],
-  tienda:          ['#FFC49A', '#EA580C'],
+  turbo:           ['#FDE68A', '#D97706'],
+  turapp:          ['#86EFAC', '#15803D'],
 
   // El resto de las preguntas
   neutro:          ['#B9C4D6', '#5B6B85'],
@@ -66,59 +60,6 @@ const DIBUJO = {
       <rect x="15" y="21" width="14" height="3" fill="#fff" opacity=".55" />
     </>
   ),
-  // Hamburguesa de tres pisos
-  hamburgueseria: (
-    <>
-      <path d="M13 20 a9 6 0 0 1 18 0z" fill="#fff" opacity=".95" />
-      <rect x="12.5" y="21" width="19" height="3.4" rx="1.7" fill="#fff" opacity=".6" />
-      <rect x="12.5" y="25.4" width="19" height="3.6" rx="1.8" fill="#fff" opacity=".85" />
-      <path d="M13 30 h18 a5 5 0 0 1-5 4 H18 a5 5 0 0 1-5-4z" fill="#fff" opacity=".95" />
-      <circle cx="19" cy="17" r="1" fill="#fff" opacity=".5" />
-      <circle cx="25" cy="16" r="1" fill="#fff" opacity=".5" />
-    </>
-  ),
-  // Porción de pizza
-  pizzeria: (
-    <>
-      <path d="M22 9 l10 24 a26 26 0 0 1-20 0z" fill="#fff" opacity=".95" />
-      <path d="M12 33 a26 26 0 0 0 20 0 l-1.6-4 a21 21 0 0 1-16.8 0z" fill="#fff" opacity=".6" />
-      <circle cx="22" cy="20" r="2" fill={TONO.pizzeria[1]} />
-      <circle cx="18" cy="27" r="1.7" fill={TONO.pizzeria[1]} />
-      <circle cx="26" cy="27" r="1.7" fill={TONO.pizzeria[1]} />
-    </>
-  ),
-  // Camarón
-  comida_mar: (
-    <>
-      <path d="M14 18 q10-5 16 2 q4 7-2 11 q-8 5-14-2 q-3-4 0-8z" fill="#fff" opacity=".95" />
-      <path d="M18 31 q3 4 8 3" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity=".7" />
-      <circle cx="17" cy="21" r="1.5" fill={TONO.comida_mar[1]} />
-      <path d="M13 17 l-3-3 M13 19 l-4-1" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" opacity=".8" />
-    </>
-  ),
-  // Muslo de pollo
-  asadero: (
-    <>
-      <path d="M27 11 a7 7 0 0 1 5 11 q-3 3-7 3 l-6 6 a3 3 0 0 1-5-4 l6-6 q0-4 3-7 a7 7 0 0 1 4-3z" fill="#fff" opacity=".95" />
-      <rect x="12" y="28" width="4" height="7" rx="2" fill="#fff" opacity=".7" transform="rotate(45 14 31)" />
-    </>
-  ),
-  // Taza con vapor
-  cafeteria: (
-    <>
-      <path d="M13 19 h15 v9 a6 6 0 0 1-6 6 h-3 a6 6 0 0 1-6-6z" fill="#fff" opacity=".95" />
-      <path d="M28 21 h2.5 a3.5 3.5 0 0 1 0 7 H28" fill="none" stroke="#fff" strokeWidth="2" opacity=".8" />
-      <path d="M17 15 q2-3 0-5 M22 15 q2-3 0-5" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity=".65" />
-    </>
-  ),
-  // Bolsa de mercado con una hoja
-  mercado: (
-    <>
-      <path d="M13 17 h18 l-1.6 16 a3 3 0 0 1-3 2.6 H17.6 a3 3 0 0 1-3-2.6z" fill="#fff" opacity=".95" />
-      <path d="M18 17 v-2.5 a4 4 0 0 1 8 0 V17" fill="none" stroke="#fff" strokeWidth="2" opacity=".8" />
-      <path d="M22 22 q5 1 4 7 q-6 0-4-7z" fill={TONO.mercado[1]} opacity=".85" />
-    </>
-  ),
   // Cápsula
   farmacia: (
     <>
@@ -134,25 +75,6 @@ const DIBUJO = {
       <path d="M19 9 h6 v6 l3.5 5 a5 5 0 0 1 .8 2.7 V32 a3 3 0 0 1-3 3 h-8.6 a3 3 0 0 1-3-3 V22.7 a5 5 0 0 1 .8-2.7 L19 15z" fill="#fff" opacity=".95" />
       <rect x="15" y="24" width="14" height="6" rx="1.5" fill={TONO.licores[1]} opacity=".8" />
       <rect x="19.5" y="7" width="5" height="3" rx="1" fill="#fff" opacity=".7" />
-    </>
-  ),
-  // Regalo
-  sexshop: (
-    <>
-      <rect x="12" y="20" width="20" height="15" rx="2.5" fill="#fff" opacity=".95" />
-      <rect x="11" y="16" width="22" height="5" rx="2" fill="#fff" opacity=".8" />
-      <rect x="20.5" y="16" width="3" height="19" fill={TONO.sexshop[1]} opacity=".8" />
-      <path d="M22 16 q-5-6-7-2 q-1 3 7 2z M22 16 q5-6 7-2 q1 3-7 2z" fill="#fff" opacity=".85" />
-    </>
-  ),
-  // Fachada
-  tienda: (
-    <>
-      <path d="M11 20 l3-6 h16 l3 6z" fill="#fff" opacity=".85" />
-      <rect x="13" y="20" width="18" height="15" rx="2" fill="#fff" opacity=".95" />
-      <rect x="19" y="25" width="6" height="10" rx="1.5" fill={TONO.tienda[1]} opacity=".8" />
-      <rect x="15" y="24" width="3" height="3" rx="1" fill={TONO.tienda[1]} opacity=".5" />
-      <rect x="26" y="24" width="3" height="3" rx="1" fill={TONO.tienda[1]} opacity=".5" />
     </>
   ),
 };
