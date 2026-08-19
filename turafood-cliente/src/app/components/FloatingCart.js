@@ -59,21 +59,14 @@ export default function FloatingCart() {
     >
       <span style={styles.badge}>{count}</span>
 
-      <span style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 15, fontWeight: 800, lineHeight: 1.15 }}>
-          Ir a comprar
-        </span>
-        <span
-          className="tr1"
-          style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,.8)', marginTop: 2 }}
-        >
-          {businessName || `${count} ${count === 1 ? 'producto' : 'productos'} listos`}
-        </span>
+      <span style={{ fontSize: 16, fontWeight: 800 }}>
+        Ir a comprar
       </span>
+
+      <span style={{ width: 1, height: 24, background: 'rgba(255,255,255,.3)', margin: '0 2px' }} />
 
       <span style={styles.total}>
         {cop(subtotal)}
-        <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
       </span>
     </button>
   );
@@ -82,20 +75,15 @@ export default function FloatingCart() {
 const styles = {
   pill: {
     position: 'absolute',
-    left: 16,
     right: 16,
     bottom: 84,
     zIndex: 70,
     display: 'flex',
     alignItems: 'center',
     gap: 11,
-    height: 58,
-    padding: '0 18px',
+    height: 54,
+    padding: '0 20px',
     borderRadius: 999,
-    // Verde y no el naranja de la marca a propósito: el naranja está en
-    // todos los botones de "agregar", y esta barra no agrega nada — te
-    // saca de la tienda para ir a pagar. Un color distinto evita que se
-    // toque por inercia.
     background: 'linear-gradient(96deg, #12B972 0%, #0E9E5F 100%)',
     color: '#fff',
     boxShadow: '0 12px 30px rgba(14,158,95,.42), inset 0 1px 0 rgba(255,255,255,.22)',

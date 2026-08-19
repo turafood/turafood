@@ -106,7 +106,7 @@ export default function PreparandoPanel({ nicho, pasos = [], listo }) {
                       ...S.marca,
                       background: hecho ? escena.color : (actual ? 'rgba(255,255,255,0.1)' : 'transparent'),
                       borderColor: actual ? escena.color : 'transparent',
-                      boxShadow: actual ? \`0 0 12px \${escena.color}66\` : 'none',
+                      boxShadow: actual ? `0 0 12px ${escena.color}66` : 'none',
                     }}
                   >
                     {hecho && <span className="ms" style={{ fontSize: 13, color: '#fff' }}>check</span>}

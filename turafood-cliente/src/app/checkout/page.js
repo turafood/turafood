@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder } from '@/lib/data';
+import AddressSheet from '../components/AddressSheet';
 import { quote, validateCoupon } from '@/lib/pricing';
 import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
 import { cop, deliveryWindow } from '@/lib/format';
@@ -52,6 +53,7 @@ export default function CheckoutPage() {
 
   const [store, setStore] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [addressOpen, setAddressOpen] = useState(false);
   const [coupons, setCoupons] = useState([]);
 
   const [mode, setMode] = useState('delivery');
@@ -302,7 +304,7 @@ export default function CheckoutPage() {
           {/* Dirección / pago / entrega */}
           <div style={S.card}>
             {mode === 'delivery' && (
-              <button onClick={() => router.push('/account/addresses')} style={S.cardRow}>
+              <button onClick={() => setAddressOpen(true)} style={S.cardRow}>
                 <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>location_on</span>
                 <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                   <span style={S.rowLabel}>DIRECCIÓN DE ENTREGA</span>
@@ -563,6 +565,15 @@ export default function CheckoutPage() {
           address={address?.address}
           business={store}
           selected={schedule}
+        />
+
+        <AddressSheet
+          open={addressOpen}
+          onClose={() => setAddressOpen(false)}
+          onSave={(nueva) => {
+            setAddresses([nueva, ...addresses.filter((a) => a.id !== nueva.id)]);
+            setAddressOpen(false);
+          }}
         />
       </div>
     </>
