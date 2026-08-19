@@ -468,8 +468,10 @@ export async function addPaymentMethod(input) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Inicia sesión para guardar métodos de pago.');
+  // Guardar la tarjeta es parte de comprar, no un trámite aparte: si
+  // no hay sesión se abre una anónima, igual que al pedir.
+  const user = await asegurarSesion();
+  if (!user) throw new Error('No se pudo abrir la sesión. Revisa tu conexión.');
 
   const { count } = await supabase
     .from('payment_methods')
@@ -728,8 +730,10 @@ export async function sendMessage(orderId, body) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Inicia sesión para escribir.');
+  // Quien pidió sin cuenta también tiene derecho a escribirle al
+  // repartidor que le está llevando su pedido.
+  const user = await asegurarSesion();
+  if (!user) throw new Error('No se pudo abrir la sesión. Revisa tu conexión.');
 
   const { data, error } = await supabase
     .from('messages')
