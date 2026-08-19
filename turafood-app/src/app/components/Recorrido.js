@@ -24,7 +24,8 @@
  *     a salir cada vez deja de ser ayuda y pasa a ser un obstáculo.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import ArteRecorrido from './ArteRecorrido';
 
 const CLAVE = 'turafood:recorrido';
 
@@ -35,6 +36,19 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
   const [abierto, setAbierto] = useState(false);
   const [i, setI] = useState(0);
   const [caja, setCaja] = useState(null);
+
+  /**
+   * El alto real de la tarjeta.
+   *
+   * Antes se estimaba en 190px fijos. Al meterle la ilustración pasó a
+   * medir más de 300 y los botones quedaban debajo del borde de la
+   * pantalla en un celular — el paso se veía sin forma de avanzar.
+   *
+   * Medirla evita que vuelva a pasar la próxima vez que le entre un
+   * texto largo o un elemento nuevo.
+   */
+  const refTarjeta = useRef(null);
+  const [altoTarjeta, setAltoTarjeta] = useState(320);
 
   const clave = `${CLAVE}:${id}`;
 
@@ -110,6 +124,18 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
 
   const anterior = () => setI(Math.max(i - 1, 0));
 
+  // Se mide después de pintar, y solo se guarda si cambió: escribir el
+  // mismo número en cada render dispara un bucle.
+  useLayoutEffect(() => {
+    const el = refTarjeta.current;
+    if (!el) return;
+    const h = el.getBoundingClientRect().height;
+    if (h && Math.abs(h - altoTarjeta) > 1) setAltoTarjeta(h);
+  }, [i, abierto, altoTarjeta]);
+
+  // Todos los hooks quedan por encima de este return. React exige que
+  // se llamen siempre en el mismo orden, y salir antes de uno lo
+  // rompe — se cayó así al mover esta medición debajo.
   if (!abierto || !pasos.length) return null;
 
   const paso = pasos[i];
@@ -117,19 +143,41 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
 
   /* -------------------------------------------- dónde va la tarjeta */
   const tarjeta = (() => {
-    if (!caja) {
-      // Sin objetivo: centrada. Sirve para el paso de bienvenida.
-      return { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' };
-    }
-
     const anchoTarjeta = 320;
-    const altoAprox = 190;
     const margen = 14;
 
-    const cabeAbajo = caja.top + caja.height + altoAprox + margen < window.innerHeight;
-    const top = cabeAbajo
+    if (!caja) {
+      // Sin objetivo: centrada. Sirve para el paso de bienvenida.
+      //
+      // Se centra con números y NO con `translate(-50%,-50%)`, aunque
+      // sea lo obvio: la animación `anim-pop` termina en
+      // `transform: none` con fill-mode `both`, así que al acabar le
+      // borra el translate a la tarjeta y la deja con su esquina
+      // superior izquierda en el centro de la pantalla — medio
+      // tarjetón por fuera, abajo y a la derecha.
+      //
+      // Una animación le gana a un estilo en línea. Por eso no se
+      // pueden mezclar las dos cosas en la misma propiedad.
+      return {
+        top: Math.max((window.innerHeight - altoTarjeta) / 2, margen),
+        left: Math.max((window.innerWidth - anchoTarjeta) / 2, margen),
+      };
+    }
+
+    const alto = altoTarjeta;
+
+    const cabeAbajo = caja.top + caja.height + alto + margen < window.innerHeight;
+    let top = cabeAbajo
       ? caja.top + caja.height + margen
-      : Math.max(caja.top - altoAprox - margen, margen);
+      : caja.top - alto - margen;
+
+    // Pase lo que pase, dentro de la pantalla. Este es el candado: si
+    // la estimación falla, la tarjeta se pega al borde pero se ve
+    // completa, con sus botones.
+    top = Math.min(
+      Math.max(top, margen),
+      Math.max(window.innerHeight - alto - margen, margen),
+    );
 
     // Alineada al elemento, pero sin salirse de la pantalla
     const left = Math.min(
@@ -150,7 +198,21 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
         <div style={S.veloPlano} onClick={cerrar} />
       )}
 
-      <div style={{ ...S.tarjeta, ...tarjeta }} className="anim-pop">
+      <div ref={refTarjeta} style={{ ...S.tarjeta, ...tarjeta }} className="anim-pop">
+
+        {/* La ilustración va sobre su propio recuadro con luz, no
+            suelta encima del vidrio: sin ese fondo la pieza flota y la
+            tarjeta se ve partida en dos. */}
+        {paso.arte && (
+          <div style={S.escenario}>
+            <span style={S.halo} aria-hidden="true" />
+            <span style={S.reja} aria-hidden="true" />
+            <span style={{ position: 'relative' }}>
+              <ArteRecorrido arte={paso.arte} size={104} />
+            </span>
+          </div>
+        )}
+
         <div style={S.contador}>
           {i + 1} de {pasos.length}
         </div>
@@ -235,6 +297,35 @@ const S = {
     boxShadow: '0 24px 60px rgba(12,10,9,.34), inset 0 1px 0 rgba(255,255,255,.5)',
     transition: 'top .34s cubic-bezier(.2,0,0,1), left .34s cubic-bezier(.2,0,0,1)',
   },
+  /**
+   * El recuadro donde vive la ilustración. Da el ambiente: un
+   * degradado suave, un halo de color detrás de la pieza y una reja
+   * fina que insinúa profundidad sin robarse la atención.
+   */
+  escenario: {
+    position: 'relative', overflow: 'hidden',
+    height: 132, margin: '-18px -18px 14px',
+    borderRadius: '22px 22px 0 0',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'linear-gradient(160deg, color-mix(in srgb, var(--primary) 13%, transparent), transparent 70%)',
+    borderBottom: '1px solid color-mix(in srgb, var(--text) 8%, transparent)',
+  },
+  halo: {
+    position: 'absolute', width: 150, height: 150, borderRadius: '50%',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 26%, transparent), transparent 68%)',
+    filter: 'blur(6px)',
+  },
+  /* Cuadrícula tenue: da fondo sin competir con la pieza */
+  reja: {
+    position: 'absolute', inset: 0, opacity: .5,
+    backgroundImage:
+      'linear-gradient(color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px),' +
+      'linear-gradient(90deg, color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px)',
+    backgroundSize: '22px 22px',
+    maskImage: 'radial-gradient(circle at 50% 50%, #000 20%, transparent 78%)',
+    WebkitMaskImage: 'radial-gradient(circle at 50% 50%, #000 20%, transparent 78%)',
+  },
+
   contador: {
     fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--faint)',
   },

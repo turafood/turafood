@@ -541,6 +541,7 @@ export default function CheckoutPage() {
           method={payMethod}
           onMethodChange={setPayMethod}
           methods={metodos}
+          payDetails={store?.payment_details}
           busy={placing}
           error={error}
         />

@@ -25,6 +25,7 @@ export default function PaymentSheet({
   method,
   onMethodChange,
   methods,          // los que ESTE negocio acepta
+  payDetails,       // a qué número transferirle (Nequi / Daviplata)
   busy,
   error,
 }) {
@@ -48,6 +49,14 @@ export default function PaymentSheet({
   const selected = disponibles.find((m) => m.id === method);
   const online = isOnlineMethod(method);
   const porWhatsapp = method === 'whatsapp';
+
+  // TuraFood no procesa la plata de las ventas: el cliente le
+  // transfiere directo al negocio. Así que el número tiene que estar a
+  // la vista ANTES de confirmar, no después — si aparece en la
+  // pantalla siguiente, la persona ya cerró la app.
+  const transferir = ['nequi', 'daviplata'].includes(method)
+    ? payDetails?.[method]
+    : null;
 
   return (
     <div style={S.backdrop} onClick={() => !busy && onClose()}>
@@ -131,6 +140,21 @@ export default function PaymentSheet({
           </div>
         )}
 
+        {/* A dónde transferir. Grande y copiable: el gesto real es
+            "copio el número y me paso a la app del banco". */}
+        {transferir && (
+          <div style={S.transferir}>
+            <span style={S.transferirLabel}>
+              {method === 'nequi' ? 'TRANSFIERE A ESTE NEQUI' : 'TRANSFIERE A ESTE DAVIPLATA'}
+            </span>
+            <span style={S.transferirNumero}>{formatearCel(transferir)}</span>
+            <span style={S.transferirNota}>
+              {businessName ? `La cuenta es de ${businessName}.` : ''} Guarda el
+              comprobante: te lo pueden pedir al recibir.
+            </span>
+          </div>
+        )}
+
         {/* Qué va a pasar cuando toque el botón. Se dice antes, no
             después: nadie quiere enterarse de que se abre WhatsApp
             cuando ya se le abrió. */}
@@ -193,6 +217,13 @@ export default function PaymentSheet({
   );
 }
 
+/** 3137594713 -> 313 759 4713, que es como se lee un celular acá */
+function formatearCel(v) {
+  const d = String(v ?? '').replace(/\D/g, '');
+  if (d.length !== 10) return v;
+  return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+}
+
 function Row({ label, value, green }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
@@ -203,6 +234,22 @@ function Row({ label, value, green }) {
 }
 
 const S = {
+  transferir: {
+    margin: '14px 22px 0', padding: '16px 18px', borderRadius: 16,
+    background: 'var(--bg)', border: '1.5px dashed var(--primary)',
+    display: 'flex', flexDirection: 'column', gap: 4,
+  },
+  transferirLabel: {
+    fontSize: 10.5, fontWeight: 800, letterSpacing: '.07em',
+    color: 'var(--primary)',
+  },
+  transferirNumero: {
+    fontSize: 25, fontWeight: 800, letterSpacing: '.02em',
+    color: 'var(--text)', fontVariantNumeric: 'tabular-nums',
+  },
+  transferirNota: {
+    fontSize: 11.5, lineHeight: 1.45, color: 'var(--muted)', marginTop: 2,
+  },
   backdrop: {
     position: 'absolute', inset: 0, zIndex: 340,
     background: 'rgba(20,16,10,.46)', backdropFilter: 'blur(4px)',

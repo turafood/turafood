@@ -48,9 +48,12 @@ export const PAYMENT_STATUS_LABEL = {
 
 /** Métodos que soporta el esquema (`orders.payment_method`) */
 export const PAYMENT_METHODS = [
-  { id: 'nequi', label: 'Nequi', icon: 'account_balance_wallet', online: true },
-  { id: 'daviplata', label: 'Daviplata', icon: 'account_balance', online: true },
-  { id: 'card', label: 'Tarjeta débito o crédito', icon: 'credit_card', online: true },
+  // Nequi y Daviplata ya no pasan por pasarela: el cliente le
+  // transfiere directo al negocio, así que `online: false` — no hay
+  // checkout que abrir, hay un número que mostrar.
+  { id: 'nequi', label: 'Nequi', icon: 'account_balance_wallet', online: false },
+  { id: 'daviplata', label: 'Daviplata', icon: 'account_balance', online: false },
+  { id: 'card', label: 'Tarjeta al recibir', icon: 'credit_card', online: false },
   { id: 'cash', label: 'Efectivo al recibir', icon: 'payments', online: false },
   // Ni en línea ni contra entrega: el pedido queda hecho y el cobro se
   // acuerda por chat con el dueño. Por eso `online: false` — no hay

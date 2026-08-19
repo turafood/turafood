@@ -23,30 +23,35 @@
 
 export const PASOS_NEGOCIO = [
   {
+    arte: 'tienda',
     titulo: 'Este es tu panel',
     texto:
       'Estás dentro sin haber dado un dato. Te dejamos un menú y unas comandas de ejemplo para que veas cómo se ve tu negocio trabajando — puedes borrarlos cuando quieras.',
   },
   {
     selector: '[data-tour="nav"]',
+    arte: 'menu',
     titulo: 'Todo vive acá',
     texto:
       'Los pedidos que entran, tu carta, las promociones, lo que te vamos a consignar. Lo que más vas a usar está de primero.',
   },
   {
     selector: '[data-tour="contenido"]',
+    arte: 'comandas',
     titulo: 'El tablero de comandas',
     texto:
       'Cada pedido pasa por cuatro columnas: entra, se cocina, queda listo, sale. Se mueve con un toque y el cliente lo ve al instante en su app.',
   },
   {
     selector: '[data-tour="progreso"]',
+    arte: 'progreso',
     titulo: 'Lo que te falta',
     texto:
       'Mientras no subas tus documentos puedes recibir 20 pedidos al día. Esta barra te dice qué sigue; si estorba, se pliega.',
   },
   {
     selector: '[data-tour="ia"]',
+    arte: 'ia',
     titulo: 'Tura IA',
     texto:
       'Te avisa qué conviene hacer hoy: qué plato subir de precio, qué reseña contestar, cuándo abrir más temprano.',
@@ -55,23 +60,27 @@ export const PASOS_NEGOCIO = [
 
 export const PASOS_REPARTIDOR = [
   {
+    arte: 'ruta',
     titulo: 'Bienvenido',
     texto:
       'Entraste sin registrarte. Puedes mirar todo y entender cómo funciona antes de subir un solo papel.',
   },
   {
     selector: '[data-tour="progreso"]',
+    arte: 'progreso',
     titulo: 'Para empezar a rodar',
     texto:
       'Tres pasos: tus datos, tu vehículo y tus documentos. Hasta que no estén, no te van a llegar pedidos.',
   },
   {
     selector: '[data-tour="nav"], [data-tour="nav-movil"]',
+    arte: 'menu',
     titulo: 'Tus cuatro pantallas',
     texto:
       'Inicio para recibir pedidos, Ganancias para retirar tu plata, Entregas para tu historial y Cuenta para tus papeles.',
   },
   {
+    arte: 'panel',
     titulo: 'Cómo llega un pedido',
     texto:
       'Aparece con el pago, la distancia y a dónde va. Tienes 20 segundos para tomarlo — si se vence no cuenta como rechazo.',
