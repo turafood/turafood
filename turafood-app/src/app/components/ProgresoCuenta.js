@@ -17,17 +17,24 @@
  * puede quedar diciendo que falta algo que ya está.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 /** Se recuerda plegado mientras dure la pestaña, no para siempre */
 const CLAVE = 'turafood:progreso-plegado';
 
 export default function ProgresoCuenta({ pasos, titulo, verificado }) {
-  const [plegado, setPlegado] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return sessionStorage.getItem(CLAVE) === '1';
-  });
+  // Arranca desplegado, igual que en el servidor. Leer el
+  // sessionStorage acá mismo haría que el primer render del navegador
+  // no coincidiera con el HTML que llegó: React descarta la página y
+  // la vuelve a pintar entera. Se lee un instante después.
+  const [plegado, setPlegado] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(CLAVE) === '1') setPlegado(true);
+    } catch { /* modo privado */ }
+  }, []);
 
   // Cuenta lista: no hay nada que recordar
   if (verificado) return null;

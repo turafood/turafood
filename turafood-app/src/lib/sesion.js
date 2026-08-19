@@ -79,9 +79,11 @@ export async function probarComo(rol, onPaso) {
         try {
           const { loadStarterMenu } = await import('./menuDemo');
           await loadStarterMenu(nuevo.id, 'restaurant');
-        } catch {
+        } catch (errMenu) {
           // Sin menú de ejemplo se entra igual: el panel lo ofrece
-          // con un botón desde su propia pantalla.
+          // con un botón desde su propia pantalla. Pero que quede
+          // dicho, porque sin menú tampoco hay comandas de ejemplo.
+          console.warn('[turafood] no se cargó el menú de arranque:', errMenu?.message ?? errMenu);
         }
 
         // Y cuatro comandas, una por columna. Un tablero que dice
@@ -90,11 +92,15 @@ export async function probarComo(rol, onPaso) {
         // de verdad en su cuenta, así que se manejan con los mismos
         // botones — y se borran solos cuando entre el primero real.
         paso('comandas');
-        try {
-          await supabase.rpc('sembrar_pedidos_demo');
-        } catch {
-          // El tablero arranca vacío y ya. No vale la pena frenar la
-          // entrada por unas comandas de ejemplo.
+        {
+          // Un `catch {}` mudo acá escondió durante días que la
+          // función fallaba: el tablero salía vacío y no había forma
+          // de saber por qué. Sigue sin frenar la entrada, pero deja
+          // rastro. `rpc` no lanza, devuelve `error`.
+          const { error: errComandas } = await supabase.rpc('sembrar_pedidos_demo');
+          if (errComandas) {
+            console.warn('[turafood] no se sembraron comandas de ejemplo:', errComandas.message);
+          }
         }
       } else {
         await supabase.from('courier_profiles').insert({
@@ -120,7 +126,8 @@ export async function probarComo(rol, onPaso) {
 /** ¿Está probando, sin haber dado sus datos todavía? */
 export async function esInvitado() {
   if (!isConfigured()) return false;
-  const { data: { user } } = await createClient().auth.getUser();
+  const { data: { session } } = await createClient().auth.getSession();
+  const user = session?.user ?? null;
   return Boolean(user?.is_anonymous);
 }
 
@@ -134,4 +141,17 @@ export async function quedarseConLaCuenta(email, password) {
   const { error } = await createClient().auth.updateUser({ email, password });
   if (error) throw new Error(error.message);
   return true;
+}
+
+/**
+ * Quién es, sin salir a la red.
+ *
+ * `getUser()` revalida el token contra el servidor en cada llamada.
+ * Para saber por qué id filtrar no hace falta: eso lo decide RLS
+ * contra el token que ya viaja en la consulta. Leer la sesión
+ * guardada ahorra un viaje de ida y vuelta por pantalla.
+ */
+export async function usuarioActual() {
+  const { data: { session } } = await createClient().auth.getSession();
+  return session?.user ?? null;
 }

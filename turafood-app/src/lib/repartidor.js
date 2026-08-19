@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
+import { usuarioActual } from './sesion';
 
 export function isLive() {
   return Boolean(
@@ -50,7 +51,7 @@ export async function getMyCourier() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -307,7 +308,7 @@ export async function sendMessage(orderId, body) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   const { data, error } = await supabase
     .from('messages')
     .insert({ order_id: orderId, sender_id: user.id, body })

@@ -10,6 +10,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import { isLive } from './negocio';
+import { usuarioActual } from './sesion';
 
 const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
 
@@ -71,7 +72,7 @@ export async function getTickets() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -146,7 +147,7 @@ export async function replyTicket(ticketId, body) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   const { data, error } = await supabase
     .from('support_messages')
     .insert({ ticket_id: ticketId, author_id: user.id, author_role: 'user', body })

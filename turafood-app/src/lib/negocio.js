@@ -14,6 +14,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import { cached, invalidate } from './cache';
+import { usuarioActual } from './sesion';
 
 export function isLive() {
   return Boolean(
@@ -84,7 +85,7 @@ export async function getMyBusiness() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return null;
 
   const { data, error } = await supabase
