@@ -33,10 +33,13 @@ import Link from 'next/link';
 import { cop } from '@/lib/format';
 import CabeceraSeccion from '../../components/CabeceraSeccion';
 import Comparativa from './Comparativa';
-import { PLANES, CONDICIONES } from './planes';
+import { PLANES, CONDICIONES, porMes, descuento } from './planes';
 
 export default function GrowthPartnerPage() {
   const [abierto, setAbierto] = useState(null);
+  // Anual por defecto: es el que queremos vender y el que deja mejor
+  // parada la comparativa de arriba.
+  const [anual, setAnual] = useState(true);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -64,6 +67,25 @@ export default function GrowthPartnerPage() {
       {/* ---------------------------------------------- la cuenta */}
       <Comparativa />
 
+      {/* -------------------------------------------- mensual/anual */}
+      <div style={S.conmutador}>
+        {[[false, 'Mensual'], [true, 'Anual']].map(([v, txt]) => (
+          <button
+            key={txt}
+            onClick={() => setAnual(v)}
+            style={{
+              ...S.conmBtn,
+              background: anual === v ? 'var(--surface)' : 'transparent',
+              color: anual === v ? 'var(--text)' : 'var(--muted)',
+              boxShadow: anual === v ? 'var(--shadowSm)' : 'none',
+            }}
+          >
+            {txt}
+            {v && <span style={S.ahorroTag}>Hasta {descuento(PLANES[2].precio)}%</span>}
+          </button>
+        ))}
+      </div>
+
       {/* ---------------------------------------------- los planes */}
       <section className="planes-grid" style={S.grid}>
         {PLANES.map((p) => (
@@ -86,13 +108,23 @@ export default function GrowthPartnerPage() {
             </header>
 
             <div style={S.precioBloque}>
-              <span style={{ ...S.precio, color: p.destacado ? '#fff' : 'var(--text)' }}>
-                {p.precioTexto}
-              </span>
-              {p.porMes && (
-                <span style={{ ...S.porMes, color: p.destacado ? '#FFB57A' : 'var(--primary)' }}>
-                  {cop(p.porMes)} al mes
+              {/* El gratis no tiene mensual ni anual: se muestra tal cual */}
+              {!p.precio ? (
+                <span style={{ ...S.precio, color: p.destacado ? '#fff' : 'var(--text)' }}>
+                  {p.precioTexto}
                 </span>
+              ) : (
+                <>
+                  <span style={{ ...S.precio, color: p.destacado ? '#fff' : 'var(--text)' }}>
+                    {cop(anual ? porMes(p.precio) : p.precio.mes)}
+                    <span style={S.precioMes}>/mes</span>
+                  </span>
+                  <span style={{ ...S.porMes, color: p.destacado ? '#FFB57A' : 'var(--primary)' }}>
+                    {anual
+                      ? `Facturado ${cop(p.precio.anio)} al año · ahorras ${descuento(p.precio)}%`
+                      : 'Facturado mes a mes'}
+                  </span>
+                </>
               )}
               <span style={{ ...S.planDetalle, color: p.destacado ? 'rgba(255,255,255,.5)' : 'var(--muted)' }}>
                 {p.detalle}
@@ -100,15 +132,15 @@ export default function GrowthPartnerPage() {
             </div>
 
             <button
-              disabled={p.id === 'gratis'}
+              disabled={p.id === 'starter'}
               style={{
                 ...S.cta,
-                background: p.id === 'gratis'
+                background: p.id === 'starter'
                   ? 'transparent'
                   : p.destacado ? 'linear-gradient(120deg,#FFB57A,#FF7A4D)' : 'var(--primary)',
-                color: p.id === 'gratis' ? 'var(--muted)' : '#fff',
-                border: p.id === 'gratis' ? '1.5px solid var(--border)' : 'none',
-                cursor: p.id === 'gratis' ? 'default' : 'pointer',
+                color: p.id === 'starter' ? 'var(--muted)' : '#fff',
+                border: p.id === 'starter' ? '1.5px solid var(--border)' : 'none',
+                cursor: p.id === 'starter' ? 'default' : 'pointer',
               }}
             >
               {p.cta}
@@ -208,6 +240,27 @@ const S = {
   },
   promesaTexto: {
     margin: '6px 0 0', fontSize: 13, lineHeight: 1.6, color: 'var(--muted)',
+  },
+
+  conmutador: {
+    display: 'flex', gap: 4, padding: 4, borderRadius: 999,
+    background: 'var(--surface2)', border: '1px solid var(--border)',
+    alignSelf: 'center',
+  },
+  conmBtn: {
+    display: 'flex', alignItems: 'center', gap: 7,
+    height: 38, padding: '0 20px', borderRadius: 999,
+    fontSize: 13.5, fontWeight: 700,
+    transition: 'background .2s cubic-bezier(.2,0,0,1), color .2s ease',
+  },
+  ahorroTag: {
+    fontSize: 9.5, fontWeight: 800, letterSpacing: '.05em',
+    padding: '3px 7px', borderRadius: 999,
+    background: 'var(--green)', color: '#fff',
+  },
+  precioMes: {
+    fontSize: 14, fontWeight: 600, letterSpacing: 0,
+    color: 'var(--muted)', marginLeft: 3,
   },
 
   grid: { display: 'grid', gap: 14 },

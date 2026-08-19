@@ -1,107 +1,115 @@
 /**
- * GROWTH PARTNER — LOS TRES CAMINOS
+ * GROWTH PARTNER — LOS TRES PLANES
  *
- * LA ESTRATEGIA DE PRECIO, EXPLICADA
+ * ALINEADO CON EL SITIO Y CON LOS DOCUMENTOS DEL NEGOCIO
  *
- * Tres opciones, y la del año está armada para ganar:
+ * Antes esta pantalla tenía dos planes de pago: uno de 3 meses a
+ * $590.000 y uno anual a $890.000. Eso no coincidía ni con
+ * turafood.com ni con la especificación de membresías, y además tenía
+ * un problema propio: los 3 meses salían a $196.667 mensuales, o sea
+ * MÁS CAROS por mes que el anual. Se leía como un castigo por no
+ * comprometerse, no como un escalón.
  *
- *   Gratis        $0
- *   3 meses       $590.000  →  $196.667 al mes
- *   Un año        $890.000  →  $74.167 al mes
+ * La estructura correcta es la que ya estaba en el sitio y en los
+ * documentos: tres planes, cada uno con precio mensual y anual, y el
+ * ahorro del anual como el argumento principal.
  *
- * El número que hace todo el trabajo no es el descuento en
- * porcentaje: es lo que pasa si alguien renueva el trimestral cuatro
- * veces. Son $2.360.000 contra $890.000. Un millón cuatrocientos
- * setenta mil pesos de diferencia por la misma tecnología.
+ *   Starter      Gratis, para siempre
+ *   Tura Food    $89.000 /mes   ·  $489.000 /año   ($40.750 /mes)
+ *   Tura Growth  $289.000 /mes  ·  $890.000 /año   ($74.167 /mes)
  *
- * Por eso la comparativa se muestra en plata y en barras, no en un
- * "-62%". Un porcentaje se lee y se olvida; "te ahorras $1.470.000"
- * se queda.
+ * POR QUÉ EL ANUAL GANA SOLO
  *
- * El trimestral no está ahí para venderse. Está para que el anual
- * tenga contra qué medirse — sin él, $890.000 es solo un número
- * grande. Con él, es el más barato de los dos.
+ * Doce meses de Tura Growth pagando mes a mes son $3.468.000. El año
+ * completo cuesta $890.000. Son $2.578.000 de diferencia por
+ * exactamente la misma tecnología — el 74% que anuncia el sitio.
  *
- * NOTA: qué trae exactamente cada plan lo define el equipo. Lo de
- * abajo es la estructura; las listas se cambian sin tocar la
- * pantalla.
+ * Ese número es el que hace todo el trabajo, y por eso la comparativa
+ * lo muestra en plata y en barras, no en un porcentaje: "-74%" se lee
+ * y se olvida; "te ahorras $2.578.000" se queda.
  */
 
 export const PRECIOS = {
-  trimestral: { total: 590000, meses: 3 },
-  anual:      { total: 890000, meses: 12 },
+  turafood:   { mes: 89000,  anio: 489000 },
+  growth:     { mes: 289000, anio: 890000 },
 };
 
-/** Lo que costaría un año pagando trimestre a trimestre */
-export const ANUAL_POR_TRIMESTRES = PRECIOS.trimestral.total * 4;   // 2.360.000
-export const AHORRO_ANUAL = ANUAL_POR_TRIMESTRES - PRECIOS.anual.total; // 1.470.000
+/** Lo que cuesta un año pagando mes a mes */
+export const anualPorMeses = (p) => p.mes * 12;
 
-export const mensual = (p) => Math.round(p.total / p.meses);
+/** Cuánto se ahorra tomando el año de una */
+export const ahorro = (p) => anualPorMeses(p) - p.anio;
+
+/** El anual, repartido en doce */
+export const porMes = (p) => Math.round(p.anio / 12);
+
+/** El descuento, en porcentaje entero */
+export const descuento = (p) => Math.round((ahorro(p) / anualPorMeses(p)) * 100);
+
+/**
+ * El plan sobre el que se arma la comparativa. Es Growth porque es el
+ * que tiene el salto más grande, y porque es el que queremos vender.
+ */
+export const PLAN_ANCLA = PRECIOS.growth;
 
 export const PLANES = [
   {
-    id: 'gratis',
-    nombre: 'La app, gratis',
-    gancho: 'Para siempre, sin letra chica',
-    precio: 0,
+    id: 'starter',
+    nombre: 'Starter',
+    gancho: 'La puerta de entrada',
     precioTexto: 'Gratis',
-    detalle: 'No pedimos tarjeta ni te cobramos comisión por pedido.',
+    detalle: 'Para siempre. No pedimos tarjeta ni cobramos comisión por pedido.',
     cta: 'Ya lo tienes',
     incluye: [
       { texto: 'Tu tienda en turafood.com', si: true },
-      { texto: 'Menú, fotos y promociones', si: true },
+      { texto: 'Menú digital hasta 20 productos', si: true },
       { texto: 'Tablero de comandas en vivo', si: true },
       { texto: 'Cobras como quieras — Nequi, efectivo, WhatsApp', si: true },
       { texto: 'Repartidores del puerto', si: true },
       { texto: 'Reportes de ventas', si: true },
+      { texto: 'Sitio web con dominio propio', si: false },
       { texto: 'Agente de voz que contesta por ti', si: false },
       { texto: 'Campañas en Google y Meta', si: false },
-      { texto: 'Sitio web propio', si: false },
       { texto: 'Aparecer de primero en la app', si: false },
     ],
   },
 
   {
-    id: 'trimestral',
-    nombre: 'Growth · 3 meses',
-    gancho: 'Para probar el paquete completo',
-    precio: PRECIOS.trimestral.total,
-    precioTexto: '$590.000',
-    porMes: mensual(PRECIOS.trimestral),
-    detalle: 'Un pago por los tres meses. Se renueva si tú quieres.',
-    cta: 'Empezar con 3 meses',
+    id: 'turafood',
+    nombre: 'Tura Food',
+    gancho: 'Tu restaurante digital',
+    precio: PRECIOS.turafood,
+    detalle: 'Tu presencia completa en internet, lista para vender.',
+    cta: 'Elegir Tura Food',
     incluye: [
-      { texto: 'Todo lo de la app gratis', si: true, fuerte: true },
-      // Los que tienen `ver` llevan a su pantalla de detalle. Sin
-      // esto esas pantallas quedaban sin puerta de entrada: la página
-      // vieja de Crecimiento era su hub y al reescribirla se
-      // quedaron colgando.
-      { texto: 'Agente de voz IA que contesta y toma pedidos', si: true, ver: '/negocio/crecimiento/agente-voz' },
-      { texto: 'Agendamiento y reservas en línea', si: true, ver: '/negocio/crecimiento/reservas' },
-      { texto: 'Recordatorios automáticos a tus clientes', si: true },
-      { texto: 'Correos de fidelización (MailerLite)', si: true },
+      { texto: 'Todo lo de Starter', si: true, fuerte: true },
+      { texto: 'Sitio web profesional con dominio propio', si: true },
+      { texto: 'Hosting premium y correo corporativo', si: true },
+      { texto: 'Menú digital profesional, sin límite de productos', si: true },
       { texto: 'Tu ficha de Google, reclamada y verificada', si: true, ver: '/negocio/crecimiento/google-negocio' },
-      { texto: 'Sitio web propio, si lo necesitas', si: true },
-      { texto: 'Campañas en Google Ads y Meta', si: true, ver: '/negocio/crecimiento/google-ads' },
-      { texto: 'Prioridad en la app', si: true },
+      { texto: 'Blog SEO para que te encuentren', si: true },
+      { texto: 'Dashboard completo', si: true },
+      { texto: 'Soporte con garantía de 30 días', si: true },
     ],
   },
 
   {
-    id: 'anual',
-    nombre: 'Growth · un año',
-    gancho: 'Lo mismo, por menos de la mitad',
-    precio: PRECIOS.anual.total,
-    precioTexto: '$890.000',
-    porMes: mensual(PRECIOS.anual),
-    detalle: 'Un solo pago por los doce meses.',
-    cta: 'Quiero el año completo',
+    id: 'growth',
+    nombre: 'Tura Growth',
+    gancho: 'El ecosistema completo',
+    precio: PRECIOS.growth,
+    detalle: 'IA, automatización y crecimiento. Todo incluido.',
+    cta: 'Quiero Tura Growth',
     destacado: true,
     sello: 'EL QUE ELIGE TODO EL MUNDO',
     incluye: [
-      { texto: 'Todo lo de los 3 meses', si: true, fuerte: true },
-      { texto: 'Doce meses en vez de tres', si: true },
-      { texto: 'Presupuesto de campañas sostenido todo el año', si: true },
+      { texto: 'Todo lo de Tura Food', si: true, fuerte: true },
+      { texto: 'Agente de voz IA que contesta 24/7', si: true, ver: '/negocio/crecimiento/agente-voz' },
+      { texto: 'Reservas y agendamiento en línea', si: true, ver: '/negocio/crecimiento/reservas' },
+      { texto: 'WhatsApp Business automatizado', si: true },
+      { texto: 'CRM, fidelización y cupones', si: true },
+      { texto: 'Correos automáticos a tus clientes', si: true },
+      { texto: 'Campañas en Google Ads y Meta', si: true, ver: '/negocio/crecimiento/google-ads' },
       { texto: 'Tu marca en los espacios destacados de la app', si: true },
       { texto: 'Acompañamiento del equipo, no solo la herramienta', si: true },
     ],
@@ -113,8 +121,9 @@ export const PLANES = [
  * persona se va a enterar después, mejor que se entere ahora.
  */
 export const CONDICIONES = [
-  'Los planes Growth son un alquiler de tecnología, no una venta: las herramientas siguen siendo nuestras y las usas mientras el plan esté vigente.',
+  'Los planes son un alquiler de tecnología, no una venta: las herramientas siguen siendo nuestras y las usas mientras el plan esté vigente.',
   'El presupuesto que se invierte en Google y Meta va aparte y lo defines tú. Nosotros montamos, medimos y optimizamos las campañas.',
+  'El agente de voz incluye 300 minutos al mes de uso razonable. Si tu operación necesita más, lo hablamos y lo ajustamos.',
   'La prioridad en la app aplica sobre los espacios que tenemos destinados para eso, y se reparte entre los negocios del plan.',
-  'La app de TuraFood sigue siendo gratis con o sin plan. Nunca vamos a cobrarte comisión por pedido por no tener Growth.',
+  'La app de TuraFood sigue siendo gratis con o sin plan. Nunca vamos a cobrarte comisión por pedido por no tener un plan.',
 ];

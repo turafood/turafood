@@ -7,15 +7,15 @@
  *
  * POR QUÉ EN PLATA Y NO EN PORCENTAJE
  *
- * "-62%" se lee y se olvida. "Te ahorras $1.470.000" se queda, porque
+ * "-74%" se lee y se olvida. "Te ahorras $2.578.000" se queda, porque
  * es una cifra que la persona puede imaginar en su bolsillo — es un
- * mes de arriendo del local, o dos neveras.
+ * año de arriendo del local, o una nevera y un congelador.
  *
  * POR QUÉ DOS BARRAS Y NO UNA TABLA
  *
- * La diferencia entre $2.360.000 y $890.000 en una tabla son dos
+ * La diferencia entre $3.468.000 y $890.000 en una tabla son dos
  * líneas de texto que hay que restar mentalmente. En dos barras, una
- * mide casi el triple que la otra y no hay nada que calcular: se ve.
+ * mide casi cuatro veces la otra y no hay nada que calcular: se ve.
  *
  * Las barras crecen al entrar en pantalla y no al cargar. Si crecen
  * mientras la persona todavía está leyendo lo de arriba, se pierde el
@@ -24,7 +24,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cop } from '@/lib/format';
-import { PRECIOS, ANUAL_POR_TRIMESTRES, AHORRO_ANUAL, mensual } from './planes';
+import { PLAN_ANCLA, anualPorMeses, ahorro, porMes, descuento } from './planes';
 
 export default function Comparativa() {
   const ref = useRef(null);
@@ -49,7 +49,8 @@ export default function Comparativa() {
     return () => obs.disconnect();
   }, []);
 
-  const pctAnual = Math.round((PRECIOS.anual.total / ANUAL_POR_TRIMESTRES) * 100);
+  const total = anualPorMeses(PLAN_ANCLA);
+  const pctAnual = Math.round((PLAN_ANCLA.anio / total) * 100);
 
   return (
     <section ref={ref} style={S.caja}>
@@ -58,22 +59,22 @@ export default function Comparativa() {
       <header style={{ position: 'relative' }}>
         <span style={S.etiqueta}>LA CUENTA, SIN VUELTAS</span>
         <h3 style={S.titulo}>
-          Un año de Growth cuesta menos que
+          Un año de Tura Growth cuesta
           <br />
-          cuatro trimestres seguidos.
+          la cuarta parte de pagarlo mes a mes.
         </h3>
         <p style={S.bajada}>
           Es la misma tecnología, los mismos doce meses. Lo único que cambia
-          es cuánto pagas por ellos.
+          es cuándo pagas.
         </p>
       </header>
 
       {/* -------------------------------------------- las dos barras */}
       <div style={S.barras}>
         <Barra
-          etiqueta="Pagando trimestre a trimestre"
-          sub="4 pagos de $590.000"
-          monto={ANUAL_POR_TRIMESTRES}
+          etiqueta="Pagando mes a mes"
+          sub={`12 pagos de ${cop(PLAN_ANCLA.mes)}`}
+          monto={total}
           ancho={visible ? 100 : 0}
           color="rgba(255,255,255,.18)"
           borde="rgba(255,255,255,.28)"
@@ -82,7 +83,7 @@ export default function Comparativa() {
         <Barra
           etiqueta="Pagando el año de una"
           sub="1 solo pago"
-          monto={PRECIOS.anual.total}
+          monto={PLAN_ANCLA.anio}
           ancho={visible ? pctAnual : 0}
           color="linear-gradient(90deg, #FFB57A, #FF7A4D)"
           borde="transparent"
@@ -94,26 +95,27 @@ export default function Comparativa() {
       {/* -------------------------------------------- el número */}
       <div style={S.ahorro}>
         <span style={S.ahorroLabel}>TE QUEDAS CON</span>
-        <span style={S.ahorroCifra}>{cop(AHORRO_ANUAL)}</span>
+        <span style={S.ahorroCifra}>{cop(ahorro(PLAN_ANCLA))}</span>
         <span style={S.ahorroTexto}>
-          en el bolsillo, por decidirlo hoy en vez de en tres meses.
+          en el bolsillo — el {descuento(PLAN_ANCLA)}% de lo que pagarías
+          mes a mes, por la misma tecnología.
         </span>
       </div>
 
       {/* -------------------------------------------- por mes */}
       <div style={S.mensuales}>
         <div style={S.mensual}>
-          <span style={S.mensualLabel}>3 meses</span>
-          <span style={S.mensualCifra}>{cop(mensual(PRECIOS.trimestral))}</span>
+          <span style={S.mensualLabel}>Mes a mes</span>
+          <span style={S.mensualCifra}>{cop(PLAN_ANCLA.mes)}</span>
           <span style={S.mensualPie}>al mes</span>
         </div>
 
         <span className="ms" style={S.flecha}>arrow_forward</span>
 
         <div style={{ ...S.mensual, ...S.mensualBueno }}>
-          <span style={{ ...S.mensualLabel, color: '#FFB57A' }}>Un año</span>
+          <span style={{ ...S.mensualLabel, color: '#FFB57A' }}>El año</span>
           <span style={{ ...S.mensualCifra, color: '#fff' }}>
-            {cop(mensual(PRECIOS.anual))}
+            {cop(porMes(PLAN_ANCLA))}
           </span>
           <span style={S.mensualPie}>al mes</span>
         </div>
@@ -158,7 +160,7 @@ const S = {
     position: 'relative', overflow: 'hidden',
     borderRadius: 26, padding: 24,
     background: 'linear-gradient(150deg, var(--ink) 0%, var(--ink2) 70%)',
-    color: '#fff',
+    color: 'var(--onInk)',
   },
   brillo: {
     position: 'absolute', right: -80, top: -110, width: 280, height: 280,
@@ -175,7 +177,7 @@ const S = {
   },
   bajada: {
     margin: '10px 0 0', fontSize: 13.5, lineHeight: 1.6,
-    color: 'rgba(255,255,255,.58)',
+    color: 'var(--inkSoft)',
   },
 
   barras: { position: 'relative', marginTop: 26 },
@@ -219,7 +221,7 @@ const S = {
   },
   ahorroTexto: {
     display: 'block', marginTop: 8, fontSize: 12.5, lineHeight: 1.5,
-    color: 'rgba(255,255,255,.62)',
+    color: 'var(--inkSoft)',
   },
 
   mensuales: {
@@ -229,7 +231,7 @@ const S = {
   mensual: {
     flex: 1, padding: '14px 12px', borderRadius: 16, textAlign: 'center',
     background: 'rgba(255,255,255,.05)',
-    border: '1px solid rgba(255,255,255,.08)',
+    border: '1px solid var(--inkLine)',
   },
   mensualBueno: {
     background: 'rgba(255,122,77,.16)',
@@ -254,6 +256,6 @@ const S = {
 
   pie: {
     position: 'relative', margin: '18px 0 0', textAlign: 'center',
-    fontSize: 12.5, color: 'rgba(255,255,255,.45)',
+    fontSize: 12.5, color: 'var(--inkSoft)',
   },
 };
