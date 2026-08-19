@@ -12,6 +12,13 @@ const nextConfig = {
     deviceSizes: [440, 640, 880, 1200],
   },
 
+  // Turbopack: ancla el root al directorio de la app.
+  experimental: {
+    turbopack: {
+      root: '.',
+    },
+  },
+
   // La raíz no es una pantalla, es un desvío al catálogo. Hacerlo acá
   // y no con un useEffect en `page.js` ahorra el viaje completo:
   // antes el navegador bajaba todo el JS de la raíz, hidrataba React
