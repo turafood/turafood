@@ -29,14 +29,27 @@ const DICT = {
     'Liquidaciones': 'Payouts',
     'Verificación': 'Verification',
     'Equipo y ajustes': 'Team & settings',
+    'Cómo te pagan': 'How you get paid',
+    'Menú y productos': 'Menu & products',
+    'Growth Partner': 'Growth Partner',
+    'Tura Business Suite': 'Tura Business Suite',
+    'Redes Sociales AI': 'Social Media AI',
+    'Google Ads AI': 'Google Ads AI',
+    'Historial de pedidos': 'Order history',
 
-    // Grupos del menú
+    // Grupos del menú. Los de arriba quedaron de la agrupación
+    // anterior; se dejan porque traducir de más no rompe nada y
+    // ahorra un error si alguna pantalla vieja todavía los usa.
     'PRINCIPAL': 'MAIN',
     'CATÁLOGO': 'CATALOG',
     'CLIENTES': 'CUSTOMERS',
     'OPERACIÓN': 'OPERATIONS',
     'FINANZAS': 'FINANCE',
     'CUENTA': 'ACCOUNT',
+    'DÍA A DÍA': 'EVERY DAY',
+    'MI NEGOCIO': 'MY BUSINESS',
+    'LA PLATA': 'MONEY',
+    'CRECER': 'GROW',
 
     // Barra superior
     'Tienda abierta': 'Store open',

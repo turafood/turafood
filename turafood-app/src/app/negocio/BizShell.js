@@ -54,52 +54,65 @@ const PAGES = {
 };
 
 /** Grupos del menú lateral — navGroups del mockup, línea 1464 */
+/**
+ * EL MENÚ, AGRUPADO POR LO QUE LA PERSONA HACE
+ *
+ * Antes eran siete grupos con nombres de organigrama —PRINCIPAL,
+ * CATÁLOGO, CLIENTES, OPERACIÓN, FINANZAS— que describen cómo está
+ * armado el sistema por dentro, no lo que el dueño va a hacer. Nadie
+ * entra pensando "voy a la sección de operación": entra pensando "voy
+ * a cambiarle el precio a la hamburguesa".
+ *
+ * Ahora son cinco, ordenados por cada cuánto se abren:
+ *
+ *   DÍA A DÍA   lo que toca todos los días, arriba y a la mano
+ *   MI NEGOCIO  lo que se configura una vez y se retoca de vez en cuando
+ *   LA PLATA    lo que se mira los domingos o cuando llega el corte
+ *   CRECER      lo opcional, que no estorba pero está
+ *   (sin nombre) papeles, soporte y ajustes — el pie del menú
+ *
+ * El último grupo va sin título a propósito: es el cajón de lo que se
+ * busca cuando se necesita, y ponerle un rótulo lo subiría de
+ * jerarquía sin ganar nada.
+ */
 const NAV_GROUPS = [
   {
-    label: 'PRINCIPAL',
+    label: 'DÍA A DÍA',
     items: [
       { label: 'Resumen', icon: 'space_dashboard', href: '/negocio' },
       { label: 'Pedidos en vivo', icon: 'notifications_active', href: '/negocio/pedidos', badge: 'new' },
-      { label: 'Historial', icon: 'history', href: '/negocio/historial' },
-    ],
-  },
-  {
-    label: 'CATÁLOGO',
-    items: [
       { label: 'Menú y productos', icon: 'restaurant_menu', href: '/negocio/catalogo' },
-      { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
     ],
   },
   {
-    label: 'CLIENTES',
-    items: [{ label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: 'reviews' }],
-  },
-  {
-    label: 'OPERACIÓN',
+    label: 'MI NEGOCIO',
     items: [
-      { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
       { label: 'Cómo te pagan', icon: 'point_of_sale', href: '/negocio/pagos' },
+      { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
+      { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
+      { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: 'reviews' },
       { label: 'Sucursales', icon: 'store', href: '/negocio/sucursales' },
     ],
   },
   {
-    label: 'FINANZAS',
+    label: 'LA PLATA',
     items: [
+      { label: 'Historial de pedidos', icon: 'history', href: '/negocio/historial' },
       { label: 'Reportes', icon: 'insights', href: '/negocio/reportes' },
       { label: 'Liquidaciones', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
     ],
   },
   {
-    label: 'TURA BUSINESS SUITE',
+    label: 'CRECER',
     items: [
-      { label: 'Resumen de la suite', icon: 'auto_awesome', href: '/negocio/suite' },
+      { label: 'Growth Partner', icon: 'rocket_launch', href: '/negocio/crecimiento' },
+      { label: 'Tura Business Suite', icon: 'auto_awesome', href: '/negocio/suite' },
       { label: 'Redes Sociales AI', icon: 'share', href: '/negocio/redes' },
       { label: 'Google Ads AI', icon: 'travel_explore', href: '/negocio/crecimiento/google' },
-      { label: 'Servicios y planes', icon: 'rocket_launch', href: '/negocio/crecimiento' },
     ],
   },
   {
-    label: 'CUENTA',
+    // Sin título: es el cajón de lo que se busca cuando se necesita.
     items: [
       { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
       { label: 'Soporte', icon: 'support_agent', href: '/negocio/soporte' },
@@ -342,8 +355,26 @@ export default function BizShell({ children }) {
 
           <div style={{ flex: 1, padding: '0 10px 14px', overflowY: 'auto' }}>
             {NAV_GROUPS.map((g) => (
-              <div key={g.label} style={{ marginBottom: 16 }}>
-                <div className="rail-hide" style={S.groupLabel}>{t(g.label)}</div>
+              // La clave sale del primer enlace y no del título: el
+              // último grupo no tiene título, y `key={undefined}` hace
+              // que React pierda el rastro de la lista al re-pintar.
+              <div
+                key={g.items[0].href}
+                style={{
+                  marginBottom: 16,
+                  // El grupo sin título es el pie del menú. Una línea
+                  // fina lo separa de lo de arriba sin subirle
+                  // jerarquía como haría un rótulo.
+                  ...(g.label ? null : {
+                    marginTop: 6,
+                    paddingTop: 14,
+                    borderTop: '1px solid var(--border)',
+                  }),
+                }}
+              >
+                {g.label && (
+                  <div className="rail-hide" style={S.groupLabel}>{t(g.label)}</div>
+                )}
                 {g.items.map((i) => {
                   const on = path === i.href;
                   const badge = badgeValue(i.badge);

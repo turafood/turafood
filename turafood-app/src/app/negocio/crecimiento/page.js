@@ -29,6 +29,7 @@
  */
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { cop } from '@/lib/format';
 import Comparativa from './Comparativa';
 import { PLANES, CONDICIONES } from './planes';
@@ -127,7 +128,24 @@ export default function GrowthPartnerPage() {
                   >
                     {it.si ? 'check_circle' : 'cancel'}
                   </span>
-                  {it.texto}
+
+                  {/* Lo que tiene pantalla propia se vuelve enlace. Es
+                      la única puerta a esas pantallas desde que esta
+                      página dejó de ser el hub de servicios. */}
+                  {it.ver ? (
+                    <Link
+                      href={it.ver}
+                      style={{
+                        ...S.itemLink,
+                        color: p.destacado ? '#FFB57A' : 'var(--primary)',
+                      }}
+                    >
+                      {it.texto}
+                      <span className="ms" style={{ fontSize: 14 }}>arrow_outward</span>
+                    </Link>
+                  ) : (
+                    it.texto
+                  )}
                 </li>
               ))}
             </ul>
@@ -230,6 +248,10 @@ const S = {
   item: {
     display: 'flex', alignItems: 'flex-start', gap: 9,
     fontSize: 12.8, lineHeight: 1.45,
+  },
+  itemLink: {
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    textDecoration: 'none', fontWeight: 700,
   },
 
   condiciones: {

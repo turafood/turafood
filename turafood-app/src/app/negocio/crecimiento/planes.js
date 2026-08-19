@@ -72,12 +72,17 @@ export const PLANES = [
     cta: 'Empezar con 3 meses',
     incluye: [
       { texto: 'Todo lo de la app gratis', si: true, fuerte: true },
-      { texto: 'Agente de voz IA que contesta y toma pedidos', si: true },
-      { texto: 'Agendamiento y reservas en línea', si: true },
+      // Los que tienen `ver` llevan a su pantalla de detalle. Sin
+      // esto esas pantallas quedaban sin puerta de entrada: la página
+      // vieja de Crecimiento era su hub y al reescribirla se
+      // quedaron colgando.
+      { texto: 'Agente de voz IA que contesta y toma pedidos', si: true, ver: '/negocio/crecimiento/agente-voz' },
+      { texto: 'Agendamiento y reservas en línea', si: true, ver: '/negocio/crecimiento/reservas' },
       { texto: 'Recordatorios automáticos a tus clientes', si: true },
       { texto: 'Correos de fidelización (MailerLite)', si: true },
+      { texto: 'Tu ficha de Google, reclamada y verificada', si: true, ver: '/negocio/crecimiento/google-negocio' },
       { texto: 'Sitio web propio, si lo necesitas', si: true },
-      { texto: 'Campañas en Google Ads y Meta', si: true },
+      { texto: 'Campañas en Google Ads y Meta', si: true, ver: '/negocio/crecimiento/google-ads' },
       { texto: 'Prioridad en la app', si: true },
     ],
   },
