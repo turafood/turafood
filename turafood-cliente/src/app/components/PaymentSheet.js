@@ -223,7 +223,7 @@ function Row({ label, value, green }) {
 
 const S = {
   transferir: {
-    margin: '14px 22px 0', padding: '16px 18px', borderRadius: 16,
+    margin: '14px 22px 0', padding: '16px 18px', borderRadius: 20,
     background: 'var(--bg)', border: '1.5px dashed var(--primary)',
     display: 'flex', flexDirection: 'column', gap: 4,
   },
@@ -246,7 +246,7 @@ const S = {
   },
   sheet: {
     width: '100%', maxHeight: '92%', overflowY: 'auto',
-    background: 'var(--bg)', borderRadius: '26px 26px 0 0',
+    background: 'var(--bg)', borderRadius: '32px 32px 0 0',
     animation: 'slideup .28s cubic-bezier(.32,.72,0,1) both',
     boxShadow: '0 -14px 44px rgba(20,16,10,.24)',
   },
@@ -260,13 +260,13 @@ const S = {
   },
   breakdown: {
     margin: '18px 22px', padding: 16,
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 16, display: 'flex', flexDirection: 'column', gap: 10,
+    background: 'var(--surface)', border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+    borderRadius: 20, display: 'flex', flexDirection: 'column', gap: 10,
   },
   methodBtn: {
-    display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 16, padding: 14,
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+    background: 'var(--surface)', border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+    borderRadius: 20, padding: 14,
   },
   methodIcon: {
     width: 40, height: 40, borderRadius: 12, background: '#FFF1EC', flex: 'none',
@@ -301,7 +301,7 @@ const S = {
   },
   brand: {
     fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em',
-    color: 'var(--faint)', border: '1px solid var(--border)',
+    color: 'var(--faint)', border: '1px solid rgba(0,0,0,0.05)',
     padding: '4px 8px', borderRadius: 6,
   },
 };

@@ -40,27 +40,18 @@ const pesos = (n) =>
 
 /**
  * CÓMO CIERRA EL MENSAJE, SEGÚN CÓMO VA A PAGAR
- *
- * Es la línea más importante: le dice al dueño qué tiene que hacer
- * cuando termine de leer. Sin ella la comanda es solo información y
- * queda en el aire.
- *
- * Va en primera persona porque el mensaje lo manda el CLIENTE desde su
- * propio WhatsApp. Un "PEDIDO NUEVO — TuraFood" en mayúsculas se lee
- * como un robot metido en una conversación entre dos personas; "apenas
- * me confirmes te transfiero" se lee como lo que realmente es.
  */
 const CIERRE = {
   nequi: (n) =>
-    `💳 Apenas me confirmes, te hago la transferencia a Nequi${n ? ` (${n})` : ''}.`,
+    `💳 Pagaré por *Nequi*${n ? ` (${n})` : ''}. Apenas me confirmes, te hago la transferencia.`,
   daviplata: (n) =>
-    `💳 Apenas me confirmes, te hago la transferencia a Daviplata${n ? ` (${n})` : ''}.`,
+    `💳 Pagaré por *Daviplata*${n ? ` (${n})` : ''}. Apenas me confirmes, te hago la transferencia.`,
   cash: () =>
-    '💵 Te pago en *efectivo* cuando me llegue. Confírmame si te sirve.',
+    '💵 Pagaré en *Efectivo* al recibir.',
   card: () =>
-    '💳 Te pago con *tarjeta* al recibir. Confírmame si llevas el datáfono.',
+    '💳 Pagaré con *Datáfono* al recibir.',
   whatsapp: () =>
-    '💬 Confírmame el pedido y cuadramos por acá cómo te pago.',
+    '💬 Pagaré por el *método que acordemos* por acá.',
 };
 
 /**
@@ -74,13 +65,12 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
   const { negocio, cliente, telefono, numeroPago } = extra;
   const L = [];
 
-  // Saluda por el nombre. "Hola Licores la 15" arranca una
-  // conversación; un encabezado en mayúsculas arranca un trámite.
   L.push(negocio ? `Hola *${negocio}* 👋` : 'Hola 👋');
   L.push('');
-  L.push('Te acabo de hacer un pedido por TuraFood.');
+  L.push('Acabo de comprar estos productos en *Tura Food*, todo el puerto en una APP. 🚀');
+  L.push('Quisiera confirmar este pedido:');
   L.push('');
-  L.push(`🧾 Pedido *${pedido.order_number}*`);
+  L.push(`🧾 *Pedido #${pedido.order_number}*`);
   L.push('');
 
   // ---- Qué pidió ----
@@ -90,8 +80,6 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
     const precio = (it.unitPrice ?? it.unit_price ?? 0) * cant;
     L.push(`• ${cant} x ${it.name} - ${pesos(precio)}`);
 
-    // Agregados y notas debajo y con sangría, para que se lean como
-    // parte del plato y no como otro plato.
     if (it.opts) L.push(`   ${it.opts}`);
     if (it.notes) L.push(`   📝 ${it.notes}`);
   }
@@ -136,7 +124,7 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
     L.push('');
   }
 
-  L.push('_Enviado desde turafood.com_');
+  L.push('_Enviado automáticamente por Tura Food_');
 
   return L.join('\n');
 }

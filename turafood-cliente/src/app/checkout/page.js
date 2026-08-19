@@ -653,12 +653,12 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   card: {
-    marginTop: 18, background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, overflow: 'hidden',
+    marginTop: 18, background: 'var(--surface)', border: 'none',
+    borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
   },
   cardRow: {
-    display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-    padding: 15, textAlign: 'left', borderBottom: '1px solid var(--border)',
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+    padding: '16px 20px', textAlign: 'left', borderBottom: '1px solid var(--surface2)',
   },
   rowLabel: {
     display: 'block', fontSize: 11.5, color: 'var(--muted)', fontWeight: 700,
@@ -690,8 +690,8 @@ const S = {
   },
   bottom: {
     position: 'absolute', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
-    borderTop: '1px solid var(--border)', padding: '14px 20px 20px',
-    display: 'flex', alignItems: 'center', gap: 14,
+    borderTop: '1px solid rgba(0,0,0,0.05)', padding: '14px 20px 20px',
+    display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 -4px 24px rgba(0,0,0,0.02)',
   },
   placeBtn: {
     flex: 1, height: 56, borderRadius: 999, background: 'var(--primary)', color: '#fff',
