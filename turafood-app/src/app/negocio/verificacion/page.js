@@ -24,6 +24,7 @@ import {
 import Vertical3D from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
 import Videollamada from '../../components/Videollamada';
+import Compromiso24h from '../../components/Compromiso24h';
 
 const VERTICALS = [
   { value: 'restaurant', label: 'Restaurante' },
@@ -203,6 +204,16 @@ export default function VerificacionPage() {
               <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19 }}>{pct}%</span>
             </div>
           </div>
+        </div>
+
+        {/* La promesa de las 24 horas, con reloj. Va arriba del riel
+            porque responde la pregunta que trae la persona a esta
+            pantalla: ¿cuándo me activan? */}
+        <div style={{ margin: '16px 0 4px' }}>
+          <Compromiso24h
+            desde={business?.verification_call_at ?? business?.onboarding_at}
+            aprobado={business?.status === 'active'}
+          />
         </div>
 
         {/* Riel de pasos: se puede saltar a cualquiera */}

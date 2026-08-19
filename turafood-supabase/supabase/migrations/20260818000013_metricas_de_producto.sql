@@ -55,8 +55,22 @@ CREATE INDEX IF NOT EXISTS idx_pevents_negocio
 -- Una persona, un evento de cada tipo por producto y por día. Sin
 -- esto, alguien que abre la ficha cinco veces cuenta como cinco
 -- personas y el número deja de significar algo.
+--
+-- OJO CON EL DÍA: la primera versión usaba `created_at::date` y
+-- Postgres la rechazó con 42P17 —"functions in index expression must
+-- be marked IMMUTABLE"— y con razón: pasar de `timestamptz` a `date`
+-- depende de la zona horaria de quien pregunta, así que el mismo dato
+-- caería en días distintos según quién lo lea. Un índice no puede
+-- depender de eso.
+--
+-- Fijar la zona a Bogotá lo vuelve inmutable y además es lo correcto
+-- para el negocio: el "día" de una venta en Buenaventura es el día en
+-- Buenaventura, no el del servidor.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_pevents_unico
-    ON public.product_events (product_id, kind, huella, (created_at::date))
+    ON public.product_events (
+        product_id, kind, huella,
+        ((created_at AT TIME ZONE 'America/Bogota')::date)
+    )
     WHERE huella IS NOT NULL;
 
 COMMENT ON TABLE public.product_events IS

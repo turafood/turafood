@@ -31,6 +31,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { cop } from '@/lib/format';
+import CabeceraSeccion from '../../components/CabeceraSeccion';
 import Comparativa from './Comparativa';
 import { PLANES, CONDICIONES } from './planes';
 
@@ -39,6 +40,13 @@ export default function GrowthPartnerPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      <CabeceraSeccion
+        escena="crecer"
+        etiqueta="GROWTH PARTNER"
+        titulo="Crece más rápido, si quieres"
+        texto="La app seguirá siendo gratis. Esto es tecnología que te alquilamos aparte — la tomas o no, sin perder nada."
+      />
 
       {/* ---------------------------------------------- promesa */}
       <section style={S.promesa}>
@@ -211,7 +219,7 @@ const S = {
     background: 'var(--surface)', border: '1.5px solid var(--border)',
   },
   planTop: {
-    background: 'linear-gradient(158deg, #241F1A 0%, #14110F 72%)',
+    background: 'linear-gradient(158deg, var(--ink) 0%, var(--ink2) 72%)',
     border: '1.5px solid rgba(255,181,122,.34)',
     boxShadow: '0 18px 44px rgba(20,16,10,.24)',
   },

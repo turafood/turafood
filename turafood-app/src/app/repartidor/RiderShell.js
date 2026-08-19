@@ -17,6 +17,7 @@ import {
   getMyCourier, getActiveOrder, setCourierStatus, pushLocation,
 } from '@/lib/repartidor';
 import { RiderContext } from './RiderContext';
+import { TEMA_INFO, useTheme } from '@/lib/prefs';
 import TuraIARider from './TuraIARider';
 import ProgresoCuenta from '../components/ProgresoCuenta';
 import Recorrido from '../components/Recorrido';
@@ -34,6 +35,7 @@ const FULLSCREEN = ['/repartidor/activo', '/repartidor/chat', '/repartidor/entre
 
 export default function RiderShell({ children }) {
   const path = usePathname();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const [courier, setCourier] = useState(null);
   const [active, setActive] = useState(null);
@@ -171,6 +173,21 @@ export default function RiderShell({ children }) {
               <span style={S.sideName}>Tura Repartidor</span>
               <span style={S.sideCity}>Buenaventura</span>
             </span>
+
+            {/* El repartidor no tenía cómo cambiar el tema: la app se
+                le quedaba en oscuro y punto. Es el mismo botón del
+                panel de negocio —claro, oscuro, puerto— para que sea
+                el mismo gesto en las dos. */}
+            <button
+              onClick={toggleTheme}
+              style={S.temaBtn}
+              aria-label={`Tema: ${TEMA_INFO[theme]?.nombre ?? 'Claro'}. Tocar para cambiar`}
+              title={`Tema: ${TEMA_INFO[theme]?.nombre ?? 'Claro'} — toca para cambiar`}
+            >
+              <span className="ms" style={{ fontSize: 18 }}>
+                {TEMA_INFO[theme]?.icono ?? 'light_mode'}
+              </span>
+            </button>
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -295,8 +312,14 @@ const S = {
   aiFab: {
     position: 'absolute', right: 16, bottom: 104, zIndex: 70,
     display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 18px 0 15px',
-    borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,#17140F)', color: '#fff',
+    borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,var(--ink))', color: '#fff',
     boxShadow: '0 12px 30px rgba(20,16,10,.34)', animation: 'pop .3s ease',
+  },
+  temaBtn: {
+    width: 34, height: 34, borderRadius: '50%', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'var(--surface2)', color: 'var(--muted)',
+    border: '1px solid var(--border)',
   },
   sideBrand: { display: 'flex', alignItems: 'center', gap: 11, padding: '0 8px 20px' },
   sideLogo: {
@@ -316,7 +339,7 @@ const S = {
   sideItemOff: { color: 'var(--muted)' },
   sideTier: {
     borderRadius: 18, padding: 15, color: '#fff',
-    background: 'linear-gradient(145deg,#241F1A,#12100D)',
+    background: 'linear-gradient(145deg,var(--ink),#12100D)',
   },
   sideTierIcon: {
     width: 32, height: 32, borderRadius: 10, flex: 'none',
@@ -361,7 +384,7 @@ const S = {
   },
   toast: {
     position: 'absolute', left: 20, right: 20, bottom: 96, zIndex: 110,
-    display: 'flex', alignItems: 'center', gap: 10, background: '#17140F', color: '#fff',
+    display: 'flex', alignItems: 'center', gap: 10, background: 'var(--ink)', color: '#fff',
     borderRadius: 15, padding: '14px 16px', boxShadow: '0 16px 40px rgba(0,0,0,.3)',
     animation: 'up .25s ease',
   },

@@ -157,7 +157,7 @@ const S = {
   caja: {
     position: 'relative', overflow: 'hidden',
     borderRadius: 26, padding: 24,
-    background: 'linear-gradient(150deg, #241F1A 0%, #14110F 70%)',
+    background: 'linear-gradient(150deg, var(--ink) 0%, var(--ink2) 70%)',
     color: '#fff',
   },
   brillo: {

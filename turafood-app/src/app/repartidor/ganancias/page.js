@@ -274,7 +274,7 @@ const S = {
     paddingTop: 12, borderTop: '1px solid rgba(255,255,255,.12)',
   },
   available: {
-    background: 'linear-gradient(135deg,#17140F,#3A332A)', borderRadius: 20, padding: 20, color: '#fff',
+    background: 'linear-gradient(135deg,var(--ink),#3A332A)', borderRadius: 20, padding: 20, color: '#fff',
   },
   withdraw: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

@@ -521,7 +521,7 @@ const S = {
   scroll: { flex: 1, overflowY: 'auto', padding: '6px 20px 108px', minHeight: 0 },
   hero: {
     borderRadius: 28, padding: 20, color: '#fff', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(145deg,#241F1A 0%,#12100D 64%)',
+    background: 'linear-gradient(145deg,var(--ink) 0%,#12100D 64%)',
     boxShadow: '0 18px 44px rgba(20,16,10,.22)',
   },
   heroGlow: {

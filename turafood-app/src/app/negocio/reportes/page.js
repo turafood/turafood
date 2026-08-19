@@ -25,6 +25,7 @@ import {
   summarizeByWeekday, summarizePrevious,
 } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import CabeceraSeccion from '../../components/CabeceraSeccion';
 
 const RANGES = [
   { label: '7 días', days: 7 },
@@ -103,6 +104,13 @@ export default function ReportesPage() {
 
   return (
     <div style={{ maxWidth: 1040 }}>
+      <CabeceraSeccion
+        escena="plata"
+        etiqueta="TUS NÚMEROS"
+        titulo="Cómo te fue esta semana"
+        texto="Qué se vendió, a qué hora entran los pedidos y qué platos mueven tu caja."
+      />
+
       {error && (
         <div style={S.error}>
           <span className="ms" style={{ fontSize: 18 }}>error</span>

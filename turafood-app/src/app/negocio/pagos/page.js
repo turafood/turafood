@@ -28,6 +28,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useBiz } from '../BizContext';
+import CabeceraSeccion from '../../components/CabeceraSeccion';
 import { updateBusiness } from '@/lib/negocio';
 import {
   IconoEfectivo, IconoTransferencia, IconoWhatsapp, IconoTarjeta, PuntoMarca,
@@ -188,31 +189,25 @@ export default function PagosPage() {
   return (
     <div style={S.pagina}>
 
-      {/* ------------------------------------------- encabezado */}
-      <section style={S.hero}>
-        <span style={S.heroBrillo} aria-hidden="true" />
-        <div style={S.heroFila}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h2 style={S.heroTitulo}>Elige cómo te pagan</h2>
-            <p style={S.heroTexto}>
-              La plata te llega directo a ti. TuraFood no se queda con nada
-              de tus ventas.
-            </p>
-          </div>
-          <span style={S.heroCifra}>
-            <b style={{ fontSize: 26, lineHeight: 1 }}>{activosListos}</b>
-            <span style={{ fontSize: 10.5, opacity: .7 }}>
-              {activosListos === 1 ? 'MEDIO' : 'MEDIOS'}
+      <CabeceraSeccion
+        escena="cobrar"
+        etiqueta="TU PLATA, DIRECTO A TI"
+        titulo="Elige cómo te pagan"
+        texto="La plata te llega directo. TuraFood no se queda con nada de tus ventas."
+        accion={
+          <div style={S.contadores}>
+            <span style={S.contador}>
+              <b>{activosListos}</b> {activosListos === 1 ? 'medio activo' : 'medios activos'}
             </span>
-          </span>
-        </div>
-        {incompletos.length > 0 && (
-          <div style={S.heroAviso}>
-            <span className="ms" style={{ fontSize: 16 }}>error</span>
-            Falta el número de {incompletos.join(' y ')}
+            {incompletos.length > 0 && (
+              <span style={S.contadorAviso}>
+                <span className="ms" style={{ fontSize: 15 }}>error</span>
+                Falta el número de {incompletos.join(' y ')}
+              </span>
+            )}
           </div>
-        )}
-      </section>
+        }
+      />
 
       {/* ------------------------------------------- los bloques */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -359,10 +354,22 @@ export default function PagosPage() {
 const S = {
   pagina: { display: 'flex', flexDirection: 'column', gap: 18, paddingBottom: 8 },
 
+  contadores: {
+    display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 12,
+  },
+  contador: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    fontSize: 12.5, fontWeight: 700, color: '#4ADE80',
+  },
+  contadorAviso: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    fontSize: 12.5, fontWeight: 700, color: '#FCA5A5',
+  },
+
   hero: {
     position: 'relative', overflow: 'hidden',
     borderRadius: 24, padding: 20,
-    background: 'linear-gradient(142deg, #0F2E22 0%, #0A1A14 72%)',
+    background: 'linear-gradient(142deg, var(--ink) 0%, var(--ink2) 72%)',
     color: '#fff',
   },
   heroBrillo: {

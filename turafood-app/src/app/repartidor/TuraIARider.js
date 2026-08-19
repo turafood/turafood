@@ -194,7 +194,7 @@ const S = {
   },
   avatar: {
     width: 40, height: 40, borderRadius: 13, flex: 'none',
-    background: 'linear-gradient(150deg,#2A2620,#17140F)',
+    background: 'linear-gradient(150deg,#2A2620,var(--ink))',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   close: {

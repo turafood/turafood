@@ -693,7 +693,7 @@ const S = {
   aiFab: {
     position: 'fixed', right: 18, bottom: 118, zIndex: 60,
     display: 'flex', alignItems: 'center', gap: 9, height: 50, padding: '0 20px 0 16px',
-    borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,#17140F)', color: '#fff',
+    borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,var(--ink))', color: '#fff',
     boxShadow: '0 14px 34px rgba(20,16,10,.34)',
   },
   aiBadge: {
@@ -722,7 +722,7 @@ const S = {
   },
   toast: {
     position: 'fixed', bottom: 26, left: '50%', transform: 'translateX(-50%)',
-    display: 'flex', alignItems: 'center', gap: 11, background: '#17140F', color: '#fff',
+    display: 'flex', alignItems: 'center', gap: 11, background: 'var(--ink)', color: '#fff',
     borderRadius: 15, padding: '14px 20px', boxShadow: '0 20px 50px rgba(0,0,0,.3)',
     zIndex: 90, animation: 'up .22s ease',
   },

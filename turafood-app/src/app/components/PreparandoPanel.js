@@ -165,7 +165,7 @@ const S = {
     position: 'fixed', inset: 0, zIndex: 400,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: 24,
-    background: 'linear-gradient(160deg, #17140F 0%, #0B0A08 70%)',
+    background: 'linear-gradient(160deg, var(--ink) 0%, var(--ink2) 70%)',
     color: '#fff',
   },
   centro: {

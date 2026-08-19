@@ -507,7 +507,7 @@ const S = {
   cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
   hero: {
     borderRadius: 28, padding: 20, color: '#fff', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(145deg,#241F1A 0%,#12100D 66%)',
+    background: 'linear-gradient(145deg,var(--ink) 0%,#12100D 66%)',
     boxShadow: '0 16px 40px rgba(20,16,10,.2)',
   },
   heroGlow: {

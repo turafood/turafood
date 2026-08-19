@@ -34,6 +34,28 @@
   --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
   --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
 
+  /* ----------------------------------------------------------
+     TINTA — el negro mate
+
+     El tercer nivel de contraste, después de `surface` (blanco) y
+     `surface2` (gris claro). Es para los bloques que tienen que
+     pesar: la comparativa de planes, el progreso de la cuenta, la
+     pantalla de preparación.
+
+     No es negro puro (#000): es un negro cálido y apagado. El negro
+     puro sobre una pantalla de celular a pleno sol se ve como un
+     hueco, y al lado de blanco puro vibra.
+
+     Existía ya, pero escrito a mano en diecisiete archivos, cada uno
+     con su propio tono. Por eso dos bloques oscuros contiguos no
+     casaban. Ahora sale de acá y todos son el mismo.
+     ---------------------------------------------------------- */
+  --ink: #22201D;
+  --ink2: #16140F;
+  --onInk: #F7F4F0;
+  --inkSoft: rgba(247, 244, 240, 0.58);
+  --inkLine: rgba(255, 255, 255, 0.10);
+
   /* Tipografías: se cargan desde layout.js */
   --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -67,6 +89,15 @@
 }
 
 :root[data-theme='dark'] {
+  /* En oscuro la tinta se LEVANTA. Si se quedara igual que en claro
+     se confundiría con el fondo y los bloques que deben resaltar
+     desaparecerían. */
+  --ink: #2A2622;
+  --ink2: #1D1A16;
+  --onInk: #F7F4F0;
+  --inkSoft: rgba(247, 244, 240, 0.56);
+  --inkLine: rgba(255, 255, 255, 0.12);
+
   --backdrop: #0B0A09;
   --bg: #131110;
   --surface: #1C1917;
@@ -848,6 +879,15 @@ button:disabled {
    oscuro → puerto.
    ============================================================ */
 :root[data-theme='puerto'] {
+  /* La tinta del puerto lleva verde adentro. Un negro neutro al lado
+     del verde de la bandera se ve sucio; con el mismo verde adentro,
+     los dos se leen como parte de la misma paleta. */
+  --ink: #16261D;
+  --ink2: #0B1711;
+  --onInk: #F2F9F4;
+  --inkSoft: rgba(242, 249, 244, 0.60);
+  --inkLine: rgba(255, 255, 255, 0.11);
+
   --backdrop: #F2F7F0;
   --bg: #FFFDF5;
   --surface: #FFFFFF;
@@ -907,4 +947,23 @@ button:disabled {
     max-height: 86dvh !important;
     margin-bottom: 5vh;
   }
+}
+
+/* ------------------------------------------------------------
+   Cabeceras de sección
+
+   En celular la escena se esconde: con 375px de ancho, el dibujo le
+   robaría la mitad al texto y el texto es lo que importa. El
+   degradado y el brillo se quedan, así que la franja sigue sin
+   verse seca.
+   ------------------------------------------------------------ */
+.cabecera-escena { display: none; }
+
+@media (min-width: 620px) {
+  .cabecera-escena { display: flex; }
+}
+
+/* En pantallas anchas la cabecera respira un poco más */
+@media (min-width: 980px) {
+  .cabecera-seccion { min-height: 148px; padding: 24px; }
 }

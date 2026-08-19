@@ -104,7 +104,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
                 style={{
                   ...S.marca,
                   background: p.hecho ? 'var(--green)' : esSiguiente ? '#fff' : 'rgba(255,255,255,.14)',
-                  color: p.hecho ? '#fff' : esSiguiente ? '#17140F' : 'rgba(255,255,255,.5)',
+                  color: p.hecho ? '#fff' : esSiguiente ? 'var(--ink)' : 'rgba(255,255,255,.5)',
                 }}
               >
                 {p.hecho
@@ -144,7 +144,7 @@ const S = {
   caja: {
     position: 'relative', overflow: 'hidden',
     borderRadius: 22, padding: 18, marginBottom: 18,
-    background: 'linear-gradient(140deg, #241F1A 0%, #14110F 68%)',
+    background: 'linear-gradient(140deg, var(--ink) 0%, var(--ink2) 68%)',
     border: '1px solid rgba(255,255,255,.09)',
     color: '#fff',
     boxShadow: '0 14px 36px rgba(20,16,10,.22)',
@@ -198,7 +198,7 @@ const S = {
   ir: {
     display: 'inline-flex', alignItems: 'center', gap: 5, flex: 'none',
     height: 32, padding: '0 13px', borderRadius: 999,
-    background: '#fff', color: '#17140F',
+    background: '#fff', color: 'var(--ink)',
     fontSize: 12.5, fontWeight: 800, textDecoration: 'none',
   },
 
@@ -211,7 +211,7 @@ const S = {
   pildora: {
     display: 'flex', alignItems: 'center', gap: 9,
     padding: '9px 14px', borderRadius: 999, marginBottom: 16,
-    background: 'linear-gradient(120deg,#241F1A,#14110F)',
+    background: 'linear-gradient(120deg, var(--ink), var(--ink2))',
     border: '1px solid rgba(255,255,255,.1)', color: '#fff',
   },
   anillo: { display: 'flex', flex: 'none' },

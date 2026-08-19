@@ -473,7 +473,7 @@ const S = {
   },
   closingBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 8, height: 48, padding: '0 24px',
-    borderRadius: 999, marginTop: 20, background: '#fff', color: '#17140F',
+    borderRadius: 999, marginTop: 20, background: '#fff', color: 'var(--ink)',
     fontSize: 14.5, fontWeight: 700, textDecoration: 'none',
   },
 };

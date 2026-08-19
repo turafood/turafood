@@ -406,7 +406,7 @@ export const S = {
   white: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
     width: '100%', height: 50, borderRadius: 14, background: '#fff',
-    color: '#17140F', fontWeight: 700, fontSize: 14.5,
+    color: 'var(--ink)', fontWeight: 700, fontSize: 14.5,
   },
   facebook: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,

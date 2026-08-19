@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { cop } from '@/lib/format';
 import { getSalesWindow, getPayouts } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import CabeceraSeccion from '../../components/CabeceraSeccion';
 
 /** Lunes de la semana a la que pertenece una fecha */
 function weekStart(d) {
@@ -107,6 +108,13 @@ export default function LiquidacionesPage() {
 
   return (
     <>
+      <CabeceraSeccion
+        escena="plata"
+        etiqueta="TODOS LOS VIERNES"
+        titulo="Lo que te vamos a consignar"
+        texto="El corte se cierra el domingo y se consigna el viernes. Acá ves cada peso antes de que te llegue."
+      />
+
       {error && (
         <div style={S.error}>
           <span className="ms" style={{ fontSize: 18 }}>error</span>
@@ -290,7 +298,7 @@ const S = {
     borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
   },
   heroCard: {
-    background: 'linear-gradient(135deg,#17140F,#3A332A)',
+    background: 'linear-gradient(135deg,var(--ink),#3A332A)',
     borderRadius: 28, padding: 20, color: '#fff',
   },
   mixItem: {
