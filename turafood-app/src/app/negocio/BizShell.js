@@ -34,6 +34,7 @@ const PAGES = {
   '/negocio/catalogo': ['Menú y productos', 'Precios, disponibilidad y fotos'],
   '/negocio/promociones': ['Promociones y cupones', 'Lo que ven tus clientes en la app'],
   '/negocio/horarios': ['Horarios y disponibilidad', 'Cuándo puede pedirte un cliente'],
+  '/negocio/pagos': ['Cómo te pagan', 'Los medios que aceptas y que ven tus clientes'],
   '/negocio/sucursales': ['Sucursales', 'Tus puntos en Buenaventura'],
   '/negocio/reportes': ['Reportes de ventas', 'Los últimos 7 días'],
   '/negocio/liquidaciones': ['Pagos y liquidaciones', 'Consignaciones semanales, todos los viernes'],
@@ -77,6 +78,7 @@ const NAV_GROUPS = [
     label: 'OPERACIÓN',
     items: [
       { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
+      { label: 'Cómo te pagan', icon: 'point_of_sale', href: '/negocio/pagos' },
       { label: 'Sucursales', icon: 'store', href: '/negocio/sucursales' },
     ],
   },

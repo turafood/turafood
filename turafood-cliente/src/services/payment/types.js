@@ -52,6 +52,10 @@ export const PAYMENT_METHODS = [
   { id: 'daviplata', label: 'Daviplata', icon: 'account_balance', online: true },
   { id: 'card', label: 'Tarjeta débito o crédito', icon: 'credit_card', online: true },
   { id: 'cash', label: 'Efectivo al recibir', icon: 'payments', online: false },
+  // Ni en línea ni contra entrega: el pedido queda hecho y el cobro se
+  // acuerda por chat con el dueño. Por eso `online: false` — no hay
+  // pasarela que abrir.
+  { id: 'whatsapp', label: 'Coordinar por WhatsApp', icon: 'chat', online: false },
 ];
 
 export const isOnlineMethod = (id) =>

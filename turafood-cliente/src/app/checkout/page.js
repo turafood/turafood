@@ -19,7 +19,19 @@ import { cop, deliveryWindow } from '@/lib/format';
 import PaymentSheet from '../components/PaymentSheet';
 import ScheduleSheet from '../components/ScheduleSheet';
 // Los métodos los define el servicio de pagos, no esta pantalla
-const PAY_METHODS = PAYMENT_METHODS;
+/**
+ * Los medios que se le muestran a la persona salen del negocio, no de
+ * una lista fija. Un restaurante sin pasarela solo recibe efectivo o
+ * cierra por WhatsApp, y ofrecerle tarjeta al cliente termina en un
+ * pedido que nadie puede cobrar.
+ *
+ * Si el negocio no trae la lista (fichas viejas), se cae a efectivo:
+ * es lo único que cualquiera puede recibir sin configurar nada.
+ */
+const metodosDelNegocio = (store) => {
+  const permitidos = store?.payment_methods?.length ? store.payment_methods : ['cash'];
+  return PAYMENT_METHODS.filter((m) => permitidos.includes(m.id));
+};
 
 const TIPS = [
   { label: 'Sin propina', value: 0 },
@@ -42,7 +54,9 @@ export default function CheckoutPage() {
   const [coupons, setCoupons] = useState([]);
 
   const [mode, setMode] = useState('delivery');
-  const [payMethod, setPayMethod] = useState('nequi');
+  // Arranca vacío y se elige cuando llega la ficha del negocio: poner
+  // 'nequi' por defecto mostraba un medio que el negocio podía no tener.
+  const [payMethod, setPayMethod] = useState(null);
   const [payOpen, setPayOpen] = useState(false);
   const [tip, setTip] = useState(2000);
   const [when, setWhen] = useState('asap');
@@ -74,6 +88,19 @@ export default function CheckoutPage() {
     })();
     return () => { alive = false; };
   }, [businessId]);
+
+  // Los medios de este negocio, y el primero como elegido. El orden de
+  // PAYMENT_METHODS pone primero los de pago en línea, así que si el
+  // negocio los tiene, esos quedan por defecto.
+  const metodos = metodosDelNegocio(store);
+
+  useEffect(() => {
+    if (!store) return;
+    setPayMethod((actual) => {
+      const validos = metodosDelNegocio(store).map((m) => m.id);
+      return validos.includes(actual) ? actual : (validos[0] ?? 'cash');
+    });
+  }, [store]);
 
   const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
 
@@ -115,14 +142,37 @@ export default function CheckoutPage() {
       // 2. El servicio decide: efectivo va directo a seguimiento;
       //    pago en línea crea el intento y abre la pasarela.
       //    El monto lo pone el servidor y el webhook lo revalida.
-      const { redirectTo } = await payForOrder(order, {
+      // Los productos con su nombre y precio, para la comanda de
+      // WhatsApp. Se toman ANTES de vaciar el carrito.
+      const productos = items.map((i) => ({
+        name: i.name,
+        qty: i.qty,
+        unitPrice: i.unitPrice,
+        opts: i.opts,
+        notes: i.notes,
+      }));
+
+      const { redirectTo, whatsappUrl } = await payForOrder(order, {
         method: payMethod,
         businessName: store?.name,
+        items: productos,
+        whatsappPhone: store?.whatsapp_phone,
       });
 
       // Si el usuario cancela en la pasarela, el pedido queda pendiente
       // y lo puede retomar desde Mis pedidos.
       clearCart();
+
+      // WhatsApp se abre con `window.open` y no con un <a>: el navegador
+      // lo cuenta como emergente si pasa mucho tiempo desde el clic, así
+      // que va primero, apenas vuelve el pedido.
+      //
+      // `_blank` para que el seguimiento quede abierto atrás: si mandar
+      // el mensaje reemplazara la página, la persona sale de WhatsApp y
+      // no encuentra su pedido.
+      if (whatsappUrl) {
+        window.open(whatsappUrl, '_blank', 'noopener');
+      }
 
       if (redirectTo) {
         router.push(redirectTo);
@@ -255,15 +305,17 @@ export default function CheckoutPage() {
 
             <button onClick={() => setPayOpen((v) => !v)} style={S.cardRow} aria-expanded={payOpen}>
               <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>
-                {PAY_METHODS.find((m) => m.id === payMethod)?.icon ?? 'account_balance_wallet'}
+                {metodos.find((m) => m.id === payMethod)?.icon ?? 'payments'}
               </span>
               <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                 <span style={S.rowLabel}>MÉTODO DE PAGO</span>
                 <span style={S.rowValue}>
-                  {PAY_METHODS.find((m) => m.id === payMethod)?.label}
+                  {metodos.find((m) => m.id === payMethod)?.label ?? 'Elige cómo pagar'}
                 </span>
                 <span style={S.rowHint}>
-                  {payMethod === 'cash' ? 'Pagas al recibir' : 'Pago en línea seguro'}
+                  {payMethod === 'cash' && 'Pagas al recibir'}
+                  {payMethod === 'whatsapp' && 'Cierras el pago con el restaurante'}
+                  {payMethod !== 'cash' && payMethod !== 'whatsapp' && 'Pago en línea seguro'}
                 </span>
               </span>
               <span
@@ -280,7 +332,7 @@ export default function CheckoutPage() {
 
             {payOpen && (
               <div style={{ padding: '4px 15px 14px', borderBottom: '1px solid var(--border)' }}>
-                {PAY_METHODS.map((m) => {
+                {metodos.map((m) => {
                   const on = payMethod === m.id;
                   return (
                     <button
@@ -488,6 +540,7 @@ export default function CheckoutPage() {
           businessName={store?.name}
           method={payMethod}
           onMethodChange={setPayMethod}
+          methods={metodos}
           busy={placing}
           error={error}
         />

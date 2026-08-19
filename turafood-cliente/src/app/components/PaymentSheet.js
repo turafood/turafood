@@ -24,6 +24,7 @@ export default function PaymentSheet({
   businessName,
   method,
   onMethodChange,
+  methods,          // los que ESTE negocio acepta
   busy,
   error,
 }) {
@@ -41,8 +42,12 @@ export default function PaymentSheet({
 
   if (!open) return null;
 
-  const selected = PAYMENT_METHODS.find((m) => m.id === method);
+  // Si no llega la lista del negocio se muestran todos, que es como
+  // se comportaba antes. Pero el checkout siempre la manda.
+  const disponibles = methods?.length ? methods : PAYMENT_METHODS;
+  const selected = disponibles.find((m) => m.id === method);
   const online = isOnlineMethod(method);
+  const porWhatsapp = method === 'whatsapp';
 
   return (
     <div style={S.backdrop} onClick={() => !busy && onClose()}>
@@ -93,7 +98,7 @@ export default function PaymentSheet({
 
           {showMethods && (
             <div style={{ marginTop: 8 }}>
-              {PAYMENT_METHODS.map((m) => {
+              {disponibles.map((m) => {
                 const on = method === m.id;
                 return (
                   <button
@@ -126,29 +131,46 @@ export default function PaymentSheet({
           </div>
         )}
 
-        {/* Confianza */}
+        {/* Qué va a pasar cuando toque el botón. Se dice antes, no
+            después: nadie quiere enterarse de que se abre WhatsApp
+            cuando ya se le abrió. */}
         <div style={S.trust}>
-          <span className="ms" style={{ fontSize: 17, color: 'var(--green)', flex: 'none' }}>lock</span>
+          <span
+            className="ms"
+            style={{ fontSize: 17, color: porWhatsapp ? '#25D366' : 'var(--green)', flex: 'none' }}
+          >
+            {porWhatsapp ? 'chat' : 'lock'}
+          </span>
           <span>
-            {online
-              ? 'Pago cifrado procesado por ePayco. Tus datos de tarjeta no pasan por TuraFood.'
-              : 'Pagas en efectivo al recibir. Ten el monto listo para el repartidor.'}
+            {porWhatsapp &&
+              `Tu pedido queda hecho y le llega a ${businessName ?? 'el restaurante'} por WhatsApp con todo el detalle. El pago lo acuerdas ahí mismo con ellos.`}
+            {!porWhatsapp && online &&
+              'Pago cifrado procesado por ePayco. Tus datos de tarjeta no pasan por TuraFood.'}
+            {!porWhatsapp && !online &&
+              'Pagas en efectivo al recibir. Ten el monto listo para el repartidor.'}
           </span>
         </div>
 
         <div style={{ padding: '0 22px 26px' }}>
-          <button onClick={onConfirm} disabled={busy} style={S.payBtn}>
+          <button
+            onClick={onConfirm}
+            disabled={busy}
+            style={{ ...S.payBtn, background: porWhatsapp ? '#25D366' : S.payBtn.background }}
+          >
             {busy ? (
               <>
                 <span className="ms" style={{ fontSize: 19, animation: 'spin 1s linear infinite' }}>
                   progress_activity
                 </span>
-                Conectando con la pasarela…
+                {porWhatsapp ? 'Armando tu pedido…' : 'Conectando con la pasarela…'}
               </>
             ) : (
               <>
                 {online && <span className="ms" style={{ fontSize: 19 }}>lock</span>}
-                {online ? `Pagar ${cop(totals.total)}` : `Confirmar pedido · ${cop(totals.total)}`}
+                {porWhatsapp && <span className="ms" style={{ fontSize: 19 }}>chat</span>}
+                {porWhatsapp && `Continuar por WhatsApp · ${cop(totals.total)}`}
+                {!porWhatsapp && online && `Pagar ${cop(totals.total)}`}
+                {!porWhatsapp && !online && `Confirmar pedido · ${cop(totals.total)}`}
               </>
             )}
           </button>

@@ -17,6 +17,7 @@
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import { epaycoProvider } from './epayco';
 import { PaymentStatus, isOnlineMethod } from './types';
+import { comandaWhatsapp, linkWhatsapp } from '@/lib/comandaWhatsapp';
 
 /** Proveedores disponibles. Agregar Wompi o Stripe es sumar una línea. */
 const PROVIDERS = {
@@ -62,7 +63,33 @@ export async function createPayment(orderId, method = 'card', provider = DEFAULT
  * Efectivo no pasa por pasarela: se registra el pago como pendiente y
  * se cobra al entregar.
  */
-export async function payForOrder(order, { method = 'card', businessName } = {}) {
+export async function payForOrder(order, {
+  method = 'card',
+  businessName,
+  items = [],
+  whatsappPhone,
+  customerName,
+} = {}) {
+  // WhatsApp no es una pasarela: el pedido ya quedó hecho y le aparece
+  // al negocio en su tablero como cualquier otro. Lo único que falta
+  // es mandarle la comanda para que arranque a cocinar y acuerden el
+  // pago por chat.
+  if (method === 'whatsapp') {
+    const texto = comandaWhatsapp(order, items, {
+      negocio: businessName,
+      cliente: customerName,
+    });
+    const url = linkWhatsapp(whatsappPhone, texto);
+
+    if (!url) {
+      // El trigger de la base no deja llegar hasta acá sin número, pero
+      // si llegara, es mejor dejar el pedido hecho y avisar que romper.
+      return { redirectTo: `/tracking?order=${order.id}`, payment: null };
+    }
+
+    return { redirectTo: `/tracking?order=${order.id}`, payment: null, whatsappUrl: url };
+  }
+
   if (!isOnlineMethod(method)) {
     return { redirectTo: `/tracking?order=${order.id}`, payment: null };
   }
