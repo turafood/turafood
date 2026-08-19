@@ -19,6 +19,8 @@ import {
 import { RiderContext } from './RiderContext';
 import TuraIARider from './TuraIARider';
 import ProgresoCuenta from '../components/ProgresoCuenta';
+import Recorrido from '../components/Recorrido';
+import { PASOS_REPARTIDOR } from '../components/recorridos';
 
 const TABS = [
   { label: 'Inicio', icon: 'home', href: '/repartidor' },
@@ -160,7 +162,7 @@ export default function RiderShell({ children }) {
           repartidor en tablet no usa la píldora flotante: la
           navegación se va al lado y el contenido gana todo el alto. */}
       {!fullscreen && (
-        <aside className="rider-side">
+        <aside data-tour="nav" className="rider-side">
           <div style={S.sideBrand}>
             <span style={S.sideLogo}>
               <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>two_wheeler</span>
@@ -235,6 +237,8 @@ export default function RiderShell({ children }) {
           </div>
         )}
 
+        <Recorrido id="repartidor" pasos={PASOS_REPARTIDOR} />
+
         {children}
 
         {!fullscreen && !aiOpen && (
@@ -247,7 +251,7 @@ export default function RiderShell({ children }) {
         <TuraIARider open={aiOpen} onClose={() => setAiOpen(false)} />
 
         {!fullscreen && (
-          <nav className="rider-tabs" style={S.tabsWrap}>
+          <nav data-tour="nav-movil" className="rider-tabs" style={S.tabsWrap}>
             <div style={S.tabs}>
               {TABS.map((t) => {
                 const on = t.href === '/repartidor'

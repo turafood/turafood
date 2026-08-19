@@ -23,6 +23,8 @@ import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
 import { useDialogOpen } from '@/lib/useDialogOpen';
 import ProgresoCuenta from '../components/ProgresoCuenta';
+import Recorrido from '../components/Recorrido';
+import { PASOS_NEGOCIO } from '../components/recorridos';
 
 /** Títulos de cada sección — PAGES del mockup, línea 1126 */
 const PAGES = {
@@ -302,6 +304,7 @@ export default function BizShell({ children }) {
         {/* ---------------- Barra lateral ---------------- */}
         <nav
           style={S.side}
+          data-tour="nav"
           className={`biz-side${drawer ? ' is-open' : ''}${rail.collapsed ? ' is-rail' : ''}`}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '20px 18px 18px' }}>
@@ -457,7 +460,7 @@ export default function BizShell({ children }) {
             </Link>
           </header>
 
-          <main className="sc biz-main" style={S.main}>
+          <main className="sc biz-main" data-tour="contenido" style={S.main}>
             {/* Lo que le falta para quedar activo, en todas las
                 pantallas. Quien entró a probar no va a ir solo a
                 buscar la verificación: si no está delante, la cuenta
@@ -482,12 +485,14 @@ export default function BizShell({ children }) {
 
         {/* Botón y panel de Tura IA */}
         {!aiOpen && !sheetOpen && (
-          <button onClick={() => setAiOpen(true)} style={S.aiFab}>
+          <button data-tour="ia" onClick={() => setAiOpen(true)} style={S.aiFab}>
             <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--amber)' }}>auto_awesome</span>
             <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-.01em' }}>Tura IA</span>
             {aiTips > 0 && <span style={S.aiBadge}>{aiTips}</span>}
           </button>
         )}
+        <Recorrido id="negocio" pasos={PASOS_NEGOCIO} />
+
         <TuraIA
           open={aiOpen}
           onClose={() => setAiOpen(false)}

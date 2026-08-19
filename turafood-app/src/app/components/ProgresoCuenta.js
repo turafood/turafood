@@ -47,7 +47,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
   /* -------------------------------------------------- plegado */
   if (plegado) {
     return (
-      <button onClick={() => plegar(false)} style={S.pildora} title="Ver qué te falta">
+      <button data-tour="progreso" onClick={() => plegar(false)} style={S.pildora} title="Ver qué te falta">
         <span style={S.anillo}>
           <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2.5" />
@@ -69,7 +69,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
 
   /* -------------------------------------------------- desplegado */
   return (
-    <section style={S.caja}>
+    <section data-tour="progreso" style={S.caja}>
       <span style={S.brillo} />
 
       <header style={S.cabecera}>
