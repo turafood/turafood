@@ -127,7 +127,10 @@ const BOTTOM_NAV = [
   { label: 'Pedidos', icon: 'notifications_active', href: '/negocio/pedidos', badge: 'new' },
   { label: 'Menú', icon: 'restaurant_menu', href: '/negocio/catalogo' },
   { label: 'Promos', icon: 'local_activity', href: '/negocio/promociones' },
-  { label: 'Pagos', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
+  // "Pagos" a secas se confundia con "Como te pagan" del menu
+  // lateral, que es otra cosa: uno es lo que TuraFood le consigna,
+  // el otro es como le cobra a sus clientes.
+  { label: 'Mi plata', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
 ];
 
 const initials = (name) =>

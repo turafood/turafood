@@ -30,6 +30,7 @@ const DICT = {
     'Verificación': 'Verification',
     'Equipo y ajustes': 'Team & settings',
     'Cómo te pagan': 'How you get paid',
+    'Mi plata': 'My money',
     'Menú y productos': 'Menu & products',
     'Growth Partner': 'Growth Partner',
     'Tura Business Suite': 'Tura Business Suite',
