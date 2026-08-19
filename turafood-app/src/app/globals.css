@@ -801,3 +801,23 @@ button:disabled {
   .prep-humo, .prep-fuego, .prep-plato, .prep-caldo { animation: none; }
   .prep-humo { opacity: .4; stroke-dashoffset: 0; }
 }
+
+/* ------------------------------------------------------------
+   Growth Partner: las tres tarjetas de plan
+
+   Celular  → una columna, y la del año DE PRIMERA. En móvil casi
+              nadie llega al final de la página: el plan que
+              queremos que vean tiene que ser el primero.
+   ≥900px   → las tres en fila, y ahí sí en el orden natural
+              (gratis, 3 meses, año), porque se ven todas a la vez
+              y el orden ascendente se lee mejor.
+   ------------------------------------------------------------ */
+.planes-grid > article:nth-child(3) { order: -1; }
+
+@media (min-width: 900px) {
+  .planes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+  }
+  .planes-grid > article:nth-child(3) { order: 0; }
+}

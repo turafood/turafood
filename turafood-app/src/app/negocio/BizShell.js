@@ -42,7 +42,7 @@ const PAGES = {
   '/negocio/equipo': ['Equipo y cuenta', 'Roles, verificación y plan'],
   '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
   '/negocio/suite': ['Tura Business Suite', 'Todo lo que hace crecer tu negocio, en un solo lugar'],
-  '/negocio/crecimiento': ['Servicios y planes', 'Lo que montamos por ti y cuanto cuesta'],
+  '/negocio/crecimiento': ['Growth Partner', 'La app es gratis. Esto es lo que puedes alquilar para crecer'],
   '/negocio/redes': ['Redes Sociales AI', 'Tus cuentas, tus posts y tu bandeja'],
   '/negocio/redes/crear': ['Crear publicación', 'Míralo antes de publicarlo'],
   '/negocio/redes/inbox': ['Bandeja de marketing', 'Todos tus mensajes en un solo lugar'],
