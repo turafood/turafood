@@ -349,6 +349,43 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* ============================================================
+              ICONOS 3D (Restaurados)
+              ============================================================ */}
+          <div className="mobile-only" style={{ marginTop: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
+              <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
+                <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                <span style={{ fontSize: 20, fontWeight: 500, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
+              </button>
+              <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
+                <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                <span style={{ fontSize: 20, fontWeight: 500, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Tira de verticales (móvil) */}
+          <div className="mobile-only">
+            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 4px' }}>
+            {STRIP_VERTICALS.map((v) => (
+              <button
+                key={v.id}
+                onClick={() => (v.external
+                  ? window.open(v.external, '_blank', 'noopener,noreferrer')
+                  : router.push(`/list?v=${v.id}`))}
+                style={S.stripVertical}
+              >
+                <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
+                {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
+                <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>
+                  {v.label}
+                </span>
+              </button>
+            ))}
+            </div>
+          </div>
+
           {/* Pide de nuevo */}
           <div style={{ marginTop: 14, padding: '0 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
