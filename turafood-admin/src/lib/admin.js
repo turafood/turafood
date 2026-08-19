@@ -783,3 +783,58 @@ export function millions(v) {
   if (n >= 1000) return `$${Math.round(n / 1000)}K`;
   return `$${n}`;
 }
+
+
+// ============================================================
+// QUIÉN ACABA DE LLEGAR
+//
+// Cada negocio que contesta las seis preguntas del arranque aparece
+// acá con lo que dijo. Es el reemplazo de "avísenme por correo": el
+// equipo abre la consola y ve a quién llamar hoy.
+//
+// La vista ya viene ordenada por más reciente y trae `prioridad`
+// calculada — quién dijo "ya mismo" y maneja volumen.
+// ============================================================
+
+/** Cómo se lee cada respuesta cuando la ve el equipo */
+export const ETIQUETAS_ARRANQUE = {
+  nicho: {
+    comidas_rapidas: 'Comidas rápidas', hamburgueseria: 'Hamburguesas',
+    pizzeria: 'Pizzería', comida_mar: 'Comida de mar', asadero: 'Asadero',
+    cafeteria: 'Café', mercado: 'Mercado', farmacia: 'Droguería',
+    licores: 'Licores', sexshop: 'Sexshop', tienda: 'Tienda',
+  },
+  volumen: {
+    '0-10': 'Menos de 10/día', '10-30': '10 a 30/día',
+    '30-100': '30 a 100/día', mas100: 'Más de 100/día',
+  },
+  reparto: {
+    propios: 'Tiene domiciliarios', ninguno: 'Necesita nuestra flota',
+    mixto: 'Necesita refuerzo', recogen: 'Solo recogen',
+  },
+  dolor: {
+    clientes: 'Quiere más clientes', orden: 'Se le enredan los pedidos',
+    cobrar: 'No cuadra caja', entregas: 'Entregas lentas', todo: 'Está mirando',
+  },
+  cuando: { ya: 'Ya mismo', semana: 'Esta semana', mirando: 'Está mirando' },
+};
+
+async function _getRecienLlegados(limite = 25) {
+  if (!isLive()) {
+    await delay();
+    return [];
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('negocios_recien_llegados')
+    .select('*')
+    .limit(limite);
+
+  if (error) throw new Error(`No se pudo cargar quién llegó: ${error.message}`);
+  return data ?? [];
+}
+
+export async function getRecienLlegados(limite = 25) {
+  return cached(`recien-llegados|${limite}`, () => _getRecienLlegados(limite));
+}

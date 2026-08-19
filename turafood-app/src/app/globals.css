@@ -737,3 +737,67 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   .rider-side-item { transition: none; }
 }
+
+/* ------------------------------------------------------------
+   Arranque: la hoja de las seis preguntas
+
+   Va acá y no en el componente porque un estilo en línea le gana a
+   cualquier media query, y esto tiene que cambiar según el ancho.
+
+   Celular  → pegada abajo, de lado a lado, esquinas arriba.
+   ≥600px   → tarjeta centrada, con aire alrededor.
+   ------------------------------------------------------------ */
+@media (min-width: 600px) {
+  .arranque-hoja {
+    border-radius: 26px !important;
+    max-height: 84dvh !important;
+    margin-bottom: 6vh;
+    box-shadow: 0 24px 70px rgba(12, 10, 9, .34) !important;
+  }
+}
+
+/* En pantallas bajas —un celular apaisado— la hoja se queda sin
+   cuerpo. Se le quita altura al encabezado antes que al contenido. */
+@media (max-height: 560px) {
+  .arranque-hoja { max-height: 96dvh !important; }
+}
+
+/* ------------------------------------------------------------
+   Preparando el panel: la olla, el humo y el plato
+
+   El humo sube y se desvanece; la hornilla late; el plato flota. Son
+   tres ritmos distintos a propósito — si todo late al mismo tiempo se
+   ve como un GIF barato en vez de una escena.
+   ------------------------------------------------------------ */
+@keyframes prep-humo-sube {
+  0%   { opacity: 0; stroke-dashoffset: 90; transform: translateY(6px); }
+  25%  { opacity: .55; }
+  100% { opacity: 0; stroke-dashoffset: 0; transform: translateY(-18px); }
+}
+@keyframes prep-latido {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: .95; transform: scale(1.08); }
+}
+@keyframes prep-flota {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-9px) rotate(3deg); }
+}
+@keyframes prep-burbujea {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.22); }
+}
+
+.prep-humo {
+  stroke-dasharray: 90;
+  animation: prep-humo-sube 2.6s ease-out infinite;
+}
+.prep-fuego  { animation: prep-latido 1.8s ease-in-out infinite; }
+.prep-plato  { animation: prep-flota 2.4s ease-in-out infinite; }
+.prep-caldo  { animation: prep-burbujea 1.4s ease-in-out infinite; transform-origin: center; }
+
+/* A quien le molesta el movimiento se le muestra la escena quieta.
+   No se le quita nada: los pasos se siguen marcando igual. */
+@media (prefers-reduced-motion: reduce) {
+  .prep-humo, .prep-fuego, .prep-plato, .prep-caldo { animation: none; }
+  .prep-humo { opacity: .4; stroke-dashoffset: 0; }
+}

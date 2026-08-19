@@ -69,25 +69,32 @@ export async function payForOrder(order, {
   items = [],
   whatsappPhone,
   customerName,
+  numeroPago,       // el Nequi/Daviplata del negocio, para el cierre
 } = {}) {
-  // WhatsApp no es una pasarela: el pedido ya quedó hecho y le aparece
-  // al negocio en su tablero como cualquier otro. Lo único que falta
-  // es mandarle la comanda para que arranque a cocinar y acuerden el
-  // pago por chat.
-  if (method === 'whatsapp') {
+  // La comanda por WhatsApp NO es solo del método "acordar por
+  // WhatsApp". Si el negocio tiene WhatsApp configurado, se le manda
+  // pase lo que pase — el mensaje cambia el cierre según cómo va a
+  // pagar:
+  //
+  //   efectivo   → "te pago en efectivo cuando me llegue"
+  //   Nequi      → "apenas me confirmes te transfiero"
+  //   acordar    → "cuadramos por acá cómo te pago"
+  //
+  // Que el pedido esté en el tablero no significa que el dueño lo
+  // vaya a ver: muchos tienen el panel cerrado y el celular en la
+  // mano. El WhatsApp es el que suena.
+  if (whatsappPhone) {
     const texto = comandaWhatsapp(order, items, {
       negocio: businessName,
       cliente: customerName,
+      numeroPago,
     });
     const url = linkWhatsapp(whatsappPhone, texto);
 
-    if (!url) {
-      // El trigger de la base no deja llegar hasta acá sin número, pero
-      // si llegara, es mejor dejar el pedido hecho y avisar que romper.
-      return { redirectTo: `/tracking?order=${order.id}`, payment: null };
+    if (url) {
+      return { redirectTo: `/tracking?order=${order.id}`, payment: null, whatsappUrl: url };
     }
-
-    return { redirectTo: `/tracking?order=${order.id}`, payment: null, whatsappUrl: url };
+    // Sin link no se frena nada: el pedido ya está hecho.
   }
 
   if (!isOnlineMethod(method)) {

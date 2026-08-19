@@ -23,6 +23,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { isConfigured } from '@/utils/supabase/client';
 import { probarComo } from '@/lib/sesion';
+import Arranque from '../components/Arranque';
+import { PREGUNTAS_NEGOCIO, PREGUNTAS_REPARTIDOR } from '../components/preguntasArranque';
+import { guardarArranque } from '@/lib/arranque';
+import PreparandoPanel from '../components/PreparandoPanel';
 import HeroBackdrop from '../components/HeroBackdrop';
 
 const ROLES = [
@@ -50,6 +54,17 @@ export default function EntrarPage() {
   const [paso, setPaso] = useState(null);
   const [error, setError] = useState(null);
 
+  // Cuando la sesión ya está lista pero antes de entrar al panel, se
+  // pregunta. En este punto la persona YA está adentro: si cierra o
+  // salta, entra igual — solo pierde que le armemos el panel a su
+  // medida.
+  const [preguntando, setPreguntando] = useState(null);
+  const [guardandoArranque, setGuardandoArranque] = useState(false);
+
+  // Lo que contestó, para que la escena de preparación se adapte a su
+  // nicho: quien puso pizzería ve el horno, no una olla genérica.
+  const [preparando, setPreparando] = useState(null);
+
   const entrar = async (rol) => {
     setError(null);
 
@@ -66,15 +81,85 @@ export default function EntrarPage() {
       if (!user) {
         throw new Error('No se pudo abrir la sesión. Entra con tu cuenta o inténtalo de nuevo.');
       }
-      // El proxy lee el rol del perfil y manda al panel que toca
-      router.replace('/');
-      router.refresh();
+      // En vez de entrar derecho, seis preguntas cortas. La sesión ya
+      // existe, así que esto no es un muro: es afinar el panel que ya
+      // es suyo.
+      setPreguntando(rol.id);
+      setBusy(null);
+      setPaso(null);
     } catch (err) {
       setError(err.message);
       setBusy(null);
       setPaso(null);
     }
   };
+
+  /**
+   * Guarda y entra. Si falla el guardado, entra igual.
+   *
+   * La escena de preparación se muestra un mínimo de 2,2 s aunque el
+   * guardado termine antes. Suena raro alargar una espera a propósito,
+   * pero un fogonazo de 300 ms que aparece y desaparece se siente como
+   * un parpadeo roto; dos segundos con algo que mirar se sienten como
+   * que la app está haciendo su trabajo.
+   */
+  const terminarArranque = async (respuestas) => {
+    setGuardandoArranque(true);
+    setPreparando({
+      nicho: preguntando === 'business' ? respuestas.nicho : 'repartidor',
+    });
+
+    const minimo = new Promise((r) => setTimeout(r, 2200));
+
+    try {
+      await Promise.all([guardarArranque(preguntando, respuestas), minimo]);
+    } catch {
+      // Perder las respuestas es molesto; dejarlo trancado en la
+      // puerta es peor. Entra igual y el panel se arma genérico.
+      await minimo;
+    }
+    entrarAlPanel();
+  };
+
+  const entrarAlPanel = () => {
+    setPreguntando(null);
+    setPreparando(null);
+    setGuardandoArranque(false);
+    router.replace('/');
+    router.refresh();
+  };
+
+  if (preparando) {
+    return (
+      <PreparandoPanel
+        nicho={preparando.nicho}
+        pasos={preguntando === 'business'
+          ? ['Guardando lo que nos contaste',
+             'Armando tu menú de ejemplo',
+             'Poniendo comandas de prueba',
+             'Dejando tu tablero listo']
+          : ['Guardando tu perfil',
+             'Buscando negocios cerca',
+             'Dejando tu panel listo']}
+      />
+    );
+  }
+
+  if (preguntando) {
+    return (
+      <>
+        <div style={S.page}>
+          <HeroBackdrop brightness={0.18} />
+        </div>
+        <Arranque
+          preguntas={preguntando === 'business' ? PREGUNTAS_NEGOCIO : PREGUNTAS_REPARTIDOR}
+          onListo={terminarArranque}
+          onSaltar={entrarAlPanel}
+          guardando={guardandoArranque}
+        />
+      </>
+    );
+  }
 
   // Mientras se abre la sesión, la pantalla completa. No es un adorno:
   // crear la cuenta y su ficha toma un par de segundos, y dos segundos

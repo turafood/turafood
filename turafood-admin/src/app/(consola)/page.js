@@ -12,23 +12,25 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { cop } from '@/lib/format';
-import { getOverview, getGmvSeries, getBusinesses, millions, ago } from '@/lib/admin';
+import { getOverview, getGmvSeries, getBusinesses, getRecienLlegados, ETIQUETAS_ARRANQUE, millions, ago } from '@/lib/admin';
 import { Panel, Kpi, HeroCard, Initials, Meter, Skeleton, ErrorNote } from '../ui';
 
 export default function ResumenPage() {
   const [overview, setOverview] = useState(null);
   const [gmv, setGmv] = useState([]);
   const [businesses, setBusinesses] = useState([]);
+  const [llegados, setLlegados] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     let alive = true;
-    Promise.all([getOverview(), getGmvSeries(7), getBusinesses()])
-      .then(([o, g, b]) => {
+    Promise.all([getOverview(), getGmvSeries(7), getBusinesses(), getRecienLlegados(8)])
+      .then(([o, g, b, l]) => {
         if (!alive) return;
         setOverview(o);
         setGmv(g);
         setBusinesses(b);
+        setLlegados(l);
       })
       .catch((err) => { if (alive) setError(err.message); });
     return () => { alive = false; };
@@ -183,6 +185,67 @@ export default function ResumenPage() {
         </Panel>
       </div>
 
+      {/* ----------------------------------------------------------
+          QUIÉN ACABA DE LLEGAR
+
+          Va antes que las cifras de abajo a propósito: un negocio que
+          contestó hace veinte minutos y dijo "quiero vender ya mismo"
+          es lo más accionable que hay en esta pantalla. Las métricas
+          dicen cómo va el mes; esto dice a quién llamar ahora.
+          ---------------------------------------------------------- */}
+      {llegados.length > 0 && (
+        <Panel
+          title="Acaban de entrar"
+          action={<Link href="/negocios" style={S.verTodos}>Ver todos</Link>}
+        >
+          <div style={S.llegados}>
+            {llegados.map((n) => (
+              <Link key={n.id} href={`/negocios?id=${n.id}`} style={S.llegado}>
+                <Initials name={n.name} />
+
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={S.llegadoNombre}>
+                    {n.name}
+                    {n.prioridad >= 3 && <span style={S.caliente}>PRIORIDAD</span>}
+                  </span>
+
+                  {/* Lo que contestó, en fichas. El equipo lee de un
+                      vistazo qué vende, cuánto mueve y qué necesita. */}
+                  <span style={S.fichas}>
+                    {n.nicho && (
+                      <span style={S.ficha}>
+                        {ETIQUETAS_ARRANQUE.nicho[n.nicho] ?? n.nicho}
+                      </span>
+                    )}
+                    {n.volumen && (
+                      <span style={S.ficha}>
+                        {ETIQUETAS_ARRANQUE.volumen[n.volumen] ?? n.volumen}
+                      </span>
+                    )}
+                    {n.reparto === 'ninguno' && (
+                      <span style={{ ...S.ficha, ...S.fichaVerde }}>Necesita flota</span>
+                    )}
+                    {n.cuando_empieza === 'ya' && (
+                      <span style={{ ...S.ficha, ...S.fichaNaranja }}>Quiere vender ya</span>
+                    )}
+                  </span>
+
+                  <span style={S.llegadoPie}>
+                    {n.dolor && (ETIQUETAS_ARRANQUE.dolor[n.dolor] ?? n.dolor)}
+                    {n.dolor && ' · '}
+                    {ago(n.onboarding_at)}
+                  </span>
+                </span>
+
+                <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>
+                  chevron_right
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Panel>
+      )}
+
       {/* Tres columnas de abajo */}
       <div style={S.trio}>
         <Panel title="Top negocios de la semana">
@@ -292,6 +355,40 @@ const VERTICAL_COLOR = {
 };
 
 const S = {
+  verTodos: {
+    fontSize: 12.5, fontWeight: 700, color: 'var(--primary)', textDecoration: 'none',
+  },
+  llegados: { display: 'flex', flexDirection: 'column' },
+  llegado: {
+    display: 'flex', alignItems: 'center', gap: 13,
+    padding: '13px 0', textDecoration: 'none', color: 'inherit',
+    borderBottom: '1px solid var(--line)',
+  },
+  llegadoNombre: {
+    display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+    fontSize: 14, fontWeight: 700, color: 'var(--text)',
+  },
+  caliente: {
+    fontSize: 9, fontWeight: 800, letterSpacing: '.07em',
+    padding: '2px 7px', borderRadius: 999,
+    background: 'var(--primary)', color: '#fff',
+  },
+  fichas: {
+    display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 5,
+  },
+  ficha: {
+    fontSize: 10.5, fontWeight: 700, padding: '3px 8px', borderRadius: 7,
+    background: 'var(--surface-2)', color: 'var(--muted)',
+  },
+  fichaVerde: {
+    background: 'color-mix(in srgb, var(--green) 14%, transparent)', color: 'var(--green)',
+  },
+  fichaNaranja: {
+    background: 'color-mix(in srgb, var(--primary) 14%, transparent)', color: 'var(--primary)',
+  },
+  llegadoPie: {
+    display: 'block', marginTop: 5, fontSize: 11.5, color: 'var(--faint)',
+  },
   kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 },
   split: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 16, marginTop: 16 },
   trio: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16, marginTop: 16 },

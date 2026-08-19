@@ -38,41 +38,60 @@
 const pesos = (n) =>
   '$' + Math.round(Number(n) || 0).toLocaleString('es-CO', { maximumFractionDigits: 0 });
 
-/** Cómo se llama cada forma de pago cuando el dueño la lee */
-const COMO_PAGA = {
-  cash: 'Efectivo al recibir',
-  nequi: 'Nequi',
-  daviplata: 'Daviplata',
-  card: 'Tarjeta',
-  whatsapp: 'Por acordar por aquí',
+/**
+ * CÓMO CIERRA EL MENSAJE, SEGÚN CÓMO VA A PAGAR
+ *
+ * Es la línea más importante: le dice al dueño qué tiene que hacer
+ * cuando termine de leer. Sin ella la comanda es solo información y
+ * queda en el aire.
+ *
+ * Va en primera persona porque el mensaje lo manda el CLIENTE desde su
+ * propio WhatsApp. Un "PEDIDO NUEVO — TuraFood" en mayúsculas se lee
+ * como un robot metido en una conversación entre dos personas; "apenas
+ * me confirmes te transfiero" se lee como lo que realmente es.
+ */
+const CIERRE = {
+  nequi: (n) =>
+    `💳 Apenas me confirmes, te hago la transferencia a Nequi${n ? ` (${n})` : ''}.`,
+  daviplata: (n) =>
+    `💳 Apenas me confirmes, te hago la transferencia a Daviplata${n ? ` (${n})` : ''}.`,
+  cash: () =>
+    '💵 Te pago en *efectivo* cuando me llegue. Confírmame si te sirve.',
+  card: () =>
+    '💳 Te pago con *tarjeta* al recibir. Confírmame si llevas el datáfono.',
+  whatsapp: () =>
+    '💬 Confírmame el pedido y cuadramos por acá cómo te pago.',
 };
 
 /**
- * Arma el texto de la comanda.
+ * Arma el mensaje que el cliente le manda al negocio.
  *
  * @param {object} pedido  el pedido que devolvió `place_order`
  * @param {array}  items   [{ name, qty, unitPrice, opts, notes }]
- * @param {object} extra   { negocio, cliente, telefono }
+ * @param {object} extra   { negocio, cliente, telefono, numeroPago }
  */
 export function comandaWhatsapp(pedido, items, extra = {}) {
-  const { negocio, cliente, telefono } = extra;
+  const { negocio, cliente, telefono, numeroPago } = extra;
   const L = [];
 
-  L.push('🔔 *PEDIDO NUEVO - TuraFood*');
+  // Saluda por el nombre. "Hola Licores la 15" arranca una
+  // conversación; un encabezado en mayúsculas arranca un trámite.
+  L.push(negocio ? `Hola *${negocio}* 👋` : 'Hola 👋');
   L.push('');
-  L.push(`*${pedido.order_number}*`);
-  if (negocio) L.push(`Para: ${negocio}`);
+  L.push('Te acabo de hacer un pedido por TuraFood.');
+  L.push('');
+  L.push(`🧾 Pedido *${pedido.order_number}*`);
   L.push('');
 
   // ---- Qué pidió ----
-  L.push('📋 *Lo que pidió*');
+  L.push('📋 *Lo que pedí*');
   for (const it of items) {
     const cant = it.qty ?? it.quantity ?? 1;
     const precio = (it.unitPrice ?? it.unit_price ?? 0) * cant;
     L.push(`• ${cant} x ${it.name} - ${pesos(precio)}`);
 
-    // Los agregados y las notas van debajo y con sangría, para que se
-    // lean como parte del plato y no como otro plato.
+    // Agregados y notas debajo y con sangría, para que se lean como
+    // parte del plato y no como otro plato.
     if (it.opts) L.push(`   ${it.opts}`);
     if (it.notes) L.push(`   📝 ${it.notes}`);
   }
@@ -88,17 +107,13 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
   L.push(`*TOTAL: ${pesos(pedido.total)}*`);
   L.push('');
 
-  // ---- Cómo paga ----
-  L.push(`💳 *Pago:* ${COMO_PAGA[pedido.payment_method] ?? pedido.payment_method}`);
-  L.push('');
-
   // ---- A dónde va ----
   if (pedido.mode === 'delivery') {
-    L.push('📍 *Entregar en*');
+    L.push('📍 *Me lo llevas a*');
     L.push(pedido.delivery_address || '(sin dirección)');
     if (pedido.delivery_detail) L.push(pedido.delivery_detail);
   } else {
-    L.push('🏪 *Lo recoge en el local*');
+    L.push('🏪 *Yo lo recojo en el local*');
   }
 
   if (pedido.delivery_instructions) {
@@ -106,9 +121,16 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
   }
   L.push('');
 
+  // ---- Qué tiene que hacer el dueño ----
+  const cierre = CIERRE[pedido.payment_method];
+  if (cierre) {
+    L.push(cierre(numeroPago));
+    L.push('');
+  }
+
   // ---- Quién ----
   if (cliente || telefono) {
-    L.push('👤 *Cliente*');
+    L.push('👤 *Soy*');
     if (cliente) L.push(cliente);
     if (telefono) L.push(telefono);
     L.push('');
@@ -118,6 +140,7 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
 
   return L.join('\n');
 }
+
 
 /**
  * El link que abre WhatsApp con la comanda ya escrita.
