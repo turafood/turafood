@@ -30,6 +30,7 @@ export default function CartPage() {
 
   const [store, setStore] = useState(null);
   const [suggested, setSuggested] = useState([]);
+  const [turbo, setTurbo] = useState(false);
 
   useEffect(() => {
     if (!businessId) return;
@@ -64,6 +65,15 @@ export default function CartPage() {
     mode: 'delivery',
     tip: 0,
   });
+
+  const turaTotal = t.total + (turbo ? 2500 : 0);
+  
+  // Cálculo de Ahorro Fake vs "Otras apps" (Uber/DiDi)
+  const otherSubtotal = subtotal * 1.18; // 18% más caro en app
+  const otherDelivery = (store?.delivery_fee ?? 0) + 2500; // Envío más caro
+  const otherService = 3900; // Tarifa de servicio alta
+  const otherTotal = otherSubtotal + otherDelivery + otherService;
+  const ahorro = otherTotal - turaTotal;
 
   // Canasta vacía
   if (items.length === 0) {
@@ -156,38 +166,81 @@ export default function CartPage() {
 
           <button onClick={clearCart} style={S.clearBtn}>Vaciar canasta</button>
 
-          {/* Cross-selling */}
+          {/* Cross-selling PRO */}
           {suggested.length > 0 && (
             <div style={S.suggestBlock}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 17 }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16 }}>
                 Comprado frecuentemente con
               </div>
-              <div className="hs" style={{ display: 'flex', gap: 12, margin: '12px -20px 0', padding: '0 20px' }}>
+              <div className="hs" style={{ display: 'flex', gap: 12, margin: '14px -20px 0', padding: '0 20px', paddingBottom: 10 }}>
                 {suggested.map((p) => (
-                  <div key={p.id} style={{ flex: 'none', width: 132 }}>
-                    <div style={{ ...bg(p.image_url), position: 'relative', height: 110, borderRadius: 15 }}>
-                      <button
-                        onClick={() => addLine(
-                          {
-                            productId: p.id, name: p.name, unitPrice: Number(p.price),
-                            basePrice: Number(p.price), comparePrice: p.compare_price ?? null,
-                            image_url: p.image_url, extraIds: [], notes: '', opts: '', qty: 1,
-                          },
-                          { id: store.id, name: store.name, image: store.cover_url },
-                        )}
-                        style={S.suggestAdd}
-                        aria-label={`Agregar ${p.name}`}
-                      >
-                        <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>add</span>
-                      </button>
+                  <div key={p.id} style={S.suggestCard}>
+                    <div style={{ ...bg(p.image_url), position: 'absolute', inset: 0, borderRadius: 16 }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.85) 100%)', borderRadius: 16 }} />
+                    <button
+                      onClick={() => addLine(
+                        {
+                          productId: p.id, name: p.name, unitPrice: Number(p.price),
+                          basePrice: Number(p.price), comparePrice: p.compare_price ?? null,
+                          image_url: p.image_url, extraIds: [], notes: '', opts: '', qty: 1,
+                        },
+                        { id: store.id, name: store.name, image: store.cover_url },
+                      )}
+                      style={S.suggestAdd}
+                      aria-label={`Agregar ${p.name}`}
+                    >
+                      <span className="ms" style={{ fontSize: 18, color: '#fff' }}>add</span>
+                    </button>
+                    <div style={{ position: 'relative', zIndex: 2, padding: 12 }}>
+                      <div style={{ fontWeight: 800, fontSize: 13, color: '#fff' }}>{cop(p.price)}</div>
+                      <div className="tr1" style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{p.name}</div>
                     </div>
-                    <div style={{ fontWeight: 800, fontSize: 13.5, marginTop: 7 }}>{cop(p.price)}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.3, marginTop: 2 }}>{p.name}</div>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Upsell Turbo */}
+          <button onClick={() => setTurbo(!turbo)} style={{...S.turboCard, ...(turbo ? S.turboCardActive : {})}}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={turbo ? S.turboIconActive : S.turboIcon}>
+                <span className="ms ms-fill" style={{ fontSize: 24, color: turbo ? '#fff' : 'var(--amber)' }}>bolt</span>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 800, fontSize: 15, color: turbo ? '#fff' : 'var(--text)' }}>
+                  Prioridad Turbo
+                </div>
+                <div style={{ fontSize: 12, color: turbo ? 'rgba(255,255,255,0.8)' : 'var(--muted)', marginTop: 2 }}>
+                  Prepáralo y envíalo primero
+                </div>
+              </div>
+            </div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: turbo ? '#fff' : 'var(--text)' }}>
+              + $2.500
+            </div>
+          </button>
+
+          {/* Bloque de Ahorro vs Otras Apps */}
+          <div style={S.savingsCard}>
+            <div style={S.savingsGlow} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ background: 'rgba(16,185,129,0.15)', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span className="ms" style={{ fontSize: 24, color: '#10B981' }}>savings</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  Mes de Lanzamiento TuraFood
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginTop: 2 }}>
+                  Estás ahorrando {cop(ahorro > 0 ? ahorro : 0)}
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+                  En otras apps pagarías {cop(otherTotal)}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Totales */}
           <div style={S.totalsCard}>
@@ -195,6 +248,7 @@ export default function CartPage() {
               <Row label="Subtotal" value={cop(t.subtotal)} />
               <Row label="Envío" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0} />
               <Row label="Tarifa de servicio" value={cop(t.service)} />
+              {turbo && <Row label="Prioridad Turbo" value="$2.500" />}
             </div>
           </div>
         </div>
@@ -219,7 +273,7 @@ export default function CartPage() {
             <div style={{ flex: 'none' }}>
               <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Total</div>
               <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22 }}>
-                {cop(t.total)}
+                {cop(turaTotal)}
               </div>
             </div>
             <button
@@ -278,16 +332,49 @@ const S = {
     color: 'var(--primary)', fontWeight: 700, fontSize: 14,
   },
   suggestBlock: {
-    margin: '6px -20px 0', padding: '18px 20px', background: 'var(--surface2)',
+    margin: '12px 0 0', padding: '20px', background: 'var(--surface2)', borderRadius: 24,
+  },
+  suggestCard: {
+    flex: 'none', width: 140, height: 120, position: 'relative', borderRadius: 16,
+    display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.06)', overflow: 'hidden',
   },
   suggestAdd: {
-    position: 'absolute', right: 6, top: 6, width: 30, height: 30, borderRadius: '50%',
-    background: 'var(--surface)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', boxShadow: 'var(--shadowSm)',
+    position: 'absolute', right: 8, top: 8, width: 32, height: 32, borderRadius: '50%',
+    background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3,
+    border: '1px solid rgba(255,255,255,0.3)',
+  },
+  turboCard: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16,
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 20, padding: '16px', width: '100%', transition: 'all .2s ease',
+  },
+  turboCardActive: {
+    background: 'linear-gradient(135deg, #FF6B00 0%, #FF441F 100%)',
+    borderColor: 'transparent',
+    boxShadow: '0 8px 24px rgba(255,107,0,0.3)',
+  },
+  turboIcon: {
+    width: 44, height: 44, borderRadius: '50%', background: 'var(--surface2)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  turboIconActive: {
+    width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  savingsCard: {
+    position: 'relative', marginTop: 16, borderRadius: 20, padding: '20px',
+    background: '#1A1D1A', overflow: 'hidden', border: '1px solid #10B98130',
+    boxShadow: '0 8px 24px rgba(16,185,129,0.1)',
+  },
+  savingsGlow: {
+    position: 'absolute', top: -30, right: -30, width: 120, height: 120,
+    background: 'rgba(16,185,129,0.4)', filter: 'blur(40px)', borderRadius: '50%',
   },
   totalsCard: {
-    marginTop: 20, background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 16,
+    marginTop: 16, background: 'var(--surface)', border: 'none',
+    borderRadius: 20, padding: '20px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
   },
   bottom: {
     position: 'absolute', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
