@@ -93,6 +93,20 @@ export const useCartStore = create(
         notes: i.notes || null,
       })),
     }),
-    { name: 'turafood-cart', version: 2 },
+    {
+      name: 'turafood-cart',
+      version: 2,
+
+      // El servidor no puede leer el localStorage de nadie, así que
+      // pinta el carrito vacío. Sin esto, zustand lo rellena desde el
+      // navegador ANTES del primer render y React encuentra dos HTML
+      // distintos: falla la hidratación y vuelve a pintar la página
+      // entera desde cero. Justo lo que no queremos.
+      //
+      // Con `skipHydration` el primer render coincide con el del
+      // servidor y el carrito entra un instante después, desde
+      // `RehidratarCarrito`. Se ve igual y no se repinta nada.
+      skipHydration: true,
+    },
   ),
 );

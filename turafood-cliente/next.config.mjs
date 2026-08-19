@@ -11,6 +11,14 @@ const nextConfig = {
     imageSizes: [48, 64, 80, 104, 132, 158, 198, 256],
     deviceSizes: [440, 640, 880, 1200],
   },
+
+  // La raíz no es una pantalla, es un desvío al catálogo. Hacerlo acá
+  // y no con un useEffect en `page.js` ahorra el viaje completo:
+  // antes el navegador bajaba todo el JS de la raíz, hidrataba React
+  // y recién entonces pedía /home. Ahora recibe un 308 y va derecho.
+  async redirects() {
+    return [{ source: '/', destination: '/home', permanent: false }];
+  },
 };
 
 export default nextConfig;

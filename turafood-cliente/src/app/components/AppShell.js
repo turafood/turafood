@@ -22,6 +22,7 @@ import FloatingCart from './FloatingCart';
 import SearchOverlay from './SearchOverlay';
 import LiveOrders from './LiveOrders';
 import AiOverlay, { useAi } from './AiOverlay';
+import RehidratarCarrito from './RehidratarCarrito';
 
 /** Rutas a pantalla completa: sin barra inferior */
 const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate'];
@@ -47,6 +48,7 @@ export default function AppShell({ children }) {
 
   return (
     <div className="device-wrapper">
+      <RehidratarCarrito />
       <div className="tablet-device" style={{ background: isDark ? '#0C0B0A' : 'var(--bg)' }}>
 
         <div className="device-island" aria-hidden="true">

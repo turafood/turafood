@@ -17,7 +17,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import { cached, invalidate } from './cache';
-import { asegurarSesion } from './sesion';
+import { asegurarSesion, usuarioActual } from './sesion';
 import {
   BUSINESSES, PRODUCTS, CATEGORIES, EXTRAS, ADDRESSES, COUPONS, BUENAVENTURA,
 } from './seed';
@@ -271,7 +271,7 @@ async function _getAddresses() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -362,7 +362,7 @@ export async function setDefaultAddress(addressId) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return false;
 
   await supabase.from('addresses').update({ is_default: false }).eq('user_id', user.id);
@@ -405,7 +405,7 @@ async function _getPaymentMethods() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -559,7 +559,7 @@ async function _getFavorites() {
   if (!isLive()) return readLocalFavs();
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return readLocalFavs();
 
   const { data, error } = await supabase
@@ -592,7 +592,7 @@ export async function toggleFavorite(businessId) {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
 
   if (!user) {
     const next = wasFav ? local.filter((x) => x !== businessId) : [...local, businessId];
@@ -628,7 +628,7 @@ export async function syncLocalFavorites() {
   if (local.length === 0) return;
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return;
 
   await supabase
@@ -665,7 +665,7 @@ export async function getNotifications() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -895,7 +895,7 @@ async function _getOrders() {
   }
 
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await usuarioActual();
   if (!user) return [];
 
   const { data, error } = await supabase

@@ -29,6 +29,29 @@ import { createClient, isConfigured } from '@/utils/supabase/client';
 let enCurso = null;
 
 /**
+ * Quién es, sin preguntarle al servidor.
+ *
+ * `getUser()` sale a la red cada vez para revalidar el token. Ocho
+ * pantallas lo llamaban solo para saber por qué id filtrar, y en un
+ * celular acá eso son ocho viajes de ida y vuelta antes de pintar
+ * nada.
+ *
+ * `getSession()` lee el token que ya está guardado (y lo renueva solo
+ * si venció). Alcanza, porque el id nunca se usa para decidir qué
+ * puede ver alguien: eso lo decide RLS contra el token que viaja en
+ * la consulta. Si el navegador mintiera sobre quién es, la base
+ * devuelve vacío igual.
+ *
+ * Para decisiones de verdad —cobrar, cambiar la clave— se sigue
+ * usando `getUser()`.
+ */
+export async function usuarioActual() {
+  if (!isConfigured()) return null;
+  const { data: { session } } = await createClient().auth.getSession();
+  return session?.user ?? null;
+}
+
+/**
  * Devuelve el usuario actual. Si no hay sesión, abre una anónima.
  *
  * `silencioso` a propósito: quien compra no tiene por qué enterarse
@@ -39,8 +62,8 @@ export async function asegurarSesion() {
 
   const supabase = createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) return user;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) return session.user;
 
   if (enCurso) return enCurso;
 
@@ -64,8 +87,8 @@ export async function asegurarSesion() {
 /** ¿La sesión actual es una de estas, sin datos de nadie? */
 export async function esInvitado() {
   if (!isConfigured()) return false;
-  const { data: { user } } = await createClient().auth.getUser();
-  return Boolean(user?.is_anonymous);
+  const { data: { session } } = await createClient().auth.getSession();
+  return Boolean(session?.user?.is_anonymous);
 }
 
 /**
