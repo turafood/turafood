@@ -57,13 +57,12 @@ export default function FloatingCart() {
       style={styles.pill}
       aria-label={`Ir a comprar, ${count} ${count === 1 ? 'producto' : 'productos'}, total ${cop(subtotal)}`}
     >
-      <span style={styles.badge}>{count}</span>
-
-      <span style={{ fontSize: 16, fontWeight: 800 }}>
-        Ir a comprar
-      </span>
-
-      <span style={{ width: 1, height: 24, background: 'rgba(255,255,255,.3)', margin: '0 2px' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={styles.badge}>{count}</span>
+        <span style={{ fontSize: 16, fontWeight: 800 }}>
+          Ir a comprar
+        </span>
+      </div>
 
       <span style={styles.total}>
         {cop(subtotal)}
@@ -75,30 +74,32 @@ export default function FloatingCart() {
 const styles = {
   pill: {
     position: 'absolute',
-    right: 16,
+    left: 20,
+    right: 20,
     bottom: 84,
     zIndex: 70,
     display: 'flex',
     alignItems: 'center',
-    gap: 11,
-    height: 54,
-    padding: '0 20px',
+    justifyContent: 'space-between',
+    height: 56,
+    padding: '0 18px 0 12px',
     borderRadius: 999,
     background: 'linear-gradient(96deg, #12B972 0%, #0E9E5F 100%)',
     color: '#fff',
     boxShadow: '0 12px 30px rgba(14,158,95,.42), inset 0 1px 0 rgba(255,255,255,.22)',
     animation: 'up .22s ease both',
+    border: 'none',
   },
   badge: {
     flex: 'none',
-    minWidth: 28,
-    height: 28,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: '50%',
     background: 'rgba(255,255,255,.24)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 13.5,
+    fontSize: 14,
     fontWeight: 800,
   },
   total: {

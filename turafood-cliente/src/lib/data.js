@@ -914,6 +914,34 @@ export async function getOrders() {
   return cached('pedidos', () => _getOrders());
 }
 
+export async function submitReview(payload) {
+  if (!isLive()) {
+    await delay(600);
+    return true;
+  }
+  const supabase = createClient();
+  const user = await requireUser();
+  
+  // payload: { order_id, business_id, courier_id, stars, tags, courierUp, comment, tip }
+  let fullComment = payload.comment || '';
+  if (payload.tags && payload.tags.length > 0) {
+    fullComment = `Etiquetas: ${payload.tags.join(', ')}. ${fullComment}`.trim();
+  }
+
+  const { error } = await supabase.from('reviews').insert({
+    order_id: payload.order_id,
+    customer_id: user.id,
+    business_id: payload.business_id,
+    courier_id: payload.courier_id || null,
+    business_rating: payload.stars,
+    courier_rating: payload.courierUp === true ? 5 : (payload.courierUp === false ? 1 : null),
+    comment: fullComment || null,
+  });
+
+  if (error) throw new Error(`No pudimos guardar la calificación: ${error.message}`);
+  return true;
+}
+
 export async function getOrder(orderId) {
   if (!isLive()) {
     await delay();

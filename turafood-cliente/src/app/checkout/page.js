@@ -571,9 +571,9 @@ export default function CheckoutPage() {
           open={addressOpen}
           onClose={() => setAddressOpen(false)}
           onSave={async (payload) => {
-            const nueva = await saveAddress(payload);
+            const nueva = await saveAddress({ ...payload, isDefault: true });
             // Replace old array so the new default is at the top
-            setAddresses([nueva, ...addresses.map(a => ({ ...a, is_default: false }))]);
+            setAddresses([{ ...nueva, is_default: true }, ...addresses.map(a => ({ ...a, is_default: false }))]);
             setAddressOpen(false);
           }}
         />

@@ -10,9 +10,11 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getOrder } from '@/lib/data';
+import Image from 'next/image';
+import { getOrder, submitReview } from '@/lib/data';
 import { cop } from '@/lib/format';
 import RouteSkeleton from '../components/RouteSkeleton';
+
 const TAGS = [
   'Comida caliente', 'Llegó rápido', 'Bien empacado',
   'Pedido completo', 'Buen trato', 'Precio justo',
@@ -49,6 +51,7 @@ function RatePage() {
   const [tip, setTip] = useState(0);
   const [comment, setComment] = useState('');
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -66,14 +69,36 @@ function RatePage() {
   const toggleTag = (t) =>
     setTags((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]));
 
+  const handleSend = async () => {
+    if (!stars || !order) return;
+    setSubmitting(true);
+    try {
+      await submitReview({
+        order_id: order.id,
+        business_id: order.business_id,
+        courier_id: order.courier?.id || null,
+        stars,
+        tags,
+        courierUp,
+        comment,
+        tip,
+      });
+      setSent(true);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (sent) {
     return (
       <>
         <div style={S.done}>
-          <span style={S.doneIcon}>
-            <span className="ms ms-fill" style={{ fontSize: 38, color: 'var(--green)' }}>check_circle</span>
-          </span>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, marginTop: 18 }}>
+          <div style={{ position: 'relative', width: 140, height: 140, marginBottom: 12 }}>
+            <Image src="/images/ic-tiendas.png" alt="¡Listo!" fill style={{ objectFit: 'contain' }} unoptimized />
+          </div>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, marginTop: 18 }}>
             ¡Gracias por calificar!
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 8, lineHeight: 1.5, maxWidth: 280 }}>
@@ -97,9 +122,14 @@ function RatePage() {
 
         <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 32px', minHeight: 0 }}>
 
-          <h1 style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 25, letterSpacing: '-.02em', lineHeight: 1.2, margin: 0 }}>
-            ¿Cómo estuvo tu pedido de {order?.business?.name ?? 'tu restaurante'}?
-          </h1>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+            <div style={{ position: 'relative', width: 44, height: 44, flex: 'none', marginTop: 4 }}>
+              <Image src="/images/ic-restaurantes.png" alt="Restaurante" fill style={{ objectFit: 'contain' }} unoptimized />
+            </div>
+            <h1 style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 25, letterSpacing: '-.02em', lineHeight: 1.2, margin: 0 }}>
+              ¿Cómo estuvo tu pedido de {order?.business?.name ?? 'tu restaurante'}?
+            </h1>
+          </div>
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.5 }}>
             Tu calificación es anónima y ayuda a mejorar el servicio en Buenaventura.
           </p>
@@ -114,7 +144,7 @@ function RatePage() {
               >
                 <span
                   className={`ms ${n <= stars ? 'ms-fill' : ''}`}
-                  style={{ fontSize: 38, color: n <= stars ? 'var(--amber)' : 'var(--faint)' }}
+                  style={{ fontSize: 44, color: n <= stars ? 'var(--amber)' : 'var(--faint)', transition: 'color .2s ease' }}
                 >
                   star
                 </span>
@@ -139,7 +169,8 @@ function RatePage() {
                     padding: '0 14px', borderRadius: 999, fontSize: 13, fontWeight: 700,
                     background: on ? 'var(--text)' : 'var(--surface)',
                     color: on ? '#fff' : 'var(--text)',
-                    border: on ? 'none' : '1px solid var(--border)',
+                    border: 'none', boxShadow: on ? '0 4px 12px rgba(0,0,0,.15)' : '0 2px 8px rgba(0,0,0,.04)',
+                    transition: 'all .2s ease',
                   }}
                 >
                   {on && <span className="ms" style={{ fontSize: 15 }}>check</span>}
@@ -189,7 +220,7 @@ function RatePage() {
                     flex: 1, height: 46, borderRadius: 14, fontSize: 13.5, fontWeight: 800,
                     background: on ? 'var(--text)' : 'var(--surface)',
                     color: on ? '#fff' : 'var(--text)',
-                    border: on ? 'none' : '1px solid var(--border)',
+                    border: 'none', boxShadow: on ? '0 4px 12px rgba(0,0,0,.15)' : '0 2px 8px rgba(0,0,0,.04)',
                   }}
                 >
                   {t.label}
@@ -208,16 +239,17 @@ function RatePage() {
           />
 
           <button
-            onClick={() => setSent(true)}
-            disabled={stars === 0}
+            onClick={handleSend}
+            disabled={stars === 0 || submitting}
             style={{
               ...S.submitBtn,
               background: stars ? 'var(--primary)' : 'var(--surface2)',
               color: stars ? '#fff' : 'var(--faint)',
               boxShadow: stars ? '0 10px 24px rgba(255,68,31,.3)' : 'none',
+              opacity: submitting ? 0.7 : 1,
             }}
           >
-            {stars ? `Enviar calificación${tip ? ` y ${cop(tip)}` : ''}` : 'Elige una calificación'}
+            {submitting ? 'Enviando...' : (stars ? `Enviar calificación${tip ? ` y ${cop(tip)}` : ''}` : 'Elige una calificación')}
           </button>
 
           <button onClick={() => router.push('/home')} style={S.laterBtn}>Ahora no</button>
@@ -234,8 +266,8 @@ const S = {
   },
   courierCard: {
     display: 'flex', alignItems: 'center', gap: 12, marginTop: 22,
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 13,
+    background: 'var(--surface)', border: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+    borderRadius: 20, padding: 13,
   },
   avatar: {
     width: 44, height: 44, borderRadius: '50%', background: 'var(--surface2)',
@@ -246,29 +278,25 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   textarea: {
-    width: '100%', marginTop: 18, padding: '13px 15px', borderRadius: 15,
-    border: '1px solid var(--border)', background: 'var(--surface)',
+    width: '100%', marginTop: 18, padding: '13px 15px', borderRadius: 18,
+    border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.03)', background: 'var(--surface)',
     fontSize: 14, resize: 'vertical', outline: 'none',
   },
   submitBtn: {
-    width: '100%', height: 54, borderRadius: 999, fontWeight: 700,
-    fontSize: 15, marginTop: 18,
+    width: '100%', height: 56, borderRadius: 999, fontWeight: 800,
+    fontSize: 15.5, marginTop: 18,
   },
   laterBtn: {
     width: '100%', height: 44, fontWeight: 700, fontSize: 13.5,
-    color: 'var(--muted)', marginTop: 6,
+    color: 'var(--muted)', marginTop: 8,
   },
   done: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', padding: 32, textAlign: 'center', background: 'var(--bg)',
   },
-  doneIcon: {
-    width: 82, height: 82, borderRadius: '50%', background: '#E6F6EE',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
   doneBtn: {
-    marginTop: 24, height: 52, padding: '0 28px', borderRadius: 999,
-    background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: 15,
+    marginTop: 24, height: 56, padding: '0 32px', borderRadius: 999,
+    background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 15.5,
     boxShadow: '0 10px 24px rgba(255,68,31,.3)',
   },
 };
