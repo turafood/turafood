@@ -16,6 +16,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
+import { cargarLeafletCss } from '@/lib/leafletCss';
 
 /** Centro de Buenaventura, por si no hay puntos que encuadrar */
 const FALLBACK = [3.8801, -77.0313];
@@ -32,6 +33,7 @@ export default function TuraMap({
 
   // Montaje
   useEffect(() => {
+    cargarLeafletCss();
     if (!ready || !holder.current || map.current) return undefined;
     const L = window.L;
     if (!L) return undefined;

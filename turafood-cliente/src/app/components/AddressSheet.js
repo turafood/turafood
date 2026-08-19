@@ -17,6 +17,7 @@ import Script from 'next/script';
 import {
   searchAddress, reverseGeocode, BUENAVENTURA_CENTER, isInCoverage, MAP_BOUNDS,
 } from '@/lib/geocoding';
+import { cargarLeafletCss } from '@/lib/leafletCss';
 
 const LABELS = [
   { id: 'Casa', icon: 'home' },
@@ -46,6 +47,7 @@ export default function AddressSheet({ open, onClose, onSave }) {
 
   // Reiniciar al abrir
   useEffect(() => {
+    cargarLeafletCss();
     if (open) return;
     setQuery(''); setResults([]); setPicked(null);
     setDetail(''); setLabel('Casa'); setError(null);

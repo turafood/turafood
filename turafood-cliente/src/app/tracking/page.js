@@ -16,6 +16,7 @@ import { getOrder, subscribeToOrder } from '@/lib/data';
 import { BUENAVENTURA } from '@/lib/seed';
 import { ORDER_STATUS } from '@/lib/format';
 import RouteSkeleton from '../components/RouteSkeleton';
+import { cargarLeafletCss } from '@/lib/leafletCss';
 /** Los cuatro pasos que dibuja la barra de progreso del diseño */
 const STEPS = ['accepted', 'preparing', 'picked_up', 'delivered'];
 
@@ -51,6 +52,7 @@ function TrackingPage() {
   const mapRef = useRef(null);
 
   useEffect(() => {
+    cargarLeafletCss();
     let alive = true;
     let unsubscribe = () => {};
 
