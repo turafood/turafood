@@ -231,7 +231,7 @@ function TrackingPage() {
           </div>
 
           {/* Bitácora */}
-          <div style={{ marginTop: 16, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18, padding: 16 }}>
+          <div style={{ marginTop: 24, background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {log.map((l, i) => (
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -274,67 +274,71 @@ function TrackingPage() {
 
 const S = {
   mapBack: {
-    position: 'absolute', top: 8, left: 16, width: 38, height: 38, borderRadius: '50%',
-    background: 'rgba(255,255,255,.95)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', boxShadow: 'var(--shadowSm)', zIndex: 500,
+    position: 'absolute', top: 12, left: 16, width: 42, height: 42, borderRadius: '50%',
+    background: 'rgba(255,255,255,.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,.08)', zIndex: 500,
   },
   livePill: {
-    position: 'absolute', top: 8, right: 16, zIndex: 500,
-    display: 'flex', alignItems: 'center', gap: 7, height: 34, padding: '0 13px',
-    borderRadius: 999, background: 'rgba(255,255,255,.95)', boxShadow: 'var(--shadowSm)',
-    fontSize: 11.5, fontWeight: 800, letterSpacing: '.04em',
+    position: 'absolute', top: 12, right: 16, zIndex: 500,
+    display: 'flex', alignItems: 'center', gap: 7, height: 36, padding: '0 14px',
+    borderRadius: 999, background: 'rgba(255,255,255,.85)', backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 12px rgba(0,0,0,.08)', fontSize: 11.5, fontWeight: 800, letterSpacing: '.04em', color: 'var(--text)',
   },
   sheet: {
     flex: 1, overflowY: 'auto', background: 'var(--bg)',
-    borderRadius: '28px 28px 0 0', marginTop: -24, position: 'relative',
-    padding: '20px 20px 40px', minHeight: 0,
+    borderRadius: '32px 32px 0 0', marginTop: -32, position: 'relative',
+    padding: '24px 20px 40px', minHeight: 0,
+    boxShadow: '0 -10px 30px rgba(0,0,0,.08)',
   },
   courierCard: {
-    display: 'flex', alignItems: 'center', gap: 13, marginTop: 20,
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 14, boxShadow: 'var(--shadowSm)',
+    display: 'flex', alignItems: 'center', gap: 14, marginTop: 22,
+    background: 'var(--surface2)', borderRadius: 20, padding: '16px', border: 'none',
   },
   avatar: {
-    width: 50, height: 50, borderRadius: '50%', background: 'var(--surface2)',
+    width: 48, height: 48, borderRadius: '50%', background: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    boxShadow: '0 4px 10px rgba(0,0,0,.05)',
   },
   chatBtn: {
-    position: 'relative', width: 40, height: 40, borderRadius: '50%',
-    background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    position: 'relative', width: 42, height: 42, borderRadius: '50%',
+    background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 10px rgba(0,0,0,.05)',
   },
   unread: {
-    position: 'absolute', top: -1, right: -1, minWidth: 17, height: 17, padding: '0 4px',
+    position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, padding: '0 4px',
     borderRadius: 99, background: 'var(--primary)', color: '#fff', fontSize: 10,
     fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '2px solid var(--surface)',
+    border: '2px solid var(--surface2)',
   },
   callBtn: {
-    width: 40, height: 40, borderRadius: '50%', background: 'var(--primary)',
+    width: 42, height: 42, borderRadius: '50%', background: 'var(--primary)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(255,68,31,.3)',
   },
   codeCard: {
-    display: 'flex', alignItems: 'center', gap: 14, marginTop: 12,
-    background: '#17140F', borderRadius: 18, padding: '15px 16px', color: '#fff',
+    display: 'flex', alignItems: 'center', gap: 14, marginTop: 14,
+    background: 'linear-gradient(135deg, #221E18 0%, #17140F 100%)', borderRadius: 20, padding: '16px 20px', color: '#fff',
+    boxShadow: '0 8px 24px rgba(23,20,15,.2)',
   },
   codeDigit: {
-    width: 34, height: 40, borderRadius: 10, background: 'rgba(255,255,255,.12)',
+    width: 36, height: 44, borderRadius: 12, background: 'rgba(255,255,255,.08)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19,
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--amber)',
   },
   logDot: {
-    width: 26, height: 26, borderRadius: '50%', flex: 'none',
+    width: 28, height: 28, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   helpBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    width: '100%', height: 52, borderRadius: 999, border: '1px solid var(--border)',
-    background: 'var(--surface)', fontWeight: 700, fontSize: 14, marginTop: 16,
+    width: '100%', height: 54, borderRadius: 999, border: 'none', background: 'var(--surface2)',
+    fontWeight: 700, fontSize: 14.5, marginTop: 24,
   },
   rateBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    width: '100%', height: 52, borderRadius: 999, background: 'var(--primary)',
-    color: '#fff', fontWeight: 700, fontSize: 14.5, marginTop: 10,
-    boxShadow: '0 10px 24px rgba(255,68,31,.3)',
+    width: '100%', height: 54, borderRadius: 999, background: 'var(--primary)',
+    color: '#fff', fontWeight: 700, fontSize: 14.5, marginTop: 12,
+    boxShadow: '0 12px 28px rgba(255,68,31,.34)',
   },
   errorScreen: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',

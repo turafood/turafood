@@ -165,7 +165,7 @@ export default function CheckoutPage() {
         method: payMethod,
         businessName: store?.name,
         items: productos,
-        whatsappPhone: store?.whatsapp_phone,
+        whatsappPhone: store?.phone,
       });
 
       // Si el usuario cancela en la pasarela, el pedido queda pendiente

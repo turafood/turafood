@@ -10,6 +10,12 @@ const nextConfig = {
     // Tamaños que realmente usa la app (el marco es de 440px)
     imageSizes: [48, 64, 80, 104, 132, 158, 198, 256],
     deviceSizes: [440, 640, 880, 1200],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
 
   // Turbopack: ancla el root al directorio de la app.
