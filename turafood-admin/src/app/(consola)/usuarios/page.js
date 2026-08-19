@@ -65,6 +65,10 @@ export default function UsuariosPage() {
       `${u.full_name ?? ''} ${u.email ?? ''} ${u.role ?? ''}`.toLowerCase().includes(q));
   }, [rows, query]);
 
+  // Si la carga falló, el estado se queda en null y esto mostraba un
+  // esqueleto eterno, con el aviso de error debajo del return — o sea
+  // invisible. Mejor decir qué pasó.
+  if (error && !rows) return <ErrorNote text={error} />;
   if (!rows) return <Skeleton rows={5} height={64} />;
 
   const byRole = (role) => rows.filter((u) => u.role === role).length;

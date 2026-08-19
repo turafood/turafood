@@ -64,6 +64,10 @@ export default function ServiciosPage() {
     }
   };
 
+  // Si la carga falló, el estado se queda en null y esto mostraba un
+  // esqueleto eterno, con el aviso de error debajo del return — o sea
+  // invisible. Mejor decir qué pasó.
+  if (error && !rows) return <ErrorNote text={error} />;
   if (!rows) return <Skeleton rows={4} height={92} />;
 
   const counts = Object.fromEntries(TABS.map((t) => [

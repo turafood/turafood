@@ -192,7 +192,7 @@ async function _getCouriers() {
     .select(`
       id, status, approval_status, rejection_reason, vehicle_type, plate,
       acceptance_rate, total_deliveries, total_earnings, created_at,
-      profiles ( full_name, phone, email, avatar_url, rating )
+      profiles!courier_profiles_id_fkey ( full_name, phone, email, avatar_url, rating )
     `)
     .order('created_at', { ascending: false });
 
@@ -278,7 +278,7 @@ export async function getFleet() {
     .from('courier_profiles')
     .select(`
       id, status, vehicle_type, plate,
-      profiles ( full_name, rating )
+      profiles!courier_profiles_id_fkey ( full_name, rating )
     `)
     .eq('approval_status', 'active')
     .in('status', ['online', 'busy'])

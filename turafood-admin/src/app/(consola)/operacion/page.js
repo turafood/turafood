@@ -46,6 +46,11 @@ export default function OperacionPage() {
     return () => clearInterval(id);
   }, [load]);
 
+  // Si la carga falló, `orders` se queda en null para siempre. Sin
+  // esto la pantalla mostraba un esqueleto eterno y el aviso de error
+  // quedaba debajo del return, o sea invisible: una consola en blanco
+  // sin una sola pista de por qué.
+  if (error && !orders) return <ErrorNote text={error} />;
   if (!orders) return <Skeleton rows={4} height={92} />;
 
   const late = orders.filter((o) => Date.now() - new Date(o.created_at).getTime() > 45 * 60000);
