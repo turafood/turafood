@@ -209,7 +209,7 @@ function Barra({ paso, val, max, color }) {
         <span style={S.barraVal}>{val}</span>
       </div>
       <div style={S.barraTrack}>
-        <div className="pro-bar" style={{ ...S.barraFill, width: \`\${pct}%\`, background: color }} />
+        <div className="pro-bar" style={{ ...S.barraFill, width: `${pct}%`, background: color }} />
       </div>
     </div>
   );
