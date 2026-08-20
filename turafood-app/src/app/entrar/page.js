@@ -406,8 +406,11 @@ const S = {
     display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: 16,
     borderRadius: 20,
     background: 'rgba(255,255,255,.06)',
+    backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
     border: '1px solid rgba(255,255,255,.13)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
     color: '#fff',
+    transition: 'all 0.3s ease',
   },
   opcionIcono: {
     width: 50, height: 50, borderRadius: 16, flex: 'none',

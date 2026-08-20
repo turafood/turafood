@@ -1,36 +1,21 @@
 'use client';
 
 /**
- * FONDO CINEMATOGRÁFICO CON CRUCE DE IMÁGENES
+ * FONDO PRO MINIMALISTA (APP-LIKE)
  *
- * Dos capas superpuestas: una visible y una que entra. Cada cierto
- * tiempo se intercambian con una transición de opacidad larga, así el
- * cambio se siente como respiración y no como un pase de diapositivas.
+ * Se eliminaron las fotos pesadas de fondo. En su lugar, usamos una
+ * base oscura pura con un orbe brillante que respira (escala y opacidad)
+ * de forma extremadamente fluida con CSS.
  *
- * Las fotos son las locales ya optimizadas (`public/images`), no una
- * URL de terceros: cargan rápido, funcionan sin internet abierto y
- * nadie las puede cambiar por fuera.
- *
- * Respeta "reducir movimiento": si el sistema lo pide, se queda quieta
- * en la primera imagen.
+ * Carga en 0ms, no consume red, elimina la sensación de "página web"
+ * y le da un toque premium estilo Vercel / Linear / Apple.
  */
 
 import { useEffect, useState } from 'react';
 
-const DEFAULT_IMAGES = [
-  '/images/steak-ribeye.jpg',
-  '/images/burger-hero.jpg',
-  '/images/food-fork.jpg',
-  '/images/lamb-chops.jpg',
-  '/images/steak-fork.jpg',
-];
-
 export default function HeroBackdrop({
-  images = DEFAULT_IMAGES,
-  interval = 6000,
   brightness = 0.38,
 }) {
-  const [index, setIndex] = useState(0);
   const [still, setStill] = useState(false);
 
   useEffect(() => {
@@ -41,69 +26,61 @@ export default function HeroBackdrop({
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  // Precarga la siguiente: si no, el cruce muestra un hueco negro
-  useEffect(() => {
-    if (still || images.length < 2) return;
-    const next = new Image();
-    next.src = images[(index + 1) % images.length];
-  }, [index, images, still]);
-
-  useEffect(() => {
-    if (still || images.length < 2) return undefined;
-    const id = setInterval(() => setIndex((i) => (i + 1) % images.length), interval);
-    return () => clearInterval(id);
-  }, [images.length, interval, still]);
-
   return (
     <div aria-hidden="true" style={S.wrap}>
-      {images.map((src, i) => (
-        <div
-          key={src}
-          style={{
-            ...S.layer,
-            backgroundImage: `url('${src}')`,
-            filter: `brightness(${brightness}) contrast(1.12) saturate(1.15)`,
-            opacity: i === index ? 1 : 0,
-            // Un zoom lentísimo en la capa visible da sensación de vida
-            transform: i === index && !still ? 'scale(1.06)' : 'scale(1)',
-          }}
-        />
-      ))}
+      {/* Fondo ultra-oscuro base */}
+      <div style={S.base} />
 
-      {/* Degradado para que el texto siempre tenga contraste */}
-      <div style={S.veil} />
-      {/* Halo cálido de la marca */}
-      <div style={S.glow} />
+      {/* Orbe principal animado (brillo sutil) */}
+      <div 
+        style={{
+          ...S.orb,
+          opacity: brightness * 1.5,
+          animation: still ? 'none' : 'orbPulse 8s ease-in-out infinite alternate',
+        }} 
+      />
+
+      {/* Malla sutil (opcional, para dar textura "glass") */}
+      <div style={S.noise} />
+      
+      {/* Estilos de animación globales inyectados */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes orbPulse {
+          0% { transform: translate(-50%, -50%) scale(1); opacity: ${brightness}; }
+          100% { transform: translate(-50%, -50%) scale(1.15); opacity: ${brightness * 1.8}; }
+        }
+      `}} />
     </div>
   );
 }
 
 const S = {
-  wrap: { position: 'absolute', inset: 0, overflow: 'hidden', background: '#080706' },
-  layer: {
-    position: 'absolute',
-    inset: 0,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    transition: 'opacity 1.6s ease-in-out, transform 7s ease-out',
-    willChange: 'opacity, transform',
+  wrap: { 
+    position: 'absolute', inset: 0, overflow: 'hidden', 
+    background: '#040302' 
   },
-  veil: {
-    position: 'absolute',
-    inset: 0,
-    background:
-      'linear-gradient(180deg, rgba(8,7,6,.55) 0%, rgba(8,7,6,.35) 38%, rgba(8,7,6,.82) 100%)',
+  base: {
+    position: 'absolute', inset: 0,
+    background: 'radial-gradient(circle at 50% 0%, rgba(20,15,12,1) 0%, rgba(4,3,2,1) 100%)',
   },
-  glow: {
+  orb: {
     position: 'absolute',
     left: '50%',
-    top: '46%',
+    top: '30%',
     transform: 'translate(-50%,-50%)',
-    width: 620,
-    height: 620,
-    maxWidth: '140%',
-    background: 'radial-gradient(circle, rgba(255,68,31,.20) 0%, transparent 62%)',
-    filter: 'blur(50px)',
+    width: '120vw',
+    height: '120vw',
+    maxWidth: 900,
+    maxHeight: 900,
+    background: 'radial-gradient(circle, rgba(255,68,31,.18) 0%, rgba(255,68,31,.04) 40%, transparent 70%)',
+    filter: 'blur(60px)',
     pointerEvents: 'none',
+    willChange: 'transform, opacity',
   },
+  noise: {
+    position: 'absolute', inset: 0,
+    background: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.03%22/%3E%3C/svg%3E")',
+    pointerEvents: 'none',
+    opacity: 0.6,
+  }
 };
