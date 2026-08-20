@@ -51,9 +51,7 @@ ALTER TABLE public.product_performance ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Los dueños ven el rendimiento de sus productos"
 ON public.product_performance FOR SELECT
-USING (auth.uid() IN (
-    SELECT owner_id FROM public.business_profiles WHERE id = product_performance.business_id
-));
+USING (auth.uid() = product_performance.business_id);
 
 -- ====================================================================
 -- Fin de la migración. Ejecuta este script en el SQL Editor de Supabase.
