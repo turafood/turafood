@@ -161,7 +161,7 @@ export default function SoportePage() {
           <section className="glass-panel" style={{ padding: 0, display: 'flex', flexDirection: 'column', height: '70vh', minHeight: 500 }}>
             {/* Cabecera del Chat */}
             <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 14 }}>
-               <span style={{ ...S.catIcon, background: \`color-mix(in srgb, \${cat.color} 20%, transparent)\` }}>
+               <span style={{ ...S.catIcon, background: `color-mix(in srgb, ${cat.color} 20%, transparent)` }}>
                 <span className="ms" style={{ fontSize: 24, color: cat.color }}>{cat.icon}</span>
               </span>
               <div>
@@ -247,7 +247,7 @@ export default function SoportePage() {
               
               <div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Estado</div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, background: \`color-mix(in srgb, \${st.color} 15%, transparent)\`, border: \`1px solid color-mix(in srgb, \${st.color} 30%, transparent)\`, padding: '6px 12px', borderRadius: 12 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, background: `color-mix(in srgb, ${st.color} 15%, transparent)`, border: `1px solid color-mix(in srgb, ${st.color} 30%, transparent)`, padding: '6px 12px', borderRadius: 12 }}>
                   <span className="ms pulse-active" style={{ fontSize: 14, color: st.color }}>{st.icon}</span>
                   <span style={{ fontSize: 13, fontWeight: 800, color: st.color }}>{st.label}</span>
                 </div>

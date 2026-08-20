@@ -241,7 +241,7 @@ export default function RepartidorHome() {
                 key={i}
                 style={{
                   flex: 1, borderRadius: '4px 4px 2px 2px',
-                  height: \`\${Math.max(10, val)}%\`,
+                  height: `${Math.max(10, val)}%`,
                   background: i === arr.length - 1
                     ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
                     : 'rgba(255,255,255,.1)',
@@ -284,7 +284,7 @@ export default function RepartidorHome() {
               <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--text)' }}>{lvl.name}</span>
               <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 600 }}>
                 {lvl.next
-                  ? \`Te faltan \${lvl.to - (courier?.total_deliveries ?? 86)} entregas para llegar a \${lvl.next}\`
+                  ? `Te faltan ${lvl.to - (courier?.total_deliveries ?? 86)} entregas para llegar a ${lvl.next}`
                   : 'Estás en el nivel más alto'}
               </span>
             </span>

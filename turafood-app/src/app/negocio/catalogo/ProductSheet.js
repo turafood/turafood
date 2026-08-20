@@ -10,8 +10,7 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
-import { supabaseUpload } from '@/lib/upload';
+
 import PerformanceOverlay from '../components/PerformanceOverlay';
 import { cop } from '@/lib/format';
 import { saveProduct, createCategory } from '@/lib/negocio';
