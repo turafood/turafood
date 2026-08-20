@@ -414,7 +414,7 @@ const S = {
   },
   addBtn: {
     display: 'flex', alignItems: 'center', gap: 6, height: 42, padding: '0 16px',
-    borderRadius: 999, background: 'var(--primary)', color: '#fff',
+    borderRadius: 999, background: 'var(--primary)', color: 'var(--text)',
     fontSize: 13, fontWeight: 700, flex: 'none',
   },
   headRow: {
@@ -475,7 +475,7 @@ const S = {
   },
   starterPrimary: {
     display: 'flex', alignItems: 'center', gap: 8, height: 50, padding: '0 22px',
-    borderRadius: 999, background: 'var(--primary)', color: '#fff',
+    borderRadius: 999, background: 'var(--primary)', color: 'var(--text)',
     fontSize: 14.5, fontWeight: 700, boxShadow: '0 10px 26px rgba(255,68,31,.32)',
   },
   starterGhost: {

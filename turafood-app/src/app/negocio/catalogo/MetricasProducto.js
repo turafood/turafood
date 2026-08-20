@@ -81,8 +81,24 @@ export default function MetricasProducto({ producto, onClose }) {
         .pro-widget {
           animation: float-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        .premium-wave {
+          position: absolute; top: 0; left: 0; right: 0; height: 180px;
+          background: radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 100%);
+          border-radius: 24px 24px 0 0;
+          pointer-events: none; z-index: 0;
+        }
+        .glass-card {
+          background: color-mix(in srgb, var(--surface2) 40%, transparent);
+          border: 1px solid var(--border);
+          box-shadow: var(--shadowSm);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+          background: color-mix(in srgb, var(--surface2) 70%, transparent);
+          transform: translateY(-2px);
+        }
         .pro-bar {
-          animation: fill-bar 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fill-bar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
@@ -92,8 +108,10 @@ export default function MetricasProducto({ producto, onClose }) {
         onClick={(e) => e.stopPropagation()}
         role="dialog"
       >
+        <div className="premium-wave" />
+        
         {/* CABECERA WIDGET */}
-        <header style={S.cabecera}>
+        <header style={{ ...S.cabecera, position: 'relative', zIndex: 1 }}>
           <div style={S.fotoWrap}>
             {producto.image_url ? (
               <img src={producto.image_url} style={S.foto} alt="" />
@@ -130,7 +148,7 @@ export default function MetricasProducto({ producto, onClose }) {
         </header>
 
         {/* CUERPO WIDGET */}
-        <div style={S.cuerpo}>
+        <div style={{ ...S.cuerpo, position: 'relative', zIndex: 1 }}>
           {!m && !error ? (
             <div style={S.loadingState}>
               <span className="ms" style={{ fontSize: 28, animation: 'spin 1s linear infinite' }}>data_usage</span>
@@ -143,36 +161,36 @@ export default function MetricasProducto({ producto, onClose }) {
               {/* KPIs PRINCIPALES */}
               <div style={S.kpiGrid}>
                 <Kpi 
-                  icon="visibility" color="#A5B4FC" 
+                  icon="visibility" color="var(--primary)" 
                   value={m.vistas} label="Vistas" 
                 />
                 <Kpi 
-                  icon="shopping_cart" color="#93C5FD" 
+                  icon="shopping_cart" color="var(--primary)" 
                   value={m.agregados} label="Al Carrito" 
                 />
                 <Kpi 
-                  icon="payments" color="#86EFAC" 
+                  icon="payments" color="var(--primary)" 
                   value={m.comprados} label="Comprados" 
                 />
-                <div style={S.kpiMain}>
-                  <div style={S.kpiMainVal}>{m.tasa_conversion}%</div>
+                <div className="glass-card" style={S.kpiMain}>
+                  <div style={{...S.kpiMainVal, color: 'var(--text)'}}>{m.tasa_conversion}%</div>
                   <div style={S.kpiMainLabel}>Conversión</div>
                 </div>
               </div>
 
               {/* EMBUDO ADS-LIKE */}
-              <div style={S.embudo}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div className="glass-card" style={S.embudo}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                   <span style={S.seccionTitulo}>Embudo de Ventas</span>
-                  <span style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 600 }}>
+                  <span style={{ fontSize: 11, color: 'var(--text)', fontWeight: 700, background: 'var(--surface2)', padding: '4px 8px', borderRadius: 99 }}>
                     {m.abandono_carrito}% abandono
                   </span>
                 </div>
 
-                <Barra paso="Vistas del producto" val={m.vistas} max={m.vistas} color="#A5B4FC" />
-                <Barra paso="Agregados al carrito" val={m.agregados} max={m.vistas} color="#93C5FD" />
-                <Barra paso="Llegaron al checkout" val={m.en_checkout} max={m.vistas} color="#FDE047" />
-                <Barra paso="Compras concretadas" val={m.comprados} max={m.vistas} color="#86EFAC" />
+                <Barra paso="Vistas del producto" val={m.vistas} max={m.vistas} />
+                <Barra paso="Agregados al carrito" val={m.agregados} max={m.vistas} />
+                <Barra paso="Llegaron al checkout" val={m.en_checkout} max={m.vistas} />
+                <Barra paso="Compras concretadas" val={m.comprados} max={m.vistas} />
               </div>
 
               {/* INGRESOS */}
@@ -192,15 +210,15 @@ export default function MetricasProducto({ producto, onClose }) {
 
 function Kpi({ icon, color, value, label }) {
   return (
-    <div style={S.kpiCard}>
-      <span className="ms" style={{ ...S.kpiIcon, color }}>{icon}</span>
+    <div className="glass-card" style={S.kpiCard}>
+      <span className="ms" style={{ ...S.kpiIcon, color, background: `${color}15`, border: `1px solid ${color}30` }}>{icon}</span>
       <span style={S.kpiVal}>{value}</span>
       <span style={S.kpiLabel}>{label}</span>
     </div>
   );
 }
 
-function Barra({ paso, val, max, color }) {
+function Barra({ paso, val, max }) {
   const pct = Math.max((val / (max || 1)) * 100, val > 0 ? 3 : 0);
   return (
     <div style={S.barraRow}>
@@ -209,7 +227,7 @@ function Barra({ paso, val, max, color }) {
         <span style={S.barraVal}>{val}</span>
       </div>
       <div style={S.barraTrack}>
-        <div className="pro-bar" style={{ ...S.barraFill, width: `${pct}%`, background: color }} />
+        <div className="pro-bar" style={{ ...S.barraFill, width: `${pct}%`, background: 'var(--text)' }} />
       </div>
     </div>
   );
@@ -219,24 +237,25 @@ const S = {
   velo: {
     position: 'fixed', inset: 0, zIndex: 300,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(5,5,5,0.75)',
-    backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+    background: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
     padding: 16,
   },
   widget: {
     width: '100%', maxWidth: 520,
-    background: 'linear-gradient(145deg, #18181B 0%, #09090B 100%)',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: 'color-mix(in srgb, var(--surface) 85%, transparent)',
+    backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
+    border: '1px solid var(--border)',
     borderRadius: 24,
-    boxShadow: '0 40px 100px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05)',
+    boxShadow: 'var(--shadow)',
     overflow: 'hidden',
     display: 'flex', flexDirection: 'column',
   },
 
   cabecera: {
     display: 'flex', alignItems: 'center', gap: 14,
-    padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)',
-    background: 'rgba(255,255,255,0.02)',
+    padding: '20px 24px', borderBottom: '1px solid var(--border)',
+    background: 'color-mix(in srgb, var(--surface2) 30%, transparent)',
   },
   fotoWrap: { position: 'relative', width: 48, height: 48, flex: 'none' },
   foto: { width: '100%', height: '100%', borderRadius: 12, objectFit: 'cover', position: 'relative', zIndex: 2 },
@@ -249,61 +268,55 @@ const S = {
     filter: 'blur(16px)', opacity: 0.3, zIndex: 1, borderRadius: '50%',
   },
   kicker: { display: 'block', fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--primary)', marginBottom: 2 },
-  nombre: { display: 'block', fontSize: 17, fontWeight: 800, letterSpacing: '-.02em', color: '#fff' },
+  nombre: { display: 'block', fontSize: 17, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--text)' },
   
-  rangos: { display: 'flex', background: 'rgba(0,0,0,0.3)', borderRadius: 99, padding: 3 },
+  rangos: { display: 'flex', background: 'var(--surface2)', borderRadius: 99, padding: 3 },
   rangoBtn: {
     height: 28, padding: '0 12px', borderRadius: 99,
     fontSize: 11, fontWeight: 700, transition: 'all 0.2s',
   },
   cerrar: {
-    width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.08)',
-    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    width: 32, height: 32, borderRadius: '50%', background: 'var(--surface2)',
+    color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
 
   cuerpo: { padding: 24 },
   loadingState: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '40px 0', opacity: 0.5 },
 
-  kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 28 },
+  kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24, padding: '0 24px' },
   kpiCard: {
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
-    border: '1px solid rgba(255,255,255,0.05)',
-    borderRadius: 16, padding: '16px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    padding: '16px 8px', borderRadius: 16, textAlign: 'center',
   },
-  kpiIcon: { fontSize: 20, marginBottom: 8 },
-  kpiVal: { fontSize: 18, fontWeight: 800, fontFamily: 'var(--font-bricolage)', color: '#fff' },
-  kpiLabel: { fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginTop: 2 },
+  kpiIcon: { fontSize: 22, marginBottom: 8, padding: 8, borderRadius: 12 },
+  kpiVal: { fontSize: 18, fontWeight: 800, color: 'var(--text)', letterSpacing: '-.02em', lineHeight: 1.1 },
+  kpiLabel: { fontSize: 11, color: 'var(--muted)', marginTop: 4, fontWeight: 600 },
   
   kpiMain: {
-    background: 'linear-gradient(180deg, rgba(255,68,31,0.08) 0%, rgba(255,68,31,0.02) 100%)',
-    border: '1px solid rgba(255,68,31,0.2)', borderRadius: 16,
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 20px rgba(255,68,31,0.1), inset 0 1px 0 rgba(255,255,255,0.05)',
+    padding: '16px 8px', borderRadius: 16, textAlign: 'center',
+    border: '1px solid var(--border)', background: 'var(--surface2)',
   },
-  kpiMainVal: { fontSize: 24, fontWeight: 800, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)', textShadow: '0 2px 10px rgba(255,68,31,0.3)' },
-  kpiMainLabel: { fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em', color: '#FFB57A', marginTop: 3 },
+  kpiMainVal: { fontSize: 24, fontWeight: 800, letterSpacing: '-.02em', lineHeight: 1.1 },
+  kpiMainLabel: { fontSize: 11, color: 'var(--text)', marginTop: 4, fontWeight: 700 },
 
   embudo: {
-    background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.03)',
-    borderRadius: 20, padding: 22, marginBottom: 20,
-    boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)',
+    margin: '0 24px 24px', padding: '20px', borderRadius: 20,
   },
-  seccionTitulo: { fontSize: 12, fontWeight: 800, letterSpacing: '.08em', color: 'var(--muted)' },
-  
-  barraRow: { marginBottom: 16, ':lastChild': { marginBottom: 0 } },
-  barraLabels: { display: 'flex', justifyContent: 'space-between', marginBottom: 8 },
-  barraName: { fontSize: 13, fontWeight: 600, color: '#D4D4D8' },
-  barraVal: { fontSize: 13.5, fontWeight: 800, fontFamily: 'var(--font-bricolage)', color: '#fff' },
-  barraTrack: { height: 6, background: 'rgba(255,255,255,0.04)', borderRadius: 99, overflow: 'hidden', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' },
-  barraFill: { height: '100%', borderRadius: 99, boxShadow: '0 0 10px currentColor' },
+  seccionTitulo: { fontSize: 12, fontWeight: 800, color: 'var(--text)', letterSpacing: '.05em', textTransform: 'uppercase' },
+
+  barraRow: { marginBottom: 14, position: 'relative' },
+  barraLabels: { display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'flex-end' },
+  barraName: { fontSize: 12, fontWeight: 600, color: 'var(--muted)' },
+  barraVal: { fontSize: 13, fontWeight: 800, color: 'var(--text)' },
+  barraTrack: { height: 10, background: 'var(--surface2)', borderRadius: 99, overflow: 'hidden', border: '1px solid var(--border)' },
+  barraFill: { height: '100%', borderRadius: 99 },
 
   revenue: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '18px 22px', background: 'linear-gradient(90deg, rgba(16,185,129,0.05) 0%, rgba(16,185,129,0.1) 100%)',
-    border: '1px solid rgba(16,185,129,0.15)', borderRadius: 18,
-    boxShadow: '0 4px 20px rgba(16,185,129,0.05)',
+    padding: '18px 22px', background: 'var(--surface2)',
+    border: '1px solid var(--border)', borderRadius: 18,
   },
-  revenueLabel: { fontSize: 13, fontWeight: 700, color: '#86EFAC' },
-  revenueVal: { fontSize: 20, fontWeight: 800, color: '#86EFAC', fontFamily: 'var(--font-bricolage)' },
+  revenueLabel: { fontSize: 13, fontWeight: 700, color: 'var(--text)' },
+  revenueVal: { fontSize: 20, fontWeight: 800, color: 'var(--text)', fontFamily: 'var(--font-bricolage)' },
 };

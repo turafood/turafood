@@ -135,7 +135,7 @@ export default function Videollamada({ tema = 'light' }) {
             <span style={{ ...S.beneIcon, color, background: `color-mix(in srgb, ${color} 15%, transparent)` }}>
               <span className="ms" style={{ fontSize: 18 }}>{icono}</span>
             </span>
-            <span style={{ fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{texto}</span>
+            <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)' }}>{texto}</span>
           </li>
         ))}
       </ul>
@@ -144,10 +144,10 @@ export default function Videollamada({ tema = 'light' }) {
       <div style={S.marco}>
         {estado === 'cargando' && (
           <div style={S.esqueleto} aria-hidden="true">
-            <span className="sk" style={{ height: 26, width: 180, borderRadius: 9, background: 'rgba(255,255,255,0.1)' }} />
+            <span className="sk" style={{ height: 26, width: 180, borderRadius: 9, background: 'var(--border)' }} />
             <div style={S.rejilla}>
               {Array.from({ length: 28 }).map((_, n) => (
-                <span key={n} className="sk" style={{ aspectRatio: '1', borderRadius: 12, background: 'rgba(255,255,255,0.05)' }} />
+                <span key={n} className="sk" style={{ aspectRatio: '1', borderRadius: 12, background: 'var(--border)' }} />
               ))}
             </div>
           </div>
@@ -176,10 +176,10 @@ export default function Videollamada({ tema = 'light' }) {
             
             {/* IFRAME DE RESPALDO: Si el script falló, igual inyectamos el iframe nativo por si acaso. */}
             <div style={{ marginTop: 30, width: '100%', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 30 }}>
-               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>O intenta usar el calendario básico:</p>
+               <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>O intenta usar el calendario básico:</p>
                <iframe 
-                 src={`https://cal.com/${ENLACE}?theme=dark`} 
-                 style={{ width: '100%', height: 600, border: 'none', borderRadius: 16, background: '#111' }} 
+                 src={`https://cal.com/${ENLACE}?theme=${tema}`} 
+                 style={{ width: '100%', height: 600, border: 'none', borderRadius: 16, background: 'var(--surface)' }} 
                />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function Videollamada({ tema = 'light' }) {
       </div>
 
       <p style={S.pie}>
-        <span className="ms" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }}>shield</span>
+        <span className="ms" style={{ fontSize: 16, color: 'var(--muted)' }}>shield</span>
         La llamada es privada y solo la ve el equipo de TuraFood. No pedimos
         contraseñas ni datos bancarios en la llamada.
       </p>
@@ -210,12 +210,12 @@ const S = {
     position: 'relative', overflow: 'hidden',
     display: 'flex', gap: 16, alignItems: 'flex-start',
     padding: 24, borderRadius: 24,
-    background: 'rgba(255,68,31,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    background: 'var(--primary-tint)',
     border: '1px solid rgba(255,68,31,0.15)',
   },
   avisoGlow: {
     position: 'absolute', top: -50, left: -50, width: 150, height: 150,
-    background: 'radial-gradient(circle, rgba(255,68,31,0.2), transparent 70%)',
+    background: 'radial-gradient(circle, rgba(255,68,31,0.1), transparent 70%)',
     borderRadius: '50%', pointerEvents: 'none',
   },
   avisoIcono: {
@@ -226,10 +226,10 @@ const S = {
   },
   avisoTitulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 20, letterSpacing: '-.01em', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+    fontSize: 20, letterSpacing: '-.01em', color: 'var(--text)',
   },
   avisoTexto: {
-    margin: '8px 0 0', fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.6)',
+    margin: '8px 0 0', fontSize: 14, lineHeight: 1.6, color: 'var(--text)', opacity: 0.8,
   },
 
   beneficios: {
@@ -238,7 +238,7 @@ const S = {
   },
   beneficio: {
     display: 'flex', alignItems: 'center', gap: 12,
-    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+    background: 'var(--surface2)', border: '1px solid var(--border)',
     padding: 16, borderRadius: 18, transition: 'all 0.3s',
   },
   beneIcon: {
@@ -247,9 +247,9 @@ const S = {
 
   marco: {
     borderRadius: 24, overflow: 'hidden',
-    background: 'rgba(10,10,10,0.8)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow)',
   },
   esqueleto: {
     padding: 24, display: 'flex', flexDirection: 'column', gap: 20,
@@ -263,7 +263,7 @@ const S = {
     alignItems: 'center', gap: 16, textAlign: 'center',
   },
   fallaTexto: {
-    margin: 0, fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.6)', maxWidth: 400,
+    margin: 0, fontSize: 14, lineHeight: 1.6, color: 'var(--muted)', maxWidth: 400,
   },
   fallaBoton: {
     display: 'inline-flex', alignItems: 'center', gap: 10,
@@ -275,12 +275,12 @@ const S = {
   fallaRetry: {
     display: 'inline-flex', alignItems: 'center', gap: 10,
     height: 50, padding: '0 24px', borderRadius: 999,
-    background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)',
     fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s',
   },
 
   pie: {
     display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 0',
-    fontSize: 12.5, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)',
+    fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)',
   },
 };

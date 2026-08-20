@@ -56,26 +56,18 @@ const BLOQUES = [
   {
     id: 'transferencia',
     Icono: IconoTransferencia,
-    nombre: 'Transferencia',
-    detalle: 'Te consignan directo. La plata te llega al instante.',
+    nombre: 'Nequi o Daviplata',
+    detalle: 'Te consignan directo a tu billetera.',
     billeteras: [
       { id: 'nequi', nombre: 'Nequi' },
       { id: 'daviplata', nombre: 'Daviplata' },
     ],
   },
   {
-    id: 'whatsapp',
-    Icono: IconoWhatsapp,
-    nombre: 'WhatsApp',
-    detalle: 'Te llega la comanda completa y cierras el pago por chat.',
-    sello: 'SIN CONFIGURAR NADA',
-    campo: 'whatsapp',
-  },
-  {
     id: 'card',
     Icono: IconoTarjeta,
-    nombre: 'Tarjeta al recibir',
-    detalle: 'Si mandas datáfono con el domicilio.',
+    nombre: 'Datáfono en físico',
+    detalle: 'Si mandas datáfono con el domiciliario.',
   },
 ];
 
@@ -224,9 +216,9 @@ export default function PagosPage() {
               key={b.id}
               style={{
                 ...S.tarjeta,
-                borderColor: faltaCampo ? ROJO : on ? 'rgba(16,185,129,0.3)' : 'rgba(0,0,0,0.04)',
-                background: on ? 'linear-gradient(180deg, rgba(16,185,129,0.03) 0%, rgba(16,185,129,0) 100%)' : 'var(--surface)',
-                boxShadow: on ? '0 8px 30px rgba(16,185,129,0.08), inset 0 1px 0 rgba(255,255,255,0.8)' : '0 2px 8px rgba(0,0,0,0.02)',
+                borderColor: faltaCampo ? 'var(--primary)' : on ? 'var(--green)' : 'var(--border)',
+                background: on ? 'color-mix(in srgb, var(--green) 3%, var(--surface))' : 'var(--surface)',
+                boxShadow: on ? '0 8px 30px color-mix(in srgb, var(--green) 8%, transparent)' : 'var(--shadowSm)',
               }}
             >
               <button onClick={() => alternarBloque(b)} style={S.fila} aria-pressed={on}>
@@ -375,7 +367,7 @@ const S = {
     position: 'relative', overflow: 'hidden',
     borderRadius: 24, padding: 20,
     background: 'linear-gradient(142deg, var(--ink) 0%, var(--ink2) 72%)',
-    color: '#fff',
+    color: 'var(--text)',
   },
   heroBrillo: {
     position: 'absolute', right: -70, top: -90, width: 230, height: 230,
@@ -404,37 +396,39 @@ const S = {
   },
 
   tarjeta: {
-    borderRadius: 22, background: 'var(--surface)',
-    border: '1px solid rgba(0,0,0,0.04)', overflow: 'hidden',
-    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+    borderRadius: 24, border: '1px solid var(--border)',
+    overflow: 'hidden', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   fila: {
-    display: 'flex', alignItems: 'center', gap: 16,
-    width: '100%', padding: '18px 20px', background: 'none', textAlign: 'left',
+    width: '100%', display: 'flex', alignItems: 'center', gap: 18,
+    padding: '24px', background: 'none', border: 'none', cursor: 'pointer',
   },
   marca: {
-    flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'all .3s ease',
+    width: 48, height: 48, borderRadius: 16,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'var(--surface2)', flex: 'none',
+    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   nombre: {
-    display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-    fontSize: 15, fontWeight: 800, color: 'var(--text)', letterSpacing: '-.01em',
+    display: 'flex', alignItems: 'center', gap: 10,
+    fontSize: 17, fontWeight: 800, letterSpacing: '-.02em', color: 'var(--text)',
   },
   sello: {
-    fontSize: 9, fontWeight: 800, letterSpacing: '.07em',
-    padding: '3px 8px', borderRadius: 999,
-    background: '#E6F6EE', color: '#0B7A48',
+    fontSize: 10, fontWeight: 800, letterSpacing: '.06em', color: 'var(--primary)',
+    background: 'color-mix(in srgb, var(--primary) 10%, transparent)', padding: '4px 8px', borderRadius: 6,
   },
   detalle: {
-    display: 'block', marginTop: 4, fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)',
+    display: 'block', marginTop: 4, fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.4,
   },
   switchTrack: {
-    width: 44, height: 24, borderRadius: 99, padding: 3,
-    display: 'flex', flex: 'none', transition: 'background 0.3s ease, box-shadow 0.3s ease',
+    width: 44, height: 24, borderRadius: 99, flex: 'none',
+    position: 'relative', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   switchKnob: {
-    width: 18, height: 18, borderRadius: '50%', background: '#fff',
-    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.15)',
+    position: 'absolute', top: 2, left: 2, width: 20, height: 20,
+    borderRadius: '50%', background: '#fff',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 
   interior: {
@@ -481,7 +475,7 @@ const S = {
   barraTexto: { fontSize: 12.5, color: 'var(--muted)', flex: 1, minWidth: 180 },
   guardar: {
     height: 48, padding: '0 28px', borderRadius: 999, flex: 'none',
-    background: 'var(--green)', color: '#fff',
+    background: 'var(--green)', color: 'var(--text)',
     fontSize: 15, fontWeight: 800, letterSpacing: '-.01em',
     boxShadow: '0 4px 14px rgba(11,122,72,.28)',
   },

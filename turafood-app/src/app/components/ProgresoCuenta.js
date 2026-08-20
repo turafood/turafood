@@ -28,11 +28,11 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
   // sessionStorage acá mismo haría que el primer render del navegador
   // no coincidiera con el HTML que llegó: React descarta la página y
   // la vuelve a pintar entera. Se lee un instante después.
-  const [plegado, setPlegado] = useState(false);
+  const [plegado, setPlegado] = useState(true);
 
   useEffect(() => {
     try {
-      if (sessionStorage.getItem(CLAVE) === '1') setPlegado(true);
+      if (sessionStorage.getItem(CLAVE) === '0') setPlegado(false);
     } catch { /* modo privado */ }
   }, []);
 
@@ -57,7 +57,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
       <button data-tour="progreso" onClick={() => plegar(false)} style={S.pildora} title="Continuar configuración" className="anim-slidedown">
         <span style={S.anillo}>
           <svg width="24" height="24" viewBox="0 0 22 22" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="11" cy="11" r="9" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2.5" />
+            <circle cx="11" cy="11" r="9" fill="none" stroke="var(--border)" strokeWidth="2.5" />
             <circle
               cx="11" cy="11" r="9" fill="none" stroke="var(--primary)" strokeWidth="2.5"
               strokeLinecap="round"
@@ -99,7 +99,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
             </span>
           </span>
           <button onClick={() => plegar(true)} style={S.plegarBtn} aria-label="Ocultar para ver el panel">
-            <span style={{ fontSize: 12, fontWeight: 600 }}>Ver panel</span>
+            <span style={{ fontSize: 12, fontWeight: 600 }}>Cerrar panel</span>
             <span className="ms bounce-icon" style={{ fontSize: 18 }}>keyboard_arrow_up</span>
           </button>
         </header>
@@ -116,10 +116,10 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
                 <span
                   style={{
                     ...S.marca,
-                    background: p.hecho ? 'var(--green)' : esSiguiente ? 'var(--primary)' : 'rgba(255,255,255,.08)',
-                    color: p.hecho ? '#fff' : esSiguiente ? '#fff' : 'rgba(255,255,255,.3)',
+                    background: p.hecho ? 'var(--green)' : esSiguiente ? 'var(--primary)' : 'var(--surface2)',
+                    color: p.hecho ? 'var(--surface)' : esSiguiente ? 'var(--surface)' : 'var(--muted)',
                     boxShadow: esSiguiente ? '0 4px 12px rgba(255,68,31,.3)' : 'none',
-                    border: esSiguiente ? 'none' : '1px solid rgba(255,255,255,0.1)'
+                    border: esSiguiente ? 'none' : '1px solid var(--border)'
                   }}
                 >
                   {p.hecho
@@ -128,7 +128,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
                 </span>
 
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ ...S.pasoTitulo, textDecoration: p.hecho ? 'line-through' : 'none', color: esSiguiente ? '#fff' : 'inherit' }}>
+                  <span style={{ ...S.pasoTitulo, textDecoration: p.hecho ? 'line-through' : 'none', color: esSiguiente ? 'var(--text)' : 'inherit' }}>
                     {p.titulo}
                   </span>
                   {esSiguiente && p.detalle && (
@@ -161,11 +161,10 @@ const S = {
   caja: {
     position: 'relative', overflow: 'hidden',
     borderRadius: 24, padding: '24px 28px', marginBottom: 24,
-    background: 'rgba(18, 18, 18, 0.65)',
-    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,.08)',
-    color: '#fff',
-    boxShadow: '0 20px 50px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    color: 'var(--text)',
+    boxShadow: 'var(--shadow)',
   },
   brillo: {
     position: 'absolute', right: -100, top: -100, width: 300, height: 300,
@@ -177,24 +176,24 @@ const S = {
   },
   titulo: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 20, letterSpacing: '-.02em', color: '#fff',
+    fontSize: 20, letterSpacing: '-.02em', color: 'var(--text)',
   },
   bajada: {
-    display: 'block', fontSize: 13.5, color: 'rgba(255,255,255,.6)', marginTop: 4,
+    display: 'block', fontSize: 13.5, color: 'var(--muted)', marginTop: 4,
   },
   plegarBtn: {
     display: 'flex', alignItems: 'center', gap: 6, flex: 'none',
     padding: '8px 14px', borderRadius: 999,
-    background: 'rgba(255,255,255,.05)', color: '#fff',
-    border: '1px solid rgba(255,255,255,.08)',
+    background: 'var(--surface2)', color: 'var(--text)',
+    border: '1px solid var(--border)',
     transition: 'all .2s',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
   },
 
   barra: {
     position: 'relative', height: 4, borderRadius: 99, marginTop: 22,
-    background: 'rgba(255,255,255,.06)', overflow: 'hidden',
+    background: 'var(--surface2)', overflow: 'hidden',
   },
   relleno: {
     display: 'block', height: '100%', borderRadius: 99,
@@ -215,34 +214,33 @@ const S = {
   },
   pasoTitulo: { display: 'block', fontSize: 15, fontWeight: 700, letterSpacing: '-.01em' },
   pasoDetalle: {
-    display: 'block', fontSize: 13, color: 'rgba(255,255,255,.5)',
+    display: 'block', fontSize: 13, color: 'var(--muted)',
     marginTop: 3, lineHeight: 1.4,
   },
   ir: {
     display: 'inline-flex', alignItems: 'center', gap: 6, flex: 'none',
     height: 38, padding: '0 18px', borderRadius: 999,
-    background: '#fff', color: '#000',
+    background: 'var(--ink)', color: 'var(--onInk)',
     fontSize: 13.5, fontWeight: 800, textDecoration: 'none',
-    boxShadow: '0 4px 16px rgba(255,255,255,0.2)',
+    boxShadow: 'var(--shadowSm)',
     transition: 'transform .2s, box-shadow .2s',
   },
 
   pieContenedor: {
     margin: '24px 0 0', paddingTop: 20,
-    borderTop: '1px solid rgba(255,255,255,.06)',
+    borderTop: '1px solid var(--border)',
   },
   pie: {
-    fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,.6)',
+    fontSize: 13, lineHeight: 1.6, color: 'var(--muted)',
     margin: 0,
   },
 
   pildora: {
     display: 'inline-flex', alignItems: 'center', gap: 12,
     padding: '8px 16px 8px 10px', borderRadius: 999, marginBottom: 24,
-    background: 'rgba(18, 18, 18, 0.65)',
-    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,.08)', color: '#fff',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)', color: 'var(--text)',
+    boxShadow: 'var(--shadowSm)',
     transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
     cursor: 'pointer',
   },

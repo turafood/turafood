@@ -1170,7 +1170,7 @@ const HOUR_WEIGHT = [
 ];
 const HOUR_TOTAL = HOUR_WEIGHT.reduce((a, b) => a + b, 0);
 
-const LOCAL_SALES = (() => {
+export const LOCAL_SALES = (() => {
   const rows = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);

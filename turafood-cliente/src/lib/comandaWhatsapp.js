@@ -43,15 +43,15 @@ const pesos = (n) =>
  */
 const CIERRE = {
   nequi: (n) =>
-    `💳 Pagaré por *Nequi*${n ? ` (${n})` : ''}. Apenas me confirmes, te hago la transferencia.`,
+    `Una vez me confirmes el pedido, te transfiero por *Nequi*${n ? ` al número ${n}` : ''}.`,
   daviplata: (n) =>
-    `💳 Pagaré por *Daviplata*${n ? ` (${n})` : ''}. Apenas me confirmes, te hago la transferencia.`,
+    `Una vez me confirmes el pedido, te transfiero por *Daviplata*${n ? ` al número ${n}` : ''}.`,
   cash: () =>
-    '💵 Pagaré en *Efectivo* al recibir.',
+    'Una vez me confirmes el pedido, preparo el *Efectivo* para cuando llegue. 💵',
   card: () =>
-    '💳 Pagaré con *Datáfono* al recibir.',
+    'Una vez me confirmes el pedido, espero tu *Datáfono en físico* al recibir. 💳',
   whatsapp: () =>
-    '💬 Pagaré por el *método que acordemos* por acá.',
+    'Una vez me confirmes el pedido, cuadramos el pago por acá. 💬',
 };
 
 /**
@@ -65,10 +65,9 @@ export function comandaWhatsapp(pedido, items, extra = {}) {
   const { negocio, cliente, telefono, numeroPago } = extra;
   const L = [];
 
-  L.push(negocio ? `Hola *${negocio}* 👋` : 'Hola 👋');
-  L.push('');
-  L.push('Acabo de comprar estos productos en *Tura Food*, todo el puerto en una APP. 🚀');
-  L.push('Quisiera confirmar este pedido:');
+  L.push(negocio ? `Hola *${negocio}* 👋,` : 'Hola 👋,');
+  L.push('¡Acabo de hacerte un pedido a través de *turafood.com*! 🚀');
+  L.push('Te paso el resumen para que me lo vayas preparando:');
   L.push('');
   L.push(`🧾 *Pedido #${pedido.order_number}*`);
   L.push('');

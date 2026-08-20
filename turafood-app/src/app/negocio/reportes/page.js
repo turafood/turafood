@@ -22,7 +22,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { cop } from '@/lib/format';
 import {
   getSalesWindow, summarizeByDay, summarizeByHour,
-  summarizeByWeekday, summarizePrevious,
+  summarizeByWeekday, summarizePrevious, LOCAL_SALES
 } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
 import HeaderHero from '../../components/HeaderHero';
@@ -37,8 +37,8 @@ const RANGES = [
 const WINDOW_DAYS = 60;
 
 export default function ReportesPage() {
-  const { business } = useBiz();
-  const [sales, setSales] = useState([]);
+  const { business, demoMode } = useBiz();
+  const [realSales, setRealSales] = useState([]);
   const [range, setRange] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,7 +52,7 @@ export default function ReportesPage() {
     (async () => {
       try {
         const rows = await getSalesWindow(business.id, WINDOW_DAYS);
-        if (alive) setSales(rows);
+        if (alive) setRealSales(rows);
       } catch (err) {
         if (alive) setError(err.message);
       } finally {
@@ -61,6 +61,15 @@ export default function ReportesPage() {
     })();
     return () => { alive = false; };
   }, [business]);
+
+  const sales = useMemo(() => {
+    if (!demoMode) return realSales;
+    // Filtrar LOCAL_SALES según la ventana seleccionada
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+    from.setDate(from.getDate() - (WINDOW_DAYS - 1));
+    return LOCAL_SALES.filter(s => new Date(s.created_at) >= from);
+  }, [realSales, demoMode]);
 
   const daily = useMemo(() => summarizeByDay(sales, days), [sales, days]);
   const hourly = useMemo(() => summarizeByHour(sales, days), [sales, days]);
@@ -501,18 +510,18 @@ const S = {
   },
   chip: { height: 40, padding: '0 18px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
   chipOn: { background: '#fff', color: '#000', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' },
-  chipOff: { background: 'rgba(24,24,24,0.7)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
+  chipOff: { background: 'var(--surface)', color: 'rgba(255,255,255,0.7)', border: '1px solid var(--border)' },
 
   export: {
     height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-    background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', gap: 6, transition: 'background 0.2s'
   },
 
   kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 },
   kpi: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 24, boxShadow: 'var(--shadow)', color: 'var(--text)'
   },
   delta: {
     display: 'inline-flex', alignItems: 'center', gap: 4, height: 26, padding: '0 10px',
@@ -520,8 +529,8 @@ const S = {
   },
 
   panel: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
-    padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 20, backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24,
+    padding: 24, boxShadow: 'var(--shadow)', marginTop: 20, color: 'var(--text)'
   },
   duo: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20 },
 
@@ -531,25 +540,25 @@ const S = {
   },
   tip: {
     position: 'absolute', top: -6, pointerEvents: 'none', zIndex: 2,
-    background: 'rgba(24,24,24,0.95)', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(24,24,24,0.95)', border: '1px solid var(--border)',
     borderRadius: 16, padding: '12px 16px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', whiteSpace: 'nowrap',
-    color: '#fff'
+    color: 'var(--text)'
   },
 
   feeCard: {
     display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
-    padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 20, backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24,
+    padding: 24, boxShadow: 'var(--shadow)', marginTop: 20, color: 'var(--text)'
   },
   feeIcon: {
     width: 54, height: 54, borderRadius: 18, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
+    background: 'var(--surface2)', border: '1px solid rgba(255,255,255,0.08)'
   },
 
   detailToggle: {
     display: 'flex', alignItems: 'center', gap: 14, width: '100%',
-    padding: 24, background: 'none', textAlign: 'left', color: '#fff'
+    padding: 24, background: 'none', textAlign: 'left', color: 'var(--text)'
   },
   row: {
     display: 'grid', gridTemplateColumns: GRID, gap: 16, minWidth: 800,

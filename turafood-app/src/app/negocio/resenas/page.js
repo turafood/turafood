@@ -16,18 +16,18 @@ import { useBiz } from '../BizContext';
 import HeaderHero from '../../components/HeaderHero';
 
 const AVATAR_BG = [
-  { bg: '#FFF1EC', color: '#E2360F' },
-  { bg: '#EAF1FF', color: '#2E6BFF' },
-  { bg: '#E6F6EE', color: '#0B8E54' },
-  { bg: '#F3ECFF', color: '#6B2FD6' },
-  { bg: '#FFF7E6', color: '#A8730B' },
+  { bg: 'color-mix(in srgb, #E2360F 12%, transparent)', color: '#E2360F' },
+  { bg: 'color-mix(in srgb, #2E6BFF 12%, transparent)', color: '#2E6BFF' },
+  { bg: 'color-mix(in srgb, #0B8E54 12%, transparent)', color: '#0B8E54' },
+  { bg: 'color-mix(in srgb, #6B2FD6 12%, transparent)', color: '#6B2FD6' },
+  { bg: 'color-mix(in srgb, #A8730B 12%, transparent)', color: '#A8730B' },
 ];
 
 const initials = (name) =>
   String(name || '?').split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 
 export default function ResenasPage() {
-  const { business, setPendingReviews, toast } = useBiz();
+  const { business, setPendingReviews, toast, demoMode: simulatedMode } = useBiz();
   const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState(0);
   const [drafts, setDrafts] = useState({});
@@ -50,8 +50,6 @@ export default function ResenasPage() {
     })();
     return () => { alive = false; };
   }, [business]);
-
-  const [simulatedMode, setSimulatedMode] = useState(true);
 
   // Semilla de reseñas Google-style
   const seedReviews = useMemo(() => {
@@ -156,14 +154,14 @@ export default function ResenasPage() {
 
       {/* Resumen */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20, alignItems: 'start' }}>
-        <section style={{ ...S.card, padding: 32, background: 'linear-gradient(135deg, rgba(24,24,24,0.9) 0%, rgba(20,20,20,0.95) 100%)' }}>
+        <section style={{ ...S.card, padding: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="ms" style={{ fontSize: 24, color: '#4285F4' }}>google</span>
               <span style={{ fontSize: 16, fontWeight: 800, fontFamily: 'var(--font-bricolage)' }}>Resumen Google Style</span>
             </div>
             {simulatedMode && (
-              <span style={{ background: '#FFF1EC', color: 'var(--primary)', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800 }}>
+              <span style={{ background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800 }}>
                 MODO DEMO
               </span>
             )}
@@ -217,10 +215,10 @@ export default function ResenasPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 16 }}>
           {[
-            { label: 'Tasa de respuesta', value: `${stats.rate}%`, icon: 'forum', bg: '#EAF1FF', fg: '#2E6BFF' },
-            { label: 'Sin responder', value: String(pending), icon: 'mark_email_unread', bg: '#FFF1EC', fg: '#E2360F' },
-            { label: 'Recomendarían', value: `${stats.recommend}%`, icon: 'thumb_up', bg: '#FFF7E6', fg: '#A8730B' },
-            { label: 'Calificación', value: stats.avg.toFixed(1).replace('.', ','), icon: 'star', bg: '#E6F6EE', fg: '#0B8E54' },
+            { label: 'Tasa de respuesta', value: `${stats.rate}%`, icon: 'forum', bg: 'color-mix(in srgb, #2E6BFF 12%, transparent)', fg: '#2E6BFF' },
+            { label: 'Sin responder', value: String(pending), icon: 'mark_email_unread', bg: 'color-mix(in srgb, #E2360F 12%, transparent)', fg: '#E2360F' },
+            { label: 'Recomendarían', value: `${stats.recommend}%`, icon: 'thumb_up', bg: 'color-mix(in srgb, #A8730B 12%, transparent)', fg: '#A8730B' },
+            { label: 'Calificación', value: stats.avg.toFixed(1).replace('.', ','), icon: 'star', bg: 'color-mix(in srgb, #0B8E54 12%, transparent)', fg: '#0B8E54' },
           ].map((k) => (
             <div key={k.label} style={S.card}>
               <span style={{ ...S.kpiIcon, background: k.bg }}>
@@ -255,7 +253,7 @@ export default function ResenasPage() {
 
         <div style={S.googleGrid}>
           <Link href="/negocio/crecimiento/google-negocio" style={S.googleCard}>
-            <span style={{ ...S.googleCardIcon, background: '#EAF1FF' }}>
+            <span style={{ ...S.googleCardIcon, background: 'color-mix(in srgb, #2E6BFF 12%, transparent)' }}>
               <span className="ms" style={{ fontSize: 21, color: '#2E6BFF' }}>storefront</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
@@ -268,7 +266,7 @@ export default function ResenasPage() {
           </Link>
 
           <Link href="/negocio/crecimiento/google-ads" style={S.googleCard}>
-            <span style={{ ...S.googleCardIcon, background: '#E6F6EE' }}>
+            <span style={{ ...S.googleCardIcon, background: 'color-mix(in srgb, #0B8E54 12%, transparent)' }}>
               <span className="ms" style={{ fontSize: 21, color: '#0B8E54' }}>campaign</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
@@ -300,10 +298,10 @@ export default function ResenasPage() {
         {shown.map((r, i) => {
           const av = AVATAR_BG[i % AVATAR_BG.length];
           const tag = r.rating <= 2
-            ? { label: 'NECESITA ATENCIÓN', bg: '#FFF1EC', color: '#E2360F' }
+            ? { label: 'NECESITA ATENCIÓN', bg: 'color-mix(in srgb, #E2360F 12%, transparent)', color: '#E2360F' }
             : r.rating === 3
-              ? { label: 'NEUTRAL', bg: '#FFF7E6', color: '#A8730B' }
-              : { label: 'POSITIVA', bg: '#E6F6EE', color: '#0B7A48' };
+              ? { label: 'NEUTRAL', bg: 'color-mix(in srgb, #A8730B 12%, transparent)', color: '#A8730B' }
+              : { label: 'POSITIVA', bg: 'color-mix(in srgb, #0B7A48 12%, transparent)', color: '#0B7A48' };
           const draft = drafts[r.id] ?? '';
 
           return (
@@ -402,7 +400,7 @@ export default function ResenasPage() {
           <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, marginTop: 14 }}>
             {reviews.length ? 'Todo respondido' : 'Todavía no tienes reseñas'}
           </div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 5 }}>
+          <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 5, marginBottom: 14 }}>
             {reviews.length
               ? 'No tienes reseñas pendientes en este filtro.'
               : 'Aparecen aquí cuando tus clientes califiquen sus pedidos.'}
@@ -426,9 +424,9 @@ export default function ResenasPage() {
 
 const S = {
   google: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 32, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 24,
-    backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 32, boxShadow: 'var(--shadow)', marginTop: 24,
+    color: 'var(--text)'
   },
   googleIcon: {
     width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, rgba(46,107,255,0.15) 0%, rgba(107,47,214,0.15) 100%)', flex: 'none',
@@ -440,22 +438,22 @@ const S = {
   },
   googleCard: {
     display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 20,
-    background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)',
-    textDecoration: 'none', color: '#fff', minWidth: 0,
+    background: 'var(--surface2)', border: '1px solid var(--border)',
+    textDecoration: 'none', color: 'var(--text)', minWidth: 0,
     transition: 'box-shadow 0.2s, transform 0.2s, background 0.2s',
   },
   googleCardIcon: {
     width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  googleCardTitle: { display: 'block', fontSize: 15, fontWeight: 800, color: '#fff' },
+  googleCardTitle: { display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--text)' },
   googleCardText: {
-    display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,0.6)', marginTop: 4, lineHeight: 1.45,
+    display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 4, lineHeight: 1.45,
   },
   card: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-    backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 24, boxShadow: 'var(--shadow)',
+    color: 'var(--text)'
   },
   kpiIcon: {
     width: 38, height: 38, borderRadius: 12,
@@ -463,19 +461,19 @@ const S = {
   },
   distTrack: {
     flex: 1, height: 8, borderRadius: 99, background: 'var(--surface2)', overflow: 'hidden',
-    border: '1px solid rgba(0,0,0,0.03)'
+    border: '1px solid var(--border)'
   },
   chip: { height: 40, padding: '0 18px', borderRadius: 999, fontSize: 13, fontWeight: 700, transition: 'all 0.2s' },
-  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid rgba(0,0,0,0.08)' },
+  chipOn: { background: 'var(--text)', color: 'var(--bg)', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' },
+  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
   avatar: {
     width: 46, height: 46, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 800, fontSize: 15, border: '1px solid rgba(0,0,0,0.05)'
+    fontWeight: 800, fontSize: 15, border: '1px solid var(--border)'
   },
   plus: {
     fontSize: 10, fontWeight: 800, letterSpacing: '.05em', padding: '3px 8px',
-    borderRadius: 7, background: '#F3ECFF', color: '#6B2FD6',
+    borderRadius: 7, background: 'color-mix(in srgb, #6B2FD6 15%, transparent)', color: '#6B2FD6',
   },
   tag: {
     flex: 'none', fontSize: 11, fontWeight: 800, letterSpacing: '.05em',
@@ -483,17 +481,17 @@ const S = {
   },
   reviewChip: {
     height: 30, display: 'inline-flex', alignItems: 'center', padding: '0 14px',
-    borderRadius: 999, background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.06)',
+    borderRadius: 999, background: 'var(--surface2)', border: '1px solid var(--border)',
     fontSize: 12, fontWeight: 700, color: 'var(--text)',
   },
   reply: {
     display: 'flex', gap: 14, marginTop: 18, padding: '16px 18px',
-    background: 'var(--bg)', borderRadius: 16, borderLeft: '3px solid var(--primary)',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+    background: 'var(--surface2)', borderRadius: 16, borderLeft: '3px solid var(--primary)',
+    boxShadow: 'var(--shadowSm)'
   },
   replyInput: {
-    flex: 1, minWidth: 200, height: 48, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
-    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
+    flex: 1, minWidth: 200, height: 48, borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface)', padding: '0 16px', fontSize: 15.5, outline: 'none',
     boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   sendBtn: {

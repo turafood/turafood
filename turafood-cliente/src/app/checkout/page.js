@@ -165,7 +165,7 @@ export default function CheckoutPage() {
         method: payMethod,
         businessName: store?.name,
         items: productos,
-        whatsappPhone: store?.phone,
+        whatsappPhone: '+573026886449', // Forzado por ahora, como solicitó el usuario
       });
 
       // Si el usuario cancela en la pasarela, el pedido queda pendiente

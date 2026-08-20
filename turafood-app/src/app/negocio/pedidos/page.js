@@ -42,13 +42,12 @@ function urgency(minutes, limit) {
 }
 
 export default function PedidosPage() {
-  const { orders: realOrders, reloadOrders, toast, loading, business } = useBiz();
+  const { orders: realOrders, reloadOrders, toast, loading, business, demoMode } = useBiz();
 
   const [filter, setFilter] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [sound, setSound] = useState(true);
   const [expanded, setExpanded] = useState(null);
-  const [demoMode, setDemoMode] = useState(false);
 
   // MODO DEMO: Inyectamos comandas ficticias en el flujo real
   const orders = useMemo(() => {
@@ -58,19 +57,29 @@ export default function PedidosPage() {
     return [
       ...realOrders,
       {
-        id: 'demo-1', order_number: '9901', status: 'pending', created_at: new Date(now - 60000 * 2).toISOString(),
-        customer_name: 'Andrés (Demo)', customer_phone: '3000000000', payment_method: 'nequi', payment_status: 'paid',
-        total: 45000, delivery_instructions: 'Llamar al llegar', items: [{ name: 'Hamburguesa Doble Queso', quantity: 2 }]
+        id: 'demo-1', order_number: '4091', status: 'pending', created_at: new Date(now - 60000 * 4).toISOString(),
+        customer: { full_name: 'Carlos Riascos' }, customer_phone: '3120000000', payment_method: 'nequi', payment_status: 'paid', mode: 'delivery', delivery_address: 'Barrio La Independencia',
+        total: 58000, delivery_instructions: 'Por favor enviar datafono y timbrar fuerte', items: [
+          { name: 'Hamburguesa Doble Queso', quantity: 2, notes: 'Sin cebolla, extra tocineta' },
+          { name: 'Porción Papas Casco', quantity: 1, notes: 'Salsa de ajo aparte' }
+        ]
       },
       {
-        id: 'demo-2', order_number: '9902', status: 'cooking', created_at: new Date(now - 60000 * 18).toISOString(),
-        customer_name: 'Camila (Demo)', customer_phone: '3000000000', payment_method: 'cash', payment_status: 'pending',
-        total: 28000, delivery_instructions: 'Sin cebolla', items: [{ name: 'Pizza Personal', quantity: 1 }, { name: 'Gaseosa', quantity: 2 }]
+        id: 'demo-2', order_number: '4092', status: 'cooking', created_at: new Date(now - 60000 * 18).toISOString(),
+        customer: { full_name: 'María Valencia' }, customer_phone: '3150000000', payment_method: 'cash', payment_status: 'pending', mode: 'pickup',
+        total: 45000, delivery_instructions: 'Paso en 20 min en la moto', items: [
+          { name: 'Pizza Familiar', quantity: 1, notes: 'Mitad Hawaiana, Mitad Carnes' },
+          { name: 'Gaseosa 1.5L', quantity: 1 }
+        ]
       },
       {
-        id: 'demo-3', order_number: '9903', status: 'ready', created_at: new Date(now - 60000 * 30).toISOString(),
-        customer_name: 'Felipe (Demo)', customer_phone: '3000000000', payment_method: 'card', payment_status: 'paid',
-        total: 62000, delivery_instructions: '', items: [{ name: 'Combo Familiar', quantity: 1 }]
+        id: 'demo-3', order_number: '4093', status: 'ready', created_at: new Date(now - 60000 * 32).toISOString(),
+        customer: { full_name: 'Jorge Moreno' }, customer_phone: '3180000000', payment_method: 'card', payment_status: 'paid', mode: 'delivery', delivery_address: 'Barrio El Jorge',
+        total: 120000, delivery_instructions: 'Dejar en portería, edificio blanco, por favor no pitar', items: [
+          { name: 'Combo Parrillada', quantity: 1, notes: 'Carne término 3/4' },
+          { name: 'Jarra Limonada Cereza', quantity: 1 },
+          { name: 'Porción de Patacón', quantity: 2 }
+        ]
       }
     ];
   }, [realOrders, demoMode]);
@@ -150,19 +159,11 @@ export default function PedidosPage() {
     ? Math.round(orders.reduce((a, o) => a + minutesSince(o.created_at), 0) / orders.length)
     : 0;
 
-  // Imágenes de comida para fondos premium
-  const foodBgs = [
-    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&auto=format&fit=crop', // Burger
-    'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=400&auto=format&fit=crop', // Pizza
-    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=400&auto=format&fit=crop', // Grill
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop', // Salad/Fresh
-  ];
-
   const stats = [
-    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: '#FF441F', fg: '#fff', img: foodBgs[0] },
-    { label: 'En cocina', value: grouped.preparando.length, icon: 'skillet', bg: '#F59E0B', fg: '#fff', img: foodBgs[1] },
-    { label: 'Atrasados', value: late, icon: 'running_with_errors', bg: late ? '#E11D48' : '#10B981', fg: '#fff', img: foodBgs[2] },
-    { label: 'Espera promedio', value: `${avgWait} min`, icon: 'timer', bg: '#3B82F6', fg: '#fff', img: foodBgs[3] },
+    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: 'rgba(255,68,31,0.1)', fg: 'var(--primary)' },
+    { label: 'En cocina', value: grouped.preparando.length, icon: 'skillet', bg: 'rgba(245,158,11,0.1)', fg: '#D97706' },
+    { label: 'Atrasados', value: late, icon: 'running_with_errors', bg: late ? 'rgba(225,29,72,0.1)' : 'rgba(16,185,129,0.1)', fg: late ? '#E11D48' : '#059669' },
+    { label: 'Espera promedio', value: `${avgWait} min`, icon: 'timer', bg: 'rgba(59,130,246,0.1)', fg: '#2563EB' },
   ];
 
   return (
@@ -218,16 +219,12 @@ export default function PedidosPage() {
         </div>
       </div>
 
-      {/* Indicadores con fotos en Overlay Black */}
+      {/* Indicadores Minimalistas */}
       <div style={S.statsGrid}>
         {stats.map((k) => (
-          <div key={k.label} style={{
-            ...S.stat,
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), url(${k.img})`,
-            backgroundSize: 'cover', backgroundPosition: 'center',
-          }}>
-            <span style={{ ...S.statIcon, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span className="ms" style={{ fontSize: 20, color: k.fg, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>{k.icon}</span>
+          <div key={k.label} style={S.stat}>
+            <span style={{ ...S.statIcon, background: k.bg }}>
+              <span className="ms" style={{ fontSize: 20, color: k.fg }}>{k.icon}</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={S.statLabel}>{k.label}</span>
@@ -274,18 +271,6 @@ export default function PedidosPage() {
                         <span style={{ fontSize: 12, color: 'var(--faint)', fontWeight: 600, marginTop: 8 }}>
                           Sin comandas
                         </span>
-                        {!demoMode && list.length === 0 && (
-                          <button
-                            onClick={() => { setDemoMode(true); if (sound) chime(); }}
-                            style={{
-                              marginTop: 16, padding: '8px 16px', borderRadius: 99, background: 'linear-gradient(135deg, var(--primary), #FF7B3B)',
-                              color: '#fff', fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
-                              boxShadow: '0 8px 20px rgba(255,68,31,0.2)'
-                            }}
-                          >
-                            🚀 Simular día de ventas
-                          </button>
-                        )}
                       </>
                     )}
                   </div>
@@ -308,8 +293,7 @@ function Comanda({ order, column, prepLimit, busy, open, onToggle, onAdvance, on
 
   const items = order.items ?? [];
   const units = items.reduce((a, i) => a + (i.quantity ?? 1), 0);
-  const note = order.delivery_instructions
-    || items.map((i) => i.notes).filter(Boolean).join(' · ');
+  const note = order.delivery_instructions || '';
 
   const pay = PAY[order.payment_method] ?? { label: '—', icon: 'help' };
   const unpaidCash = order.payment_method === 'cash' && order.payment_status !== 'paid';
@@ -508,8 +492,8 @@ function chime() {
 const S = {
   toolbar: {
     display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'nowrap',
-    background: 'rgba(18,18,18,0.7)', padding: '12px 16px', borderRadius: 20,
-    backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)'
+    background: 'var(--surface)', padding: '12px 16px', borderRadius: 20,
+    border: '1px solid var(--border)', boxShadow: 'var(--shadowSm)'
   },
   filters: { display: 'flex', gap: 10, flex: 1, minWidth: 0, paddingBottom: 2 },
   filter: {
@@ -517,15 +501,15 @@ const S = {
     borderRadius: 14, fontSize: 13.5, fontWeight: 700, flex: 'none', whiteSpace: 'nowrap',
     transition: 'all 0.3s'
   },
-  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 16px rgba(255,255,255,0.15)' },
-  chipOff: { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.08)' },
+  chipOn: { background: 'var(--text)', color: 'var(--bg)', boxShadow: '0 6px 16px rgba(0,0,0,0.15)' },
+  chipOff: { background: 'var(--surface2)', color: 'var(--muted)', border: '1px solid var(--border)' },
   count: {
     minWidth: 22, height: 22, padding: '0 6px', borderRadius: 99,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontSize: 11.5, fontWeight: 800, transition: 'all 0.3s'
   },
-  countOn: { background: 'rgba(0,0,0,.15)', color: '#000' },
-  countOff: { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' },
+  countOn: { background: 'rgba(0,0,0,.15)', color: 'inherit' },
+  countOff: { background: 'var(--border)', color: 'var(--text)' },
   sound: {
     display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 16px',
     borderRadius: 14, fontSize: 13, fontWeight: 800, flex: 'none', transition: 'all 0.3s'
@@ -537,27 +521,27 @@ const S = {
   stat: {
     display: 'flex', alignItems: 'center', gap: 14, 
     borderRadius: 20, padding: '20px 20px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.3)', minWidth: 0,
-    border: '1px solid rgba(255,255,255,0.06)', color: '#fff',
+    boxShadow: 'var(--shadow)', minWidth: 0,
+    border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)'
   },
   statIcon: {
     width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  statLabel: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '.03em' },
-  statValue: { display: 'block', fontSize: 24, fontWeight: 800, marginTop: 4, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
+  statLabel: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', letterSpacing: '.03em' },
+  statValue: { display: 'block', fontSize: 24, fontWeight: 800, marginTop: 4 },
   colHead: {
     display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
-    position: 'sticky', top: 0, zIndex: 2, background: 'rgba(18,18,18,0.85)',
-    backdropFilter: 'blur(20px)', borderRadius: 16, marginBottom: 12,
-    border: '1px solid rgba(255,255,255,0.05)'
+    position: 'sticky', top: 0, zIndex: 2, background: 'var(--surface)',
+    borderRadius: 16, marginBottom: 12,
+    border: '1px solid var(--border)', color: 'var(--text)'
   },
-  colCount: { fontSize: 13.5, fontWeight: 800, color: 'rgba(255,255,255,0.5)' },
+  colCount: { fontSize: 13.5, fontWeight: 800, color: 'var(--muted)' },
 
   ticket: {
-    position: 'relative', background: 'rgba(24,24,24,0.7)', borderRadius: 20,
-    border: '1px solid rgba(255,255,255,0.06)', padding: '18px 16px 16px',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
+    position: 'relative', background: 'var(--surface)', borderRadius: 20,
+    border: '1px solid var(--border)', padding: '18px 16px 16px',
+    boxShadow: 'var(--shadow)', color: 'var(--text)'
   },
   ticketNew: {
     borderColor: 'rgba(255,68,31,.6)',
@@ -569,7 +553,7 @@ const S = {
   },
   notch: {
     position: 'absolute', top: 6, left: 16, right: 16, height: 2,
-    background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 6px, transparent 6px 12px)',
+    background: 'repeating-linear-gradient(90deg, var(--border) 0 6px, transparent 6px 12px)',
   },
   ticketHead: {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10,
@@ -583,14 +567,14 @@ const S = {
   },
   channel: {
     display: 'flex', alignItems: 'center', gap: 5, fontSize: 12,
-    color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginTop: 4,
+    color: 'var(--muted)', fontWeight: 700, marginTop: 4,
   },
   timer: {
     display: 'flex', alignItems: 'center', gap: 5, padding: '6px 10px',
     borderRadius: 12, flex: 'none',
   },
   slaTrack: {
-    height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.06)',
+    height: 6, borderRadius: 99, background: 'var(--surface2)',
     marginTop: 14, overflow: 'hidden',
   },
   customer: {
@@ -598,13 +582,13 @@ const S = {
   },
   items: {
     display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14,
-    paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.1)',
+    paddingTop: 14, borderTop: '1px dashed var(--border)',
   },
   item: { display: 'flex', gap: 12, alignItems: 'flex-start' },
   qty: {
     flex: 'none', minWidth: 30, height: 30, borderRadius: 10,
-    background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontSize: 14, fontWeight: 800,
+    background: 'var(--surface2)', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', fontSize: 14, fontWeight: 800, color: 'var(--text)',
   },
   more: {
     alignSelf: 'flex-start', fontSize: 12, fontWeight: 800,
@@ -629,7 +613,7 @@ const S = {
   },
   rejectBtn: {
     flex: 'none', width: 46, height: 46, borderRadius: 14,
-    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', display: 'flex',
+    border: '1px solid var(--border)', background: 'var(--surface2)', display: 'flex',
     alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
   },
   advanceBtn: {

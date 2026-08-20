@@ -19,6 +19,8 @@ export const BizContext = createContext({
   reloadOrders: () => {},
   refreshBusiness: () => {},
   toast: () => {},
+  demoMode: false,
+  setDemoMode: () => {},
 });
 
 export const useBiz = () => useContext(BizContext);

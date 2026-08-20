@@ -46,17 +46,19 @@ export default function ConocimientoPage() {
     <div style={S.page}>
       
       {/* Header Premium (Estilo Stripe Docs) */}
-      <header style={S.header}>
+      <header style={{ ...S.header, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: '-10%', top: '-10%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(217, 154, 21, 0.15), transparent 60%)', pointerEvents: 'none' }} />
+        
         <div style={S.headerContent}>
-          <div style={S.badge}>TuraFood Docs</div>
+          <div style={S.badge}>TURA GROWTH HUB</div>
           <h1 style={S.title}>Base de Conocimiento</h1>
-          <p style={S.subtitle}>Todo lo que necesitas para escalar tu negocio en Buenaventura.</p>
+          <p style={S.subtitle}>Estrategias, guías y casos de éxito para escalar tu negocio en Buenaventura con TuraFood <span className="tf-serif tf-gold-text">AI</span>.</p>
           
           <div style={S.searchBox}>
             <span className="ms" style={{ color: 'var(--muted)', fontSize: 20 }}>search</span>
             <input 
               value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Busca guías, tutoriales o temas de crecimiento..."
+              placeholder="Ej. Cómo duplicar mis reservas los fines de semana..."
               style={S.searchInput}
             />
           </div>
@@ -84,17 +86,20 @@ export default function ConocimientoPage() {
         <main style={S.main}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24 }}>
             {filteredDocs.map(doc => (
-              <div key={doc.id} className="pro-card" style={S.docCard}>
+              <div key={doc.id} className="pro-card" style={{ ...S.docCard, ...(doc.category === 'Growth Partner' ? S.premiumCard : {}) }}>
                 <div style={S.docMeta}>
-                  <span style={S.docCategory}>{doc.category}</span>
-                  <span style={S.docTime}>{doc.readTime} read</span>
+                  <span style={{ ...S.docCategory, ...(doc.category === 'Growth Partner' ? { color: 'var(--gold)' } : { color: 'var(--primary)' }) }}>
+                    {doc.category === 'Growth Partner' && <span className="ms" style={{ fontSize: 14, marginRight: 4, verticalAlign: -2 }}>workspace_premium</span>}
+                    {doc.category}
+                  </span>
+                  <span style={S.docTime}>{doc.readTime}</span>
                 </div>
-                <h3 style={S.docTitle}>{doc.title}</h3>
-                <p style={S.docExcerpt}>{doc.excerpt}</p>
+                <h3 style={{ ...S.docTitle, ...(doc.category === 'Growth Partner' ? { color: '#fff' } : { color: 'var(--text)' }) }}>{doc.title}</h3>
+                <p style={{ ...S.docExcerpt, ...(doc.category === 'Growth Partner' ? { color: 'rgba(255,255,255,0.7)' } : { color: 'var(--muted)' }) }}>{doc.excerpt}</p>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
-                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>{doc.date}</span>
-                  <button style={S.readBtn}>
+                  <span style={{ fontSize: 12, color: doc.category === 'Growth Partner' ? 'rgba(255,255,255,0.5)' : 'var(--faint)' }}>{doc.date}</span>
+                  <button style={{ ...S.readBtn, ...(doc.category === 'Growth Partner' ? { color: 'var(--gold)' } : { color: 'var(--text)' }) }}>
                     Leer guía <span className="ms" style={{ fontSize: 16 }}>arrow_forward</span>
                   </button>
                 </div>
@@ -149,7 +154,7 @@ const S = {
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.6)',
+    color: 'var(--muted)',
     marginTop: 12,
     marginBottom: 32,
     maxWidth: 500,
@@ -158,7 +163,7 @@ const S = {
   searchBox: {
     display: 'flex', alignItems: 'center', gap: 12, width: '100%', maxWidth: 600,
     height: 52, padding: '0 20px', borderRadius: 99,
-    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
     transition: 'all .2s',
   },
   searchInput: {
@@ -186,44 +191,52 @@ const S = {
     fontWeight: 800,
     textTransform: 'uppercase',
     letterSpacing: '.05em',
-    color: 'var(--muted)',
+    color: 'var(--faint)',
     marginBottom: 12,
     paddingLeft: 12,
   },
   navLink: {
     textAlign: 'left', padding: '10px 12px', borderRadius: 8,
-    fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)',
+    fontSize: 14, fontWeight: 600, color: 'var(--muted)',
     transition: 'all .2s', background: 'transparent', border: 'none', cursor: 'pointer',
   },
   navLinkActive: {
-    color: '#fff', background: 'rgba(255,255,255,0.05)',
+    color: 'var(--text)', background: 'var(--surface2)',
   },
   main: {
     flex: 1,
   },
   docCard: {
     padding: 24, display: 'flex', flexDirection: 'column',
-    transition: 'transform .2s, border-color .2s',
+    transition: 'transform .2s, border-color .2s, box-shadow .2s',
     cursor: 'pointer',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 16,
+  },
+  premiumCard: {
+    background: 'linear-gradient(135deg, #251c1a 0%, #120e0d 100%)',
+    border: '1px solid rgba(217, 154, 21, 0.2)',
+    boxShadow: '0 20px 40px rgba(255,68,31,0.08), inset 0 1px 0 rgba(255,255,255,0.08)',
   },
   docMeta: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12,
   },
   docCategory: {
-    color: '#D99A15', fontSize: 12, fontWeight: 700,
+    fontSize: 12, fontWeight: 700,
   },
   docTime: {
     color: 'var(--faint)', fontSize: 12, fontWeight: 500,
   },
   docTitle: {
     fontFamily: 'var(--font-bricolage)', fontSize: 20, fontWeight: 800,
-    color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2, margin: '0 0 8px 0',
+    letterSpacing: '-.02em', lineHeight: 1.2, margin: '0 0 8px 0',
   },
   docExcerpt: {
-    fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, flex: 1,
+    fontSize: 14, lineHeight: 1.5, flex: 1,
   },
   readBtn: {
     display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700,
-    color: '#D99A15', padding: 0,
+    padding: 0, transition: 'color .2s',
   },
 };

@@ -26,26 +26,18 @@ import { probarComo } from '@/lib/sesion';
 import Arranque from '../components/Arranque';
 import { PREGUNTAS_NEGOCIO, PREGUNTAS_REPARTIDOR } from '../components/preguntasArranque';
 import { guardarArranque } from '@/lib/arranque';
-import PreparandoPanel from '../components/PreparandoPanel';
+
 import HeroBackdrop from '../components/HeroBackdrop';
 
 const ROLES = [
   {
     id: 'business',
     icon: 'storefront',
-    titulo: 'Tengo un negocio',
-    detalle: 'Comida, mercado, farmacia o licores',
+    titulo: 'Acceso para Negocios',
+    detalle: 'Ingresa al panel de control de tu restaurante o tienda',
     accent: '#FF7A4D',
     destino: '/negocio',
-  },
-  {
-    id: 'courier',
-    icon: 'two_wheeler',
-    titulo: 'Quiero repartir',
-    detalle: 'Entregar pedidos en moto, bici o carro',
-    accent: '#4C8DFF',
-    destino: '/repartidor',
-  },
+  }
 ];
 
 export default function EntrarPage() {
@@ -67,26 +59,22 @@ export default function EntrarPage() {
 
   const entrar = async (rol) => {
     setError(null);
-
     if (!isConfigured()) {
-      // Sin base, el panel corre con los datos de la maqueta
       router.replace(rol.destino);
       return;
     }
+    setPreguntando(rol.id);
+  };
 
-    setBusy(rol.id);
+  const saltarArranque = async () => {
+    const rolActual = preguntando;
+    setPreguntando(null);
+    setBusy(rolActual);
     setPaso('sesion');
     try {
-      const user = await probarComo(rol.id, setPaso);
-      if (!user) {
-        throw new Error('No se pudo abrir la sesión. Entra con tu cuenta o inténtalo de nuevo.');
-      }
-      // En vez de entrar derecho, seis preguntas cortas. La sesión ya
-      // existe, así que esto no es un muro: es afinar el panel que ya
-      // es suyo.
-      setPreguntando(rol.id);
-      setBusy(null);
-      setPaso(null);
+      const user = await probarComo(rolActual, setPaso);
+      if (!user) throw new Error('No se pudo abrir la sesión. Inténtalo de nuevo.');
+      entrarAlPanel(rolActual);
     } catch (err) {
       setError(err.message);
       setBusy(null);
@@ -94,61 +82,33 @@ export default function EntrarPage() {
     }
   };
 
-  /**
-   * Guarda y entra. Si falla el guardado, entra igual.
-   *
-   * La escena de preparación se muestra un mínimo de 2,2 s aunque el
-   * guardado termine antes. Suena raro alargar una espera a propósito,
-   * pero un fogonazo de 300 ms que aparece y desaparece se siente como
-   * un parpadeo roto; dos segundos con algo que mirar se sienten como
-   * que la app está haciendo su trabajo.
-   */
   const terminarArranque = async (respuestas) => {
+    const rolActual = preguntando;
     setGuardandoArranque(true);
-    setPreparando({
-      nicho: preguntando === 'business' ? respuestas.nicho : 'repartidor',
-    });
-
-    // Subimos el tiempo mínimo a 2,8s para que tengan el tiempo
-    // de apreciar el nuevo "Motion Graphic PRO" que implementamos.
-    // Antes estaba en 1,1s y parpadeaba muy rápido.
-    const minimo = new Promise((r) => setTimeout(r, 2800));
+    setPreparando({ nicho: rolActual === 'business' ? respuestas.nicho : 'repartidor' });
+    setPreguntando(null);
+    setBusy(rolActual);
+    setPaso('sesion');
 
     try {
-      await Promise.all([guardarArranque(preguntando, respuestas), minimo]);
-    } catch {
-      await minimo;
+      const user = await probarComo(rolActual, setPaso);
+      if (!user) throw new Error('No se pudo abrir la sesión.');
+      
+      const minimo = new Promise((r) => setTimeout(r, 1200));
+      await Promise.all([guardarArranque(rolActual, respuestas), minimo]);
+      entrarAlPanel(rolActual);
+    } catch (err) {
+      setError(err.message);
+      setBusy(null);
+      setPaso(null);
+      setPreparando(null);
     }
-    entrarAlPanel();
   };
 
-  const entrarAlPanel = () => {
-    // Directo a su panel.
-    const destino = preguntando === 'business' ? '/negocio' : '/repartidor';
-
-    // No limpiamos el estado (setPreparando(null)).
-    // Si lo hacemos, React desmonta el loader inmediatamente y el usuario
-    // ve la pantalla de login de nuevo por un segundo mientras Next.js
-    // navega a la siguiente ruta. Al cambiar de ruta, la página entera
-    // se desmontará sola de todas formas.
+  const entrarAlPanel = (rolId) => {
+    const destino = rolId === 'business' ? '/negocio' : '/repartidor';
     router.replace(destino);
   };
-
-  if (preparando) {
-    return (
-      <PreparandoPanel
-        nicho={preparando.nicho}
-        pasos={preguntando === 'business'
-          ? ['Compilando preferencias de inventario',
-             'Inyectando base de datos de prueba',
-             'Generando entorno virtual aislado',
-             'Desplegando módulos analíticos']
-          : ['Registrando zona de cobertura',
-             'Mapeando coordenadas locales',
-             'Desplegando enrutador en vivo']}
-      />
-    );
-  }
 
   if (preguntando) {
     return (
@@ -159,7 +119,7 @@ export default function EntrarPage() {
         <Arranque
           preguntas={preguntando === 'business' ? PREGUNTAS_NEGOCIO : PREGUNTAS_REPARTIDOR}
           onListo={terminarArranque}
-          onSaltar={entrarAlPanel}
+          onSaltar={saltarArranque}
           guardando={guardandoArranque}
         />
       </>
@@ -171,43 +131,69 @@ export default function EntrarPage() {
   // sin nada en pantalla se leen como que la app se colgó.
   if (busy) {
     const rol = ROLES.find((r) => r.id === busy);
-    return <Abriendo rol={rol} paso={paso} />;
+    return <Abriendo rol={rol} paso={paso} nicho={preparando?.nicho} />;
   }
 
   return (
-    <div style={S.page}>
-      <HeroBackdrop brightness={0.28} />
+    <div style={{...S.page, background: 'var(--night)', color: '#fff'}}>
+      {/* Background gradients similar to landing */}
+      <div style={{position: 'absolute', right: '-10%', top: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.12), transparent 60%)', pointerEvents: 'none'}} />
+      <div style={{position: 'absolute', left: '-10%', bottom: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,199,102,0.1), transparent 60%)', pointerEvents: 'none'}} />
+
+      <HeroBackdrop brightness={0.08} />
 
       <div className="sc" style={S.scroller}>
         <div style={S.center}>
+          {/* Floating badges animation */}
+          <div className="tf-hide-sm" style={{position: 'absolute', left: -40, top: 80, animation: 'tffloat 5s ease-in-out infinite', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 17, padding: '12px 14px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: 11}}>
+             <div style={{width: 38, height: 38, borderRadius: 11, background: 'rgba(17,178,106,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><span className="ms" style={{fontSize: 21, color: 'var(--green)'}}>event_available</span></div>
+             <div><div style={{fontSize: 13, fontWeight: 800, color: 'var(--text)'}}>Nueva reserva</div><div style={{fontSize: 11.5, color: 'var(--muted)', marginTop: 1}}>Mesa 4 · 8:30 PM</div></div>
+          </div>
+          <div className="tf-hide-sm" style={{position: 'absolute', right: -60, top: 40, animation: 'tffloat 6s ease-in-out infinite .8s', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 17, padding: '12px 14px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: 11}}>
+             <div style={{width: 38, height: 38, borderRadius: 11, background: 'rgba(255,68,31,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><span className="ms" style={{fontSize: 21, color: 'var(--primary)'}}>support_agent</span></div>
+             <div><div style={{fontSize: 13, fontWeight: 800, color: 'var(--text)'}}>Voice AI atendió</div><div style={{fontSize: 11.5, color: 'var(--muted)', marginTop: 1}}>Llamada · reserva creada</div></div>
+          </div>
 
-          <div style={S.brand}>
-            <span style={S.logo}>t</span>
+          <div style={{...S.brand, position: 'relative', zIndex: 10}}>
+            <span style={{...S.logo, boxShadow: '0 8px 20px rgba(255,68,31,.3)'}}>t</span>
             <span>
-              <span style={S.brandName}>TuraFood</span>
-              <span style={S.brandKicker}>NEGOCIOS Y REPARTIDORES</span>
+              <span style={{...S.brandName, color: '#fff'}}>Tura Food <span className="tf-serif" style={{color: 'var(--primary)'}}>AI</span></span>
+              <span style={{...S.brandKicker, color: 'var(--gold)', letterSpacing: '0.12em'}}>BUSINESS SUITE</span>
             </span>
           </div>
 
-          <h1 style={S.title}>Entra y míralo<br />por dentro.</h1>
-          <p style={S.subtitle}>
-            Sin cuenta, sin papeles, sin llenar nada. Elige qué eres y estás adentro.
+          {/* Imagen Premium Flotante (Hero Asset del usuario) */}
+          <div style={{ position: 'relative', zIndex: 5, marginTop: 12, marginBottom: -12, display: 'flex', justifyContent: 'center', animation: 'tffloat 7s ease-in-out infinite' }}>
+            <div style={{
+              width: 300, height: 380,
+              background: 'url(/burger_new.png) center/cover',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              opacity: 0.95
+            }} />
+          </div>
+
+          <h1 style={{...S.title, color: '#fff', textShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 10, position: 'relative', lineHeight: 1.05}}>
+            Todo el puerto <br />en una sola <span className="tf-serif tf-gold-text" style={{fontWeight: 400}}>APP.</span>
+          </h1>
+          <p style={{...S.subtitle, color: 'rgba(255,255,255,0.7)', zIndex: 10, position: 'relative'}}>
+            La tecnología que necesitas para digitalizar tu negocio, recibir órdenes y organizar tus propios domiciliarios. Sin comisiones abusivas.
           </p>
 
-          <div style={S.opciones}>
+          <div style={{...S.opciones, zIndex: 10, position: 'relative'}}>
             {ROLES.map((r) => (
               <button
                 key={r.id}
                 onClick={() => entrar(r)}
                 disabled={Boolean(busy)}
-                className="entrar-op"
-                style={{ ...S.opcion, opacity: busy && busy !== r.id ? 0.45 : 1 }}
+                className="entrar-op tf-card"
+                style={{ ...S.opcion, opacity: busy && busy !== r.id ? 0.45 : 1, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <span style={{ ...S.opcionIcono, background: `${r.accent}22` }}>
-                  <span className="ms" style={{ fontSize: 25, color: r.accent }}>{r.icon}</span>
+                <span style={{ ...S.opcionIcono, background: `linear-gradient(145deg, #FF7A4D, #E2360F)`, color: '#fff', boxShadow: '0 8px 20px rgba(255,68,31,0.3)' }}>
+                  <span className="ms" style={{ fontSize: 25, color: '#fff' }}>{r.icon}</span>
                 </span>
                 <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <span style={S.opcionTitulo}>
+                  <span style={{...S.opcionTitulo, color: '#fff'}}>
                     {busy === r.id ? 'Abriendo…' : r.titulo}
                   </span>
                   <span style={S.opcionDetalle}>{r.detalle}</span>
@@ -227,8 +213,7 @@ export default function EntrarPage() {
           )}
 
           <p style={S.nota}>
-            Trabajas de una, con un tope de 20 pedidos al día. Los documentos los
-            subes cuando quieras quitártelo — y si no los tienes, sigues operando igual.
+            Digitaliza tu negocio de una. Podrás vincular a tus propios repartidores y el dinero siempre irá directo a tus cuentas.
           </p>
 
           <div style={S.pie}>
@@ -248,15 +233,36 @@ export default function EntrarPage() {
  * un diseño estilo terminal/app premium para que la espera de 2-3s
  * se sienta como que un sistema avanzado está arrancando.
  */
-const PASOS = [
-  { id: 'sesion',   label: 'Negociando tokens de seguridad' },
-  { id: 'ficha',    label: 'Cifrando conexión punto a punto' },
-  { id: 'menu',     label: 'Asignando clúster de datos' },
-  { id: 'comandas', label: 'Montando componentes en memoria' },
-  { id: 'listo',    label: 'Enlace establecido' },
-];
+const getPasosAbriendo = (nicho) => {
+  if (nicho === 'comidas') {
+    return [
+      { id: 'sesion',   label: 'Creando tu perfil seguro' },
+      { id: 'ficha',    label: 'Preparando tu restaurante' },
+      { id: 'menu',     label: 'Alistando tu menú y recetas' },
+      { id: 'comandas', label: 'Configurando el panel de comandas' },
+      { id: 'listo',    label: 'Todo listo para recibir pedidos' },
+    ];
+  }
+  if (nicho === 'mercado') {
+    return [
+      { id: 'sesion',   label: 'Creando tu perfil seguro' },
+      { id: 'ficha',    label: 'Preparando tu supermercado' },
+      { id: 'menu',     label: 'Cargando inventario base' },
+      { id: 'comandas', label: 'Alistando el panel de control' },
+      { id: 'listo',    label: 'Todo listo para arrancar' },
+    ];
+  }
+  return [
+    { id: 'sesion',   label: 'Creando tu perfil seguro' },
+    { id: 'ficha',    label: 'Configurando tu entorno de trabajo' },
+    { id: 'menu',     label: 'Asignando recursos a tu cuenta' },
+    { id: 'comandas', label: 'Alistando el panel de control' },
+    { id: 'listo',    label: 'Todo listo para arrancar' },
+  ];
+};
 
-function Abriendo({ rol, paso }) {
+function Abriendo({ rol, paso, nicho }) {
+  const PASOS = getPasosAbriendo(nicho);
   const actual = Math.max(PASOS.findIndex((p) => p.id === paso), 0);
 
   return (
@@ -265,16 +271,27 @@ function Abriendo({ rol, paso }) {
       <div style={T.gridBg} />
 
       <div style={T.center}>
-        <div style={T.card}>
-          <div style={T.cardHeader}>
-            <div style={T.orbContainer}>
+        <div style={{ ...T.card, overflow: 'hidden' }}>
+          {/* Imagen Hero flotante incrustada con máscara suave */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              width: '100%', height: 160,
+              background: 'url(/burger_new.png) center/cover',
+              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              opacity: 0.95
+            }} />
+          </div>
+
+          <div style={{ ...T.cardHeader, position: 'relative', zIndex: 1, padding: '0 24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: -20 }}>
+            <div style={{ ...T.orbContainer, marginBottom: 12 }}>
               <div style={{ ...T.orbPulse, background: rol?.accent ?? '#FF7A4D' }} className="pro-pulse" />
               <div style={{ ...T.orbSolid, background: rol?.accent ?? '#FF7A4D' }} />
             </div>
-            <div style={{ textAlign: 'left', minWidth: 0 }}>
-              <div style={T.marca}>TuraFood OS</div>
-              <div style={T.rolTexto}>
-                {rol?.id === 'courier' ? 'Inicializando módulo Courier' : 'Inicializando Business Suite'}
+            <div style={{ minWidth: 0 }}>
+              <div style={{ ...T.marca, textAlign: 'center' }}>Tura Food <span className="tf-serif tf-gold-text">AI</span></div>
+              <div style={{ ...T.rolTexto, textAlign: 'center', marginTop: 4 }}>
+                todo el puerto en una sola APP
               </div>
             </div>
           </div>
@@ -284,20 +301,27 @@ function Abriendo({ rol, paso }) {
               const hecho = i < actual;
               const activo = i === actual;
               return (
-                <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.2 : 1 }}>
-                  <div style={T.terminalLine}>
+                <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.3 : 1 }}>
+                  <div style={{
+                    ...T.terminalLine,
+                    background: activo ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)',
+                    borderColor: activo ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    boxShadow: activo ? '0 4px 20px rgba(0,0,0,0.2)' : 'none'
+                  }}>
                     <span style={{ 
                       color: hecho ? (rol?.accent ?? '#FF7A4D') : activo ? '#fff' : 'transparent',
-                      fontFamily: 'monospace', fontSize: 13, minWidth: 16,
-                      animation: activo ? 'blink 1s infinite' : 'none'
+                      fontFamily: 'monospace', fontSize: 14, minWidth: 20,
+                      animation: activo ? 'blink 1s infinite' : 'none',
+                      textShadow: hecho ? `0 0 10px ${rol?.accent ?? '#FF7A4D'}88` : 'none'
                     }}>
                       {hecho ? '✓' : '>'}
                     </span>
                     <span style={{ 
-                      fontSize: 13, 
-                      fontWeight: activo ? 700 : 500,
-                      color: activo ? '#fff' : (hecho ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'),
-                      fontFamily: 'var(--font-jakarta)'
+                      fontSize: 13.5, 
+                      fontWeight: activo ? 800 : 600,
+                      color: activo ? '#fff' : (hecho ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.3)'),
+                      fontFamily: 'var(--font-jakarta)',
+                      letterSpacing: '0.02em'
                     }}>
                       {p.label}
                     </span>
@@ -350,51 +374,59 @@ const T = {
     animation: 'up .4s cubic-bezier(0.16, 1, 0.3, 1) both',
   },
   card: {
-    background: 'rgba(20, 20, 20, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 30,
-    boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+    background: 'linear-gradient(145deg, rgba(30,30,30,0.8) 0%, rgba(15,15,15,0.95) 100%)', 
+    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 28, padding: 36,
+    boxShadow: '0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
   },
   cardHeader: {
-    display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28,
+    display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32,
   },
   orbContainer: {
-    position: 'relative', width: 36, height: 36, flex: 'none',
+    position: 'relative', width: 44, height: 44, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(255,255,255,0.03)', borderRadius: '50%',
+    border: '1px solid rgba(255,255,255,0.05)',
   },
   orbPulse: {
     position: 'absolute', inset: 0, borderRadius: '50%',
     animation: 'pro-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
   },
   orbSolid: {
-    position: 'relative', width: 14, height: 14, borderRadius: '50%', zIndex: 2,
-    boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+    position: 'relative', width: 12, height: 12, borderRadius: '50%', zIndex: 2,
+    boxShadow: '0 0 16px rgba(255,255,255,0.8)',
   },
   marca: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18,
-    letterSpacing: '-.02em',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22,
+    letterSpacing: '-.02em', color: '#fff',
+    textShadow: '0 2px 10px rgba(0,0,0,0.5)'
   },
   rolTexto: { 
-    fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2, 
+    fontSize: 12.5, color: 'rgba(255,255,255,.7)', marginTop: 4, 
     fontFamily: 'monospace', letterSpacing: '0.05em' 
   },
   pasos: {
-    display: 'flex', flexDirection: 'column', gap: 14,
+    display: 'flex', flexDirection: 'column', gap: 12,
   },
   paso: { 
-    transition: 'opacity .3s ease',
+    transition: 'opacity .4s ease, transform .4s ease',
   },
   terminalLine: {
-    display: 'flex', alignItems: 'center', gap: 10,
-    padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: 8,
-    border: '1px solid rgba(255,255,255,0.03)',
+    display: 'flex', alignItems: 'center', gap: 12,
+    padding: '16px 18px', borderRadius: 16,
+    backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   barra: {
-    height: 3, borderRadius: 99, background: 'rgba(255,255,255,.06)',
-    overflow: 'hidden', marginTop: 30,
+    height: 6, borderRadius: 99, background: 'rgba(255,255,255,.06)',
+    overflow: 'hidden', marginTop: 36,
+    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
     transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
+    boxShadow: '0 0 10px rgba(255,255,255,0.3)',
   },
 };
 

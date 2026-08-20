@@ -12,6 +12,8 @@ export const RiderContext = createContext({
   setOnline: () => {},
   reloadActive: () => {},
   toast: () => {},
+  demoMode: false,
+  setDemoMode: () => {},
 });
 
 export const useRider = () => useContext(RiderContext);

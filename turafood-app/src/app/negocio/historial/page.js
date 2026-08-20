@@ -5,9 +5,10 @@
  * Conversión de `isHistory` (línea 493) del mockup de Negocios.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { cop } from '@/lib/format';
 import { getHistory } from '@/lib/negocio';
+import { QRCodeSVG } from 'qrcode.react';
 import { useBiz } from '../BizContext';
 import HeaderHero from '../../components/HeaderHero';
 
@@ -41,7 +42,7 @@ const when = (iso) => {
 };
 
 export default function HistorialPage() {
-  const { business } = useBiz();
+  const { business, demoMode } = useBiz();
   const [rows, setRows] = useState([]);
   const [filter, setFilter] = useState(0);
   const [query, setQuery] = useState('');
@@ -65,8 +66,21 @@ export default function HistorialPage() {
     return () => { alive = false; };
   }, [business]);
 
+  const activeRows = useMemo(() => {
+    if (!demoMode) return rows;
+    const now = Date.now();
+    return [
+      ...rows,
+      { id: 'h1', order_number: '9801', status: 'delivered', created_at: new Date(now - 86400000 * 0.1).toISOString(), customer: { full_name: 'Daniela Ríos' }, mode: 'delivery', payment_method: 'nequi', total: 45000, subtotal: 38000, delivery_fee: 7000, items: [{name: 'Combo Familiar', quantity: 1, unit_price: 38000}] },
+      { id: 'h2', order_number: '9802', status: 'delivered', created_at: new Date(now - 86400000 * 0.2).toISOString(), customer: { full_name: 'Andrés López' }, mode: 'pickup', payment_method: 'cash', total: 28000, subtotal: 28000, delivery_fee: 0, items: [{name: 'Pizza Personal', quantity: 1, unit_price: 28000}] },
+      { id: 'h3', order_number: '9803', status: 'cancelled', created_at: new Date(now - 86400000 * 0.5).toISOString(), customer: { full_name: 'Mateo Orozco' }, mode: 'delivery', payment_method: 'card', total: 52000, subtotal: 45000, delivery_fee: 7000, items: [{name: 'Hamburguesa Doble', quantity: 2, unit_price: 22500}] },
+      { id: 'h4', order_number: '9804', status: 'delivered', created_at: new Date(now - 86400000 * 1.1).toISOString(), customer: { full_name: 'Sara Castrillón' }, mode: 'delivery', payment_method: 'nequi', total: 31000, subtotal: 24000, delivery_fee: 7000, items: [{name: 'Gaseosa 1.5L', quantity: 1, unit_price: 8000}, {name: 'Papas Cascos', quantity: 2, unit_price: 8000}] },
+      { id: 'h5', order_number: '9805', status: 'refunded', created_at: new Date(now - 86400000 * 1.5).toISOString(), customer: { full_name: 'Camilo Jaramillo' }, mode: 'delivery', payment_method: 'card', total: 125000, subtotal: 115000, delivery_fee: 10000, items: [{name: 'Bandeja Paisa', quantity: 3, unit_price: 35000}, {name: 'Jugo Natural', quantity: 2, unit_price: 5000}] },
+    ];
+  }, [rows, demoMode]);
+
   const q = norm(query.trim());
-  const shown = rows.filter((h) => {
+  const shown = activeRows.filter((h) => {
     const byState = FILTERS[filter].match(h);
     const byText = !q
       || norm(h.customer?.full_name).includes(q)
@@ -121,44 +135,38 @@ export default function HistorialPage() {
             <button
               key={h.id}
               onClick={() => setTicket(h)}
-              style={S.voucherCard}
-              className="anim-fade"
+              style={S.rowCard}
+              className="anim-fade ticket-row"
               title="Ver el ticket completo"
             >
-              <div style={S.voucherHead}>
-                <div>
-                  <div style={S.voucherLabel}>NÚMERO DE ORDEN</div>
-                  <div style={S.voucherNumber}>#{h.order_number}</div>
-                </div>
-                <div style={S.voucherQrWrapper}>
-                  <span className="ms" style={S.voucherQr}>qr_code_2</span>
-                </div>
+              <div style={{ ...S.rowItem, minWidth: 80 }}>
+                <span style={S.rowLabel}>Orden</span>
+                <span style={{ ...S.rowValue, fontFamily: 'var(--font-bricolage)', fontSize: 16, fontWeight: 800 }}>#{h.order_number}</span>
+              </div>
+              
+              <div style={S.rowItem}>
+                <span style={S.rowLabel}>Cliente</span>
+                <span className="tr1" style={S.rowValue}>{h.customer?.full_name ?? 'Cliente'}</span>
               </div>
 
-              <div style={S.voucherBody}>
-                <div style={S.voucherRow}>
-                  <span style={S.voucherCellLabel}>CLIENTE</span>
-                  <span className="tr1" style={S.voucherCellValue}>{h.customer?.full_name ?? 'Cliente'}</span>
-                </div>
-                <div style={S.voucherRow}>
-                  <span style={S.voucherCellLabel}>FECHA</span>
-                  <span style={S.voucherCellValue}>{when(h.created_at)}</span>
-                </div>
-                <div style={S.voucherRow}>
-                  <span style={S.voucherCellLabel}>ENTREGA / PAGO</span>
-                  <span style={S.voucherCellValue}>
-                    {h.mode === 'pickup' ? 'Recoger' : 'Domicilio'} · {PAY[h.payment_method] ?? '—'}
-                  </span>
-                </div>
+              <div style={S.rowItem}>
+                <span style={S.rowLabel}>Fecha</span>
+                <span style={S.rowValue}>{when(h.created_at)}</span>
               </div>
 
-              <div style={S.voucherDivider} />
+              <div style={S.rowItem}>
+                <span style={S.rowLabel}>Entrega</span>
+                <span style={S.rowValue}>
+                  {h.mode === 'pickup' ? 'Recoger' : 'Domicilio'}
+                </span>
+              </div>
 
-              <div style={S.voucherFoot}>
-                <div>
-                  <div style={S.voucherLabel}>TOTAL</div>
-                  <div style={S.voucherTotal}>{cop(h.total)}</div>
-                </div>
+              <div style={S.rowItem}>
+                <span style={S.rowLabel}>Total</span>
+                <span style={{ ...S.rowValue, fontWeight: 800 }}>{cop(h.total)}</span>
+              </div>
+              
+              <div style={{ ...S.rowItem, alignItems: 'flex-end', minWidth: 100 }}>
                 <span style={{ ...S.pill, background: st.bg, color: st.color }}>{st.label}</span>
               </div>
             </button>
@@ -169,9 +177,9 @@ export default function HistorialPage() {
       {!loading && shown.length === 0 && (
         <div style={S.empty}>
           <span style={S.emptyIcon}>
-            <span className="ms" style={{ fontSize: 26, color: '#fff' }}>receipt_long</span>
+            <span className="ms" style={{ fontSize: 26, color: 'var(--text)' }}>receipt_long</span>
           </span>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginTop: 14 }}>
             {rows.length ? 'Sin pedidos que coincidan' : 'Todavía no tienes pedidos cerrados'}
           </div>
         </div>
@@ -185,7 +193,7 @@ export default function HistorialPage() {
         </div>
       )}
 
-      <Ticket order={ticket} onClose={() => setTicket(null)} />
+      <Ticket order={ticket} onClose={() => setTicket(null)} isDemo={demoMode} />
     </>
   );
 }
@@ -203,7 +211,7 @@ export default function HistorialPage() {
  * de domicilio, y volver a calcularlo hoy mostraría cifras que nunca
  * existieron.
  */
-function Ticket({ order, onClose }) {
+function Ticket({ order, onClose, isDemo }) {
   // Cerrar con Escape: quien revisa veinte pedidos no va a buscar la X
   useEffect(() => {
     if (!order) return undefined;
@@ -227,139 +235,166 @@ function Ticket({ order, onClose }) {
 
   return (
     <div style={S.scrim} onClick={onClose}>
-      <aside
-        style={S.sheet}
+      {/* Estilos para impresión y recibo zig-zag */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden !important; }
+          #printable-ticket, #printable-ticket * { visibility: visible !important; }
+          #printable-ticket { 
+            position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; 
+            margin: 0 !important; box-shadow: none !important; filter: none !important; 
+            background: #fff !important;
+          }
+          .no-print { display: none !important; }
+        }
+        .receipt-zigzag {
+           position: relative;
+           background: #fff;
+           filter: drop-shadow(0 10px 40px rgba(0,0,0,0.15));
+        }
+        .receipt-zigzag::before, .receipt-zigzag::after {
+           content: "";
+           position: absolute;
+           left: 0; right: 0;
+           height: 12px;
+           background-size: 24px 100%;
+        }
+        .receipt-zigzag::before {
+           top: -12px;
+           background-image: linear-gradient(135deg, #fff 25%, transparent 25%), linear-gradient(225deg, #fff 25%, transparent 25%);
+           background-position: -12px 0;
+        }
+        .receipt-zigzag::after {
+           bottom: -12px;
+           background-image: linear-gradient(45deg, #fff 25%, transparent 25%), linear-gradient(315deg, #fff 25%, transparent 25%);
+           background-position: -12px 0;
+        }
+      `}</style>
+      
+      <div 
+        style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 360, margin: '40px auto' }}
         onClick={(e) => e.stopPropagation()}
-        className="anim-slideup"
-        role="dialog"
-        aria-label={`Pedido ${order.order_number}`}
       >
-        <header style={S.ticketHead}>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={S.ticketNumber}>#{order.order_number}</span>
-            <span style={S.ticketWhen}>{when(order.created_at)}</span>
-          </span>
-          <span style={{ ...S.pill, background: st.bg, color: st.color }}>{st.label}</span>
-          <button onClick={onClose} style={S.close} aria-label="Cerrar">
-            <span className="ms" style={{ fontSize: 20 }}>close</span>
-          </button>
-        </header>
-
-        <div className="sc" style={S.ticketBody}>
-          {/* Cliente y entrega */}
-          <section style={S.block}>
-            <div style={S.blockLabel}>CLIENTE</div>
-            <div style={{ fontSize: 15, fontWeight: 700 }}>
-              {order.customer?.full_name ?? 'Cliente'}
+        <aside
+          id="printable-ticket"
+          className="anim-slideup receipt-zigzag"
+          role="dialog"
+          aria-label={`Pedido ${order.order_number}`}
+          style={{ padding: '32px 24px', color: '#000', display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
+          {/* Cabecera Ticket */}
+          <div style={{ textAlign: 'center', borderBottom: '1px dashed #ccc', paddingBottom: 16, marginBottom: 8 }}>
+            <div style={{ fontSize: 24, fontWeight: 800, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', textTransform: 'uppercase' }}>
+              TuraFood
             </div>
-            {order.customer?.phone && (
-              <a href={`tel:${order.customer.phone}`} style={S.phone}>
-                <span className="ms" style={{ fontSize: 16 }}>call</span>
-                {order.customer.phone}
-              </a>
-            )}
+            <div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>Recibo de Orden #{order.order_number}</div>
+            <div style={{ fontSize: 13, color: '#666' }}>{when(order.created_at)}</div>
+          </div>
+          
+          {/* Contenido (resumen) */}
+          <div style={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+                <span>Cliente:</span>
+                <span>{order.customer?.full_name ?? 'Cliente'}</span>
+             </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Tipo:</span>
+                <span>{order.mode === 'pickup' ? 'Recoge en Tienda' : 'Domicilio'}</span>
+             </div>
+             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Pago:</span>
+                <span>{PAY[order.payment_method] ?? 'Otro'}</span>
+             </div>
+             {order.mode === 'delivery' && (
+               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                  <span>Lugar:</span>
+                  <span style={{ textAlign: 'right', maxWidth: 160, lineHeight: 1.2 }}>{order.delivery_address ?? 'Sin dirección'}</span>
+               </div>
+             )}
+          </div>
 
-            <div style={{ ...S.blockLabel, marginTop: 16 }}>
-              {order.mode === 'pickup' ? 'RECOGE EN TIENDA' : 'ENTREGA'}
-            </div>
-            <div style={{ fontSize: 13, lineHeight: 1.5 }}>
-              {order.mode === 'pickup'
-                ? 'El cliente lo recogió en el local.'
-                : (order.delivery_address ?? 'Sin dirección registrada')}
-            </div>
-            {order.delivery_instructions && (
-              <div style={S.instructions}>
-                <span className="ms" style={{ fontSize: 15, flex: 'none' }}>sticky_note_2</span>
-                <span>{order.delivery_instructions}</span>
-              </div>
-            )}
-          </section>
+          <div style={{ borderTop: '1px dashed #ccc', margin: '8px 0' }} />
 
-          {/* Productos */}
-          <section style={S.block}>
-            <div style={S.blockLabel}>LO QUE PIDIÓ</div>
-            {items.length === 0 ? (
-              <div style={{ fontSize: 13, color: 'var(--muted)' }}>
-                No quedó el detalle de los productos de este pedido.
-              </div>
-            ) : items.map((i, k) => (
-              <div key={i.id ?? k} style={S.item}>
-                <span style={S.qty}>{i.quantity ?? 1}</span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600 }}>
-                    {i.name ?? i.product_name ?? 'Producto'}
-                  </span>
-                  {i.notes && <span style={S.itemNote}>{i.notes}</span>}
+          {/* Items */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {items.map((i, k) => (
+              <div key={i.id ?? k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, alignItems: 'flex-start' }}>
+                <span style={{ fontWeight: 700, width: 28, flex: 'none' }}>{i.quantity ?? 1}x</span>
+                <span style={{ flex: 1, paddingRight: 8 }}>
+                  {i.name ?? i.product_name ?? 'Producto'}
+                  {i.notes && <span style={{ display: 'block', fontSize: 11, color: '#666', marginTop: 2 }}>{i.notes}</span>}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 700, flex: 'none' }}>
-                  {cop(Number(i.unit_price ?? i.price ?? 0) * (i.quantity ?? 1))}
-                </span>
+                <span style={{ fontWeight: 600 }}>{cop(Number(i.unit_price ?? i.price ?? 0) * (i.quantity ?? 1))}</span>
               </div>
             ))}
-          </section>
+          </div>
+          
+          <div style={{ borderTop: '1px dashed #ccc', margin: '8px 0' }} />
 
-          {/* Cuentas */}
-          <section style={S.block}>
-            <div style={S.blockLabel}>CUENTAS</div>
-            <Line label="Productos" value={cop(subtotal)} />
-            {discount > 0 && <Line label="Descuento" value={`- ${cop(discount)}`} green />}
-            {delivery > 0 && <Line label="Domicilio" value={cop(delivery)} />}
-            {service > 0 && <Line label="Servicio" value={cop(service)} />}
-            {tip > 0 && <Line label="Propina al repartidor" value={cop(tip)} />}
-            <div style={S.totalLine}>
-              <span style={{ fontSize: 14, fontWeight: 800 }}>Total</span>
-              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 21 }}>
-                {cop(order.total)}
-              </span>
-            </div>
-            <div style={S.payRow}>
-              <span className="ms" style={{ fontSize: 17, color: 'var(--muted)' }}>
-                {order.payment_method === 'cash' ? 'payments' : 'credit_card'}
-              </span>
-              <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
-                Pagó con {PAY[order.payment_method] ?? 'otro medio'}
-                {order.payment_method === 'cash' ? ' al recibir' : ''}
-              </span>
-            </div>
-          </section>
+          {/* Totales */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
+             {discount > 0 && (
+               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                 <span>Descuento</span><span>- {cop(discount)}</span>
+               </div>
+             )}
+             {delivery > 0 && (
+               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                 <span>Domicilio</span><span>{cop(delivery)}</span>
+               </div>
+             )}
+             {service > 0 && (
+               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                 <span>Servicio</span><span>{cop(service)}</span>
+               </div>
+             )}
+             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 800, marginTop: 8 }}>
+                <span>TOTAL</span>
+                <span>{cop(order.total)}</span>
+             </div>
+          </div>
 
-          {/* Lo que te quedó */}
-          {order.business_commission != null && (
-            <section style={S.netBlock}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>Comisión TuraFood</span>
-                <span style={{ fontSize: 12.5, fontWeight: 700 }}>
-                  - {cop(order.business_commission)}
-                </span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 8 }}>
-                <span style={{ fontSize: 13.5, fontWeight: 800 }}>Te quedó</span>
-                <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--green)' }}>
-                  {cop(subtotal - Number(order.business_commission))}
-                </span>
-              </div>
-            </section>
-          )}
+          {/* QR */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 16 }}>
+             {isDemo ? (
+               <div style={{ opacity: 0.8, filter: 'grayscale(1)' }}>
+                 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" fill="white"/>
+                    <rect x="10" y="10" width="20" height="20" stroke="black" strokeWidth="4"/>
+                    <rect x="15" y="15" width="10" height="10" fill="black"/>
+                    <rect x="70" y="10" width="20" height="20" stroke="black" strokeWidth="4"/>
+                    <rect x="75" y="15" width="10" height="10" fill="black"/>
+                    <rect x="10" y="70" width="20" height="20" stroke="black" strokeWidth="4"/>
+                    <rect x="15" y="75" width="10" height="10" fill="black"/>
+                    <path d="M40 10H60V20H40V10Z" fill="black"/>
+                    <path d="M40 30H50V40H40V30Z" fill="black"/>
+                    <path d="M70 40H90V50H70V40Z" fill="black"/>
+                    <path d="M10 40H30V50H10V40Z" fill="black"/>
+                    <path d="M50 50H70V60H50V50Z" fill="black"/>
+                    <path d="M40 70H60V80H40V70Z" fill="black"/>
+                    <path d="M70 70H80V80H70V70Z" fill="black"/>
+                    <path d="M80 80H90V90H80V80Z" fill="black"/>
+                    <path d="M40 80H50V90H40V80Z" fill="black"/>
+                 </svg>
+               </div>
+             ) : (
+               <QRCodeSVG value={`https://turafood.com/order/${order.id}`} size={100} level="M" />
+             )}
+             <span style={{ fontSize: 10, color: '#666', marginTop: 8, letterSpacing: '.05em', fontWeight: 600 }}>ESCANEA PARA VER DETALLES</span>
+          </div>
+        </aside>
 
-          {order.courier?.full_name && (
-            <section style={S.block}>
-              <div style={S.blockLabel}>LO LLEVÓ</div>
-              <div style={{ fontSize: 13.5, fontWeight: 700 }}>{order.courier.full_name}</div>
-            </section>
-          )}
+        {/* Acciones */}
+        <div className="no-print" style={{ display: 'flex', gap: 12 }}>
+           <button onClick={() => window.print()} style={{ flex: 1, padding: '16px', background: 'var(--green)', color: '#fff', borderRadius: 16, fontWeight: 800, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(11,122,72,0.2)', transition: 'transform 0.2s' }}>
+             <span className="ms">print</span>
+             Imprimir Comanda
+           </button>
+           <button onClick={onClose} style={{ padding: '16px 24px', background: 'var(--surface2)', color: 'var(--text)', borderRadius: 16, fontWeight: 800, fontSize: 15, border: '1px solid var(--border)', cursor: 'pointer', transition: 'transform 0.2s' }}>
+             Cerrar
+           </button>
         </div>
-      </aside>
-    </div>
-  );
-}
-
-function Line({ label, value, green }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '6px 0' }}>
-      <span style={{ fontSize: 13, color: 'var(--muted)' }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 700, color: green ? 'var(--green)' : 'var(--text)' }}>
-        {value}
-      </span>
+      </div>
     </div>
   );
 }
@@ -367,71 +402,36 @@ function Line({ label, value, green }) {
 const S = {
   chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
   chipOn: { background: '#fff', color: '#000', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' },
-  chipOff: { background: 'rgba(24,24,24,0.7)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
+  chipOff: { background: 'var(--surface)', color: 'rgba(255,255,255,0.7)', border: '1px solid var(--border)' },
   search: {
     display: 'flex', alignItems: 'center', gap: 10, width: 280, height: 42,
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--surface)', border: '1px solid var(--border)',
     borderRadius: 14, padding: '0 16px', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)'
   },
-  searchInput: { flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 14, minWidth: 0, color: '#fff' },
+  searchInput: { flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 14, minWidth: 0, color: 'var(--text)' },
   
   ticketsGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20
+    display: 'flex', flexDirection: 'column', gap: 12
   },
-  voucherCard: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
-    boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)',
-    display: 'flex', flexDirection: 'column', textAlign: 'left', cursor: 'pointer',
-    position: 'relative', transition: 'transform 0.2s, box-shadow 0.2s', padding: 0,
-    outline: 'none', overflow: 'hidden'
+  rowCard: {
+    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16,
+    boxShadow: 'var(--shadow)', display: 'flex', flexWrap: 'wrap',
+    alignItems: 'center', justifyContent: 'space-between', gap: 16, cursor: 'pointer',
+    transition: 'all 0.2s', padding: '16px 20px', textAlign: 'left'
   },
-  voucherHead: {
-    padding: '24px 24px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'
-  },
-  voucherLabel: {
-    fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 4
-  },
-  voucherNumber: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', color: '#fff'
-  },
-  voucherQrWrapper: {
-    width: 48, height: 48, background: '#fff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center'
-  },
-  voucherQr: {
-    fontSize: 32, color: '#000'
-  },
-  voucherBody: {
-    padding: '0 24px 20px', display: 'flex', flexDirection: 'column', gap: 12
-  },
-  voucherRow: {
-    display: 'flex', flexDirection: 'column', gap: 2
-  },
-  voucherCellLabel: {
-    fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)'
-  },
-  voucherCellValue: {
-    fontSize: 13.5, fontWeight: 600, color: '#fff'
-  },
-  voucherDivider: {
-    height: 0, borderBottom: '2px dashed rgba(255,255,255,0.1)', width: '100%'
-  },
-  voucherFoot: {
-    padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: 'rgba(0,0,0,0.2)'
-  },
-  voucherTotal: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, color: '#fff', marginTop: 2
-  },
+  rowItem: { display: 'flex', flexDirection: 'column', gap: 4, minWidth: 120 },
+  rowLabel: { fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' },
+  rowValue: { fontSize: 14, fontWeight: 600, color: 'var(--text)' },
 
   pill: { fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 10, letterSpacing: '.05em' },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
-    padding: '64px 20px', textAlign: 'center', background: 'rgba(24,24,24,0.7)',
+    padding: '64px 20px', textAlign: 'center', background: 'var(--surface)',
     borderRadius: 24, border: '1px dashed rgba(255,255,255,0.1)'
   },
   emptyIcon: {
-    width: 64, height: 64, borderRadius: 20, background: 'rgba(255,255,255,0.05)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)'
+    width: 64, height: 64, borderRadius: 20, background: 'var(--surface2)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)'
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
@@ -445,7 +445,7 @@ const S = {
   },
   sheet: {
     width: '100%', maxWidth: 420, height: '100dvh', display: 'flex', flexDirection: 'column',
-    background: '#1a1a1a', boxShadow: '-20px 0 60px rgba(0,0,0,0.5)', color: '#fff',
+    background: '#1a1a1a', boxShadow: '-20px 0 60px rgba(0,0,0,0.5)', color: 'var(--text)',
     borderLeft: '1px solid rgba(255,255,255,0.06)'
   },
   ticketHead: {
@@ -454,12 +454,12 @@ const S = {
   },
   ticketNumber: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 24, letterSpacing: '-.02em', color: '#fff'
+    fontSize: 24, letterSpacing: '-.02em', color: 'var(--text)'
   },
   ticketWhen: { display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
   close: {
-    width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: 'none', cursor: 'pointer'
+    width: 38, height: 38, borderRadius: '50%', background: 'var(--surface2)', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)', border: 'none', cursor: 'pointer'
   },
   ticketBody: { flex: 1, overflowY: 'auto', padding: 24 },
   block: {
@@ -483,8 +483,8 @@ const S = {
   },
   qty: {
     minWidth: 26, height: 26, borderRadius: 8, flex: 'none', padding: '0 6px',
-    background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 12.5, fontWeight: 800, color: '#fff'
+    background: 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: 12.5, fontWeight: 800, color: 'var(--text)'
   },
   itemNote: { display: 'block', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
   totalLine: {

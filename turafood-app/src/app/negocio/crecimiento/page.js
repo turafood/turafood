@@ -32,8 +32,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { cop } from '@/lib/format';
 import CabeceraSeccion from '../../components/CabeceraSeccion';
-import Comparativa from './Comparativa';
-import { PLANES, CONDICIONES, porMes, descuento } from './planes';
+import { CONDICIONES } from './planes';
 
 export default function GrowthPartnerPage() {
   const [abierto, setAbierto] = useState(null);
@@ -53,134 +52,51 @@ export default function GrowthPartnerPage() {
         </p>
       </div>
 
-      {/* ---------------------------------------------- la cuenta */}
-      <Comparativa />
+      {/* ---------------------------------------------- marcas locales (social proof) */}
+      <div style={{
+        position: 'relative',
+        borderRadius: 24,
+        overflow: 'hidden',
+        background: '#0a0806 url(https://images.unsplash.com/photo-1544025162-817bf51323be?q=80&w=1200&auto=format&fit=crop) center/cover',
+        padding: '64px 24px',
+        textAlign: 'center',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+        border: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        {/* Overlay oscuro para legibilidad */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,8,6,0.85) 0%, rgba(10,8,6,0.95) 100%)' }} />
+        
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: 'var(--gold)', textTransform: 'uppercase', marginBottom: 12 }}>
+            CON LA CONFIANZA DE RESTAURANTES DEL PACÍFICO
+          </div>
+          <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-.02em', color: '#fff', marginBottom: 48 }}>
+            Marcas locales que ya venden <span className="tf-serif tf-gold-text" style={{ fontWeight: 400 }}>con Tura</span>
+          </h2>
 
-      {/* -------------------------------------------- mensual/anual */}
-      <div style={S.conmutador}>
-        {[[false, 'Mensual'], [true, 'Anual']].map(([v, txt]) => (
-          <button
-            key={txt}
-            onClick={() => setAnual(v)}
-            style={{
-              ...S.conmBtn,
-              background: anual === v ? 'var(--surface)' : 'transparent',
-              color: anual === v ? 'var(--text)' : 'var(--muted)',
-              boxShadow: anual === v ? 'var(--shadowSm)' : 'none',
-            }}
-          >
-            {txt}
-            {v && <span style={S.ahorroTag}>Hasta {descuento(PLANES[2].precio)}%</span>}
-          </button>
-        ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '32px 64px', alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: 'var(--gold)', letterSpacing: '-.03em', lineHeight: 1 }}>120+</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontWeight: 500, lineHeight: 1.4 }}>Restaurantes en el<br/>Pacífico</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: 'var(--gold)', letterSpacing: '-.03em', lineHeight: 1 }}>38K</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontWeight: 500, lineHeight: 1.4 }}>Reservas<br/>gestionadas</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: 'var(--gold)', letterSpacing: '-.03em', lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                4.9 <span className="ms" style={{ fontSize: 28 }}>star</span>
+              </div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontWeight: 500, lineHeight: 1.4 }}>Calificación<br/>promedio</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36, fontWeight: 900, color: 'var(--gold)', letterSpacing: '-.03em', lineHeight: 1 }}>24/7</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 8, fontWeight: 500, lineHeight: 1.4 }}>Voice AI<br/>siempre activo</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ---------------------------------------------- los planes */}
-      <section className="planes-grid" style={S.grid}>
-        {PLANES.map((p) => (
-          <article
-            key={p.id}
-            style={{
-              ...S.plan,
-              ...(p.destacado ? S.planTop : null),
-            }}
-          >
-            {p.sello && <span style={S.sello}>{p.sello}</span>}
-
-            <header>
-              <h3 style={{ ...S.planNombre, color: p.destacado ? '#fff' : 'var(--text)' }}>
-                {p.nombre}
-              </h3>
-              <p style={{ ...S.planGancho, color: p.destacado ? 'rgba(255,255,255,.6)' : 'var(--muted)' }}>
-                {p.gancho}
-              </p>
-            </header>
-
-            <div style={S.precioBloque}>
-              {/* El gratis no tiene mensual ni anual: se muestra tal cual */}
-              {!p.precio ? (
-                <span style={{ ...S.precio, color: p.destacado ? '#fff' : 'var(--text)' }}>
-                  {p.precioTexto}
-                </span>
-              ) : (
-                <>
-                  <span style={{ ...S.precio, color: p.destacado ? '#fff' : 'var(--text)' }}>
-                    {cop(anual ? porMes(p.precio) : p.precio.mes)}
-                    <span style={S.precioMes}>/mes</span>
-                  </span>
-                  <span style={{ ...S.porMes, color: p.destacado ? '#FFB57A' : 'var(--primary)' }}>
-                    {anual
-                      ? `Facturado ${cop(p.precio.anio)} al año · ahorras ${descuento(p.precio)}%`
-                      : 'Facturado mes a mes'}
-                  </span>
-                </>
-              )}
-              <span style={{ ...S.planDetalle, color: p.destacado ? 'rgba(255,255,255,.5)' : 'var(--muted)' }}>
-                {p.detalle}
-              </span>
-            </div>
-
-            <button
-              disabled={p.id === 'starter'}
-              style={{
-                ...S.cta,
-                background: p.id === 'starter'
-                  ? 'transparent'
-                  : p.destacado ? 'linear-gradient(120deg,#FFB57A,#FF7A4D)' : 'var(--primary)',
-                color: p.id === 'starter' ? 'var(--muted)' : '#fff',
-                border: p.id === 'starter' ? '1.5px solid var(--border)' : 'none',
-                cursor: p.id === 'starter' ? 'default' : 'pointer',
-              }}
-            >
-              {p.cta}
-            </button>
-
-            <ul style={S.lista}>
-              {p.incluye.map((it) => (
-                <li
-                  key={it.texto}
-                  style={{
-                    ...S.item,
-                    opacity: it.si ? 1 : .42,
-                    color: p.destacado ? 'rgba(255,255,255,.86)' : 'var(--text)',
-                    fontWeight: it.fuerte ? 700 : 500,
-                  }}
-                >
-                  <span
-                    className="ms"
-                    style={{
-                      fontSize: 17, flex: 'none',
-                      color: it.si
-                        ? (p.destacado ? '#7BE8B0' : 'var(--green)')
-                        : (p.destacado ? 'rgba(255,255,255,.3)' : 'var(--faint)'),
-                    }}
-                  >
-                    {it.si ? 'check_circle' : 'cancel'}
-                  </span>
-
-                  {/* Lo que tiene pantalla propia se vuelve enlace. Es
-                      la única puerta a esas pantallas desde que esta
-                      página dejó de ser el hub de servicios. */}
-                  {it.ver ? (
-                    <Link
-                      href={it.ver}
-                      style={{
-                        ...S.itemLink,
-                        color: p.destacado ? '#FFB57A' : 'var(--primary)',
-                      }}
-                    >
-                      {it.texto}
-                      <span className="ms" style={{ fontSize: 14 }}>arrow_outward</span>
-                    </Link>
-                  ) : (
-                    it.texto
-                  )}
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
-      </section>
 
       {/* ---------------------------------------------- condiciones */}
       <section style={S.condiciones}>
@@ -234,7 +150,7 @@ const S = {
     letterSpacing: '-.02em', lineHeight: 1.1, margin: '0 0 12px 0'
   },
   premiumSubtitle: {
-    fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, maxWidth: 500, margin: 0
+    fontSize: 14, color: 'var(--muted)', lineHeight: 1.5, maxWidth: 500, margin: 0
   },
   promesa: {
     display: 'none'

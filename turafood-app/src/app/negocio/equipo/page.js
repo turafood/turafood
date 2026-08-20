@@ -105,16 +105,16 @@ export default function EquipoPage() {
     <>
       <style>{`
         .glass-panel {
-          background: rgba(20,20,20,0.65);
-          backdrop-filter: blur(25px);
-          -webkit-backdrop-filter: blur(25px);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 28px;
-          box-shadow: 0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+          background: var(--surface);
+          border: none;
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.04);
           padding: 26px;
+          transition: all 0.3s;
         }
         .golden-glow {
-          background: linear-gradient(158deg, rgba(20,20,20,0.9) 0%, rgba(10,10,10,0.9) 100%);
+          background: linear-gradient(145deg, #251c1a 0%, #120e0d 100%);
+          color: #fff;
           border: 1px solid rgba(217,154,21,0.25);
           box-shadow: 0 12px 30px rgba(217,154,21,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
         }
@@ -154,10 +154,10 @@ export default function EquipoPage() {
               </div>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span className="tr1" style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: '#fff', letterSpacing: '-0.02em' }}>
+              <span className="tr1" style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)', letterSpacing: '-0.02em' }}>
                 {business?.name ?? '—'}
               </span>
-              <span style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+              <span style={{ display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
                 {VERTICAL_LABEL[business?.vertical] ?? 'Negocio'} · Administrador Maestro
               </span>
             </span>
@@ -171,8 +171,8 @@ export default function EquipoPage() {
           </div>
 
           <div style={S.teamNote}>
-            <span className="ms pulse-active" style={{ fontSize: 18, color: '#FFB57A', flex: 'none' }}>group</span>
-            <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+            <span className="ms pulse-active" style={{ fontSize: 18, color: '#F59E0B', flex: 'none' }}>group</span>
+            <span style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>
               Las cuentas por rol (caja, cocina, solo lectura) llegarán en la versión PRO 2.0. Por ahora, el administrador tiene control total.
             </span>
           </div>
@@ -188,7 +188,7 @@ export default function EquipoPage() {
               <span style={{ ...S.dot, background: `color-mix(in srgb, ${st.color} 20%, transparent)` }}>
                 <span className="ms pulse-active" style={{ fontSize: 16, color: st.color }}>{st.icon}</span>
               </span>
-              <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: '#fff' }}>Tu negocio en TuraFood</span>
+              <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>Tu negocio en TuraFood</span>
               <span style={{ fontSize: 12, fontWeight: 800, color: st.color, background: `color-mix(in srgb, ${st.color} 15%, transparent)`, padding: '4px 10px', borderRadius: 99 }}>{st.label}</span>
             </div>
 
@@ -200,10 +200,10 @@ export default function EquipoPage() {
                 color: business?.status === 'active' ? '#7BE8B0' : '#FFB57A',
               }}
             >
-              <span className="ms pulse-active" style={{ fontSize: 18, flex: 'none' }}>
+              <span className="ms pulse-active" style={{ fontSize: 18, flex: 'none', color: business?.status === 'active' ? '#0B8E54' : '#D97706' }}>
                 {business?.status === 'active' ? 'verified' : 'sync'}
               </span>
-              <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'rgba(255,255,255,0.7)' }}>
+              <span style={{ fontSize: 12.5, lineHeight: 1.5, color: business?.status === 'active' ? '#0B8E54' : '#D97706' }}>
                 {business?.rejection_reason || st.note}
               </span>
             </div>
@@ -217,9 +217,9 @@ export default function EquipoPage() {
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 16 }}>
                   <span className="ms ms-fill pulse-active" style={{ fontSize: 24, color: '#D99A15' }}>stars</span>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>Biz Pro</span>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>Biz Pro</span>
                 </div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, marginTop: 8 }}>
+                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8 }}>
                   Sin comisión por pedido: pagas solo la mensualidad. Todo lo que vendes es tuyo.
                 </div>
                 <div style={S.planRows}>
@@ -233,10 +233,10 @@ export default function EquipoPage() {
             ) : (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 16 }}>
-                  <span className="ms" style={{ fontSize: 22, color: 'rgba(255,255,255,0.5)' }}>storefront</span>
-                  <span style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>Plan Starter (Por Comisión)</span>
+                  <span className="ms" style={{ fontSize: 22, color: 'var(--muted)' }}>storefront</span>
+                  <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>Plan Starter (Por Comisión)</span>
                 </div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, marginTop: 8 }}>
+                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8 }}>
                   Pagas {rate}% de comisión por cada pedido entregado. 
                   {business?.vertical === 'pharmacy' || business?.vertical === 'liquor' ? ' Farmacias y licoreras 15%.' : ''}
                 </div>
@@ -249,14 +249,14 @@ export default function EquipoPage() {
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 12 }}>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, color: '#fff', letterSpacing: '-0.03em' }}>
+                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, color: 'var(--text)', letterSpacing: '-0.03em' }}>
                       {cop(PRO_INTRO)}
                     </span>
                     <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>/ mes</span>
                   </div>
                   <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, marginTop: 8 }}>
                     Los primeros {PRO_INTRO_MONTHS} meses. Después {cop(PRO_REGULAR)} al mes.
-                    <br/><b style={{ color: '#fff' }}>Dejas de pagar el {rate}% por pedido hoy mismo.</b>
+                    <br/><b style={{ color: 'var(--text)' }}>Dejas de pagar el {rate}% por pedido hoy mismo.</b>
                   </div>
                   <button onClick={subscribe} disabled={busy} style={S.subscribe}>
                     {busy ? 'Estableciendo conexión segura…' : `Activar PRO por ${cop(PRO_INTRO)}`}
@@ -283,8 +283,8 @@ function Row({ icon, label, value, last }) {
       }}
     >
       <span className="ms" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', flex: 'none' }}>{icon}</span>
-      <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{label}</span>
-      <span className="tr1" style={{ fontSize: 13.5, color: '#fff', fontWeight: 700, maxWidth: '55%', textAlign: 'right' }}>
+      <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{label}</span>
+      <span className="tr1" style={{ fontSize: 13.5, color: 'var(--text)', fontWeight: 700, maxWidth: '55%', textAlign: 'right' }}>
         {value}
       </span>
     </div>
@@ -294,19 +294,19 @@ function Row({ icon, label, value, last }) {
 function PlanRow({ label, value }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '4px 0' }}>
-      <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontWeight: 800, color: '#fff' }}>{value}</span>
+      <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontWeight: 800, color: 'var(--text)' }}>{value}</span>
     </div>
   );
 }
 
 const S = {
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', color: '#fff' },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', color: 'var(--text)' },
   avatar: {
     position: 'relative',
     width: 68, height: 68, borderRadius: 22, 
     background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
-    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, flex: 'none',
     boxShadow: '0 8px 24px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)'
   },

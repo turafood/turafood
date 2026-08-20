@@ -1,4 +1,4 @@
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from 'next/font/google';
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({
@@ -13,6 +13,14 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta',
   display: 'swap',
   weight: ['400', '500', '600', '700', '800'],
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+  weight: ['400'],
+  style: ['normal', 'italic'],
 });
 
 export const metadata = {
@@ -55,7 +63,7 @@ const TEMA_INICIAL = `(function(){try{
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${jakarta.variable} ${bricolage.variable}`}>
+    <html lang="es" className={`${jakarta.variable} ${bricolage.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: TEMA_INICIAL }} />
         {/* Los iconos vienen de Google en dos saltos: googleapis

@@ -9,7 +9,7 @@
  * solo en esta tienda. El descuento lo asume el negocio.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { cop } from '@/lib/format';
 import { getCoupons, createCoupon, setCouponActive } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
@@ -22,9 +22,9 @@ const TYPES = [
 ];
 
 const LOOK = {
-  percent: { icon: 'redeem', bg: '#FFF1EC', fg: 'var(--primary)' },
-  fixed: { icon: 'local_activity', bg: '#EAF1FF', fg: 'var(--blue)' },
-  free_delivery: { icon: 'two_wheeler', bg: '#E6F6EE', fg: '#0B8E54' },
+  percent: { icon: 'redeem', bg: 'rgba(255,68,31,0.1)', fg: 'var(--primary)' },
+  fixed: { icon: 'local_activity', bg: 'rgba(59,130,246,0.1)', fg: '#3B82F6' },
+  free_delivery: { icon: 'two_wheeler', bg: 'rgba(16,185,129,0.1)', fg: 'var(--green)' },
 };
 
 const describe = (c) => {
@@ -40,7 +40,7 @@ const until = (iso) => (iso
   : 'Sin límite');
 
 export default function PromocionesPage() {
-  const { business, toast } = useBiz();
+  const { business, toast, demoMode } = useBiz();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -114,9 +114,20 @@ export default function PromocionesPage() {
    * "La que mas jala" es el que de verdad sirve: dice cual repetir y
    * cual dejar morir. Sin eso, una lista de cupones es solo una lista.
    */
-  const activas = coupons.filter((c) => c.is_active);
-  const usosTotal = coupons.reduce((a, c) => a + Number(c.uses_count ?? 0), 0);
-  const masUsada = coupons.reduce(
+  const activeCoupons = useMemo(() => {
+    if (!demoMode) return coupons;
+    const now = Date.now();
+    return [
+      ...coupons,
+      { id: 'c1', code: 'TURA15', discount_type: 'percent', discount_value: 15, is_active: true, uses_count: 142, description: '15% de descuento en todo el menú' },
+      { id: 'c2', code: 'ENVIOFREE', discount_type: 'free_delivery', min_order: 25000, is_active: true, uses_count: 85, description: 'Envío gratis desde $25.000', valid_until: new Date(now + 86400000 * 5).toISOString() },
+      { id: 'c3', code: '5000MENOS', discount_type: 'fixed', discount_value: 5000, is_active: false, uses_count: 31, description: '$5.000 de descuento fijo' },
+    ];
+  }, [coupons, demoMode]);
+
+  const activas = activeCoupons.filter((c) => c.is_active);
+  const usosTotal = activeCoupons.reduce((a, c) => a + Number(c.uses_count ?? 0), 0);
+  const masUsada = activeCoupons.reduce(
     (best, c) => (Number(c.uses_count ?? 0) > Number(best?.uses_count ?? 0) ? c : best),
     null,
   );
@@ -151,24 +162,24 @@ export default function PromocionesPage() {
       <div style={S.kpis}>
         <Kpi
           label="Activas ahora" value={String(activas.length)}
-          icon="local_activity" tint="#E6F6EE" fg="#0B8E54"
-          note={coupons.length ? `de ${coupons.length} creadas` : 'Todavía no has creado ninguna'}
+          icon="local_activity" tint="color-mix(in srgb, var(--green) 12%, transparent)" fg="var(--green)"
+          note={activeCoupons.length ? `de ${activeCoupons.length} creadas` : 'Todavía no has creado ninguna'}
         />
         <Kpi
           label="Veces usadas" value={usosTotal.toLocaleString('es-CO')}
-          icon="redeem" tint="#EAF1FF" fg="var(--blue)"
+          icon="redeem" tint="rgba(59,130,246,0.12)" fg="#3B82F6"
           note={usosTotal ? 'Desde que las publicaste' : 'Ninguna se ha canjeado todavía'}
         />
         <Kpi
           label="La que más jala" value={masUsada ? masUsada.code : '—'}
-          icon="trending_up" tint="#FFF7E6" fg="#A8730B"
+          icon="trending_up" tint="rgba(245,158,11,0.15)" fg="#F59E0B"
           note={masUsada
             ? `${masUsada.uses_count} canjes`
             : 'Cuando alguien canjee una, aparece aquí'}
         />
         <Kpi
           label="Por vencer" value={String(porVencer.length)}
-          icon="schedule" tint={porVencer.length ? '#FFF0ED' : 'var(--surface2)'}
+          icon="schedule" tint={porVencer.length ? 'rgba(255,68,31,0.1)' : 'var(--surface2)'}
           fg={porVencer.length ? 'var(--primary)' : 'var(--muted)'}
           note={porVencer.length
             ? 'Vencen en menos de 7 días'
@@ -177,7 +188,7 @@ export default function PromocionesPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(290px,1fr))', gap: 16, marginTop: 16 }}>
-        {coupons.map((c) => {
+        {activeCoupons.map((c) => {
           const look = LOOK[c.discount_type] ?? LOOK.percent;
           return (
             <div key={c.id} style={S.card}>
@@ -188,8 +199,8 @@ export default function PromocionesPage() {
                 <span
                   style={{
                     ...S.pill,
-                    background: c.is_active ? '#E6F6EE' : 'var(--surface2)',
-                    color: c.is_active ? '#0B7A48' : 'var(--muted)',
+                    background: c.is_active ? 'color-mix(in srgb, var(--green) 12%, transparent)' : 'var(--surface2)',
+                    color: c.is_active ? 'var(--green)' : 'var(--muted)',
                   }}
                 >
                   {c.is_active ? 'ACTIVA' : 'PAUSADA'}
@@ -232,7 +243,7 @@ export default function PromocionesPage() {
 
         <button onClick={() => setModal(true)} style={S.newCard}>
           <span style={S.newIcon}>
-            <span className="ms" style={{ fontSize: 24, color: 'var(--primary)' }}>add</span>
+            <span className="ms" style={{ fontSize: 24, color: '#fff' }}>add</span>
           </span>
           <span style={{ fontSize: 14, fontWeight: 800 }}>Crear promoción</span>
           <span style={{ fontSize: 12, color: 'var(--muted)', maxWidth: 190, textAlign: 'center', lineHeight: 1.45 }}>
@@ -241,8 +252,8 @@ export default function PromocionesPage() {
         </button>
       </div>
 
-      {!loading && coupons.length === 0 && (
-        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 18 }}>
+      {!loading && activeCoupons.length === 0 && (
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 16 }}>
           Todavía no tienes promociones. La primera te toma menos de un minuto.
         </div>
       )}
@@ -393,9 +404,9 @@ function Kpi({ label, value, icon, tint, fg, note }) {
 const S = {
   kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 16 },
   kpi: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 22, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-    backdropFilter: 'blur(20px)', color: '#fff',
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 22, boxShadow: 'var(--shadow)',
+    color: 'var(--text)',
   },
   kpiIcon: {
     width: 36, height: 36, borderRadius: 12, flex: 'none',
@@ -404,30 +415,30 @@ const S = {
   kpiValue: {
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32,
     letterSpacing: '-.03em', marginTop: 14,
-    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#fff'
+    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)'
   },
   card: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-    backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 24, boxShadow: 'var(--shadow)',
+    color: 'var(--text)'
   },
   icon: {
     width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   pill: { fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 10, flex: 'none', letterSpacing: '.05em' },
-  metaLabel: { fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 800, letterSpacing: '.05em' },
-  metaValue: { fontSize: 17, fontWeight: 800, marginTop: 6, color: '#fff' },
+  metaLabel: { fontSize: 11, color: 'var(--muted)', fontWeight: 800, letterSpacing: '.05em' },
+  metaValue: { fontSize: 17, fontWeight: 800, marginTop: 6, color: 'var(--text)' },
   action: {
-    flex: 1, height: 44, borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)',
-    background: 'rgba(255,255,255,0.05)', fontSize: 13.5, fontWeight: 700, color: '#fff',
-    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05)', transition: 'background 0.2s',
+    flex: 1, height: 44, borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface2)', fontSize: 13.5, fontWeight: 700, color: 'var(--text)',
+    transition: 'background 0.2s',
   },
   newCard: {
-    minHeight: 260, border: '2px dashed rgba(255,68,31,0.3)', borderRadius: 24,
+    minHeight: 260, border: '2px dashed var(--primary)', borderRadius: 24, opacity: 0.8,
     display: 'flex', flexDirection: 'column', alignItems: 'center',
-    background: 'linear-gradient(180deg, rgba(255,68,31,0.02) 0%, rgba(255,68,31,0.06) 100%)',
-    justifyContent: 'center', gap: 16, padding: 24, transition: 'all 0.2s ease', cursor: 'pointer',
+    background: 'color-mix(in srgb, var(--primary) 3%, var(--surface))',
+    justifyContent: 'center', gap: 16, padding: 24, transition: 'all 0.3s ease', cursor: 'pointer',
   },
   newIcon: {
     width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, var(--primary) 0%, #FF6B4A 100%)',
@@ -444,20 +455,20 @@ const S = {
     padding: 32, boxShadow: '0 25px 60px rgba(0,0,0,.2)', margin: 'auto',
   },
   modalClose: {
-    width: 36, height: 36, borderRadius: 11, background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.04)',
+    width: 36, height: 36, borderRadius: 11, background: 'var(--surface2)', border: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
   typeBtn: {
     display: 'flex', alignItems: 'center', gap: 11, padding: 14, borderRadius: 14,
   },
   input: {
-    width: '100%', height: 48, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
-    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
+    width: '100%', height: 48, borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface)', padding: '0 16px', fontSize: 15.5, outline: 'none',
     boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   notice: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18,
-    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 14, padding: 14,
+    background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 14, padding: 14,
   },
   cancel: {
     flex: 'none', height: 48, padding: '0 20px', borderRadius: 14,
@@ -465,7 +476,7 @@ const S = {
   },
   publish: {
     flex: 1, height: 48, borderRadius: 14, background: 'var(--primary)',
-    color: '#fff', fontSize: 14.5, fontWeight: 700,
+    color: 'var(--text)', fontSize: 14.5, fontWeight: 700,
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',

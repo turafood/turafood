@@ -49,7 +49,7 @@ export default function ProductSheet({
       : { ...EMPTY, category_id: categories[0]?.id ?? '' });
   }, [open, product, categories]);
 
-  if (!open) return null;
+
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -122,6 +122,8 @@ export default function ProductSheet({
 
   const hColor = health.score > 80 ? '#0B8E54' : health.score > 50 ? '#A8730B' : 'var(--primary)';
   const hBg = health.score > 80 ? '#E6F6EE' : health.score > 50 ? '#FFF7E6' : '#FFF1EC';
+
+  if (!open) return null;
 
   return (
     <div onClick={onClose} style={S.scrim}>
@@ -352,9 +354,9 @@ const S = {
     justifyContent: 'center', padding: 20,
   },
   sheet: {
-    width: '100%', maxWidth: 860, maxHeight: '92dvh', background: 'var(--surface)',
-    borderRadius: 24, display: 'flex', flexDirection: 'row', overflow: 'hidden',
-    boxShadow: '0 30px 80px rgba(0,0,0,.4)',
+    width: '100%', maxWidth: 880, maxHeight: '92dvh', background: 'var(--surface)',
+    borderRadius: 28, display: 'flex', flexDirection: 'row', overflow: 'hidden',
+    boxShadow: '0 40px 100px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,0.05)',
   },
   leftPanel: {
     flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0,
@@ -383,9 +385,10 @@ const S = {
   },
 
   iaCard: {
-    background: 'var(--surface)', borderRadius: 18, padding: 20,
-    border: '1px solid var(--primary)',
-    boxShadow: '0 12px 30px rgba(255,68,31,0.08)',
+    background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%)', 
+    borderRadius: 20, padding: 20,
+    border: '1px solid rgba(255,68,31,0.3)',
+    boxShadow: '0 12px 30px rgba(255,68,31,0.08), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   iaBadge: {
     display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--ink)',
@@ -402,9 +405,9 @@ const S = {
   },
 
   preview: {
-    display: 'flex', gap: 13, alignItems: 'flex-start', padding: 16,
-    borderRadius: 18, background: 'var(--surface)', border: '1px solid var(--border)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+    display: 'flex', gap: 13, alignItems: 'flex-start', padding: 18,
+    borderRadius: 20, background: 'var(--surface)', border: '1px solid var(--border)',
+    boxShadow: '0 6px 16px rgba(0,0,0,0.04)',
   },
   discount: {
     fontSize: 10.5, fontWeight: 800, padding: '3px 7px',
@@ -413,8 +416,9 @@ const S = {
   label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 8 },
   input: {
     width: '100%', height: 48, borderRadius: 14, border: '1px solid var(--border)',
-    background: 'var(--bg)', padding: '0 16px', fontSize: 15, outline: 'none',
-    fontFamily: 'inherit', transition: 'border-color 0.2s',
+    background: 'var(--surface2)', padding: '0 16px', fontSize: 15, outline: 'none',
+    fontFamily: 'inherit', transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
   },
   chip: { height: 38, padding: '0 14px', borderRadius: 12, fontSize: 12.5, fontWeight: 700, cursor: 'pointer' },
   chipOn: { background: 'var(--text)', color: '#fff', border: 'none' },

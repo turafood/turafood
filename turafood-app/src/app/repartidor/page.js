@@ -45,15 +45,14 @@ function minutesOf(order) {
 
 export default function RepartidorHome() {
   const router = useRouter();
-  const { courier, active, online, setOnline, loading, toast } = useRider();
+  const { courier, active, online, setOnline, loading, toast, demoMode, setDemoMode } = useRider();
 
   const [offers, setOffers] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [taking, setTaking] = useState(null);
   const [error, setError] = useState(null);
 
-  // DEMO MODE
-  const [demoMode, setDemoMode] = useState(false);
+  // DEMO MODE global viene del contexto
 
   const loadOffers = useCallback(async () => {
     if (!online && !demoMode) { setOffers([]); return; }
@@ -117,20 +116,23 @@ export default function RepartidorHome() {
     }
   };
 
-  const triggerDemo = () => {
-    setOnline(true);
-    setDemoMode(true);
-    setOffers([{
-      id: 'demo-123',
-      courier_earnings: 9400,
-      distance_km: 3.1,
-      eta_minutes: 18,
-      tip_amount: 2500,
-      pickup: { name: 'Asadero El Puerto', address: 'Cra. 3 # 4-58, Centro' },
-      dropoff: { name: 'Sharick G.', address: 'Cl. 8 # 52-14, Punta del Este' },
-      created_at: new Date().toISOString()
-    }]);
-  };
+  useEffect(() => {
+    if (demoMode) {
+      setOnline(true);
+      setOffers([{
+        id: 'demo-123',
+        courier_earnings: 9400,
+        distance_km: 3.1,
+        eta_minutes: 18,
+        tip_amount: 2500,
+        pickup: { name: 'Asadero El Puerto', address: 'Cra. 3 # 4-58, Centro' },
+        dropoff: { name: 'Sharick G.', address: 'Cl. 8 # 52-14, Punta del Este' },
+        created_at: new Date().toISOString()
+      }]);
+    } else {
+      loadOffers();
+    }
+  }, [demoMode, setOnline, loadOffers]);
 
   return (
     <>
@@ -147,12 +149,11 @@ export default function RepartidorHome() {
         }
         .pulse-active { animation: pulse-ring 2s infinite cubic-bezier(0.2,0,0,1); }
         .glass-panel {
-          background: var(--surface2);
-          backdrop-filter: blur(25px);
-          -webkit-backdrop-filter: blur(25px);
-          border: 1px solid var(--border);
-          border-radius: 28px;
-          box-shadow: 0 12px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+          background: var(--surface);
+          border: none;
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+          transition: all 0.3s;
         }
         .pro-card {
            background: linear-gradient(145deg, #1A1A1A, #111111);
@@ -199,10 +200,7 @@ export default function RepartidorHome() {
           </div>
         )}
 
-        <button onClick={triggerDemo} style={S.demoBtn}>
-           <span className="ms" style={{ fontSize: 16 }}>play_circle</span>
-           Probar Modo DEMO
-        </button>
+
 
         {courier?.approval_status && courier.approval_status !== 'active' && !demoMode && (
           <div style={S.pendingBox}>

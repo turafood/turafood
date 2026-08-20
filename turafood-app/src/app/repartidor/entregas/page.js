@@ -27,7 +27,7 @@ function dayLabel(date) {
 const norm = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
 export default function EntregasPage() {
-  const { courier } = useRider();
+  const { courier, demoMode } = useRider();
   const [rows, setRows] = useState([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,18 @@ export default function EntregasPage() {
 
   useEffect(() => {
     if (!courier) return undefined;
+    if (demoMode) {
+      setLoading(false);
+      setRows([
+        { id: '1', business: { name: 'Burger House', cover_url: '' }, order_number: '1042', delivery_address: 'Cra 12 # 3-45', courier_earnings: 6500, tip: 2000, delivered_at: new Date().toISOString() },
+        { id: '2', business: { name: 'Farmacia La 14', cover_url: '' }, order_number: '1043', delivery_address: 'Cl 5 # 10-22', courier_earnings: 4500, tip: 0, delivered_at: new Date().toISOString() },
+        { id: '3', business: { name: 'Asadero El Puerto', cover_url: '' }, order_number: '1044', delivery_address: 'Cra 3 # 4-58', courier_earnings: 8200, tip: 1500, delivered_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: '4', business: { name: 'Licores del Pacífico', cover_url: '' }, order_number: '1045', delivery_address: 'Cl 8 # 52-14', courier_earnings: 5500, tip: 1000, delivered_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: '5', business: { name: 'Pizzería Napoli', cover_url: '' }, order_number: '1046', delivery_address: 'Cra 7 # 12-34', courier_earnings: 7500, tip: 3000, delivered_at: new Date(Date.now() - 172800000).toISOString() },
+      ]);
+      return undefined;
+    }
+
     let alive = true;
     (async () => {
       try {
@@ -47,7 +59,7 @@ export default function EntregasPage() {
       }
     })();
     return () => { alive = false; };
-  }, [courier]);
+  }, [courier, demoMode]);
 
   const q = norm(query.trim());
   const shown = rows.filter((d) => !q

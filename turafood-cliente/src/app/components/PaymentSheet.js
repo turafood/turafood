@@ -48,7 +48,7 @@ export default function PaymentSheet({
   const disponibles = methods?.length ? methods : PAYMENT_METHODS;
   const selected = disponibles.find((m) => m.id === method);
   const online = isOnlineMethod(method);
-  const porWhatsapp = method === 'whatsapp';
+  const porWhatsapp = true; // Forzamos esto por ahora para que todo vaya a WhatsApp
 
   // TuraFood no procesa la plata de las ventas: el cliente le
   // transfiere directo al negocio. Así que el número tiene que estar a
@@ -152,14 +152,12 @@ export default function PaymentSheet({
         <div style={S.trust}>
           <span
             className="ms"
-            style={{ fontSize: 17, color: porWhatsapp ? '#25D366' : 'var(--green)', flex: 'none' }}
+            style={{ fontSize: 17, color: '#25D366', flex: 'none' }}
           >
-            {porWhatsapp ? 'chat' : 'lock'}
+            chat
           </span>
           <span>
-            {porWhatsapp && 'El pedido se enviará por WhatsApp.'}
-            {!porWhatsapp && online && 'Pago 100% seguro por ePayco.'}
-            {!porWhatsapp && !online && 'Pagas en efectivo al recibir.'}
+            El pedido y el método de pago se enviarán por WhatsApp.
           </span>
         </div>
 
@@ -167,22 +165,19 @@ export default function PaymentSheet({
           <button
             onClick={onConfirm}
             disabled={busy}
-            style={{ ...S.payBtn, background: porWhatsapp ? '#25D366' : S.payBtn.background }}
+            style={{ ...S.payBtn, background: '#25D366' }}
           >
             {busy ? (
               <>
                 <span className="ms" style={{ fontSize: 19, animation: 'spin 1s linear infinite' }}>
                   progress_activity
                 </span>
-                {porWhatsapp ? 'Enviando…' : 'Cargando…'}
+                Enviando…
               </>
             ) : (
               <>
-                {online && <span className="ms" style={{ fontSize: 19 }}>lock</span>}
-                {porWhatsapp && <span className="ms" style={{ fontSize: 19 }}>chat</span>}
-                {porWhatsapp && `Pedir por WhatsApp · ${cop(totals.total)}`}
-                {!porWhatsapp && online && `Pagar · ${cop(totals.total)}`}
-                {!porWhatsapp && !online && `Confirmar · ${cop(totals.total)}`}
+                <span className="ms" style={{ fontSize: 19 }}>chat</span>
+                Pedir por WhatsApp · {cop(totals.total)}
               </>
             )}
           </button>

@@ -70,6 +70,7 @@ export async function probarComo(rol, onPaso) {
           p_name: 'Mi negocio',
           p_phone: null,
         });
+        await new Promise((r) => setTimeout(r, 400));
 
         // Un panel vacío no se puede evaluar: no hay nada que tocar,
         // nada que arrastrar, nada que se vea. Se carga el menú de
@@ -80,11 +81,9 @@ export async function probarComo(rol, onPaso) {
           const { loadStarterMenu } = await import('./menuDemo');
           await loadStarterMenu(nuevo.id, 'restaurant');
         } catch (errMenu) {
-          // Sin menú de ejemplo se entra igual: el panel lo ofrece
-          // con un botón desde su propia pantalla. Pero que quede
-          // dicho, porque sin menú tampoco hay comandas de ejemplo.
           console.warn('[turafood] no se cargó el menú de arranque:', errMenu?.message ?? errMenu);
         }
+        await new Promise((r) => setTimeout(r, 400));
 
         // Y cuatro comandas, una por columna. Un tablero que dice
         // "Sin comandas" cuatro veces no enseña nada: no hay nada que
@@ -93,22 +92,25 @@ export async function probarComo(rol, onPaso) {
         // botones — y se borran solos cuando entre el primero real.
         paso('comandas');
         {
-          // Un `catch {}` mudo acá escondió durante días que la
-          // función fallaba: el tablero salía vacío y no había forma
-          // de saber por qué. Sigue sin frenar la entrada, pero deja
-          // rastro. `rpc` no lanza, devuelve `error`.
           const { error: errComandas } = await supabase.rpc('sembrar_pedidos_demo');
           if (errComandas) {
             console.warn('[turafood] no se sembraron comandas de ejemplo:', errComandas.message);
           }
         }
+        await new Promise((r) => setTimeout(r, 500));
       } else {
+        paso('ficha');
+        await new Promise((r) => setTimeout(r, 400));
         await supabase.from('courier_profiles').insert({
           id: nuevo.id,
           status: 'offline',
           approval_status: 'pending_review',
           vehicle_type: 'motorcycle',
         });
+        paso('menu');
+        await new Promise((r) => setTimeout(r, 400));
+        paso('comandas');
+        await new Promise((r) => setTimeout(r, 400));
       }
 
       paso('listo');

@@ -25,7 +25,7 @@ const RANGES = [
 const DAY_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export default function GananciasPage() {
-  const { courier, toast } = useRider();
+  const { courier, toast, demoMode } = useRider();
   const [deliveries, setDeliveries] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [range, setRange] = useState(1);
@@ -35,6 +35,19 @@ export default function GananciasPage() {
 
   useEffect(() => {
     if (!courier) return undefined;
+    if (demoMode) {
+      setLoading(false);
+      setWallet({ id: 'demo-wallet', credits: 114500 });
+      setDeliveries(
+        Array.from({ length: 42 }).map((_, i) => ({
+          courier_earnings: 4500 + Math.random() * 5000,
+          tip: i % 4 === 0 ? 2000 : 0,
+          delivered_at: new Date(Date.now() - Math.random() * 604800000).toISOString()
+        }))
+      );
+      return undefined;
+    }
+
     let alive = true;
     (async () => {
       try {
@@ -54,7 +67,7 @@ export default function GananciasPage() {
       }
     })();
     return () => { alive = false; };
-  }, [courier]);
+  }, [courier, demoMode]);
 
   const days = useMemo(
     () => earningsByDay(deliveries, RANGES[range].days),
@@ -86,8 +99,8 @@ export default function GananciasPage() {
       .reduce((a, d) => a + Number(d.courier_earnings ?? 0), 0);
   }, [deliveries]);
 
-  const live = isConfigured();
-  const available = live ? Number(wallet?.credits ?? 0) : sinceCut;
+  const live = isConfigured() && !demoMode;
+  const available = demoMode ? 114500 : (live ? Number(wallet?.credits ?? 0) : sinceCut);
 
   const withdraw = async () => {
     setError(null);
@@ -97,6 +110,10 @@ export default function GananciasPage() {
     }
     if (available <= 0) {
       setError('No tienes saldo disponible para retirar.');
+      return;
+    }
+    if (demoMode) {
+      toast('Retiro DEMO simulado exitosamente');
       return;
     }
     setBusy(true);

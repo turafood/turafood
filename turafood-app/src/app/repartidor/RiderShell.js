@@ -41,6 +41,7 @@ export default function RiderShell({ children }) {
   const [active, setActive] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [demoMode, setDemoMode] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
 
@@ -160,7 +161,7 @@ export default function RiderShell({ children }) {
     ? 100
     : Math.min(100, Math.round(((entregas - nivel.piso) / (nivel.tope - nivel.piso)) * 100));
 
-  const ctx = { courier, loading, error, active, online, setOnline, reloadActive, toast };
+  const ctx = { courier, loading, error, active, online, setOnline, reloadActive, toast, demoMode, setDemoMode };
 
   return (
     <RiderContext.Provider value={ctx}>
@@ -241,6 +242,28 @@ export default function RiderShell({ children }) {
       )}
 
       <div className="rider-frame">
+        {/* Interruptor Global Modo Demo (Flotante top-right) */}
+        {!fullscreen && (
+          <div style={{ position: 'absolute', top: 12, right: 16, zIndex: 100 }}>
+            <button
+              onClick={() => setDemoMode(!demoMode)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px', borderRadius: 99,
+                background: demoMode ? 'linear-gradient(135deg, var(--primary), #FF7B3B)' : 'var(--surface2)',
+                color: demoMode ? '#fff' : 'var(--muted)',
+                border: '1px solid ' + (demoMode ? 'transparent' : 'var(--border)'),
+                boxShadow: demoMode ? '0 4px 12px rgba(255,68,31,0.2)' : 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 800 }}>
+                {demoMode ? 'MODO DEMO' : 'DEMO OFF'}
+              </span>
+            </button>
+          </div>
+        )}
+
         {error && !fullscreen && (
           <div style={S.error}>
             <span className="ms" style={{ fontSize: 18 }}>error</span>

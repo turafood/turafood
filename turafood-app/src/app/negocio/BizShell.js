@@ -38,8 +38,8 @@ const PAGES = {
   '/negocio/pagos': ['Cómo te pagan', 'Los medios que aceptas y que ven tus clientes'],
   '/negocio/sucursales': ['Sucursales', 'Tus puntos en Buenaventura'],
   '/negocio/reportes': ['Reportes de ventas', 'Los últimos 7 días'],
-  '/negocio/liquidaciones': ['Pagos y liquidaciones', 'Consignaciones semanales, todos los viernes'],
   '/negocio/resenas': ['Reseñas de clientes', 'Lo que opinan de tu comida y tu servicio'],
+  '/negocio/repartidores': ['Repartidores propios', 'Sincronización de tu flota con la app'],
   '/negocio/equipo': ['Equipo y cuenta', 'Roles, verificación y plan'],
   '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
   '/negocio/suite': ['Tura Business Suite', 'Todo lo que hace crecer tu negocio, en un solo lugar'],
@@ -94,6 +94,7 @@ const NAV_GROUPS = [
       { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
       { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: 'reviews' },
       { label: 'Sucursales', icon: 'store', href: '/negocio/sucursales' },
+      { label: 'Repartidores', icon: 'two_wheeler', href: '/negocio/repartidores' },
     ],
   },
   {
@@ -101,7 +102,6 @@ const NAV_GROUPS = [
     items: [
       { label: 'Historial de pedidos', icon: 'history', href: '/negocio/historial' },
       { label: 'Reportes', icon: 'insights', href: '/negocio/reportes' },
-      { label: 'Liquidaciones', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
     ],
   },
   {
@@ -130,10 +130,6 @@ const BOTTOM_NAV = [
   { label: 'Pedidos', icon: 'notifications_active', href: '/negocio/pedidos', badge: 'new' },
   { label: 'Menú', icon: 'restaurant_menu', href: '/negocio/catalogo' },
   { label: 'Promos', icon: 'local_activity', href: '/negocio/promociones' },
-  // "Pagos" a secas se confundia con "Como te pagan" del menu
-  // lateral, que es otra cosa: uno es lo que TuraFood le consigna,
-  // el otro es como le cobra a sus clientes.
-  { label: 'Mi plata', icon: 'account_balance_wallet', href: '/negocio/liquidaciones' },
 ];
 
 const initials = (name) =>
@@ -148,6 +144,41 @@ export default function BizShell({ children }) {
   const [pendingReviews, setPendingReviews] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [demoMode, setDemoMode] = useState(true);
+  const [hasTurnedOffDemo, setHasTurnedOffDemo] = useState(true);
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isOff = localStorage.getItem('tura_demo_off') === '1';
+      if (isOff) {
+        setDemoMode(false);
+      } else {
+        setHasTurnedOffDemo(false);
+      }
+    }
+  }, []);
+
+  const handleToggleDemo = () => {
+    if (demoMode) {
+      setShowDemoPopup(true);
+    } else {
+      setDemoMode(true);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('tura_demo_off');
+      }
+    }
+  };
+
+  const confirmExitDemo = () => {
+    setDemoMode(false);
+    setHasTurnedOffDemo(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tura_demo_off', '1');
+    }
+    setShowDemoPopup(false);
+    toast('¡Bienvenido a Producción!');
+  };
 
   const [drawer, setDrawer] = useState(false);
   const rail = useRail();
@@ -314,6 +345,7 @@ export default function BizShell({ children }) {
   const ctx = {
     business, loading, error, orders, newCount, pendingReviews,
     setPendingReviews, reloadOrders, refreshBusiness, toast,
+    demoMode, setDemoMode,
   };
 
   return (
@@ -481,6 +513,30 @@ export default function BizShell({ children }) {
             <div style={{ flex: 1 }} />
 
             <button
+              onClick={handleToggleDemo}
+              style={{
+                ...S.openBtn,
+                background: demoMode ? 'linear-gradient(135deg, var(--primary), #FF7B3B)' : 'var(--surface2)',
+                color: demoMode ? '#fff' : 'var(--muted)',
+                marginRight: 8,
+                position: 'relative',
+              }}
+              title={demoMode ? 'Apagar Modo Demo' : 'Simular Datos'}
+            >
+              <span className="open-label" style={{ fontSize: 12.5, fontWeight: 800 }}>
+                {demoMode ? 'Modo Demo' : 'Demo Off'}
+              </span>
+              <span style={{ ...S.switchTrack, background: demoMode ? 'rgba(255,255,255,0.4)' : 'var(--faint)' }}>
+                <span style={{ ...S.switchKnob, background: '#fff', transform: demoMode ? 'translateX(16px)' : 'none' }} />
+              </span>
+              {demoMode && !hasTurnedOffDemo && (
+                <div style={{ position: 'absolute', right: -25, bottom: -20, animation: 'hand-nudge 2.5s infinite', zIndex: 10 }}>
+                  <span style={{ fontSize: 32, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }}>👆🏽</span>
+                </div>
+              )}
+            </button>
+
+            <button
               onClick={toggleOpen}
               style={{
                 ...S.openBtn,
@@ -581,6 +637,41 @@ export default function BizShell({ children }) {
             );
           })}
         </nav>
+        )}
+
+        {/* Popup de confirmación para salir de Modo Demo */}
+        {showDemoPopup && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+            <div style={{ background: 'var(--surface)', padding: '36px 32px', borderRadius: 32, maxWidth: 380, textAlign: 'center', boxShadow: '0 24px 48px rgba(0,0,0,0.4)', animation: 'slideup 0.4s cubic-bezier(0.16, 1, 0.3, 1)', border: '1px solid var(--border)' }}>
+              <div style={{ width: 72, height: 72, borderRadius: 24, background: 'rgba(255,68,31,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                <span className="ms" style={{ fontSize: 36, color: 'var(--primary)' }}>rocket_launch</span>
+              </div>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontSize: 24, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 12, color: 'var(--text)' }}>
+                ¿Entrar a Producción?
+              </div>
+              <div style={{ fontSize: 14.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 32 }}>
+                Estás a punto de salir del entorno de pruebas. A partir de ahora verás <strong style={{ color: 'var(--text)' }}>únicamente los datos y ventas reales</strong> de tu negocio.
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button 
+                  onClick={() => setShowDemoPopup(false)} 
+                  style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'var(--surface2)', color: 'var(--text)', fontWeight: 700, transition: 'all 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.08)'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'var(--surface2)'}
+                >
+                  Seguir probando
+                </button>
+                <button 
+                  onClick={confirmExitDemo} 
+                  style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'var(--primary)', color: '#fff', fontWeight: 800, boxShadow: '0 8px 20px rgba(255,68,31,0.3)', transition: 'all 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+                >
+                  ¡Vamos!
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {toastMsg && (

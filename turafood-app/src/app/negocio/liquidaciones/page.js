@@ -131,19 +131,18 @@ export default function LiquidacionesPage() {
     <>
       <style>{`
         .glass-panel {
-          background: rgba(20,20,20,0.65);
-          backdrop-filter: blur(25px);
-          -webkit-backdrop-filter: blur(25px);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 28px;
-          box-shadow: 0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+          background: var(--surface);
+          border: none;
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.04);
           padding: 30px;
+          transition: all 0.3s;
         }
         .golden-hero {
-          background: linear-gradient(135deg, rgba(30,25,20,0.9), rgba(10,8,5,0.9));
+          background: linear-gradient(145deg, #251c1a 0%, #120e0d 100%);
           border: 1px solid rgba(217,154,21,0.25);
-          box-shadow: 0 16px 40px rgba(217,154,21,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-          border-radius: 28px;
+          box-shadow: 0 16px 40px rgba(217,154,21,0.15), inset 0 1px 0 var(--border);
+          border-radius: 24px;
           padding: 30px;
           color: #fff;
           position: relative;
@@ -190,23 +189,23 @@ export default function LiquidacionesPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
           <div>
             <div style={S.cardTitle}>Crecimiento de Ventas</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 6 }}>Historial de ganancias netas (últimas semanas)</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6 }}>Historial de ganancias netas (últimas semanas)</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.3)', padding: '6px 14px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--surface2)', padding: '6px 14px', borderRadius: 99, border: '1px solid var(--border)' }}>
              <div className="pulse-active" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--green)' }} />
              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)' }}>Sincronizado</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 180, marginTop: 32, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 180, marginTop: 32, paddingBottom: 8, borderBottom: '1px solid var(--border)' }}>
           {weeks.slice(0, 6).reverse().map((w, i) => {
             const hPct = Math.max((w.net / maxNet) * 100, 4); // Min 4% height
             return (
               <div key={w.start.toISOString()} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.7)' }}>{cop(w.net)}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)' }}>{cop(w.net)}</div>
                 <div 
                   className="chart-bar"
-                  style={{ width: '100%', maxWidth: 48, height: `${hPct}%`, background: 'rgba(255,255,255,0.1)', borderRadius: '8px 8px 0 0', border: '1px solid rgba(255,255,255,0.05)', borderBottom: 'none' }} 
+                  style={{ width: '100%', maxWidth: 48, height: `${hPct}%`, background: 'rgba(255,255,255,0.1)', borderRadius: '8px 8px 0 0', border: '1px solid var(--border)', borderBottom: 'none' }} 
                 />
               </div>
             );
@@ -214,7 +213,7 @@ export default function LiquidacionesPage() {
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
           {weeks.slice(0, 6).reverse().map((w) => (
-             <div key={`lbl-${w.start.toISOString()}`} style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+             <div key={`lbl-${w.start.toISOString()}`} style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'var(--muted)', fontWeight: 700 }}>
                {fmt(w.start)}
              </div>
           ))}
@@ -231,7 +230,7 @@ export default function LiquidacionesPage() {
             </div>
           </div>
           
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 42, marginTop: 16, letterSpacing: '-.02em', color: '#fff' }}>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 42, marginTop: 16, letterSpacing: '-.02em', color: 'var(--text)' }}>
             {loading ? '…' : cop(thisWeek.net)}
           </div>
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginTop: 8 }}>
@@ -253,7 +252,7 @@ export default function LiquidacionesPage() {
             {mix.map((m) => (
               <span key={m.label} style={{ flex: m.value / mixTotal, background: m.color, borderRadius: 99 }} />
             ))}
-            {mix.length === 0 && <span style={{ flex: 1, background: 'rgba(255,255,255,.2)', borderRadius: 99 }} />}
+            {mix.length === 0 && <span style={{ flex: 1, background: 'var(--surface2)', borderRadius: 99 }} />}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 14 }}>
             {mix.map((m) => (
@@ -269,7 +268,7 @@ export default function LiquidacionesPage() {
               <span className="ms" style={{ fontSize: 20, color: '#F2D399' }}>account_balance</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: '#fff' }}>Cuenta registrada</span>
+              <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700, color: 'var(--text)' }}>Cuenta registrada</span>
               <span style={{ display: 'block', fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>
                 La configuraste al registrarte
               </span>
@@ -279,11 +278,11 @@ export default function LiquidacionesPage() {
 
         {/* Resumen del mes */}
         <div className="glass-panel">
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Liquidado este mes</div>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, marginTop: 12, color: '#fff', letterSpacing: '-.02em' }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Liquidado este mes</div>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, marginTop: 12, color: 'var(--text)', letterSpacing: '-.02em' }}>
             {cop(paidThisMonth)}
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, marginTop: 8 }}>
+          <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 8 }}>
             Semanas ya cerradas del mes en curso.
           </div>
           <div style={S.rows}>
@@ -294,11 +293,11 @@ export default function LiquidacionesPage() {
 
         {/* Comisión */}
         <div className="glass-panel">
-          <div style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Tu comisión</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Tu comisión</div>
           <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, marginTop: 12, color: isPro ? '#F2D399' : '#fff', letterSpacing: '-.02em' }}>
             {isPro ? '0%' : `${Math.round((business?.commission_rate ?? 0.1) * 100)}%`}
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, marginTop: 8 }}>
+          <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 8 }}>
             {isPro
               ? 'Con Biz Pro activo no pagas porcentaje por pedido, solo la suscripción fija.'
               : 'Se descuenta de cada pedido entregado. Con Biz Pro baja a 0%.'}
@@ -312,12 +311,12 @@ export default function LiquidacionesPage() {
 
       {/* Historial */}
       <section className="glass-panel" style={{ marginTop: 24, padding: 0, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 30px', gap: 12, flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: '#fff', letterSpacing: '-.01em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 30px', gap: 12, flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)', letterSpacing: '-.01em' }}>
             Historial de liquidaciones
           </div>
           {payouts.length > 0 && (
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>
+            <span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 700 }}>
               {payouts.length} {payouts.length === 1 ? 'retiro solicitado' : 'retiros solicitados'}
             </span>
           )}
@@ -334,11 +333,11 @@ export default function LiquidacionesPage() {
             const open = i === 0;
             return (
               <div key={w.start.toISOString()} style={S.row}>
-                <span style={{ fontWeight: 800, color: '#fff' }}>{fmt(w.start)} – {fmt(w.end)}</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{w.orders}</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{cop(w.gross)}</span>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{cop(w.fee)}</span>
-                <span style={{ fontWeight: 800, color: '#fff', fontSize: 14 }}>{cop(w.net)}</span>
+                <span style={{ fontWeight: 800, color: 'var(--text)' }}>{fmt(w.start)} – {fmt(w.end)}</span>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{w.orders}</span>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{cop(w.gross)}</span>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{cop(w.fee)}</span>
+                <span style={{ fontWeight: 800, color: 'var(--text)', fontSize: 14 }}>{cop(w.net)}</span>
                 <span style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <span
                     style={{
@@ -360,15 +359,15 @@ export default function LiquidacionesPage() {
               <span style={S.emptyIcon}>
                 <span className="ms" style={{ fontSize: 28, color: 'rgba(255,255,255,0.3)' }}>account_balance_wallet</span>
               </span>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-.01em' }}>Todavía no hay liquidaciones</div>
-              <div style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', letterSpacing: '-.01em' }}>Todavía no hay liquidaciones</div>
+              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>
                 Aparecen aquí en cuanto entregues tu primer pedido.
               </div>
             </div>
           )}
 
           {loading && (
-            <div style={{ padding: 40, textAlign: 'center', fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>
+            <div style={{ padding: 40, textAlign: 'center', fontSize: 14, color: 'var(--muted)' }}>
               <span className="sk" style={{ display: 'block', height: 80, borderRadius: 20 }} />
             </div>
           )}
@@ -381,8 +380,8 @@ export default function LiquidacionesPage() {
 function Row({ label, value }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
-      <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
-      <span style={{ fontWeight: 800, color: '#fff' }}>{value}</span>
+      <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontWeight: 800, color: 'var(--text)' }}>{value}</span>
     </div>
   );
 }
@@ -390,12 +389,12 @@ function Row({ label, value }) {
 const GRID = 'minmax(0,1.4fr) 100px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 120px';
 
 const S = {
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, letterSpacing: '-.01em', color: '#fff' },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, letterSpacing: '-.01em', color: 'var(--text)' },
   countdown: {
     display: 'inline-flex', alignItems: 'center', gap: 10, marginTop: 20,
     height: 38, padding: '0 16px', borderRadius: 999,
-    background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,0.1)',
-    fontSize: 14, fontWeight: 800, color: '#fff'
+    background: 'rgba(255,255,255,.08)', border: '1px solid var(--border)',
+    fontSize: 14, fontWeight: 800, color: 'var(--text)'
   },
   mixItem: {
     display: 'flex', alignItems: 'center', gap: 8,
@@ -408,20 +407,20 @@ const S = {
   bankIcon: {
     width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,.08)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-    border: '1px solid rgba(255,255,255,0.1)'
+    border: '1px solid var(--border)'
   },
   rows: {
     display: 'flex', flexDirection: 'column', gap: 14, marginTop: 20,
-    paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.06)',
+    paddingTop: 18, borderTop: '1px solid var(--border)',
   },
   row: {
     display: 'grid', gridTemplateColumns: GRID, gap: 12, minWidth: 840,
     alignItems: 'center', padding: '18px 30px',
-    borderBottom: '1px solid rgba(255,255,255,0.06)', fontSize: 13.5,
+    borderBottom: '1px solid var(--border)', fontSize: 13.5,
   },
   headRow: {
-    background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.06)',
-    fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '.06em',
+    background: 'rgba(0,0,0,0.2)', borderTop: '1px solid var(--border)',
+    fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em',
   },
   pill: { fontSize: 11, fontWeight: 800, padding: '6px 10px', borderRadius: 8 },
   empty: {
@@ -430,7 +429,7 @@ const S = {
   },
   emptyIcon: {
     width: 72, height: 72, borderRadius: 24, background: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.05)',
+    border: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   error: {

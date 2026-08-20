@@ -23,6 +23,13 @@
   --green: #11B26A;
   --amber: #FFB020;
   --blue: #2E6BFF;
+  
+  --gold: #E8C766;
+  --gold2: #F6E4A6;
+  --goldDeep: #B8912F;
+  --night: #141009;
+  --night2: #1E1811;
+  --nightBorder: rgba(232, 199, 102, 0.18);
 
   /* Tintes de las etiquetas y fondos suaves. Se derivan del color base
      con color-mix, así siguen sirviendo en oscuro sin redefinirlos. */
@@ -59,6 +66,7 @@
   /* Tipografías: se cargan desde layout.js */
   --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-serif: var(--font-serif), 'Instrument Serif', serif;
 }
 
 /* ------------------------------------------------------------
@@ -217,14 +225,85 @@ textarea {
   to   { transform: none; }
 }
 
-@keyframes fade {
+@keyframes fade-in {
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
 }
 
-@keyframes blink {
-  0%, 80%, 100% { opacity: .28; transform: translateY(0); }
-  40%           { opacity: 1; transform: translateY(-3px); }
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   PREMIUM LANDING STYLES (TF GOLD)
+   ============================================================ */
+
+@keyframes tffloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes tfpulse2 {
+  0% { transform: scale(0.85); opacity: 0.85; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes tfpop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.tf-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.tf-gold-text {
+  background: linear-gradient(100deg, #F6E4A6, #E8C766 40%, #B8912F);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tf-3d-gold {
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.45), 
+              inset 0 -3px 7px rgba(120, 90, 20, 0.5), 
+              0 12px 24px rgba(120, 90, 20, 0.4);
+}
+
+.tf-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #171310;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tf-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.45);
+}
+
+.tf-wa-bubble {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 9px 13px;
+  border-radius: 14px 14px 4px 14px;
+  box-shadow: 0 12px 26px rgba(20, 16, 10, 0.18);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  animation: tffloat 3.6s ease-in-out infinite;
 }
 
 /* Panel lateral de Tura IA (mockup de Negocios) */
@@ -287,7 +366,12 @@ textarea {
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
@@ -813,6 +897,23 @@ button:disabled {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
   50%      { transform: translateY(-9px) rotate(3deg); }
 }
+@keyframes bounce-x {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes hand-nudge {
+  0% { transform: translate(15px, 15px) rotate(0deg); opacity: 0; }
+  15% { opacity: 1; }
+  75% { transform: translate(-10px, -5px) rotate(-15deg); opacity: 1; }
+  100% { transform: translate(-10px, -5px) rotate(-15deg); opacity: 0; }
+}
+
+.anim-pulse { animation: pulse 2s ease-in-out infinite; }
+.anim-bounce { animation: bounce 3s ease-in-out infinite; }
+.anim-bounce-x { animation: bounce-x 2s ease-in-out infinite; }
+.anim-spin { animation: spin 1s linear infinite; }
+
 @keyframes prep-burbujea {
   0%, 100% { transform: scaleY(1); }
   50%      { transform: scaleY(1.22); }

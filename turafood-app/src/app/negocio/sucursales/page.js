@@ -225,29 +225,28 @@ function Metric({ label, value, icon }) {
 
 const S = {
   mapCard: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
-    overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginBottom: 20,
-    backdropFilter: 'blur(20px)',
-  },
+    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24,
+    overflow: 'hidden', boxShadow: 'var(--shadow)', marginBottom: 20,
+    },
   legend: {
     display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
-    borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap', color: '#fff'
+    borderTop: '1px solid var(--border)', flexWrap: 'wrap', color: 'var(--text)'
   },
   legendItem: {
     display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+    fontSize: 12, fontWeight: 700, color: 'var(--muted)',
   },
   grid: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20,
     alignItems: 'start',
   },
   card: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
-    overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
+    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24,
+    overflow: 'hidden', boxShadow: 'var(--shadow)', color: 'var(--text)'
   },
   cover: {
     position: 'relative', height: 140, backgroundSize: 'cover', backgroundPosition: 'center',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)'
+    display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--border)'
   },
   statusPill: {
     position: 'absolute', top: 14, right: 14,
@@ -257,18 +256,18 @@ const S = {
   avatar: {
     width: 56, height: 56, borderRadius: 18, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '2px solid rgba(24,24,24,0.9)', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', marginTop: -28, zIndex: 2, position: 'relative'
+    border: '2px solid var(--surface)', boxShadow: 'var(--shadow)', marginTop: -28, zIndex: 2, position: 'relative'
   },
   name: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 20, letterSpacing: '-.02em', color: '#fff'
+    fontSize: 20, letterSpacing: '-.02em', color: 'var(--text)'
   },
   kicker: {
-    display: 'block', fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginTop: 4,
+    display: 'block', fontSize: 12, color: 'var(--muted)', fontWeight: 700, marginTop: 4,
   },
   address: {
     display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 18,
-    padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)'
+    padding: 14, borderRadius: 16, background: 'var(--surface2)', border: '1px solid var(--border)'
   },
   metrics: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(112px,1fr))',
@@ -276,34 +275,34 @@ const S = {
   },
   metric: {
     display: 'flex', flexDirection: 'column', gap: 4, padding: 14,
-    borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', minWidth: 0,
+    borderRadius: 16, background: 'var(--surface2)', border: '1px solid var(--border)', minWidth: 0,
   },
   metricLabel: {
-    fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '.05em', marginTop: 4,
+    fontSize: 10, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.05em', marginTop: 4,
   },
   metricValue: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: '#fff'
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: 'var(--text)'
   },
   footerRow: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-    marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap',
+    marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
   },
   activeTag: {
     fontSize: 11.5, fontWeight: 800, padding: '6px 14px', borderRadius: 999,
-    background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)'
+    background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)'
   },
   newCard: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-    padding: '32px 24px', borderRadius: 24, border: '2px dashed rgba(255,255,255,0.1)',
-    background: 'rgba(24,24,24,0.4)', backdropFilter: 'blur(10px)',
+    padding: '32px 24px', borderRadius: 24, border: '2px dashed var(--primary)',
+    background: 'color-mix(in srgb, var(--primary) 3%, var(--surface))', backdropFilter: 'blur(10px)',
   },
   newIconWrap: {
-    width: 110, height: 110, borderRadius: 32, background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+    width: 110, height: 110, borderRadius: 32, background: 'var(--surface2)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 30px rgba(0,0,0,0.2)'
+    border: '1px solid var(--border)', boxShadow: 'var(--shadowSm)'
   },
   newText: {
-    margin: '12px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.6)',
+    margin: '12px 0 0', fontSize: 13, color: 'var(--muted)',
     lineHeight: 1.55, maxWidth: 280,
   },
   newList: {
@@ -312,11 +311,11 @@ const S = {
   },
   newItem: {
     display: 'flex', alignItems: 'center', gap: 10, fontSize: 13,
-    color: '#fff', textAlign: 'left', fontWeight: 600
+    color: 'var(--text)', textAlign: 'left', fontWeight: 600
   },
   contact: {
     display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 24px',
-    borderRadius: 999, background: 'var(--primary)', color: '#fff',
+    borderRadius: 999, background: 'var(--primary)', color: 'var(--text)',
     fontSize: 14, fontWeight: 800, textDecoration: 'none', marginTop: 24,
     boxShadow: '0 8px 25px rgba(226,54,15,.3)',
   },

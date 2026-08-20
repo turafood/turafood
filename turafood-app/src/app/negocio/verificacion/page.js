@@ -181,41 +181,13 @@ export default function VerificacionPage() {
   return (
     <div style={{ maxWidth: 820 }} ref={top}>
       <style>{`
-        .verificacion-bg {
-          position: fixed; inset: 0; z-index: -1;
-          background: linear-gradient(to bottom, #111, #000);
-          overflow: hidden;
-        }
-        .wave-container {
-          position: absolute; width: 200%; height: 100%; top: 50%; left: -50%;
-          transform: translateY(-50%);
-          pointer-events: none; opacity: 0.15;
-        }
-        .wave {
-          position: absolute; width: 100%; height: 100%;
-          background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23FF441F" fill-opacity="1" d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,149.3C672,139,768,149,864,176C960,203,1056,245,1152,240C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
-          background-size: 50% 100%;
-        }
-        .wave1 { animation: wave 20s linear infinite; bottom: 0; opacity: 0.5; }
-        .wave2 { animation: wave 15s linear infinite reverse; bottom: 10px; opacity: 0.3; background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23FFFFFF" fill-opacity="1" d="M0,224L48,208C96,192,192,160,288,154.7C384,149,480,171,576,176C672,181,768,171,864,138.7C960,107,1056,53,1152,48C1248,43,1344,85,1392,106.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>'); }
-        .wave3 { animation: wave 25s linear infinite; bottom: -20px; opacity: 0.2; filter: hue-rotate(30deg); }
-        @keyframes wave {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .anim-pulse-glow { animation: pulseGlow 4s infinite alternate; }
-        @keyframes pulseGlow { from { opacity: 0.6; filter: blur(20px); } to { opacity: 1; filter: blur(30px); } }
+        .anim-slideup { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
-      <div className="verificacion-bg">
-        <div className="wave-container">
-          <div className="wave wave1"></div>
-          <div className="wave wave2"></div>
-          <div className="wave wave3"></div>
-        </div>
-      </div>
+      
       {/* Cabecera con progreso */}
-      <section style={S.head}>
-        <div style={S.headGlow} className="anim-pulse-glow" />
+      <section style={{ ...S.head, position: 'relative' }}>
+        <div style={S.headGlow} />
         <div style={S.headTop}>
           <div style={{ flex: 1, minWidth: 220, position: 'relative' }}>
             <div style={S.headTitle}>
@@ -233,9 +205,9 @@ export default function VerificacionPage() {
           </div>
 
           <div style={S.ring}>
-            <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, rgba(255,255,255,0.06) 0)` }} />
+            <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, var(--border) 0)` }} />
             <div style={S.ringHole}>
-              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: '#fff' }}>{pct}%</span>
+              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: 'var(--text)' }}>{pct}%</span>
             </div>
           </div>
         </div>
@@ -265,17 +237,17 @@ export default function VerificacionPage() {
                   <span
                     style={{
                       ...S.railDot,
-                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
-                      color: done || active ? '#fff' : 'rgba(255,255,255,0.4)',
+                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'var(--border)',
+                      color: done || active ? '#fff' : 'var(--muted)',
                       boxShadow: active ? '0 0 16px rgba(255,68,31,0.4)' : 'none',
-                      border: active ? 'none' : '1px solid rgba(255,255,255,0.1)'
+                      border: active ? 'none' : '1px solid var(--border)'
                     }}
                   >
                     {done
                       ? <span className="ms" style={{ fontSize: 15 }}>check</span>
                       : <span style={{ fontSize: 12, fontWeight: 800 }}>{i + 1}</span>}
                   </span>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: active ? '#fff' : 'rgba(255,255,255,0.6)' }}>{s.short}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: active ? 'var(--text)' : 'var(--muted)' }}>{s.short}</span>
                 </button>
                 {i < STEPS.length - 1 && <span style={S.railLine} />}
               </li>
@@ -397,7 +369,7 @@ export default function VerificacionPage() {
             style={{
               ...S.submit,
               ...(complete
-                ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 10px 24px rgba(255,68,31,.28)' }
+                ? { background: 'var(--primary)', color: 'var(--text)', boxShadow: '0 10px 24px rgba(255,68,31,.28)' }
                 : { background: 'var(--surface2)', color: 'var(--faint)' }),
             }}
           >
@@ -540,28 +512,27 @@ function Note({ children }) {
 const S = {
   head: {
     position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(135deg, rgba(30,30,30,0.7) 0%, rgba(10,10,10,0.8) 100%)',
-    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 28, padding: 28, boxShadow: '0 24px 50px rgba(0,0,0,0.5)', marginBottom: 24,
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 20, padding: 24, boxShadow: 'var(--shadow)', marginBottom: 16,
   },
   headGlow: {
     position: 'absolute', top: -50, right: -50, width: 250, height: 250,
-    background: 'radial-gradient(circle, rgba(255,68,31,0.15), transparent 70%)',
+    background: 'radial-gradient(circle, rgba(217, 154, 21, 0.08), transparent 70%)',
     borderRadius: '50%', pointerEvents: 'none',
   },
   headTop: { position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
   headTitle: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', color: '#fff',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', color: 'var(--text)',
   },
   headSub: {
-    fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, marginTop: 6, maxWidth: 520,
+    fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 4, maxWidth: 520,
   },
-  ring: { position: 'relative', width: 84, height: 84, flex: 'none' },
-  ringFill: { position: 'absolute', inset: 0, borderRadius: '50%', boxShadow: '0 0 20px rgba(255,68,31,0.3)' },
+  ring: { position: 'relative', width: 72, height: 72, flex: 'none' },
+  ringFill: { position: 'absolute', inset: 0, borderRadius: '50%', boxShadow: '0 0 20px rgba(217, 154, 21, 0.15)' },
   ringHole: {
-    position: 'absolute', inset: 6, borderRadius: '50%', background: '#111',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.04)'
+    position: 'absolute', inset: 6, borderRadius: '50%', background: 'var(--surface)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)'
   },
   rail: {
     position: 'relative', display: 'flex', alignItems: 'center', gap: 6, listStyle: 'none',
@@ -572,85 +543,87 @@ const S = {
     display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 14px',
     borderRadius: 999, background: 'transparent', transition: 'all 0.3s',
   },
-  railActive: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' },
+  railActive: { background: 'var(--surface2)', border: '1px solid var(--border)' },
   railDot: {
     width: 28, height: 28, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'all 0.3s',
   },
-  railLine: { width: 24, height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 2, flex: 'none' },
+  railLine: { width: 24, height: 2, background: 'var(--border)', borderRadius: 2, flex: 'none' },
   card: {
-    background: 'rgba(20,20,20,0.65)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 28, padding: 32, boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 20, padding: 24, boxShadow: 'var(--shadow)',
   },
   stepIcon: {
-    width: 52, height: 52, borderRadius: 16, flex: 'none',
+    width: 46, height: 46, borderRadius: 12, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '1px solid rgba(255,68,31,0.15)',
+    background: 'linear-gradient(135deg, rgba(217,154,21,0.1), rgba(217,154,21,0.05))',
+    border: '1px solid rgba(217,154,21,0.2)', color: 'var(--gold)'
   },
   stepTitle: {
     margin: '6px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 24, letterSpacing: '-.02em', color: '#fff',
+    fontSize: 22, letterSpacing: '-.02em', color: 'var(--text)',
   },
-  stepSub: { margin: '8px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.55 },
-  label: { display: 'block', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: 10 },
+  stepSub: { margin: '6px 0 0', fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 },
+  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 8 },
   input: {
-    width: '100%', height: 56, borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)',
-    background: 'rgba(0,0,0,0.3)', padding: '0 20px', fontSize: 16, outline: 'none', color: '#fff',
-    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)', transition: 'all 0.3s',
+    width: '100%', height: 48, borderRadius: 12, border: '1px solid var(--border)',
+    background: 'var(--surface2)', padding: '0 16px', fontSize: 15, outline: 'none', color: 'var(--text)',
+    transition: 'all 0.3s',
   },
-  chip: { height: 46, padding: '0 20px', borderRadius: 16, fontSize: 14, fontWeight: 700, transition: 'all 0.3s' },
-  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 20px rgba(255,255,255,0.2)' },
-  chipOff: { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
+  chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, transition: 'all 0.3s', color: 'var(--muted)' },
+  chipOn: { background: 'var(--gold)', color: '#000', boxShadow: '0 4px 12px rgba(217,154,21,0.2)' },
+  chipOff: { background: 'var(--surface2)', border: '1px solid var(--border)' },
   nav: {
-    display: 'flex', alignItems: 'center', gap: 14, marginTop: 32,
-    paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 12, marginTop: 24,
+    paddingTop: 20, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
   },
   back: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 52, padding: '0 20px',
-    borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', 
-    fontSize: 14.5, fontWeight: 700, color: '#fff', transition: 'background 0.2s',
+    display: 'flex', alignItems: 'center', gap: 6, height: 48, padding: '0 16px',
+    borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface2)', 
+    fontSize: 14, fontWeight: 700, color: 'var(--text)', transition: 'background 0.2s',
   },
   next: {
-    display: 'flex', alignItems: 'center', gap: 10, height: 52, padding: '0 26px',
-    borderRadius: 16, background: '#fff', color: '#000', fontSize: 15, fontWeight: 800,
-    boxShadow: '0 6px 24px rgba(255,255,255,0.2)', transition: 'all 0.3s',
+    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 24px',
+    borderRadius: 12, background: 'linear-gradient(135deg, var(--gold), #b37e0e)', color: '#000', fontSize: 14, fontWeight: 800,
+    boxShadow: '0 4px 16px rgba(217,154,21,0.2)', transition: 'all 0.3s', border: 'none'
   },
   submit: {
-    width: '100%', height: 60, borderRadius: 20, fontWeight: 800, fontSize: 16, marginTop: 24,
-    transition: 'all 0.3s',
+    width: '100%', height: 54, borderRadius: 16, fontWeight: 800, fontSize: 15, marginTop: 20,
+    transition: 'all 0.3s', background: 'linear-gradient(135deg, var(--gold), #b37e0e)', color: '#000', border: 'none'
   },
   docRow: {
     display: 'flex', alignItems: 'center', gap: 14, padding: 18,
-    borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap',
-    background: 'rgba(255,255,255,0.02)',
+    borderRadius: 20, border: '1px solid var(--border)', flexWrap: 'wrap',
+    background: 'var(--surface2)',
   },
   docIcon: {
     width: 46, height: 46, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'var(--surface)', border: '1px solid var(--border)',
   },
   docState: { fontSize: 10.5, fontWeight: 800, padding: '4px 8px', borderRadius: 8 },
   optional: {
     fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8,
-    background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)',
+    background: 'var(--border)', color: 'var(--muted)',
   },
   docBtn: {
-    height: 44, padding: '0 18px', borderRadius: 14, color: '#fff',
-    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 13.5, fontWeight: 700,
+    height: 44, padding: '0 18px', borderRadius: 14, color: 'var(--text)',
+    border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13.5, fontWeight: 700,
     transition: 'all 0.2s',
   },
   docIconBtn: {
-    width: 44, height: 44, borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)',
+    width: 44, height: 44, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--surface)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
   },
   note: {
     display: 'flex', alignItems: 'flex-start', gap: 12, marginTop: 16,
-    padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+    padding: 16, borderRadius: 16, background: 'var(--surface2)', border: '1px solid var(--border)',
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 20, padding: '14px 18px',
-    borderRadius: 16, background: 'rgba(255,68,31,0.1)', color: '#FFB0A0', border: '1px solid rgba(255,68,31,0.2)',
+    borderRadius: 16, background: '#FFF0ED', color: 'var(--primary)', border: '1px solid rgba(255,68,31,0.2)',
     fontSize: 13.5, fontWeight: 600, lineHeight: 1.45,
   },
 };

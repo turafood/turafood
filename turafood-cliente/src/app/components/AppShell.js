@@ -52,18 +52,6 @@ export default function AppShell({ children }) {
       <RehidratarCarrito />
       <div className="tablet-device" style={{ background: isDark ? '#0C0B0A' : 'var(--bg)' }}>
 
-        <div className="device-island" aria-hidden="true">
-          <span className="device-island-lens" />
-        </div>
-
-        <div className="device-statusbar" style={{ color: isDark ? '#fff' : 'var(--text)' }}>
-          <span style={{ width: 82 }}>{clock}</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, width: 82, justifyContent: 'flex-end' }}>
-            <span className="ms ms-fill" style={{ fontSize: 16 }}>signal_cellular_alt</span>
-            <span className="ms ms-fill" style={{ fontSize: 16 }}>wifi</span>
-            <span className="ms ms-fill" style={{ fontSize: 18 }}>battery_full</span>
-          </div>
-        </div>
 
         {/* El layout principal de pantalla */}
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -84,15 +72,10 @@ export default function AppShell({ children }) {
             <FloatingCart />
             {showNav && <BottomNav />}
           </div>
-
-          {/* Sidebar Derecho: Carrito en Desktop (solo visible en pantallas grandes) */}
-          <div className="desktop-only" style={{ height: '100%' }}>
+          {/* Carrito de escritorio (Sidebar derecha, se oculta en móvil) */}
+          <div className="desktop-only" style={{ zIndex: 10, height: '100%' }}>
             <DesktopCart />
           </div>
-        </div>
-
-        <div className="device-homebar" aria-hidden="true">
-          <span style={{ background: isDark ? 'rgba(255,255,255,.85)' : 'rgba(23,20,15,.28)' }} />
         </div>
       </div>
     </div>

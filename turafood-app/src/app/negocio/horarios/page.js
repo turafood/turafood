@@ -234,7 +234,7 @@ export default function HorariosPage() {
                   <span style={{ fontWeight: 800 }}>{business?.prep_time_min ?? 25} min</span>
                 </div>
                 <div style={S.bar}>
-                  <div style={{ height: '100%', borderRadius: 99, width: '93%', background: 'var(--surface2)', border: '1px solid var(--border)' }} />
+                  <div style={{ height: '100%', borderRadius: 99, width: '93%', background: 'var(--primary)', boxShadow: '0 0 10px var(--primary-tint)' }} />
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
                   Es el tiempo que ve el cliente al pedirte.
@@ -243,20 +243,20 @@ export default function HorariosPage() {
             </div>
           </section>
 
-          <section style={{ ...S.card, background: 'linear-gradient(180deg, rgba(255,68,31,0.03) 0%, rgba(255,68,31,0.01) 100%)', border: '1px solid rgba(255,68,31,0.1)' }}>
+          <section style={{ ...S.card, background: 'var(--ink)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--ink)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', boxShadow: '0 4px 10px rgba(255,68,31,0.2)' }}>
                 <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Guía IA
               </span>
-              <div style={S.cardTitle}>Consejos de disponibilidad</div>
+              <div style={{...S.cardTitle, color: 'var(--onInk)'}}>Consejos de disponibilidad</div>
             </div>
-            <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--text)', marginTop: 14 }}>
-              Cerrar la tienda de imprevisto más de 3 veces durante tu horario habitual <b>afecta negativamente tu posicionamiento</b> en la app.
+            <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--inkSoft)', marginTop: 14 }}>
+              Cerrar la tienda de imprevisto más de 3 veces durante tu horario habitual <b style={{color: 'var(--onInk)'}}>afecta negativamente tu posicionamiento</b> en la app.
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: 14, borderRadius: 14, border: '1px solid rgba(255,255,255,0.05)', marginTop: 12 }}>
-              <span className="ms" style={{ fontSize: 18, color: '#A8730B', marginBottom: 4 }}>lightbulb</span>
-              <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-                Si tienes un "pico" de trabajo en cocina y no das abasto, no apagues tu tienda. Usa la <b>Pausa Temporal</b> de 15 o 30 minutos arriba.
+            <div style={{ background: 'color-mix(in srgb, var(--onInk) 6%, transparent)', padding: 14, borderRadius: 14, border: '1px solid var(--inkLine)', marginTop: 12 }}>
+              <span className="ms" style={{ fontSize: 18, color: '#FCD34D', marginBottom: 4 }}>lightbulb</span>
+              <div style={{ fontSize: 12.5, color: 'var(--inkSoft)' }}>
+                Si tienes un "pico" de trabajo en cocina y no das abasto, no apagues tu tienda. Usa la <b style={{color: 'var(--onInk)'}}>Pausa Temporal</b> de 15 o 30 minutos arriba.
               </div>
             </div>
           </section>
@@ -268,11 +268,11 @@ export default function HorariosPage() {
 
 const S = {
   card: {
-    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-    backdropFilter: 'blur(20px)', color: '#fff',
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, padding: 24, boxShadow: 'var(--shadow)',
+    color: 'var(--text)',
   },
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: '#fff' },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: 'var(--text)' },
   track: { 
     width: 48, height: 26, borderRadius: 99, padding: 3, display: 'flex', flex: 'none',
     transition: 'background 0.3s ease, box-shadow 0.3s ease'
@@ -282,14 +282,14 @@ const S = {
     transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.3)'
   },
   time: {
-    height: 42, padding: '0 14px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)',
-    background: 'rgba(0,0,0,0.2)', fontSize: 13.5, fontWeight: 700, outline: 'none', color: '#fff',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)', transition: 'border-color 0.2s',
+    height: 42, padding: '0 14px', borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface)', fontSize: 13.5, fontWeight: 700, outline: 'none', color: 'var(--text)',
+    transition: 'border-color 0.2s',
   },
   chip: { height: 42, padding: '0 18px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s ease' },
-  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 16px rgba(255,255,255,0.15)' },
-  chipOff: { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.1)' },
-  bar: { height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.06)', marginTop: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.03)' },
+  chipOn: { background: 'var(--text)', color: 'var(--bg)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
+  chipOff: { background: 'var(--surface)', color: 'var(--muted)', border: '1px solid var(--border)' },
+  bar: { height: 8, borderRadius: 99, background: 'var(--surface2)', marginTop: 12, overflow: 'hidden', border: '1px solid var(--border)' },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
     borderRadius: 14, background: 'rgba(225,29,72,0.15)', color: '#FDA4AF', fontSize: 13, fontWeight: 600,

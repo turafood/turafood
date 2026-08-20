@@ -57,6 +57,16 @@ const PASO_TEMA = {
   tema: true,
 };
 
+// Las fotografías premium para cada paso (subidas por el usuario)
+const FONDOS_PASOS = [
+  '/burger_new.png',
+  '/steak_board.png',
+  '/tomahawk.png',
+  '/lamb_chops.png',
+  '/meat_fork.png',
+  '/burger_new.png',
+];
+
 export default function Arranque({ preguntas: base, onListo, onSaltar, guardando }) {
   const [i, setI] = useState(0);
   const [resp, setResp] = useState({});
@@ -114,8 +124,17 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
     [i, contestada, preguntas.length],
   );
 
+  const bgImg = FONDOS_PASOS[Math.min(i + 1, FONDOS_PASOS.length - 1)];
+
   return (
-    <div style={S.velo} className="anim-fade">
+    <div 
+      style={{
+        ...S.velo,
+        background: 'rgba(20, 16, 9, 0.85)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+      }} 
+      className="anim-fade"
+    >
       <section
         style={S.hoja}
         className="arranque-hoja anim-slideup"
@@ -142,8 +161,27 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
 
         {/* ---------------------------------------- la pregunta */}
         <div id="arranque-scroll" style={S.cuerpo}>
-          <h2 style={S.titulo}>{paso.titulo}</h2>
-          {paso.bajada && <p style={S.bajada}>{paso.bajada}</p>}
+          
+          {/* Imagen ilustrativa incrustada con máscara suave en las puntas */}
+          <div style={{ position: 'relative', zIndex: 1, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              width: '100%', height: 180,
+              background: `url("${bgImg}") center/cover`,
+              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
+              opacity: 0.95
+            }} />
+          </div>
+
+          <h2 style={{ ...S.titulo, color: '#fff', textAlign: 'center' }}>
+            {paso.titulo.split(' ').map((word, i, arr) => {
+              if (i === arr.length - 1 && paso.id === '__tema') {
+                 return <span key={i} className="tf-serif tf-gold-text">{word}</span>;
+              }
+              return word + ' ';
+            })}
+          </h2>
+          {paso.bajada && <p style={{ ...S.bajada, color: 'rgba(255,255,255,0.7)', textAlign: 'center' }}>{paso.bajada}</p>}
 
           {/* El paso del tema: tres muestras que se ven como se va a
               ver la app, no tres nombres. Se aplica al tocar, así que
@@ -159,8 +197,9 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
                     aria-pressed={on}
                     style={{
                       ...S.temaCard,
-                      borderColor: on ? 'var(--primary)' : 'var(--border)',
-                      boxShadow: on ? '0 6px 20px color-mix(in srgb, var(--primary) 22%, transparent)' : 'none',
+                      borderColor: on ? 'var(--gold)' : 'rgba(255,255,255,0.08)',
+                      background: on ? 'rgba(232,199,102,0.08)' : 'rgba(255,255,255,0.03)',
+                      boxShadow: on ? '0 6px 20px rgba(184,145,47,0.2)' : 'none',
                     }}
                   >
                     <span style={{ ...S.temaMuestra, ...MUESTRA[t] }}>
@@ -191,44 +230,42 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
             }}
           >
             {paso.opciones.map((o) => {
-              const on = paso.multiple
-                ? Array.isArray(valor) && valor.includes(o.id)
+              const activo = paso.multiple
+                ? (valor || []).includes(o.id)
                 : valor === o.id;
 
               return (
                 <button
                   key={o.id}
                   onClick={() => elegir(o.id)}
-                  aria-pressed={on}
+                  className="arranque-opcion tf-card"
                   style={{
                     ...S.opcion,
-                    borderColor: on ? '#fff' : 'rgba(255,255,255,0.06)',
-                    background: on ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
-                    boxShadow: on ? '0 8px 30px rgba(0,0,0,0.3)' : 'none',
-                    transform: on ? 'scale(0.98)' : 'scale(1)',
+                    background: activo ? 'rgba(232,199,102,0.1)' : 'rgba(255,255,255,0.03)',
+                    borderColor: activo ? 'var(--gold)' : 'rgba(255,255,255,0.08)',
                   }}
                 >
-                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={48} />
-
-                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <span style={{ ...S.opcionLabel, color: on ? '#fff' : 'rgba(255,255,255,0.9)' }}>
-                      {o.label}
-                    </span>
-                    {o.detalle && <span style={{...S.opcionDetalle, color: on ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'}}>{o.detalle}</span>}
-                  </span>
-
-                  <span
-                    style={{
-                      ...S.marca,
-                      borderRadius: paso.multiple ? 8 : '50%',
-                      borderColor: on ? '#fff' : 'rgba(255,255,255,0.15)',
-                      background: on ? '#fff' : 'transparent',
-                    }}
-                  >
-                    {on && (
-                      <span className="ms" style={{ fontSize: 16, color: '#000' }}>check</span>
-                    )}
-                  </span>
+                  <div style={{
+                    width: 48, height: 48, borderRadius: 16, flex: 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: activo ? 'linear-gradient(145deg, #F6E4A6, #B8912F)' : 'rgba(255,255,255,0.05)',
+                    color: activo ? '#1a1206' : '#fff',
+                    boxShadow: activo ? '0 8px 20px rgba(184,145,47,0.3)' : 'none'
+                  }}>
+                    <IconoArranque icon={o.icon} size={24} />
+                  </div>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <span style={{ ...S.opcionLabel, color: '#fff' }}>{o.label}</span>
+                    {o.detalle && <span style={{ ...S.opcionDetalle, color: 'rgba(255,255,255,0.6)' }}>{o.detalle}</span>}
+                  </div>
+                  <div style={{
+                    ...S.marca,
+                    background: activo ? 'var(--gold)' : 'transparent',
+                    borderColor: activo ? 'var(--gold)' : 'rgba(255,255,255,0.15)',
+                    boxShadow: activo ? '0 0 0 4px rgba(232,199,102,0.2)' : 'none'
+                  }}>
+                    {activo && <span className="ms" style={{ fontSize: 18, color: '#1a1206', fontWeight: 800 }}>check</span>}
+                  </div>
                 </button>
               );
             })}
@@ -244,29 +281,36 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
 
         {/* ---------------------------------------- pie fijo */}
         <footer style={S.pie}>
-          {i > 0 && (
             <button
               onClick={() => setI((n) => n - 1)}
-              style={S.atras}
-              disabled={guardando}
-              aria-label="Anterior"
+              style={{ ...S.atras, opacity: i === 0 ? 0 : 1, pointerEvents: i === 0 ? 'none' : 'auto' }}
+              aria-label="Pregunta anterior"
             >
-              <span className="ms" style={{ fontSize: 20 }}>arrow_back</span>
+              <span className="ms">arrow_back</span>
             </button>
-          )}
 
-          <button
-            onClick={avanzar}
-            disabled={!contestada || guardando}
-            style={{ ...S.avanzar, opacity: contestada && !guardando ? 1 : .45 }}
-          >
-            {guardando
-              ? 'Armando tu panel…'
-              : ultimo ? 'Entrar a mi panel' : 'Siguiente'}
-            {!guardando && (
-              <span className="ms" style={{ fontSize: 19 }}>arrow_forward</span>
-            )}
-          </button>
+            <button
+              onClick={avanzar}
+              disabled={guardando || (!contestada && !paso.tema)}
+              className="arranque-avanzar tf-3d-gold"
+              style={{
+                ...S.avanzar,
+                opacity: (!contestada && !paso.tema) ? 0.5 : 1,
+                background: 'linear-gradient(135deg, #F6E4A6, #B8912F)',
+                color: '#1a1206'
+              }}
+            >
+              {guardando ? (
+                <span className="pro-pulse">Guardando…</span>
+              ) : (
+                <>
+                  {ultimo ? 'Todo listo' : 'Siguiente'}
+                  <span className="ms" style={{ fontSize: 22, fontWeight: 800 }}>
+                    {ultimo ? 'check' : 'arrow_forward'}
+                  </span>
+                </>
+              )}
+            </button>
         </footer>
       </section>
     </div>
@@ -319,21 +363,21 @@ const S = {
   velo: {
     position: 'fixed', inset: 0, zIndex: 300,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(0,0,0,.7)',
-    backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+    background: 'rgba(0,0,0,0.75) url("https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=2000&auto=format&fit=crop") no-repeat center center / cover',
+    backgroundBlendMode: 'multiply',
+    backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)',
     padding: 20,
   },
 
   hoja: {
     position: 'relative',
-    width: '100%', maxWidth: 520,
+    width: '100%', maxWidth: 540,
     maxHeight: '90dvh',
     display: 'flex', flexDirection: 'column',
-    background: 'rgba(18,18,18,0.85)',
-    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    borderRadius: 32,
-    border: '1px solid rgba(255,255,255,0.08)',
-    boxShadow: '0 30px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,0.1)',
+    background: '#141009',
+    borderRadius: 28,
+    border: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 40px 100px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,0.05)',
     overflow: 'hidden',
   },
 
@@ -347,7 +391,7 @@ const S = {
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    background: '#fff',
+    background: 'var(--gold)',
     transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   paso: {
@@ -366,10 +410,10 @@ const S = {
   },
   titulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 32, lineHeight: 1.15, letterSpacing: '-.03em', color: '#fff',
+    fontSize: 32, lineHeight: 1.15, letterSpacing: '-.03em', color: 'var(--text)',
   },
   bajada: {
-    margin: '12px 0 0', fontSize: 15, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)',
+    margin: '12px 0 0', fontSize: 15, lineHeight: 1.5, color: 'var(--muted)',
   },
 
   opciones: {
@@ -378,19 +422,21 @@ const S = {
   opcion: {
     display: 'flex', alignItems: 'center', gap: 18,
     minHeight: 76, padding: '16px 20px',
-    borderRadius: 24, border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 20, border: '1px solid var(--border)',
+    background: 'var(--surface2)',
     textAlign: 'left', cursor: 'pointer',
-    transition: 'all .4s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   opcionLabel: {
-    display: 'block', fontSize: 17, fontWeight: 700, letterSpacing: '-.01em',
+    display: 'block', fontSize: 17, fontWeight: 700, letterSpacing: '-.01em', color: 'var(--text)',
   },
   opcionDetalle: {
-    display: 'block', marginTop: 4, fontSize: 13.5, lineHeight: 1.4,
+    display: 'block', marginTop: 4, fontSize: 13.5, lineHeight: 1.4, color: 'var(--muted)',
   },
   marca: {
     width: 26, height: 26, flex: 'none',
-    border: '2px solid rgba(255,255,255,0.15)',
+    border: '2px solid var(--border)',
+    borderRadius: '50%',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
@@ -402,18 +448,18 @@ const S = {
   },
   atras: {
     width: 60, height: 60, borderRadius: 20, flex: 'none',
-    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
     color: '#fff', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .3s',
+    transition: 'background .3s, transform .2s',
   },
   avanzar: {
     flex: 1, height: 60, borderRadius: 20,
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-    background: '#fff', border: 'none', cursor: 'pointer',
-    color: '#000',
+    background: 'linear-gradient(135deg, var(--primary), #FF7B3B)', border: 'none', cursor: 'pointer',
+    color: '#fff',
     fontSize: 17, fontWeight: 700, letterSpacing: '-.01em',
-    boxShadow: '0 8px 24px rgba(255,255,255,0.2)',
+    boxShadow: '0 8px 30px rgba(255,68,31,0.3)',
     transition: 'all .4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 };
