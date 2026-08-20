@@ -150,11 +150,19 @@ export default function PedidosPage() {
     ? Math.round(orders.reduce((a, o) => a + minutesSince(o.created_at), 0) / orders.length)
     : 0;
 
+  // Imágenes de comida para fondos premium
+  const foodBgs = [
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&auto=format&fit=crop', // Burger
+    'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=400&auto=format&fit=crop', // Pizza
+    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=400&auto=format&fit=crop', // Grill
+    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop', // Salad/Fresh
+  ];
+
   const stats = [
-    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: '#FDF0EA', fg: 'var(--primary)' },
-    { label: 'En cocina', value: grouped.preparando.length, icon: 'skillet', bg: '#FFF7E6', fg: '#A8730B' },
-    { label: 'Atrasados', value: late, icon: 'running_with_errors', bg: late ? '#FFF1EC' : '#E6F6EE', fg: late ? 'var(--primary)' : '#0B8E54' },
-    { label: 'Espera promedio', value: `${avgWait} min`, icon: 'timer', bg: '#EAF1FF', fg: 'var(--blue)' },
+    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: '#FF441F', fg: '#fff', img: foodBgs[0] },
+    { label: 'En cocina', value: grouped.preparando.length, icon: 'skillet', bg: '#F59E0B', fg: '#fff', img: foodBgs[1] },
+    { label: 'Atrasados', value: late, icon: 'running_with_errors', bg: late ? '#E11D48' : '#10B981', fg: '#fff', img: foodBgs[2] },
+    { label: 'Espera promedio', value: `${avgWait} min`, icon: 'timer', bg: '#3B82F6', fg: '#fff', img: foodBgs[3] },
   ];
 
   return (
@@ -210,12 +218,16 @@ export default function PedidosPage() {
         </div>
       </div>
 
-      {/* Indicadores */}
+      {/* Indicadores con fotos en Overlay Black */}
       <div style={S.statsGrid}>
         {stats.map((k) => (
-          <div key={k.label} style={S.stat}>
-            <span style={{ ...S.statIcon, background: k.bg }}>
-              <span className="ms" style={{ fontSize: 18, color: k.fg }}>{k.icon}</span>
+          <div key={k.label} style={{
+            ...S.stat,
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), url(${k.img})`,
+            backgroundSize: 'cover', backgroundPosition: 'center',
+          }}>
+            <span style={{ ...S.statIcon, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <span className="ms" style={{ fontSize: 20, color: k.fg, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>{k.icon}</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={S.statLabel}>{k.label}</span>
@@ -496,131 +508,136 @@ function chime() {
 const S = {
   toolbar: {
     display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'nowrap',
+    background: 'rgba(18,18,18,0.7)', padding: '12px 16px', borderRadius: 20,
+    backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)'
   },
-  filters: { display: 'flex', gap: 8, flex: 1, minWidth: 0, paddingBottom: 2 },
+  filters: { display: 'flex', gap: 10, flex: 1, minWidth: 0, paddingBottom: 2 },
   filter: {
-    display: 'flex', alignItems: 'center', gap: 7, height: 38, padding: '0 14px',
-    borderRadius: 12, fontSize: 13, fontWeight: 700, flex: 'none', whiteSpace: 'nowrap',
+    display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 16px',
+    borderRadius: 14, fontSize: 13.5, fontWeight: 700, flex: 'none', whiteSpace: 'nowrap',
+    transition: 'all 0.3s'
   },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 16px rgba(255,255,255,0.15)' },
+  chipOff: { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.08)' },
   count: {
-    minWidth: 20, height: 20, padding: '0 5px', borderRadius: 99,
+    minWidth: 22, height: 22, padding: '0 6px', borderRadius: 99,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 11, fontWeight: 800,
+    fontSize: 11.5, fontWeight: 800, transition: 'all 0.3s'
   },
-  countOn: { background: 'rgba(255,255,255,.18)', color: '#fff' },
-  countOff: { background: 'var(--surface2)', color: 'var(--muted)' },
+  countOn: { background: 'rgba(0,0,0,.15)', color: '#000' },
+  countOff: { background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' },
   sound: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 38, padding: '0 14px',
-    borderRadius: 12, fontSize: 12.5, fontWeight: 800, flex: 'none',
+    display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 16px',
+    borderRadius: 14, fontSize: 13, fontWeight: 800, flex: 'none', transition: 'all 0.3s'
   },
   statsGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))',
-    gap: 12, marginBottom: 16,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
+    gap: 16, marginBottom: 20,
   },
   stat: {
-    display: 'flex', alignItems: 'center', gap: 11, background: 'var(--surface)',
-    border: '1px solid var(--border)', borderRadius: 15, padding: '12px 14px',
-    boxShadow: 'var(--shadowSm)', minWidth: 0,
+    display: 'flex', alignItems: 'center', gap: 14, 
+    borderRadius: 20, padding: '20px 20px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.3)', minWidth: 0,
+    border: '1px solid rgba(255,255,255,0.06)', color: '#fff',
   },
   statIcon: {
-    width: 32, height: 32, borderRadius: 10, flex: 'none',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  statLabel: { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--muted)' },
-  statValue: { display: 'block', fontSize: 17, fontWeight: 800, marginTop: 1 },
+  statLabel: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '.03em' },
+  statValue: { display: 'block', fontSize: 24, fontWeight: 800, marginTop: 4, textShadow: '0 2px 10px rgba(0,0,0,0.5)' },
   colHead: {
-    display: 'flex', alignItems: 'center', gap: 8, padding: '4px 6px 12px',
-    position: 'sticky', top: 0, zIndex: 2,
+    display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
+    position: 'sticky', top: 0, zIndex: 2, background: 'rgba(18,18,18,0.85)',
+    backdropFilter: 'blur(20px)', borderRadius: 16, marginBottom: 12,
+    border: '1px solid rgba(255,255,255,0.05)'
   },
-  colCount: { fontSize: 12, fontWeight: 800, color: 'var(--muted)' },
+  colCount: { fontSize: 13.5, fontWeight: 800, color: 'rgba(255,255,255,0.5)' },
 
   ticket: {
-    position: 'relative', background: 'var(--surface)', borderRadius: 16,
-    border: '1px solid var(--border)', padding: '15px 14px 14px',
-    boxShadow: 'var(--shadowSm)',
+    position: 'relative', background: 'rgba(24,24,24,0.7)', borderRadius: 20,
+    border: '1px solid rgba(255,255,255,0.06)', padding: '18px 16px 16px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
   },
   ticketNew: {
-    borderColor: 'rgba(255,68,31,.4)',
-    boxShadow: '0 0 0 3px rgba(255,68,31,.08), var(--shadowSm)',
+    borderColor: 'rgba(255,68,31,.6)',
+    boxShadow: '0 0 0 2px rgba(255,68,31,.2), 0 10px 30px rgba(255,68,31,.15)',
   },
   ticketLate: {
-    borderColor: 'rgba(255,68,31,.55)',
-    boxShadow: '0 0 0 3px rgba(255,68,31,.12), 0 8px 24px rgba(255,68,31,.14)',
+    borderColor: 'rgba(225,29,72,.6)',
+    boxShadow: '0 0 0 2px rgba(225,29,72,.2), 0 10px 30px rgba(225,29,72,.15)',
   },
-  /** La franja punteada de arriba imita el papel de comanda */
   notch: {
-    position: 'absolute', top: 6, left: 14, right: 14, height: 2,
-    background: 'repeating-linear-gradient(90deg, var(--border) 0 5px, transparent 5px 10px)',
+    position: 'absolute', top: 6, left: 16, right: 16, height: 2,
+    background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 6px, transparent 6px 12px)',
   },
   ticketHead: {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10,
   },
   orderNumber: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, letterSpacing: '-.02em',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, letterSpacing: '-.02em',
   },
   newDot: {
-    width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)',
-    animation: 'pulse 1.6s infinite', flex: 'none',
+    width: 10, height: 10, borderRadius: '50%', background: 'var(--primary)',
+    animation: 'pulse 1.6s infinite', flex: 'none', boxShadow: '0 0 10px var(--primary)'
   },
   channel: {
-    display: 'flex', alignItems: 'center', gap: 4, fontSize: 11.5,
-    color: 'var(--muted)', fontWeight: 700, marginTop: 2,
+    display: 'flex', alignItems: 'center', gap: 5, fontSize: 12,
+    color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginTop: 4,
   },
   timer: {
-    display: 'flex', alignItems: 'center', gap: 4, padding: '5px 9px',
-    borderRadius: 10, flex: 'none',
+    display: 'flex', alignItems: 'center', gap: 5, padding: '6px 10px',
+    borderRadius: 12, flex: 'none',
   },
   slaTrack: {
-    height: 4, borderRadius: 99, background: 'var(--surface2)',
-    marginTop: 10, overflow: 'hidden',
+    height: 6, borderRadius: 99, background: 'rgba(255,255,255,0.06)',
+    marginTop: 14, overflow: 'hidden',
   },
   customer: {
-    display: 'flex', flexDirection: 'column', marginTop: 11,
+    display: 'flex', flexDirection: 'column', marginTop: 14,
   },
   items: {
-    display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12,
-    paddingTop: 12, borderTop: '1px dashed var(--border)',
+    display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14,
+    paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.1)',
   },
-  item: { display: 'flex', gap: 10, alignItems: 'flex-start' },
+  item: { display: 'flex', gap: 12, alignItems: 'flex-start' },
   qty: {
-    flex: 'none', minWidth: 26, height: 26, borderRadius: 8,
-    background: 'var(--surface2)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontSize: 13, fontWeight: 800,
+    flex: 'none', minWidth: 30, height: 30, borderRadius: 10,
+    background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', fontSize: 14, fontWeight: 800,
   },
   more: {
-    alignSelf: 'flex-start', fontSize: 11.5, fontWeight: 800,
-    color: 'var(--primary)', padding: '2px 0',
+    alignSelf: 'flex-start', fontSize: 12, fontWeight: 800,
+    color: 'var(--primary)', padding: '4px 0',
   },
   note: {
-    display: 'flex', gap: 7, marginTop: 11, background: '#FFF7E6',
-    borderRadius: 10, padding: '9px 10px',
+    display: 'flex', gap: 8, marginTop: 14, background: 'rgba(245,158,11,0.15)',
+    borderRadius: 12, padding: '12px', border: '1px solid rgba(245,158,11,0.2)'
   },
   cash: {
-    display: 'flex', alignItems: 'center', gap: 6, marginTop: 9,
-    background: '#FFF1EC', color: '#B3300F', borderRadius: 10,
-    padding: '8px 10px', fontSize: 11.5, fontWeight: 800,
+    display: 'flex', alignItems: 'center', gap: 8, marginTop: 12,
+    background: 'rgba(225,29,72,0.15)', color: '#FDA4AF', borderRadius: 12,
+    padding: '10px 12px', fontSize: 12.5, fontWeight: 800, border: '1px solid rgba(225,29,72,0.2)'
   },
   footer: {
     display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-    gap: 10, marginTop: 12, paddingTop: 11, borderTop: '1px dashed var(--border)',
+    gap: 10, marginTop: 16, paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.1)',
   },
   paid: {
-    fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4,
-    background: '#E6F6EE', color: '#0B7A48', letterSpacing: '.04em',
+    fontSize: 10, fontWeight: 800, padding: '3px 6px', borderRadius: 6,
+    background: 'rgba(16,185,129,0.2)', color: '#6EE7B7', letterSpacing: '.04em',
   },
   rejectBtn: {
-    flex: 'none', width: 42, height: 42, borderRadius: 12,
-    border: '1px solid var(--border)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center',
+    flex: 'none', width: 46, height: 46, borderRadius: 14,
+    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
   },
   advanceBtn: {
-    flex: 1, height: 42, borderRadius: 12, fontSize: 13, fontWeight: 800,
+    flex: 1, height: 46, borderRadius: 14, fontSize: 14, fontWeight: 800, transition: 'all 0.3s'
   },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', padding: '28px 12px', textAlign: 'center',
-    opacity: 0.75,
+    justifyContent: 'center', padding: '32px 16px', textAlign: 'center',
+    opacity: 0.8,
   },
 };

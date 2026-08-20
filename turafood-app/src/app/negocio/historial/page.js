@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { cop } from '@/lib/format';
 import { getHistory } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import HeaderHero from '../../components/HeaderHero';
 
 const FILTERS = [
   { label: 'Todos', match: () => true },
@@ -75,7 +76,16 @@ export default function HistorialPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+      <HeaderHero
+        title="Historial de pedidos"
+        subtitle="Todos los pedidos de esta sucursal. Revisa los detalles, el medio de pago y el estado de cada transacción."
+        images={[
+          'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=1200&auto=format&fit=crop'
+        ]}
+      />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
         {FILTERS.map((f, i) => (
           <button
             key={f.label}
@@ -87,11 +97,11 @@ export default function HistorialPage() {
         ))}
         <div style={{ flex: 1 }} />
         <div style={S.search}>
-          <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>search</span>
+          <span className="ms" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }}>search</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cliente o número de pedido"
+            placeholder="Buscar pedido..."
             style={S.searchInput}
           />
         </div>
@@ -104,73 +114,76 @@ export default function HistorialPage() {
         </div>
       )}
 
-      <div style={S.table}>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ ...S.row, ...S.headRow }}>
-            <span>PEDIDO</span><span>CLIENTE</span><span>FECHA</span>
-            <span>CANAL</span><span>PAGO</span><span>TOTAL</span>
-            <span style={{ textAlign: 'right' }}>ESTADO</span>
-          </div>
-
-          {shown.map((h) => {
-            const st = STATE[h.status] ?? STATE.cancelled;
-            return (
-              <button
-                key={h.id}
-                onClick={() => setTicket(h)}
-                style={S.row}
-                className="hist-row"
-                title="Ver el ticket completo"
-              >
-                <span style={{ fontWeight: 800, textAlign: 'left' }}>#{h.order_number}</span>
-                <span className="tr1" style={{ fontWeight: 700 }}>{h.customer?.full_name ?? 'Cliente'}</span>
-                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{when(h.created_at)}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--muted)', fontWeight: 600 }}>
-                  <span className="ms" style={{ fontSize: 15 }}>
-                    {h.mode === 'pickup' ? 'storefront' : 'two_wheeler'}
-                  </span>
-                  {h.mode === 'pickup' ? 'Recoger' : 'Domicilio'}
-                </span>
-                <span className="tr1" style={{ color: 'var(--muted)', fontWeight: 600 }}>
-                  {PAY[h.payment_method] ?? '—'}
-                </span>
-                <span style={{ fontWeight: 800 }}>{cop(h.total)}</span>
-                <span style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8 }}>
-                  <span style={{ ...S.pill, background: st.bg, color: st.color }}>{st.label}</span>
-                  <span className="ms hist-arrow" style={{ fontSize: 18, color: 'var(--faint)' }}>
-                    chevron_right
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-
-          {!loading && shown.length === 0 && (
-            <div style={S.empty}>
-              <span style={S.emptyIcon}>
-                <span className="ms" style={{ fontSize: 23, color: 'var(--faint)' }}>receipt_long</span>
-              </span>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>
-                {rows.length ? 'Sin pedidos que coincidan' : 'Todavía no tienes pedidos cerrados'}
+      <div style={S.ticketsGrid}>
+        {shown.map((h) => {
+          const st = STATE[h.status] ?? STATE.cancelled;
+          return (
+            <button
+              key={h.id}
+              onClick={() => setTicket(h)}
+              style={S.voucherCard}
+              className="anim-fade"
+              title="Ver el ticket completo"
+            >
+              <div style={S.voucherHead}>
+                <div>
+                  <div style={S.voucherLabel}>NÚMERO DE ORDEN</div>
+                  <div style={S.voucherNumber}>#{h.order_number}</div>
+                </div>
+                <div style={S.voucherQrWrapper}>
+                  <span className="ms" style={S.voucherQr}>qr_code_2</span>
+                </div>
               </div>
-            </div>
-          )}
 
-          {loading && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 11, padding: 4 }}>
-              {/* Esqueleto con la forma de lo que viene: el salto de
-                  "cargando" a "listo" se siente mucho menor si la caja
-                  ya estaba donde va a quedar. */}
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-              <span className="sk" style={{ display: 'block', height: 48, borderRadius: 16 }} />
-            </div>
-          )}
-        </div>
+              <div style={S.voucherBody}>
+                <div style={S.voucherRow}>
+                  <span style={S.voucherCellLabel}>CLIENTE</span>
+                  <span className="tr1" style={S.voucherCellValue}>{h.customer?.full_name ?? 'Cliente'}</span>
+                </div>
+                <div style={S.voucherRow}>
+                  <span style={S.voucherCellLabel}>FECHA</span>
+                  <span style={S.voucherCellValue}>{when(h.created_at)}</span>
+                </div>
+                <div style={S.voucherRow}>
+                  <span style={S.voucherCellLabel}>ENTREGA / PAGO</span>
+                  <span style={S.voucherCellValue}>
+                    {h.mode === 'pickup' ? 'Recoger' : 'Domicilio'} · {PAY[h.payment_method] ?? '—'}
+                  </span>
+                </div>
+              </div>
+
+              <div style={S.voucherDivider} />
+
+              <div style={S.voucherFoot}>
+                <div>
+                  <div style={S.voucherLabel}>TOTAL</div>
+                  <div style={S.voucherTotal}>{cop(h.total)}</div>
+                </div>
+                <span style={{ ...S.pill, background: st.bg, color: st.color }}>{st.label}</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
+
+      {!loading && shown.length === 0 && (
+        <div style={S.empty}>
+          <span style={S.emptyIcon}>
+            <span className="ms" style={{ fontSize: 26, color: '#fff' }}>receipt_long</span>
+          </span>
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+            {rows.length ? 'Sin pedidos que coincidan' : 'Todavía no tienes pedidos cerrados'}
+          </div>
+        </div>
+      )}
+
+      {loading && (
+        <div style={S.ticketsGrid}>
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <span key={i} className="sk" style={{ display: 'block', height: 260, borderRadius: 24 }} />
+          ))}
+        </div>
+      )}
 
       <Ticket order={ticket} onClose={() => setTicket(null)} />
     </>
@@ -351,40 +364,74 @@ function Line({ label, value, green }) {
   );
 }
 
-const GRID = '110px minmax(0,1.3fr) minmax(0,1fr) 116px 108px 116px 140px';
-
 const S = {
-  chip: { height: 38, padding: '0 14px', borderRadius: 12, fontSize: 13, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' },
+  chipOff: { background: 'rgba(24,24,24,0.7)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
   search: {
-    display: 'flex', alignItems: 'center', gap: 9, width: 280, height: 38,
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 12, padding: '0 13px',
+    display: 'flex', alignItems: 'center', gap: 10, width: 280, height: 42,
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 14, padding: '0 16px', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)', backdropFilter: 'blur(10px)'
   },
-  searchInput: { flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 16, minWidth: 0 },
-  table: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, boxShadow: 'var(--shadowSm)', overflow: 'hidden',
+  searchInput: { flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 14, minWidth: 0, color: '#fff' },
+  
+  ticketsGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20
   },
-  row: {
-    display: 'grid', gridTemplateColumns: GRID, gap: 12, minWidth: 900,
-    alignItems: 'center', padding: '13px 18px', width: '100%',
-    borderBottom: '1px solid var(--border)', fontSize: 13,
-    textAlign: 'left', background: 'none',
+  voucherCard: {
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
+    boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)',
+    display: 'flex', flexDirection: 'column', textAlign: 'left', cursor: 'pointer',
+    position: 'relative', transition: 'transform 0.2s, box-shadow 0.2s', padding: 0,
+    outline: 'none', overflow: 'hidden'
   },
-  headRow: {
-    background: 'var(--bg)', fontSize: 11, fontWeight: 800,
-    color: 'var(--muted)', letterSpacing: '.05em',
+  voucherHead: {
+    padding: '24px 24px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'
   },
-  pill: { fontSize: 10.5, fontWeight: 800, padding: '5px 9px', borderRadius: 8 },
+  voucherLabel: {
+    fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'rgba(255,255,255,0.4)', marginBottom: 4
+  },
+  voucherNumber: {
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', color: '#fff'
+  },
+  voucherQrWrapper: {
+    width: 48, height: 48, background: '#fff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center'
+  },
+  voucherQr: {
+    fontSize: 32, color: '#000'
+  },
+  voucherBody: {
+    padding: '0 24px 20px', display: 'flex', flexDirection: 'column', gap: 12
+  },
+  voucherRow: {
+    display: 'flex', flexDirection: 'column', gap: 2
+  },
+  voucherCellLabel: {
+    fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)'
+  },
+  voucherCellValue: {
+    fontSize: 13.5, fontWeight: 600, color: '#fff'
+  },
+  voucherDivider: {
+    height: 0, borderBottom: '2px dashed rgba(255,255,255,0.1)', width: '100%'
+  },
+  voucherFoot: {
+    padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    background: 'rgba(0,0,0,0.2)'
+  },
+  voucherTotal: {
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, color: '#fff', marginTop: 2
+  },
+
+  pill: { fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 10, letterSpacing: '.05em' },
   empty: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9,
-    padding: '56px 20px', textAlign: 'center',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+    padding: '64px 20px', textAlign: 'center', background: 'rgba(24,24,24,0.7)',
+    borderRadius: 24, border: '1px dashed rgba(255,255,255,0.1)'
   },
   emptyIcon: {
-    width: 46, height: 46, borderRadius: 14, background: 'var(--bg)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 64, height: 64, borderRadius: 20, background: 'rgba(255,255,255,0.05)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)'
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
@@ -394,57 +441,58 @@ const S = {
   /* ---------------------------------------------------------- ticket */
   scrim: {
     position: 'fixed', inset: 0, zIndex: 60, display: 'flex', justifyContent: 'flex-end',
-    background: 'rgba(20,16,10,.45)', backdropFilter: 'blur(3px)',
+    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
   },
   sheet: {
     width: '100%', maxWidth: 420, height: '100dvh', display: 'flex', flexDirection: 'column',
-    background: 'var(--surface)', boxShadow: '-20px 0 60px rgba(20,16,10,.25)',
+    background: '#1a1a1a', boxShadow: '-20px 0 60px rgba(0,0,0,0.5)', color: '#fff',
+    borderLeft: '1px solid rgba(255,255,255,0.06)'
   },
   ticketHead: {
     display: 'flex', alignItems: 'center', gap: 10, flex: 'none',
-    padding: '18px 18px 16px', borderBottom: '1px solid var(--border)',
+    padding: '24px', borderBottom: '1px dashed rgba(255,255,255,0.1)',
   },
   ticketNumber: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 20, letterSpacing: '-.02em',
+    fontSize: 24, letterSpacing: '-.02em', color: '#fff'
   },
-  ticketWhen: { display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 },
+  ticketWhen: { display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
   close: {
-    width: 34, height: 34, borderRadius: '50%', background: 'var(--bg)', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: 'none', cursor: 'pointer'
   },
-  ticketBody: { flex: 1, overflowY: 'auto', padding: 18 },
+  ticketBody: { flex: 1, overflowY: 'auto', padding: 24 },
   block: {
-    paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid var(--border)',
+    paddingBottom: 24, marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)',
   },
   blockLabel: {
-    fontSize: 10, fontWeight: 800, letterSpacing: '.1em',
-    color: 'var(--faint)', marginBottom: 8,
+    fontSize: 10.5, fontWeight: 800, letterSpacing: '.1em',
+    color: 'rgba(255,255,255,0.4)', marginBottom: 12,
   },
   phone: {
-    display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6,
-    fontSize: 13, fontWeight: 700, color: 'var(--primary)', textDecoration: 'none',
+    display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8,
+    fontSize: 14, fontWeight: 700, color: 'var(--primary)', textDecoration: 'none',
   },
   instructions: {
-    display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 10, padding: 11,
-    borderRadius: 12, background: 'var(--bg)', fontSize: 12.5, lineHeight: 1.5,
-    color: 'var(--muted)',
+    display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 12, padding: 14,
+    borderRadius: 14, background: 'rgba(255,255,255,0.03)', fontSize: 13, lineHeight: 1.5,
+    color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.05)'
   },
   item: {
-    display: 'flex', alignItems: 'flex-start', gap: 11, padding: '9px 0',
+    display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 0',
   },
   qty: {
-    minWidth: 24, height: 24, borderRadius: 8, flex: 'none', padding: '0 6px',
-    background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 12, fontWeight: 800,
+    minWidth: 26, height: 26, borderRadius: 8, flex: 'none', padding: '0 6px',
+    background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: 12.5, fontWeight: 800, color: '#fff'
   },
-  itemNote: { display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 3 },
+  itemNote: { display: 'block', fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
   totalLine: {
     display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10,
-    marginTop: 10, paddingTop: 12, borderTop: '1px solid var(--border)',
+    marginTop: 14, paddingTop: 16, borderTop: '1px dashed rgba(255,255,255,0.1)',
   },
-  payRow: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 },
+  payRow: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 },
   netBlock: {
-    padding: 14, borderRadius: 16, background: 'var(--bg)', marginBottom: 18,
+    padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.03)', marginBottom: 24, border: '1px solid rgba(255,255,255,0.05)'
   },
 };

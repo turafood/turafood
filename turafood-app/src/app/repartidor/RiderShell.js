@@ -314,10 +314,11 @@ const S = {
     borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   aiFab: {
-    position: 'absolute', right: 16, bottom: 104, zIndex: 70,
-    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 18px 0 15px',
-    borderRadius: 999, background: 'linear-gradient(135deg,#2A2620,var(--ink))', color: '#fff',
-    boxShadow: '0 12px 30px rgba(20,16,10,.34)', animation: 'pop .3s ease',
+    position: 'absolute', right: 20, bottom: 90, zIndex: 70,
+    display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 16px',
+    borderRadius: 999, background: '#111', color: '#fff',
+    border: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 8px 24px rgba(0,0,0,.3)', cursor: 'pointer',
   },
   temaBtn: {
     width: 34, height: 34, borderRadius: '50%', flex: 'none',

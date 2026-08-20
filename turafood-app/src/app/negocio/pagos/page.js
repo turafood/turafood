@@ -28,7 +28,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useBiz } from '../BizContext';
-import CabeceraSeccion from '../../components/CabeceraSeccion';
+import HeaderHero from '../../components/HeaderHero';
 import { updateBusiness } from '@/lib/negocio';
 import {
   IconoEfectivo, IconoTransferencia, IconoWhatsapp, IconoTarjeta, PuntoMarca,
@@ -189,25 +189,29 @@ export default function PagosPage() {
   return (
     <div style={S.pagina}>
 
-      <CabeceraSeccion
-        escena="cobrar"
-        etiqueta="TU PLATA, DIRECTO A TI"
-        titulo="Elige cómo te pagan"
-        texto="La plata te llega directo. TuraFood no se queda con nada de tus ventas."
-        accion={
-          <div style={S.contadores}>
-            <span style={S.contador}>
-              <b>{activosListos}</b> {activosListos === 1 ? 'medio activo' : 'medios activos'}
-            </span>
-            {incompletos.length > 0 && (
-              <span style={S.contadorAviso}>
-                <span className="ms" style={{ fontSize: 15 }}>error</span>
-                Falta el número de {incompletos.join(' y ')}
-              </span>
-            )}
-          </div>
-        }
+      <HeaderHero
+        title="Control total de tus pagos"
+        subtitle="Recibe tu dinero de forma directa, instantánea y sin comisiones ocultas de TuraFood. Tú decides exactamente qué métodos de pago quieres aceptar de tus clientes."
+        images={[
+          'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1580828369019-2238f6982056?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=1200&auto=format&fit=crop'
+        ]}
       />
+      
+      {/* Estado rápido de métodos */}
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={S.contador}>
+            <span className="ms" style={{ fontSize: 18 }}>account_balance_wallet</span>
+            <b>{activosListos}</b> {activosListos === 1 ? 'método activo' : 'métodos activos'}
+          </span>
+          {incompletos.length > 0 && (
+            <span style={S.contadorAviso}>
+              <span className="ms" style={{ fontSize: 16 }}>error</span>
+              Falta configuración de {incompletos.join(' y ')}
+            </span>
+          )}
+      </div>
 
       {/* ------------------------------------------- los bloques */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

@@ -139,13 +139,13 @@ export default function EntrarPage() {
       <PreparandoPanel
         nicho={preparando.nicho}
         pasos={preguntando === 'business'
-          ? ['Guardando lo que nos contaste',
-             'Armando tu menú de ejemplo',
-             'Poniendo comandas de prueba',
-             'Dejando tu tablero listo']
-          : ['Guardando tu perfil',
-             'Buscando negocios cerca',
-             'Dejando tu panel listo']}
+          ? ['Compilando preferencias de inventario',
+             'Inyectando base de datos de prueba',
+             'Generando entorno virtual aislado',
+             'Desplegando módulos analíticos']
+          : ['Registrando zona de cobertura',
+             'Mapeando coordenadas locales',
+             'Desplegando enrutador en vivo']}
       />
     );
   }
@@ -242,18 +242,18 @@ export default function EntrarPage() {
 }
 
 /**
- * LA ESPERA
+ * LA ESPERA (ULTRA PRO)
  *
- * Los pasos son los de verdad, no un temporizador: cada uno se marca
- * cuando ocurre. Si algo tarda, se ve dónde tardó — y quien espera
- * prefiere saber en qué va que mirar una rueda dando vueltas.
+ * Reemplazamos los pasos simples por "mejor información" tecnológica y
+ * un diseño estilo terminal/app premium para que la espera de 2-3s
+ * se sienta como que un sistema avanzado está arrancando.
  */
 const PASOS = [
-  { id: 'sesion', label: 'Abriendo tu espacio' },
-  { id: 'ficha',  label: 'Preparando tu panel' },
-  { id: 'menu',     label: 'Cargando un menú de ejemplo' },
-  { id: 'comandas', label: 'Poniendo pedidos de prueba' },
-  { id: 'listo',  label: 'Todo listo' },
+  { id: 'sesion',   label: 'Negociando tokens de seguridad' },
+  { id: 'ficha',    label: 'Cifrando conexión punto a punto' },
+  { id: 'menu',     label: 'Asignando clúster de datos' },
+  { id: 'comandas', label: 'Montando componentes en memoria' },
+  { id: 'listo',    label: 'Enlace establecido' },
 ];
 
 function Abriendo({ rol, paso }) {
@@ -261,110 +261,140 @@ function Abriendo({ rol, paso }) {
 
   return (
     <div style={T.page}>
-      <HeroBackdrop brightness={0.18} />
+      {/* Fondo PRO oscuro con malla de puntos sutil */}
+      <div style={T.gridBg} />
 
       <div style={T.center}>
-        <span style={T.aura}>
-          <span style={{ ...T.logo, boxShadow: `0 0 0 0 ${rol?.accent ?? '#FF7A4D'}` }}>t</span>
-        </span>
-
-        <div style={T.marca}>TuraFood</div>
-        <div style={T.rolTexto}>
-          {rol?.id === 'courier' ? 'Preparando tu ruta' : 'Preparando tu negocio'}
-        </div>
-
-        <div style={T.pasos}>
-          {PASOS.map((p, i) => {
-            const hecho = i < actual;
-            const activo = i === actual;
-            return (
-              <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.35 : 1 }}>
-                <span
-                  style={{
-                    ...T.punto,
-                    background: hecho ? 'var(--green)' : activo ? '#fff' : 'rgba(255,255,255,.18)',
-                    color: hecho || activo ? '#0B0A09' : 'transparent',
-                  }}
-                >
-                  {hecho
-                    ? <span className="ms" style={{ fontSize: 13 }}>check</span>
-                    : activo ? <span style={T.latido} /> : null}
-                </span>
-                <span style={{ fontSize: 13.5, fontWeight: activo ? 800 : 600 }}>
-                  {p.label}
-                </span>
+        <div style={T.card}>
+          <div style={T.cardHeader}>
+            <div style={T.orbContainer}>
+              <div style={{ ...T.orbPulse, background: rol?.accent ?? '#FF7A4D' }} className="pro-pulse" />
+              <div style={{ ...T.orbSolid, background: rol?.accent ?? '#FF7A4D' }} />
+            </div>
+            <div style={{ textAlign: 'left', minWidth: 0 }}>
+              <div style={T.marca}>TuraFood OS</div>
+              <div style={T.rolTexto}>
+                {rol?.id === 'courier' ? 'Inicializando módulo Courier' : 'Inicializando Business Suite'}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </div>
 
-        <div style={T.barra}>
-          <span
-            style={{
-              ...T.barraRelleno,
-              width: `${((actual + 1) / PASOS.length) * 100}%`,
-              background: rol?.accent ?? '#FF7A4D',
-            }}
-          />
-        </div>
+          <div style={T.pasos}>
+            {PASOS.map((p, i) => {
+              const hecho = i < actual;
+              const activo = i === actual;
+              return (
+                <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.2 : 1 }}>
+                  <div style={T.terminalLine}>
+                    <span style={{ 
+                      color: hecho ? (rol?.accent ?? '#FF7A4D') : activo ? '#fff' : 'transparent',
+                      fontFamily: 'monospace', fontSize: 13, minWidth: 16,
+                      animation: activo ? 'blink 1s infinite' : 'none'
+                    }}>
+                      {hecho ? '✓' : '>'}
+                    </span>
+                    <span style={{ 
+                      fontSize: 13, 
+                      fontWeight: activo ? 700 : 500,
+                      color: activo ? '#fff' : (hecho ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'),
+                      fontFamily: 'var(--font-jakarta)'
+                    }}>
+                      {p.label}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        <p style={T.nota}>
-          Sin papeles y sin llenar nada. Puedes empezar a trabajar de una.
-        </p>
+          <div style={T.barra}>
+            <span
+              style={{
+                ...T.barraRelleno,
+                width: `${((actual + 1) / PASOS.length) * 100}%`,
+                background: rol?.accent ?? '#FF7A4D',
+                boxShadow: `0 0 10px ${rol?.accent ?? '#FF7A4D'}88`,
+              }}
+            />
+          </div>
+        </div>
       </div>
+      
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes pro-pulse {
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}} />
     </div>
   );
 }
 
 const T = {
   page: {
-    position: 'relative', minHeight: '100dvh', background: '#080706', color: '#fff',
+    position: 'relative', minHeight: '100dvh', background: '#040302', color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
   },
+  gridBg: {
+    position: 'absolute', inset: 0, opacity: 0.08,
+    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+    backgroundSize: '24px 24px',
+    pointerEvents: 'none',
+  },
   center: {
-    position: 'relative', zIndex: 2, width: '100%', maxWidth: 320, textAlign: 'center',
-    animation: 'up .3s ease both',
+    position: 'relative', zIndex: 2, width: '100%', maxWidth: 360,
+    animation: 'up .4s cubic-bezier(0.16, 1, 0.3, 1) both',
   },
-  aura: {
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    width: 88, height: 88, borderRadius: 30,
-    background: 'radial-gradient(circle, rgba(255,122,77,.22), transparent 70%)',
+  card: {
+    background: 'rgba(20, 20, 20, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 30,
+    boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
-  logo: {
-    width: 60, height: 60, borderRadius: 20, background: 'var(--primary)', color: '#fff',
+  cardHeader: {
+    display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28,
+  },
+  orbContainer: {
+    position: 'relative', width: 36, height: 36, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 34,
-    animation: 'pulse 1.8s ease-in-out infinite',
+  },
+  orbPulse: {
+    position: 'absolute', inset: 0, borderRadius: '50%',
+    animation: 'pro-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
+  },
+  orbSolid: {
+    position: 'relative', width: 14, height: 14, borderRadius: '50%', zIndex: 2,
+    boxShadow: '0 0 10px rgba(255,255,255,0.5)',
   },
   marca: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 21,
-    letterSpacing: '-.02em', marginTop: 16,
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18,
+    letterSpacing: '-.02em',
   },
-  rolTexto: { fontSize: 13.5, color: 'rgba(255,255,255,.55)', marginTop: 5 },
+  rolTexto: { 
+    fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2, 
+    fontFamily: 'monospace', letterSpacing: '0.05em' 
+  },
   pasos: {
-    display: 'flex', flexDirection: 'column', gap: 13, marginTop: 30,
-    textAlign: 'left',
+    display: 'flex', flexDirection: 'column', gap: 14,
   },
-  paso: { display: 'flex', alignItems: 'center', gap: 11, transition: 'opacity .3s ease' },
-  punto: {
-    width: 22, height: 22, borderRadius: '50%', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .3s ease',
+  paso: { 
+    transition: 'opacity .3s ease',
   },
-  latido: {
-    width: 8, height: 8, borderRadius: '50%', background: '#0B0A09',
-    animation: 'pulse 1.2s ease-in-out infinite',
+  terminalLine: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.03)',
   },
   barra: {
-    height: 4, borderRadius: 99, background: 'rgba(255,255,255,.12)',
-    overflow: 'hidden', marginTop: 26,
+    height: 3, borderRadius: 99, background: 'rgba(255,255,255,.06)',
+    overflow: 'hidden', marginTop: 30,
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    transition: 'width .45s cubic-bezier(.2,0,0,1)',
-  },
-  nota: {
-    margin: '18px 0 0', fontSize: 11.5, lineHeight: 1.5, color: 'rgba(255,255,255,.4)',
+    transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 };
 

@@ -44,25 +44,14 @@ export default function GrowthPartnerPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      <CabeceraSeccion
-        escena="crecer"
-        etiqueta="GROWTH PARTNER"
-        titulo="Crece más rápido, si quieres"
-        texto="La app seguirá siendo gratis. Esto es tecnología que te alquilamos aparte — la tomas o no, sin perder nada."
-      />
-
-      {/* ---------------------------------------------- promesa */}
-      <section style={S.promesa}>
-        <span style={S.promesaIcono} aria-hidden="true">🤝</span>
-        <div>
-          <h2 style={S.promesaTitulo}>La app seguirá siendo gratis</h2>
-          <p style={S.promesaTexto}>
-            Sin comisión por pedido, sin tarjeta, sin plazo. Lo de abajo es
-            aparte: tecnología que te alquilamos si quieres crecer más
-            rápido. Si no la tomas, tu negocio sigue igual de completo.
-          </p>
-        </div>
-      </section>
+      <div style={S.premiumHeader}>
+        <div style={S.premiumBadge}>GROWTH PARTNER</div>
+        <h1 style={S.premiumTitle}>Crece más rápido, si quieres</h1>
+        <p style={S.premiumSubtitle}>
+          La app de pedidos <b>seguirá siendo gratis por siempre</b>. Sin comisiones por venta.
+          Lo de abajo es tecnología que te alquilamos aparte — la tomas o no, sin perder nada.
+        </p>
+      </div>
 
       {/* ---------------------------------------------- la cuenta */}
       <Comparativa />
@@ -227,24 +216,32 @@ export default function GrowthPartnerPage() {
 }
 
 const S = {
+  premiumHeader: {
+    padding: '40px 24px', borderRadius: 24,
+    background: 'linear-gradient(135deg, rgba(20,20,20,0.9), rgba(10,10,10,1))',
+    border: '1px solid rgba(255,255,255,0.05)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)',
+    textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center'
+  },
+  premiumBadge: {
+    display: 'inline-flex', alignItems: 'center', height: 26, padding: '0 12px',
+    borderRadius: 99, background: 'rgba(217, 154, 21, 0.1)', color: '#D99A15',
+    border: '1px solid rgba(217, 154, 21, 0.2)', fontSize: 11, fontWeight: 800,
+    textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 16,
+  },
+  premiumTitle: {
+    fontFamily: 'var(--font-bricolage)', fontSize: 32, fontWeight: 800, color: '#fff',
+    letterSpacing: '-.02em', lineHeight: 1.1, margin: '0 0 12px 0'
+  },
+  premiumSubtitle: {
+    fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, maxWidth: 500, margin: 0
+  },
   promesa: {
-    display: 'flex', gap: 14, alignItems: 'flex-start',
-    padding: 18, borderRadius: 20,
-    background: 'color-mix(in srgb, var(--green) 9%, var(--surface))',
-    border: '1px solid color-mix(in srgb, var(--green) 26%, transparent)',
+    display: 'none'
   },
-  promesaIcono: { fontSize: 28, lineHeight: 1, flex: 'none' },
-  promesaTitulo: {
-    margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 17, letterSpacing: '-.01em', color: 'var(--text)',
-  },
-  promesaTexto: {
-    margin: '6px 0 0', fontSize: 13, lineHeight: 1.6, color: 'var(--muted)',
-  },
-
   conmutador: {
     display: 'flex', gap: 4, padding: 4, borderRadius: 999,
-    background: 'var(--surface2)', border: '1px solid var(--border)',
+    background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)',
     alignSelf: 'center',
   },
   conmBtn: {
@@ -274,7 +271,9 @@ const S = {
   planTop: {
     background: 'linear-gradient(158deg, var(--ink) 0%, var(--ink2) 72%)',
     border: '1.5px solid rgba(255,181,122,.34)',
-    boxShadow: '0 18px 44px rgba(20,16,10,.24)',
+    padding: '3px',
+    background: 'linear-gradient(135deg, rgba(217, 154, 21, 0.4), rgba(242, 211, 153, 0.1))',
+    boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
   },
   sello: {
     position: 'absolute', top: -10, left: 22,

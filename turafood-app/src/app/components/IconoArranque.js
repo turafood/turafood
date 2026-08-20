@@ -30,19 +30,19 @@
  * el conjunto se ve de la misma familia.
  */
 
-/** [claro, oscuro] de cada baldosa */
+/** [luz neon, borde] de cada baldosa */
 const TONO = {
-  comidas_rapidas: ['#FFD08A', '#F59E0B'],
-  farmacia:        ['#8FD6FF', '#0E7490'],
-  licores:         ['#C9A7FF', '#7C3AED'],
-  turbo:           ['#FDE68A', '#D97706'],
-  turapp:          ['#86EFAC', '#15803D'],
+  comidas_rapidas: ['#F59E0B', 'rgba(245,158,11,0.3)'],
+  farmacia:        ['#0EA5E9', 'rgba(14,165,233,0.3)'],
+  licores:         ['#8B5CF6', 'rgba(139,92,246,0.3)'],
+  turbo:           ['#F59E0B', 'rgba(245,158,11,0.3)'],
+  turapp:          ['#10B981', 'rgba(16,185,129,0.3)'],
 
   // El resto de las preguntas
-  neutro:          ['#B9C4D6', '#5B6B85'],
-  bueno:           ['#8FE3B0', '#059669'],
-  ojo:             ['#FFD08A', '#D97706'],
-  frio:            ['#9DC9FF', '#2563EB'],
+  neutro:          ['#94A3B8', 'rgba(148,163,184,0.3)'],
+  bueno:           ['#10B981', 'rgba(16,185,129,0.3)'],
+  ojo:             ['#F59E0B', 'rgba(245,158,11,0.3)'],
+  frio:            ['#3B82F6', 'rgba(59,130,246,0.3)'],
 };
 
 /**
@@ -95,19 +95,19 @@ export default function IconoArranque({ id, ms, tono = 'neutro', size = 40 }) {
       <svg viewBox="0 0 44 44" width={size} height={size} aria-hidden="true" style={{ display: 'block' }}>
         <defs>
           <linearGradient id={`${uid}-t`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={claro} />
-            <stop offset="100%" stopColor={oscuro} />
-          </linearGradient>
-          {/* La luz de arriba: es lo que le da el volumen a la baldosa */}
-          <linearGradient id={`${uid}-l`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fff" stopOpacity=".34" />
-            <stop offset="55%" stopColor="#fff" stopOpacity="0" />
+            <stop offset="0%" stopColor={claro} stopOpacity="0.2" />
+            <stop offset="100%" stopColor={claro} stopOpacity="0.05" />
           </linearGradient>
         </defs>
 
-        <rect width="44" height="44" rx="13" fill={`url(#${uid}-t)`} />
-        <rect width="44" height="44" rx="13" fill={`url(#${uid}-l)`} />
-        {dibujo}
+        <rect width="44" height="44" rx="14" fill={`url(#${uid}-t)`} stroke={oscuro} strokeWidth="1.5" />
+        {/* Glow sutil central */}
+        <circle cx="22" cy="22" r="14" fill={claro} opacity="0.15" filter="blur(6px)" />
+        
+        {/* Hacemos que el dibujo tenga el color neon claro en vez de blanco opaco */}
+        <g fill={claro} stroke={claro}>
+          {dibujo}
+        </g>
       </svg>
 
       {/* Los que no son nichos usan la fuente de iconos, que ya está
@@ -117,8 +117,8 @@ export default function IconoArranque({ id, ms, tono = 'neutro', size = 40 }) {
         <span
           className="ms"
           style={{
-            position: 'absolute', fontSize: size * 0.5, color: '#fff',
-            textShadow: '0 1px 2px rgba(0,0,0,.18)',
+            position: 'absolute', fontSize: size * 0.55, color: claro,
+            textShadow: `0 0 10px ${claro}88`,
           }}
         >
           {ms}

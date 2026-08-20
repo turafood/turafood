@@ -23,6 +23,7 @@ import SearchOverlay from './SearchOverlay';
 import LiveOrders from './LiveOrders';
 import AiOverlay, { useAi } from './AiOverlay';
 import RehidratarCarrito from './RehidratarCarrito';
+import DesktopCart from './DesktopCart';
 
 /** Rutas a pantalla completa: sin barra inferior */
 const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate'];
@@ -64,20 +65,31 @@ export default function AppShell({ children }) {
           </div>
         </div>
 
-        {/* Solo esto cambia al navegar */}
-        <div key={pathname} className="route-fade" style={S.route}>
-          {children}
+        {/* El layout principal de pantalla */}
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+          {/* Contenido principal (móvil ocupa 100%, desktop la izquierda) */}
+          <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            {/* Solo esto cambia al navegar */}
+            <div key={pathname} className="route-fade" style={S.route}>
+              {children}
+            </div>
+            
+            {/* Botón flotante de Tura IA: disponible en toda la app,
+                no solo en el inicio. Se esconde donde ya hay barra de acción. */}
+            {showNav && <AiFab />}
+
+            <LiveOrders />
+            <SearchOverlay />
+            <AiOverlay />
+            <FloatingCart />
+            {showNav && <BottomNav />}
+          </div>
+
+          {/* Sidebar Derecho: Carrito en Desktop (solo visible en pantallas grandes) */}
+          <div className="desktop-only" style={{ height: '100%' }}>
+            <DesktopCart />
+          </div>
         </div>
-
-        {/* Botón flotante de Tura IA: disponible en toda la app,
-            no solo en el inicio. Se esconde donde ya hay barra de acción. */}
-        {showNav && <AiFab />}
-
-        <LiveOrders />
-        <SearchOverlay />
-        <AiOverlay />
-        <FloatingCart />
-        {showNav && <BottomNav />}
 
         <div className="device-homebar" aria-hidden="true">
           <span style={{ background: isDark ? 'rgba(255,255,255,.85)' : 'rgba(23,20,15,.28)' }} />

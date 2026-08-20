@@ -15,6 +15,7 @@ import {
   getSalesWindow, getCatalog, summarizeByDay, setOrderStatus, columnOf,
 } from '@/lib/negocio';
 import { useBiz } from './BizContext';
+import ProgresoCuenta from '../components/ProgresoCuenta';
 
 const RANGES = [
   { label: 'Hoy', days: 1 },
@@ -133,6 +134,49 @@ export default function ResumenPage() {
 
   const needsOnboarding = business && !business.submitted_at && business.status !== 'active';
 
+  const pasosNegocio = useMemo(() => [
+    {
+      id: 'nombre', icono: 'storefront',
+      titulo: 'Ponle el nombre a tu negocio',
+      detalle: 'Es el que van a ver tus clientes en la app',
+      href: '/negocio/equipo',
+      cta: 'Ponerlo',
+      hecho: Boolean(business?.name) && business.name !== 'Mi negocio',
+    },
+    {
+      id: 'direccion', icono: 'location_on',
+      titulo: 'Dinos dónde quedas',
+      detalle: 'Sin dirección no podemos calcular el domicilio',
+      href: '/negocio/sucursales',
+      cta: 'Agregar',
+      hecho: Boolean(business?.address),
+    },
+    {
+      id: 'menu', icono: 'restaurant_menu',
+      titulo: 'Deja tu menú a tu gusto',
+      detalle: 'Te cargamos uno de ejemplo: cámbialo por el tuyo',
+      href: '/negocio/catalogo',
+      cta: 'Editarlo',
+      hecho: Boolean(business?.menu_listo),
+    },
+    {
+      id: 'horarios', icono: 'schedule',
+      titulo: 'Marca tus horarios',
+      detalle: 'Para que nadie pida cuando estás cerrado',
+      href: '/negocio/horarios',
+      cta: 'Marcarlos',
+      hecho: Boolean(business?.horarios_listos),
+    },
+    {
+      id: 'documentos', icono: 'verified_user',
+      titulo: 'Sube tus documentos',
+      detalle: 'RUT, cédula y demás papeles',
+      href: '/negocio/verificacion',
+      cta: 'Subirlos',
+      hecho: Boolean(business?.documentos_listos),
+    },
+  ], [business]);
+
   return (
     <>
       <style>{`
@@ -155,22 +199,12 @@ export default function ResumenPage() {
       `}</style>
 
       {/* Lo primero que ve un negocio nuevo: qué le falta para que lo aprueben */}
-      {needsOnboarding && (
-        <button onClick={() => router.push('/negocio/verificacion')} style={S.onboarding}>
-          <span style={S.onboardingIcon}>
-            <span className="ms" style={{ fontSize: 22, color: '#fff' }}>verified_user</span>
-          </span>
-          <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-            <span style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5 }}>
-              Completa tu registro para que te aprobemos
-            </span>
-            <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 3 }}>
-              Ya puedes vender, pero con un límite de 20 pedidos diarios. Sube tus
-              documentos y la cuenta bancaria para levantarlo.
-            </span>
-          </span>
-          <span className="ms" style={{ fontSize: 22, color: 'var(--primary)', flex: 'none' }}>chevron_right</span>
-        </button>
+      {business && business.status !== 'active' && (
+        <ProgresoCuenta
+          titulo="Termina de activar tu negocio"
+          verificado={business.status === 'active' && !needsOnboarding}
+          pasos={pasosNegocio}
+        />
       )}
 
       {/* Hero + KPIs */}
@@ -390,7 +424,7 @@ export default function ResumenPage() {
       {/* Embudo de Ventas Simulado */}
       <section style={{ ...S.card, marginTop: 16 }}>
         <div style={S.cardTitle}>Embudo de Ventas Global (Últimos 7 días)</div>
-        <div style={{ marginTop: 16, background: 'linear-gradient(145deg, #18181B 0%, #09090B 100%)', borderRadius: 20, padding: 22, border: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ marginTop: 20, background: 'rgba(0,0,0,0.3)', borderRadius: 24, padding: 28, border: '1px solid rgba(255,255,255,0.06)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)' }}>
            {(() => {
               const vistas = 2450;
               const agregados = Math.round(vistas * 0.35);
@@ -400,27 +434,27 @@ export default function ResumenPage() {
               const tCompras = (compras / vistas) * 100;
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Visitas a la app</div>
-                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{ width: `${tVistas}%`, height: '100%', background: '#A5B4FC', borderRadius: 99, boxShadow: '0 0 10px #A5B4FC' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 130, fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Visitas a la app</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 10, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tVistas}%`, height: '100%', background: '#A5B4FC', borderRadius: 99, boxShadow: '0 0 12px #A5B4FC' }} />
                     </div>
-                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{vistas}</div>
+                    <div style={{ width: 50, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>{vistas}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Al Carrito</div>
-                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{ width: `${tAgregados}%`, height: '100%', background: '#93C5FD', borderRadius: 99, boxShadow: '0 0 10px #93C5FD' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 130, fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Al Carrito</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 10, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tAgregados}%`, height: '100%', background: '#93C5FD', borderRadius: 99, boxShadow: '0 0 12px #93C5FD' }} />
                     </div>
-                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{agregados}</div>
+                    <div style={{ width: 50, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>{agregados}</div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 120, fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>Compras</div>
-                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 8, borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{ width: `${tCompras}%`, height: '100%', background: '#86EFAC', borderRadius: 99, boxShadow: '0 0 10px #86EFAC' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ width: 130, fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Compras</div>
+                    <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', height: 10, borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${tCompras}%`, height: '100%', background: '#86EFAC', borderRadius: 99, boxShadow: '0 0 12px #86EFAC' }} />
                     </div>
-                    <div style={{ width: 40, textAlign: 'right', fontSize: 13, fontWeight: 800 }}>{compras}</div>
+                    <div style={{ width: 50, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>{compras}</div>
                   </div>
                 </div>
               );
@@ -553,103 +587,97 @@ function Empty({ icon, text }) {
 }
 
 const S = {
-  onboarding: {
-    display: 'flex', alignItems: 'center', gap: 14, width: '100%', marginBottom: 16,
-    padding: 16, borderRadius: 18, background: 'var(--surface)',
-    border: '1.5px solid var(--primary)', boxShadow: '0 10px 30px rgba(255,68,31,.13)',
-  },
-  onboardingIcon: {
-    width: 44, height: 44, borderRadius: 14, flex: 'none', background: 'var(--primary)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    background: 'rgba(18, 18, 18, 0.65)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    border: '1px solid rgba(255,255,255,0.06)', color: '#fff',
+    borderRadius: 28, padding: 26, boxShadow: '0 20px 50px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   channels: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(210px,1fr))',
-    gap: 12, marginTop: 16,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))',
+    gap: 16, marginTop: 20,
   },
   channel: {
-    display: 'flex', gap: 12, alignItems: 'flex-start', padding: 14,
-    borderRadius: 15, background: 'var(--bg)', border: '1px solid var(--border)',
-    minWidth: 0,
+    display: 'flex', gap: 14, alignItems: 'flex-start', padding: 18,
+    borderRadius: 20, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)',
+    minWidth: 0, transition: 'all 0.3s',
   },
   channelIcon: {
-    width: 38, height: 38, borderRadius: 12, flex: 'none',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
   },
   channelState: {
-    fontSize: 9.5, fontWeight: 800, padding: '3px 6px',
-    borderRadius: 5, letterSpacing: '.04em',
+    fontSize: 10, fontWeight: 800, padding: '4px 8px',
+    borderRadius: 8, letterSpacing: '.04em',
   },
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: '#fff' },
   hero: {
-    borderRadius: 28, padding: 20, color: '#fff', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(135deg, var(--ink) 0%, #20130d 50%, var(--ink) 100%)',
-    boxShadow: '0 16px 40px rgba(20,16,10,.2)',
+    borderRadius: 28, padding: 24, color: '#fff', position: 'relative', overflow: 'hidden',
+    background: 'linear-gradient(135deg, rgba(20,20,20,0.8) 0%, rgba(10,10,10,0.9) 100%)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(30px)',
   },
   heroGlow: {
-    position: 'absolute', right: -50, top: -60, width: 210, height: 210, borderRadius: '50%',
-    background: 'radial-gradient(circle,rgba(255,68,31,.34),rgba(255,68,31,0) 70%)',
+    position: 'absolute', right: -50, top: -60, width: 250, height: 250, borderRadius: '50%',
+    background: 'radial-gradient(circle,rgba(255,68,31,.25),rgba(255,68,31,0) 70%)',
   },
   heroDelta: {
-    display: 'flex', alignItems: 'center', gap: 5, height: 24, padding: '0 10px',
-    borderRadius: 999, background: 'rgba(255,255,255,.1)', fontSize: 10.5, fontWeight: 800,
-    flex: 'none',
+    display: 'flex', alignItems: 'center', gap: 6, height: 26, padding: '0 12px',
+    borderRadius: 999, background: 'rgba(255,255,255,.08)', fontSize: 11, fontWeight: 800,
+    flex: 'none', border: '1px solid rgba(255,255,255,0.1)',
   },
   heroValue: {
     position: 'relative', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 34, letterSpacing: '-.03em', marginTop: 8,
+    fontSize: 42, letterSpacing: '-.03em', marginTop: 12, textShadow: '0 4px 20px rgba(0,0,0,0.5)',
   },
   heroStats: {
-    position: 'relative', display: 'flex', gap: 18, marginTop: 16, paddingTop: 14,
-    borderTop: '1px solid rgba(255,255,255,.1)',
+    position: 'relative', display: 'flex', gap: 24, marginTop: 20, paddingTop: 18,
+    borderTop: '1px solid rgba(255,255,255,.08)',
   },
   heroStatLabel: {
-    display: 'block', fontSize: 10, fontWeight: 800,
-    color: 'rgba(255,255,255,.42)', letterSpacing: '.06em',
+    display: 'block', fontSize: 10.5, fontWeight: 800,
+    color: 'rgba(255,255,255,.5)', letterSpacing: '.06em',
   },
-  heroStatValue: { display: 'block', fontSize: 15, fontWeight: 800, marginTop: 3 },
+  heroStatValue: { display: 'block', fontSize: 17, fontWeight: 800, marginTop: 4, textShadow: '0 2px 10px rgba(0,0,0,0.3)' },
   kpiIcon: {
-    width: 30, height: 30, borderRadius: 9,
+    width: 36, height: 36, borderRadius: 12,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
   },
-  rangeChip: { height: 32, padding: '0 12px', borderRadius: 9, fontSize: 12, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: '#fff' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  rangeChip: { height: 36, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, transition: 'all 0.3s' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 20px rgba(255,255,255,0.2)' },
+  chipOff: { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.08)' },
   barCol: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-    gap: 9, height: '100%', justifyContent: 'flex-end',
+    gap: 10, height: '100%', justifyContent: 'flex-end',
   },
   hint: {
-    display: 'flex', alignItems: 'center', gap: 11, marginTop: 16, paddingTop: 14,
-    borderTop: '1px solid var(--border)',
+    display: 'flex', alignItems: 'center', gap: 14, marginTop: 24, paddingTop: 18,
+    borderTop: '1px solid rgba(255,255,255,0.06)',
   },
   thumb: {
-    width: 40, height: 40, borderRadius: 11, flex: 'none',
+    width: 48, height: 48, borderRadius: 14, flex: 'none',
     backgroundSize: 'cover', backgroundPosition: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
   },
   attentionRow: {
-    display: 'flex', alignItems: 'center', gap: 12,
-    background: 'var(--bg)', borderRadius: 14, padding: 13, flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 14,
+    background: 'rgba(0,0,0,0.3)', borderRadius: 18, padding: 16, flexWrap: 'wrap',
+    border: '1px solid rgba(255,255,255,0.05)',
   },
   attentionNum: {
-    width: 36, height: 36, borderRadius: 10, background: 'var(--surface)',
-    border: '1px solid var(--border)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', flex: 'none', fontSize: 11.5, fontWeight: 800,
+    width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', flex: 'none', fontSize: 13, fontWeight: 800,
   },
   attentionBtn: {
-    height: 32, padding: '0 12px', borderRadius: 9, background: 'var(--primary)',
-    color: '#fff', fontSize: 12, fontWeight: 800, flex: 'none',
+    height: 38, padding: '0 16px', borderRadius: 12, background: 'var(--primary)',
+    color: '#fff', fontSize: 13, fontWeight: 800, flex: 'none', boxShadow: '0 4px 16px rgba(255,68,31,0.3)',
   },
-  pill: { fontSize: 11, fontWeight: 800, padding: '5px 9px', borderRadius: 8, flex: 'none' },
-  track: {
-    height: 7, borderRadius: 99, background: 'var(--surface2)',
-    marginTop: 8, overflow: 'hidden',
-  },
+  pill: { fontSize: 11.5, fontWeight: 800, padding: '6px 12px', borderRadius: 10, flex: 'none' },
   emptyIcon: {
-    width: 46, height: 46, borderRadius: 14, background: 'var(--bg)',
+    width: 54, height: 54, borderRadius: 18, background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.06)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
 };

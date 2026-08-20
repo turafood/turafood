@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { cop } from '@/lib/format';
 import { getCoupons, createCoupon, setCouponActive } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import HeaderHero from '../../components/HeaderHero';
 
 const TYPES = [
   { value: 'percent', label: 'Descuento %', icon: 'percent' },
@@ -135,6 +136,16 @@ export default function PromocionesPage() {
           <span>{error}</span>
         </div>
       )}
+
+      <HeaderHero
+        title="Atrae más clientes"
+        subtitle="Usa promociones inteligentes para aumentar tus ventas. Los descuentos por tiempo limitado o envíos gratis son excelentes para convertir visitantes en compradores."
+        images={[
+          'https://images.unsplash.com/photo-1559136555-9303ba7d41a9?q=80&w=1200&auto=format&fit=crop', // Shopping bags / retail
+          'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1200&auto=format&fit=crop', // Sale tags
+          'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?q=80&w=1200&auto=format&fit=crop' // Money / success
+        ]}
+      />
 
       {/* Lo que hay que saber antes de mirar las tarjetas */}
       <div style={S.kpis}>
@@ -380,46 +391,48 @@ function Kpi({ label, value, icon, tint, fg, note }) {
 }
 
 const S = {
-  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 14 },
+  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 16 },
   kpi: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 22, padding: 18, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 22, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(20px)', color: '#fff',
   },
   kpiIcon: {
-    width: 32, height: 32, borderRadius: 10, flex: 'none',
+    width: 36, height: 36, borderRadius: 12, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   kpiValue: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26,
-    letterSpacing: '-.03em', marginTop: 12,
-    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32,
+    letterSpacing: '-.03em', marginTop: 14,
+    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#fff'
   },
   card: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 22, padding: 22, boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(20px)', color: '#fff'
   },
   icon: {
-    width: 44, height: 44, borderRadius: 14, flex: 'none',
+    width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  pill: { fontSize: 11, fontWeight: 800, padding: '6px 10px', borderRadius: 10, flex: 'none' },
-  metaLabel: { fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 },
-  metaValue: { fontSize: 16, fontWeight: 800, marginTop: 4 },
+  pill: { fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 10, flex: 'none', letterSpacing: '.05em' },
+  metaLabel: { fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 800, letterSpacing: '.05em' },
+  metaValue: { fontSize: 17, fontWeight: 800, marginTop: 6, color: '#fff' },
   action: {
-    flex: 1, height: 42, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
-    background: 'var(--bg)', fontSize: 13, fontWeight: 700,
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)',
+    flex: 1, height: 44, borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)', fontSize: 13.5, fontWeight: 700, color: '#fff',
+    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.05)', transition: 'background 0.2s',
   },
   newCard: {
-    minHeight: 250, border: '1.5px dashed rgba(0,0,0,0.12)', borderRadius: 22,
+    minHeight: 260, border: '2px dashed rgba(255,68,31,0.3)', borderRadius: 24,
     display: 'flex', flexDirection: 'column', alignItems: 'center',
-    background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,68,31,0.03) 100%)',
-    justifyContent: 'center', gap: 14, padding: 24, transition: 'background 0.2s ease'
+    background: 'linear-gradient(180deg, rgba(255,68,31,0.02) 0%, rgba(255,68,31,0.06) 100%)',
+    justifyContent: 'center', gap: 16, padding: 24, transition: 'all 0.2s ease', cursor: 'pointer',
   },
   newIcon: {
-    width: 54, height: 54, borderRadius: 16, background: '#FFF1EC',
+    width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, var(--primary) 0%, #FF6B4A 100%)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(255,68,31,0.15)'
+    boxShadow: '0 8px 25px rgba(255,68,31,0.35)'
   },
   scrim: {
     position: 'fixed', inset: 0, background: 'rgba(20,16,10,.42)',

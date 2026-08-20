@@ -57,8 +57,7 @@ function AuthPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -131,43 +130,7 @@ function AuthPage() {
     }
   };
 
-  const withEmail = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setNotice(null);
-    if (!guard()) return;
 
-    setBusy(true);
-    try {
-      const supabase = createClient();
-
-      if (isSignup) {
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { full_name: fullName.trim(), role: 'customer' } },
-        });
-        if (signUpError) throw new Error(signUpError.message);
-
-        if (!data.session) {
-          setNotice('Te enviamos un correo para confirmar la cuenta. Ábrelo y vuelve a entrar.');
-          return;
-        }
-      } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (signInError) throw new Error('Correo o contraseña incorrectos.');
-      }
-
-      enter();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <div style={S.page}>
@@ -208,12 +171,7 @@ function AuthPage() {
 
                 {error && <Alert text={error} />}
 
-                <button
-                  onClick={() => { setMode('email'); setIsSignup(false); setError(null); }}
-                  style={S.emailLink}
-                >
-                  Entrar con correo y contraseña
-                </button>
+
 
                 <div style={S.sep}>
                   <span style={S.sepLine} />
@@ -289,64 +247,6 @@ function AuthPage() {
               </form>
             )}
 
-            {mode === 'email' && (
-              <form onSubmit={withEmail} className="anim-up">
-                <BackButton onClick={() => { setMode('choose'); setError(null); setNotice(null); }} />
-                <h1 style={S.title}>{isSignup ? 'Crea tu cuenta' : 'Con tu correo'}</h1>
-                <p style={S.subtitle}>
-                  {isSignup
-                    ? 'Para guardar tus direcciones y tu historial.'
-                    : 'Para cuentas creadas antes, o si no usas las otras opciones.'}
-                </p>
-
-                {isSignup && (
-                  <input
-                    required autoFocus
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Tu nombre"
-                    style={{ ...S.field, marginTop: 20 }}
-                  />
-                )}
-
-                <input
-                  type="email" required autoFocus={!isSignup}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tucorreo@ejemplo.com"
-                  autoComplete="username"
-                  style={{ ...S.field, marginTop: isSignup ? 10 : 20 }}
-                />
-                <input
-                  type="password" required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={isSignup ? 'Mínimo 8 caracteres' : 'Tu contraseña'}
-                  autoComplete={isSignup ? 'new-password' : 'current-password'}
-                  style={{ ...S.field, marginTop: 10 }}
-                />
-
-                {error && <Alert text={error} />}
-                {notice && (
-                  <div style={S.notice}>
-                    <span className="ms" style={{ fontSize: 18, flex: 'none' }}>mark_email_unread</span>
-                    <span>{notice}</span>
-                  </div>
-                )}
-
-                <button type="submit" disabled={busy} style={S.primary}>
-                  {busy ? 'Un momento…' : isSignup ? 'Crear mi cuenta' : 'Entrar'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => { setIsSignup(!isSignup); setError(null); setNotice(null); }}
-                  style={S.emailLink}
-                >
-                  {isSignup ? '¿Ya tienes cuenta? Entra' : '¿Eres nuevo? Crea tu cuenta'}
-                </button>
-              </form>
-            )}
           </div>
 
           <p style={S.legal}>

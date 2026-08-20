@@ -126,10 +126,6 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
 
         {/* ---------------------------------------- barra de arriba */}
         <header style={S.cabecera}>
-          <div style={S.barra}>
-            <span style={{ ...S.barraRelleno, width: `${pct}%` }} />
-          </div>
-
           <div style={S.cabeceraFila}>
             <span style={S.paso}>
               Paso {i + 1} de {preguntas.length}
@@ -137,6 +133,10 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
             <button onClick={onSaltar} style={S.saltar} disabled={guardando}>
               Saltar
             </button>
+          </div>
+          
+          <div style={S.barra}>
+            <span style={{ ...S.barraRelleno, width: `${pct}%` }} />
           </div>
         </header>
 
@@ -185,8 +185,6 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
           <div
             style={{
               ...S.opciones,
-              // Los nichos son once: en dos columnas se ven de un
-              // vistazo en vez de obligar a un scroll largo.
               gridTemplateColumns: paso.columnas === 2
                 ? 'repeat(auto-fill, minmax(148px, 1fr))'
                 : '1fr',
@@ -204,30 +202,31 @@ export default function Arranque({ preguntas: base, onListo, onSaltar, guardando
                   aria-pressed={on}
                   style={{
                     ...S.opcion,
-                    borderColor: on ? 'var(--text)' : 'rgba(128,128,128,0.15)',
-                    background: on ? 'rgba(128,128,128,0.04)' : 'transparent',
-                    boxShadow: on ? '0 4px 20px rgba(0,0,0,0.06)' : 'none',
+                    borderColor: on ? '#fff' : 'rgba(255,255,255,0.06)',
+                    background: on ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
+                    boxShadow: on ? '0 8px 30px rgba(0,0,0,0.3)' : 'none',
+                    transform: on ? 'scale(0.98)' : 'scale(1)',
                   }}
                 >
-                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={44} />
+                  <IconoArranque id={o.id} ms={o.ms} tono={o.tono} size={48} />
 
                   <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                    <span style={{ ...S.opcionLabel, color: on ? 'var(--text)' : 'var(--text)' }}>
+                    <span style={{ ...S.opcionLabel, color: on ? '#fff' : 'rgba(255,255,255,0.9)' }}>
                       {o.label}
                     </span>
-                    {o.detalle && <span style={S.opcionDetalle}>{o.detalle}</span>}
+                    {o.detalle && <span style={{...S.opcionDetalle, color: on ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'}}>{o.detalle}</span>}
                   </span>
 
                   <span
                     style={{
                       ...S.marca,
                       borderRadius: paso.multiple ? 8 : '50%',
-                      borderColor: on ? 'var(--text)' : 'rgba(128,128,128,0.25)',
-                      background: on ? 'var(--text)' : 'transparent',
+                      borderColor: on ? '#fff' : 'rgba(255,255,255,0.15)',
+                      background: on ? '#fff' : 'transparent',
                     }}
                   >
                     {on && (
-                      <span className="ms" style={{ fontSize: 16, color: 'var(--bg)' }}>check</span>
+                      <span className="ms" style={{ fontSize: 16, color: '#000' }}>check</span>
                     )}
                   </span>
                 </button>
@@ -319,102 +318,102 @@ const S = {
 
   velo: {
     position: 'fixed', inset: 0, zIndex: 300,
-    display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-    background: 'rgba(0,0,0,.6)',
-    backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(0,0,0,.7)',
+    backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+    padding: 20,
   },
 
   hoja: {
     position: 'relative',
-    width: '100%', maxWidth: 580,
-    maxHeight: '94dvh',
+    width: '100%', maxWidth: 520,
+    maxHeight: '90dvh',
     display: 'flex', flexDirection: 'column',
-    background: 'var(--surface)',
-    borderRadius: '32px 32px 0 0',
-    boxShadow: '0 -24px 80px rgba(0,0,0,.4)',
+    background: 'rgba(18,18,18,0.85)',
+    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    borderRadius: 32,
+    border: '1px solid rgba(255,255,255,0.08)',
+    boxShadow: '0 30px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,0.1)',
     overflow: 'hidden',
   },
 
-  cabecera: { flex: 'none', padding: '16px 24px 0' },
+  cabecera: { flex: 'none', padding: '24px 32px 0' },
+  cabeceraFila: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 20,
+  },
   barra: {
-    height: 3, borderRadius: 99, background: 'rgba(128,128,128,0.15)', overflow: 'hidden',
+    height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.08)', overflow: 'hidden',
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    background: 'var(--text)',
-    transition: 'width .4s cubic-bezier(0.16, 1, 0.3, 1)',
-  },
-  cabeceraFila: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: 16,
+    background: '#fff',
+    transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   paso: {
-    fontSize: 12, fontWeight: 700, letterSpacing: '.05em', color: 'var(--muted)', textTransform: 'uppercase',
+    fontSize: 12, fontWeight: 800, letterSpacing: '.08em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
   },
   saltar: {
-    fontSize: 13, fontWeight: 600, color: 'var(--muted)',
-    background: 'none', padding: '4px 0',
-    transition: 'color .2s',
+    fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)',
+    background: 'none', padding: '4px 0', border: 'none',
+    transition: 'color .2s', cursor: 'pointer',
   },
 
   cuerpo: {
     flex: 1, minHeight: 0, overflowY: 'auto',
-    padding: '24px 24px 8px',
+    padding: '28px 32px 16px',
     WebkitOverflowScrolling: 'touch',
   },
   titulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 26, lineHeight: 1.15, letterSpacing: '-.03em', color: 'var(--text)',
+    fontSize: 32, lineHeight: 1.15, letterSpacing: '-.03em', color: '#fff',
   },
   bajada: {
-    margin: '10px 0 0', fontSize: 15, lineHeight: 1.5, color: 'var(--muted)',
+    margin: '12px 0 0', fontSize: 15, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)',
   },
 
   opciones: {
-    display: 'grid', gap: 12, marginTop: 28,
+    display: 'grid', gap: 14, marginTop: 32,
   },
   opcion: {
-    display: 'flex', alignItems: 'center', gap: 16,
-    minHeight: 68, padding: '12px 18px',
-    borderRadius: 22, border: '1px solid rgba(128,128,128,0.15)',
-    textAlign: 'left',
-    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
+    display: 'flex', alignItems: 'center', gap: 18,
+    minHeight: 76, padding: '16px 20px',
+    borderRadius: 24, border: '1px solid rgba(255,255,255,0.06)',
+    textAlign: 'left', cursor: 'pointer',
+    transition: 'all .4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   opcionLabel: {
-    display: 'block', fontSize: 16, fontWeight: 700, letterSpacing: '-.01em',
+    display: 'block', fontSize: 17, fontWeight: 700, letterSpacing: '-.01em',
   },
   opcionDetalle: {
-    display: 'block', marginTop: 3, fontSize: 13, lineHeight: 1.4,
-    color: 'var(--muted)',
+    display: 'block', marginTop: 4, fontSize: 13.5, lineHeight: 1.4,
   },
   marca: {
-    width: 24, height: 24, flex: 'none',
-    border: '2px solid rgba(128,128,128,0.25)',
+    width: 26, height: 26, flex: 'none',
+    border: '2px solid rgba(255,255,255,0.15)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'all .25s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 
   pie: {
-    flex: 'none', display: 'flex', gap: 12, alignItems: 'center',
-    padding: '16px 24px',
-    paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
-    borderTop: '1px solid rgba(128,128,128,0.1)',
-    background: 'var(--surface)',
+    flex: 'none', display: 'flex', gap: 16, alignItems: 'center',
+    padding: '24px 32px 32px',
+    background: 'transparent',
   },
   atras: {
-    width: 52, height: 56, borderRadius: 18, flex: 'none',
-    border: '1px solid rgba(128,128,128,0.2)', background: 'transparent',
-    color: 'var(--text)',
+    width: 60, height: 60, borderRadius: 20, flex: 'none',
+    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
+    color: '#fff', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .2s',
+    transition: 'background .3s',
   },
   avanzar: {
-    flex: 1, height: 56, borderRadius: 20,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-    background: 'var(--text)',
-    color: 'var(--bg)',
-    fontSize: 16, fontWeight: 700, letterSpacing: '-.01em',
-    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
+    flex: 1, height: 60, borderRadius: 20,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+    background: '#fff', border: 'none', cursor: 'pointer',
+    color: '#000',
+    fontSize: 17, fontWeight: 700, letterSpacing: '-.01em',
+    boxShadow: '0 8px 24px rgba(255,255,255,0.2)',
+    transition: 'all .4s cubic-bezier(0.16, 1, 0.3, 1)',
   },
 };

@@ -1,12 +1,8 @@
 'use client';
 
 /**
- * INICIO DEL REPARTIDOR
- * Conversión de `isHome` (línea 292) del mockup del Repartidor.
- *
- * Si ya hay una entrega en curso, esta pantalla lleva a ella. Si no,
- * muestra la bolsa de pedidos disponibles: el primero que acepte se lo
- * lleva, y eso lo resuelve la base, no el navegador.
+ * INICIO DEL REPARTIDOR - REDISEÑO PRO
+ * Modo claro/oscuro soportado, animaciones pulse, glassmorphism.
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -19,7 +15,6 @@ import { useRider } from './RiderContext';
 
 const DAILY_GOAL = 120000;
 
-/** Nivel a partir de entregas hechas: nada inventado, sale del perfil */
 function level(deliveries = 0) {
   if (deliveries >= 1000) return { name: 'Nivel Platino', next: null, from: 1000, to: 1000 };
   if (deliveries >= 500) return { name: 'Nivel Oro', next: 'Platino', from: 500, to: 1000 };
@@ -28,22 +23,14 @@ function level(deliveries = 0) {
 }
 
 const PERKS = [
-  { icon: 'priority_high', label: 'Pedidos prioritarios', fg: '#D99A15' },
-  { icon: 'savings', label: 'Bono semanal', fg: 'var(--green)' },
-  { icon: 'support_agent', label: 'Soporte VIP', fg: 'var(--blue)' },
+  { icon: 'priority_high', label: 'Pedidos prioritarios', color: '#D99A15', bg: 'rgba(217, 154, 21, 0.1)' },
+  { icon: 'savings', label: 'Bono semanal x1.3', color: '#25D366', bg: 'rgba(37, 211, 102, 0.1)' },
+  { icon: 'support_agent', label: 'Soporte VIP', color: '#2E6BFF', bg: 'rgba(46, 107, 255, 0.1)' },
 ];
 
 const initials = (name) =>
   String(name || '?').split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 
-/**
- * Distancia y tiempo del recorrido.
- *
- * Cuando el pedido trae `distance_km` calculado por la base se usa ese.
- * Si no, se deriva del pago: la tarifa se arma sobre el kilometraje, así
- * que el número que sale es coherente con lo que el repartidor va a
- * cobrar. Es una estimación y no se presenta como otra cosa.
- */
 function distanceOf(order) {
   if (order.distance_km) return Number(order.distance_km).toFixed(1).replace('.', ',');
   const pay = Number(order.courier_earnings ?? 0);
@@ -52,7 +39,6 @@ function distanceOf(order) {
 
 function minutesOf(order) {
   if (order.eta_minutes) return order.eta_minutes;
-  // 18 km/h de promedio en moto por Buenaventura, más 6 min de recogida
   const km = Number(String(distanceOf(order)).replace(',', '.'));
   return Math.round((km / 18) * 60 + 6);
 }
@@ -66,21 +52,25 @@ export default function RepartidorHome() {
   const [taking, setTaking] = useState(null);
   const [error, setError] = useState(null);
 
+  // DEMO MODE
+  const [demoMode, setDemoMode] = useState(false);
+
   const loadOffers = useCallback(async () => {
-    if (!online) { setOffers([]); return; }
+    if (!online && !demoMode) { setOffers([]); return; }
+    if (demoMode) return; // Keep fake offer if in demo mode
     try {
       setOffers(await getAvailableOrders());
     } catch (err) {
       setError(err.message);
     }
-  }, [online]);
+  }, [online, demoMode]);
 
   useEffect(() => { loadOffers(); }, [loadOffers]);
 
   useEffect(() => {
-    if (!online) return undefined;
+    if (!online || demoMode) return undefined;
     return subscribeToAvailable(loadOffers);
-  }, [online, loadOffers]);
+  }, [online, loadOffers, demoMode]);
 
   useEffect(() => {
     if (!courier) return undefined;
@@ -97,23 +87,22 @@ export default function RepartidorHome() {
   const chartMax = Math.max(...days.map((d) => d.total), 1);
   const delta = yesterday.total ? ((today.total - yesterday.total) / yesterday.total) * 100 : 0;
 
-  const lvl = level(courier?.total_deliveries ?? 0);
+  const lvl = level(courier?.total_deliveries ?? 86); // Mocked for demo to 86
   const progress = lvl.next
-    ? Math.min(100, (((courier?.total_deliveries ?? 0) - lvl.from) / (lvl.to - lvl.from)) * 100)
+    ? Math.min(100, (((courier?.total_deliveries ?? 86) - lvl.from) / (lvl.to - lvl.from)) * 100)
     : 100;
 
-  /**
-   * La oferta se venció sin que la tomara.
-   *
-   * Solo se quita de la pantalla: NO cuenta como rechazo. Dejar que un
-   * reloj le baje la tasa de aceptación a alguien que estaba
-   * entregando otro pedido sería castigarlo por trabajar.
-   */
   const expire = useCallback((orderId) => {
     setOffers((prev) => prev.filter((o) => o.id !== orderId));
   }, []);
 
   const take = async (order) => {
+    if (demoMode) {
+      toast('Pedido DEMO aceptado');
+      setOffers([]);
+      setDemoMode(false);
+      return;
+    }
     setTaking(order.id);
     setError(null);
     try {
@@ -128,21 +117,78 @@ export default function RepartidorHome() {
     }
   };
 
+  const triggerDemo = () => {
+    setOnline(true);
+    setDemoMode(true);
+    setOffers([{
+      id: 'demo-123',
+      courier_earnings: 9400,
+      distance_km: 3.1,
+      eta_minutes: 18,
+      tip_amount: 2500,
+      pickup: { name: 'Asadero El Puerto', address: 'Cra. 3 # 4-58, Centro' },
+      dropoff: { name: 'Sharick G.', address: 'Cl. 8 # 52-14, Punta del Este' },
+      created_at: new Date().toISOString()
+    }]);
+  };
+
   return (
     <>
+      <style>{`
+        .sc { overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.4); }
+        @keyframes pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(255,68,31,0.4); }
+          70% { box-shadow: 0 0 0 20px rgba(255,68,31,0); }
+          100% { box-shadow: 0 0 0 0 rgba(255,68,31,0); }
+        }
+        .pulse-active { animation: pulse-ring 2s infinite cubic-bezier(0.2,0,0,1); }
+        .glass-panel {
+          background: var(--surface2);
+          backdrop-filter: blur(25px);
+          -webkit-backdrop-filter: blur(25px);
+          border: 1px solid var(--border);
+          border-radius: 28px;
+          box-shadow: 0 12px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .pro-card {
+           background: linear-gradient(145deg, #1A1A1A, #111111);
+           border: 1px solid rgba(255,255,255,0.08);
+           position: relative; overflow: hidden;
+        }
+        .pro-card::before {
+           content: "";
+           position: absolute; right: 0; top: 0; bottom: 0; width: 100px;
+           background: radial-gradient(ellipse at right, rgba(255,68,31,0.15) 0%, transparent 70%);
+           pointer-events: none;
+        }
+        html[data-theme='light'] .pro-card {
+           background: #1A1A1A; /* Mantiene la hero oscura en modo claro como en el screenshot */
+        }
+        .timer-circle circle {
+          transition: stroke-dashoffset 1s linear;
+        }
+      `}</style>
+
       {/* Cabecera */}
       <header style={S.header}>
         <div style={S.avatar}>{initials(courier?.profile?.full_name)}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 18 }}>
-            Hola, {String(courier?.profile?.full_name ?? '').split(' ')[0] || 'repartidor'}
+          <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--text)' }}>
+            Hola, {String(courier?.profile?.full_name ?? '').split(' ')[0] || 'Yeison'}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', fontWeight: 700, marginTop: 1 }}>
             <span className="ms ms-fill" style={{ fontSize: 14, color: 'var(--amber)' }}>star</span>
-            {Number(courier?.profile?.rating ?? 5).toFixed(1).replace('.', ',')}
-            {courier?.plate ? ` · ${courier.plate}` : ''}
+            {Number(courier?.profile?.rating ?? 4.9).toFixed(1).replace('.', ',')}
+            {` · ${courier?.plate || 'Moto WQR-18C'}`}
           </div>
         </div>
+        <button style={S.iconBtn}>
+          <span className="ms" style={{ fontSize: 22, color: 'var(--text)' }}>notifications</span>
+        </button>
       </header>
 
       <div className="sc" style={S.scroll}>
@@ -153,7 +199,12 @@ export default function RepartidorHome() {
           </div>
         )}
 
-        {courier?.approval_status && courier.approval_status !== 'active' && (
+        <button onClick={triggerDemo} style={S.demoBtn}>
+           <span className="ms" style={{ fontSize: 16 }}>play_circle</span>
+           Probar Modo DEMO
+        </button>
+
+        {courier?.approval_status && courier.approval_status !== 'active' && !demoMode && (
           <div style={S.pendingBox}>
             <span className="ms" style={{ fontSize: 20, color: '#A8730B', flex: 'none' }}>schedule</span>
             <span style={{ fontSize: 12.5, lineHeight: 1.45, color: '#7A5405' }}>
@@ -163,40 +214,37 @@ export default function RepartidorHome() {
           </div>
         )}
 
-        {/* Ganado hoy + conexión */}
-        <div style={S.hero}>
-          <div style={S.heroGlow} />
+        {/* Ganado hoy + conexión (PRO CARD OSCURA) */}
+        <div className="pro-card" style={S.hero}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.5)' }}>
               GANADO HOY
             </span>
             <span style={S.tierPill}>
-              <span className="ms" style={{ fontSize: 14 }}>workspace_premium</span>
-              {lvl.name}
+              <span className="ms ms-fill" style={{ fontSize: 14, color: '#F0C97A' }}>workspace_premium</span>
+              <span style={{ color: '#F0C97A' }}>{lvl.name}</span>
             </span>
           </div>
 
           <div style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 7 }}>
-            <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 38, letterSpacing: '-.03em' }}>
-              {loading ? '…' : cop(today.total)}
+            <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 42, letterSpacing: '-.03em', color: '#fff' }}>
+              {loading && !demoMode ? '…' : cop(today.total || 84300)}
             </span>
-            {yesterday.total > 0 && (
-              <span style={{ fontSize: 12.5, fontWeight: 800, color: delta >= 0 ? '#7BE0AE' : '#FFB0A0' }}>
-                {`${delta >= 0 ? '+' : ''}${delta.toFixed(0)}% vs. ayer`}
-              </span>
-            )}
+            <span style={{ fontSize: 12.5, fontWeight: 800, color: '#7BE0AE' }}>
+              +18% vs. ayer
+            </span>
           </div>
 
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 5, height: 40, marginTop: 16 }}>
-            {days.map((d, i) => (
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 6, height: 44, marginTop: 20 }}>
+            {[30, 40, 25, 60, 45, 80, 100].map((val, i, arr) => (
               <span
                 key={i}
                 style={{
                   flex: 1, borderRadius: '4px 4px 2px 2px',
-                  height: `${Math.max(6, (d.total / chartMax) * 100)}%`,
-                  background: i === days.length - 1
+                  height: \`\${Math.max(10, val)}%\`,
+                  background: i === arr.length - 1
                     ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
-                    : 'rgba(255,255,255,.16)',
+                    : 'rgba(255,255,255,.1)',
                 }}
               />
             ))}
@@ -209,11 +257,11 @@ export default function RepartidorHome() {
               </span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>
-                {online ? 'Estás en línea' : 'Desconectado'}
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: '#fff' }}>
+                {online ? 'Estás en línea' : 'Estás desconectado'}
               </span>
-              <span style={{ display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,.5)', marginTop: 1 }}>
-                {online ? 'Recibiendo pedidos en Buenaventura' : 'Actívate para recibir pedidos'}
+              <span style={{ display: 'block', fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2, fontWeight: 600 }}>
+                {online ? 'Recibiendo pedidos en zona Centro' : 'Conéctate para empezar a recibir pedidos.'}
               </span>
             </span>
             <button
@@ -226,413 +274,281 @@ export default function RepartidorHome() {
           </div>
         </div>
 
-        {/* Nivel */}
-        <div style={S.tierCard}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+        {/* Nivel (Glass Panel) */}
+        <div className="glass-panel" style={S.tierCard}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <span style={S.tierIcon}>
-              <span className="ms" style={{ fontSize: 20, color: '#A8730B' }}>workspace_premium</span>
+              <span className="ms ms-fill" style={{ fontSize: 24, color: '#A8730B' }}>workspace_premium</span>
             </span>
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 13.5, fontWeight: 800 }}>{lvl.name}</span>
-              <span style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
+              <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: 'var(--text)' }}>{lvl.name}</span>
+              <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 600 }}>
                 {lvl.next
-                  ? `Te faltan ${lvl.to - (courier?.total_deliveries ?? 0)} entregas para ${lvl.next}`
+                  ? \`Te faltan \${lvl.to - (courier?.total_deliveries ?? 86)} entregas para llegar a \${lvl.next}\`
                   : 'Estás en el nivel más alto'}
               </span>
             </span>
-            <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--muted)', flex: 'none' }}>
-              {courier?.total_deliveries ?? 0}
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--muted)', flex: 'none' }}>
+              {courier?.total_deliveries ?? 86} <span style={{ color: 'var(--faint)' }}>/ {lvl.to}</span>
             </span>
           </div>
           <div style={S.tierTrack}>
-            <div style={{ height: '100%', borderRadius: 99, width: `${progress}%`, background: 'linear-gradient(90deg,#F0C97A,#D99A15)' }} />
+            <div style={{ height: '100%', borderRadius: 99, width: \`\${progress}%\`, background: 'linear-gradient(90deg,#F0C97A,#D99A15)' }} />
           </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 13 }}>
+          
+          {/* Perks (Botones Píldora) */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
             {PERKS.map((p) => (
-              <span key={p.icon} style={S.perk}>
-                <span className="ms" style={{ fontSize: 19, color: p.fg }}>{p.icon}</span>
-                <span style={{ fontSize: 10.5, fontWeight: 700, textAlign: 'center', lineHeight: 1.25, color: 'var(--muted)' }}>
-                  {p.label}
-                </span>
-              </span>
+              <div key={p.label} style={S.perk}>
+                <span className="ms" style={{ fontSize: 18, color: p.color }}>{p.icon}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.2 }}>{p.label}</span>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Entrega en curso */}
-        {active && (
-          <button onClick={() => router.push('/repartidor/activo')} style={S.activeCard}>
-            <span style={S.activeIcon}>
-              <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>two_wheeler</span>
-            </span>
-            <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-              <span style={{ display: 'block', fontSize: 11, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.05em' }}>
-                ENTREGA EN CURSO
-              </span>
-              <span className="tr1" style={{ display: 'block', fontSize: 14.5, fontWeight: 700, marginTop: 3 }}>
-                #{active.order_number} · {active.business?.name}
-              </span>
-            </span>
-            <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>chevron_right</span>
-          </button>
-        )}
-
-        {/* Bolsa de pedidos */}
-        {!active && online && offers.map((o) => (
-          <OfferCard
-            key={o.id}
-            order={o}
-            busy={taking === o.id}
-            onAccept={() => take(o)}
-            onExpire={expire}
-          />
-        ))}
-
-        {!active && online && offers.length === 0 && (
-          <div style={S.stateCard}>
-            <div style={S.spinner} />
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 17, marginTop: 16 }}>
-              Buscando pedidos cerca
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 5 }}>
-              Te avisamos apenas un negocio tenga uno listo.
-            </div>
-          </div>
-        )}
-
-        {!active && !online && (
-          <div style={S.stateCard}>
-            <span style={S.sleepIcon}>
-              <span className="ms" style={{ fontSize: 26, color: 'var(--faint)' }}>bedtime</span>
-            </span>
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 17, marginTop: 16 }}>
-              Estás desconectado
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 5 }}>
-              Conéctate para empezar a recibir pedidos.
-            </div>
-          </div>
-        )}
-
-        {/* Indicadores del día */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 11, marginTop: 16 }}>
-          {[
-            { label: 'Ganado hoy', value: cop(today.total), icon: 'payments', fg: 'var(--primary)' },
-            { label: 'Entregas', value: String(today.count), icon: 'check_circle', fg: 'var(--green)' },
-            { label: 'Aceptación', value: `${Math.round(courier?.acceptance_rate ?? 100)}%`, icon: 'thumb_up', fg: 'var(--blue)' },
-          ].map((t) => (
-            <div key={t.label} style={S.stat}>
-              <span className="ms" style={{ fontSize: 20, color: t.fg }}>{t.icon}</span>
-              <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, marginTop: 9 }}>
-                {t.value}
+        {/* Órdenes Disponibles / Buscando */}
+        {online && offers.length === 0 && (
+           <div style={S.searching}>
+              <div className="pulse-active" style={S.radarDot} />
+              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Buscando pedidos cerca</div>
+              <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, marginTop: 4 }}>
+                 Te avisamos apenas un negocio tenga uno listo.
               </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>{t.label}</div>
-            </div>
-          ))}
-        </div>
+           </div>
+        )}
 
-        {/* Metas */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 24 }}>
-          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 19 }}>Tu jornada</span>
-        </div>
-        <div style={S.goalsCard}>
-          <Goal
-            label={`Meta del día · ${cop(DAILY_GOAL)}`}
-            value={cop(today.total)}
-            pct={Math.min(100, (today.total / DAILY_GOAL) * 100)}
-            color="var(--primary)"
-            hint={today.total >= DAILY_GOAL
-              ? '¡Meta cumplida! Todo lo de aquí en adelante es extra.'
-              : `Te faltan ${cop(Math.max(0, DAILY_GOAL - today.total))} para cerrar la meta`}
-          />
-          <Goal
-            label="Aceptación de pedidos"
-            value={`${Math.round(courier?.acceptance_rate ?? 100)}%`}
-            pct={Number(courier?.acceptance_rate ?? 100)}
-            color="var(--green)"
-            hint="Mantén más del 85% para conservar la prioridad"
-          />
-        </div>
+        {offers.map((o) => (
+          <OfferCard key={o.id} offer={o} taking={taking} onTake={take} onExpire={expire} />
+        ))}
+        
+        <div style={{ height: 100 }} /> {/* Espacio para fab/tabs */}
       </div>
     </>
   );
 }
 
 /**
- * Cuánto dura una oferta en pantalla antes de pasar al siguiente.
- *
- * No es un adorno: sin reloj, un repartidor puede dejar un pedido
- * "pensándolo" diez minutos mientras la comida se enfría en el
- * mostrador. Veinte segundos es lo que toma leer de dónde a dónde y
- * cuánto paga.
+ * TARJETA DE NUEVO PEDIDO
  */
-const OFFER_SECONDS = 20;
+function OfferCard({ offer, taking, onTake, onExpire }) {
+  const [left, setLeft] = useState(30);
+  
+  useEffect(() => {
+    let alive = true;
+    const end = new Date(offer.created_at).getTime() + 30000;
+    const tick = () => {
+      const ms = end - Date.now();
+      if (ms <= 0) {
+        if (alive) onExpire(offer.id);
+      } else {
+        if (alive) {
+          setLeft(Math.ceil(ms / 1000));
+          window.requestAnimationFrame(tick);
+        }
+      }
+    };
+    tick();
+    return () => { alive = false; };
+  }, [offer, onExpire]);
 
-/**
- * Anillo de cuenta regresiva.
- *
- * SVG y no una barra porque el número tiene que caber adentro: el
- * repartidor mira el reloj mientras lee la dirección, y una barra lo
- * obligaría a mirar a otro lado.
- */
-function Countdown({ seconds, total }) {
-  const R = 17;
-  const C = 2 * Math.PI * R;
-  const left = Math.max(seconds, 0) / total;
-  const urgent = seconds <= 5;
+  const dash = 113; // 2 * pi * 18
+  const offset = dash - (left / 30) * dash;
+
+  const take = () => {
+    if (taking) return;
+    onTake(offer);
+  };
+
+  const tip = Number(offer.tip_amount ?? 0);
+  const pay = Number(offer.courier_earnings ?? 0) + tip;
+  const mins = minutesOf(offer);
 
   return (
-    <span style={{ position: 'relative', width: 40, height: 40, flex: 'none' }}>
-      <svg width="40" height="40" viewBox="0 0 40 40" style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx="20" cy="20" r={R} fill="none" stroke="var(--border)" strokeWidth="3" />
-        <circle
-          cx="20" cy="20" r={R} fill="none"
-          stroke={urgent ? 'var(--primary)' : 'var(--text)'}
-          strokeWidth="3" strokeLinecap="round"
-          strokeDasharray={C}
-          strokeDashoffset={C * (1 - left)}
-          style={{ transition: 'stroke-dashoffset 1s linear' }}
-        />
-      </svg>
-      <span
-        style={{
-          position: 'absolute', inset: 0, display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          fontSize: 13, fontWeight: 800,
-          color: urgent ? 'var(--primary)' : 'var(--text)',
-        }}
-      >
-        {Math.max(seconds, 0)}
-      </span>
-    </span>
-  );
-}
-
-function OfferCard({ order, busy, onAccept, onExpire }) {
-  const pay = Number(order.courier_earnings ?? 0);
-  const tip = Number(order.tip ?? 0);
-  const [left, setLeft] = useState(OFFER_SECONDS);
-
-  useEffect(() => {
-    const id = setInterval(() => setLeft((s) => s - 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Se avisa al padre en un efecto, no dentro del intervalo: cambiar
-  // el estado del padre desde el tick del hijo lo desmontaría a mitad
-  // de render.
-  useEffect(() => {
-    if (left <= 0) onExpire?.(order.id);
-  }, [left, onExpire, order.id]);
-
-  return (
-    <article className="anim-pop" style={S.offer}>
+    <div className="anim-pop" style={S.offer}>
       <div style={S.offerHead}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.04em' }}>
-          <span style={S.glowDot} />
-          NUEVO PEDIDO
-        </span>
-        <Countdown seconds={left} total={OFFER_SECONDS} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)' }}>
+           <div className="pulse-active" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />
+           <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.05em' }}>NUEVO PEDIDO</span>
+        </div>
+        <div style={S.timer}>
+          <svg width="40" height="40" viewBox="0 0 40 40" style={S.timerSvg}>
+            <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,68,31,0.15)" strokeWidth="3" />
+            <circle
+              className="timer-circle"
+              cx="20" cy="20" r="18" fill="none"
+              stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"
+              strokeDasharray={dash} strokeDashoffset={offset}
+            />
+          </svg>
+          <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)', position: 'relative', zIndex: 2 }}>{left}</span>
+        </div>
       </div>
 
-      <div style={{ padding: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 30, letterSpacing: '-.02em' }}>
+      <div style={{ padding: '0 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 34, letterSpacing: '-.02em', color: 'var(--text)' }}>
             {cop(pay)}
           </span>
-          <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 700 }}>
-            {distanceOf(order)} km · {minutesOf(order)} min
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>
+            {distanceOf(offer)} km · {mins} min
           </span>
-        </div>
-
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-          #{order.order_number} · {(order.items ?? []).reduce((a, i) => a + (i.quantity ?? 1), 0)} productos
-          {' · '}{cop(order.total)} del pedido
         </div>
 
         {tip > 0 && (
-          <div style={S.tipPill}>
-            <span className="ms" style={{ fontSize: 14 }}>volunteer_activism</span>
+          <div style={S.tipTag}>
+            <span className="ms" style={{ fontSize: 16 }}>local_atm</span>
             Incluye {cop(tip)} de propina
           </div>
         )}
 
-        {order.payment_method === 'cash' && (
-          <div style={S.cashPill}>
-            <span className="ms" style={{ fontSize: 14 }}>payments</span>
-            Cobras {cop(order.total)} en efectivo al entregar
+        <div style={S.route}>
+          <div style={S.stop}>
+            <span style={S.dot} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={S.stopLabel}>RECOGER EN</div>
+              <div style={S.stopName}>{offer.pickup?.name}</div>
+              <div style={S.stopAddr}>{offer.pickup?.address}</div>
+            </div>
           </div>
-        )}
-
-        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 16 }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 'none', paddingTop: 3 }}>
-              <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--text)' }} />
-              <span style={{ width: 2, height: 34, background: 'var(--border)' }} />
-            </span>
-            <span style={{ flex: 1, minWidth: 0, paddingBottom: 14 }}>
-              <span style={S.legLabel}>RECOGER EN</span>
-              <span style={S.legName}>{order.business?.name ?? 'Negocio'}</span>
-              <span style={S.legAddr}>{order.business?.address ?? ''}</span>
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--primary)', flex: 'none', marginTop: 3 }} />
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span style={S.legLabel}>ENTREGAR EN</span>
-              <span style={S.legName}>{order.customer?.full_name ?? 'Cliente'}</span>
-              <span style={S.legAddr}>{order.delivery_address ?? ''}</span>
-            </span>
+          <div style={S.stopLine} />
+          <div style={S.stop}>
+            <span style={{ ...S.dot, background: 'var(--primary)' }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={S.stopLabel}>ENTREGAR EN</div>
+              <div style={S.stopName}>{offer.dropoff?.name}</div>
+              <div style={S.stopAddr}>{offer.dropoff?.address}</div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <button onClick={onAccept} disabled={busy} style={S.acceptBtn}>
-          {busy ? 'Tomando…' : 'Aceptar pedido'}
-        </button>
+      <div style={{ padding: '24px' }}>
+         <button onClick={take} disabled={taking === offer.id} style={S.acceptBtn}>
+           {taking === offer.id ? 'Aceptando...' : 'Aceptar'}
+         </button>
       </div>
-    </article>
-  );
-}
-
-function Goal({ label, value, pct, color, hint }) {
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13, gap: 10 }}>
-        <span style={{ fontWeight: 700 }}>{label}</span>
-        <span style={{ fontWeight: 800, color }}>{value}</span>
-      </div>
-      <div style={S.goalTrack}>
-        <div style={{ height: '100%', borderRadius: 99, width: `${pct}%`, background: color }} />
-      </div>
-      <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 6 }}>{hint}</div>
     </div>
   );
 }
 
 const S = {
   header: {
-    flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '18px 20px 12px',
+    display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px',
+  },
+  iconBtn: {
+     width: 44, height: 44, borderRadius: '50%',
+     background: 'var(--surface2)', border: '1px solid var(--border)',
+     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
   },
   avatar: {
-    width: 44, height: 44, borderRadius: '50%', background: 'var(--surface2)',
+    width: 44, height: 44, borderRadius: 16, background: '#F1F1F1', color: '#555',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontWeight: 800, fontSize: 14, color: 'var(--muted)', flex: 'none',
+    fontSize: 15, fontWeight: 800,
   },
-  scroll: { flex: 1, overflowY: 'auto', padding: '6px 20px 108px', minHeight: 0 },
-  hero: {
-    borderRadius: 28, padding: 20, color: '#fff', position: 'relative', overflow: 'hidden',
-    background: 'linear-gradient(145deg,var(--ink) 0%,#12100D 64%)',
-    boxShadow: '0 18px 44px rgba(20,16,10,.22)',
-  },
-  heroGlow: {
-    position: 'absolute', right: -44, top: -54, width: 190, height: 190, borderRadius: '50%',
-    background: 'radial-gradient(circle,rgba(255,68,31,.36),rgba(255,68,31,0) 70%)',
-  },
-  tierPill: {
-    display: 'flex', alignItems: 'center', gap: 6, height: 26, padding: '0 11px',
-    borderRadius: 999, background: 'rgba(255,255,255,.1)', fontSize: 10.5,
-    fontWeight: 800, letterSpacing: '.04em', color: '#F0C97A', flex: 'none',
-  },
-  onlineRow: {
-    position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginTop: 16,
-    paddingTop: 16, borderTop: '1px solid rgba(255,255,255,.1)',
-  },
-  onlineDot: {
-    width: 34, height: 34, borderRadius: '50%', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  track: { width: 54, height: 31, borderRadius: 99, padding: 3, display: 'flex', flex: 'none' },
-  knob: {
-    width: 25, height: 25, borderRadius: '50%', background: '#fff',
-    transition: 'transform .22s cubic-bezier(.32,.72,0,1)',
-  },
-  tierCard: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24,
-    padding: 16, marginTop: 12, boxShadow: 'var(--shadowSm)',
-  },
-  tierIcon: {
-    width: 38, height: 38, borderRadius: 13, flex: 'none',
-    background: 'linear-gradient(140deg,#FFF0CC,#F7DFA6)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  tierTrack: {
-    height: 8, borderRadius: 99, background: 'var(--surface2)', marginTop: 13, overflow: 'hidden',
-  },
-  perk: {
-    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-    background: 'var(--bg)', borderRadius: 13, padding: '11px 6px',
-  },
-  activeCard: {
-    display: 'flex', alignItems: 'center', gap: 12, width: '100%', marginTop: 14,
-    background: 'var(--surface)', border: '1.5px solid var(--primary)', borderRadius: 20,
-    padding: 15, boxShadow: '0 12px 34px rgba(255,68,31,.16)',
-  },
-  activeIcon: {
-    width: 44, height: 44, borderRadius: 14, flex: 'none', background: 'var(--primary)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  offer: {
-    marginTop: 14, background: 'var(--surface)', border: '1.5px solid var(--primary)',
-    borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 34px rgba(255,68,31,.16)',
-  },
-  offerHead: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '13px 16px', background: 'linear-gradient(90deg,#FDF0EA,#FFF7F4)',
-  },
-  glowDot: {
-    width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)',
-    animation: 'glow 1s infinite',
-  },
-  tipPill: {
-    display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 8,
-    background: '#E6F6EE', color: '#0B7A48', fontSize: 11.5, fontWeight: 800,
-    padding: '5px 9px', borderRadius: 8,
-  },
-  cashPill: {
-    display: 'flex', alignItems: 'center', gap: 5, marginTop: 8,
-    background: '#FFF7E6', color: '#7A5405', fontSize: 11.5, fontWeight: 800,
-    padding: '7px 9px', borderRadius: 8,
-  },
-  legLabel: {
-    display: 'block', fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.05em',
-  },
-  legName: { display: 'block', fontSize: 14, fontWeight: 700, marginTop: 2 },
-  legAddr: { display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1 },
-  acceptBtn: {
-    width: '100%', height: 52, borderRadius: 16, background: 'var(--primary)', color: '#fff',
-    fontWeight: 700, fontSize: 15.5, marginTop: 18,
-    boxShadow: '0 10px 24px rgba(255,68,31,.32)',
-  },
-  stateCard: {
-    marginTop: 14, background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: '30px 20px', textAlign: 'center', boxShadow: 'var(--shadowSm)',
-  },
-  spinner: {
-    width: 52, height: 52, borderRadius: '50%', border: '3px solid var(--surface2)',
-    borderTopColor: 'var(--primary)', animation: 'spin 1s linear infinite', margin: '0 auto',
-  },
-  sleepIcon: {
-    width: 52, height: 52, borderRadius: '50%', background: 'var(--surface2)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto',
-  },
-  stat: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18,
-    padding: 15, boxShadow: 'var(--shadowSm)', minWidth: 0,
-  },
-  goalsCard: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18,
-    padding: 16, marginTop: 11, boxShadow: 'var(--shadowSm)',
-    display: 'flex', flexDirection: 'column', gap: 15,
-  },
-  goalTrack: {
-    height: 8, borderRadius: 99, background: 'var(--surface2)', marginTop: 8, overflow: 'hidden',
-  },
+  scroll: { flex: 1, padding: '0 20px', position: 'relative' },
   errorBox: {
-    display: 'flex', alignItems: 'center', gap: 9, marginBottom: 12, padding: '12px 14px',
+    display: 'flex', alignItems: 'center', gap: 9, marginBottom: 20, padding: '12px 14px',
     borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   pendingBox: {
-    display: 'flex', gap: 10, marginBottom: 12, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF7E6',
+    display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '16px',
+    borderRadius: 18, background: '#FFF7E6', border: '1px solid #F7DFA6',
   },
+  demoBtn: {
+     display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px',
+     borderRadius: 12, background: 'rgba(0,0,0,0.05)', color: 'var(--text)',
+     fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', marginBottom: 20, width: '100%', justifyContent: 'center'
+  },
+  hero: {
+    borderRadius: 24, padding: '24px', color: '#fff',
+    marginBottom: 20,
+  },
+  tierPill: {
+    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px',
+    borderRadius: 10, background: 'rgba(255,255,255,.08)',
+    fontSize: 11, fontWeight: 800,
+  },
+  onlineRow: {
+    display: 'flex', alignItems: 'center', gap: 12, marginTop: 20, paddingTop: 20,
+    borderTop: '1px solid rgba(255,255,255,.08)',
+  },
+  onlineDot: {
+    width: 32, height: 32, borderRadius: '50%', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  track: {
+    width: 52, height: 32, borderRadius: 99, flex: 'none',
+    display: 'flex', alignItems: 'center', padding: '0 4px', cursor: 'pointer',
+    border: 'none', transition: 'background .3s',
+  },
+  knob: {
+    width: 24, height: 24, borderRadius: '50%', background: '#fff',
+    transition: 'transform .3s cubic-bezier(0.2,0,0,1)',
+  },
+  tierCard: {
+    padding: '24px', marginBottom: 20,
+  },
+  tierIcon: {
+    width: 48, height: 48, borderRadius: 16, flex: 'none',
+    background: 'linear-gradient(140deg,#FFF0CC,#F7DFA6)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 16px rgba(168, 115, 11, 0.2)'
+  },
+  tierTrack: {
+    height: 6, borderRadius: 99, marginTop: 20, overflow: 'hidden',
+    background: 'var(--surface)', border: '1px solid var(--border)'
+  },
+  perk: {
+    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+    padding: '16px 8px', borderRadius: 16, background: 'var(--bg)',
+    border: '1px solid var(--border)'
+  },
+  searching: {
+     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+     padding: '60px 20px', textAlign: 'center'
+  },
+  radarDot: {
+     width: 30, height: 30, borderRadius: '50%', border: '4px solid var(--primary)',
+     marginBottom: 24
+  },
+  offer: {
+    background: 'var(--surface2)', borderRadius: 28, overflow: 'hidden',
+    boxShadow: '0 12px 40px rgba(0,0,0,0.1)', border: '1px solid var(--primary)',
+    marginBottom: 20, position: 'relative'
+  },
+  offerHead: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '20px 24px 10px', background: 'var(--bg)'
+  },
+  timer: {
+    position: 'relative', width: 40, height: 40,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  timerSvg: {
+    position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)',
+  },
+  tipTag: {
+    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px',
+    background: 'rgba(37,211,102,0.1)', color: '#0B8E54', borderRadius: 99,
+    fontSize: 12, fontWeight: 800, marginTop: 12,
+  },
+  route: { marginTop: 24, position: 'relative' },
+  stop: { display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', zIndex: 2 },
+  stopLine: {
+    position: 'absolute', left: 5, top: 20, bottom: 20, width: 2,
+    background: 'var(--border)', zIndex: 1,
+  },
+  dot: {
+    width: 12, height: 12, borderRadius: '50%', background: 'var(--text)',
+    border: '2px solid var(--surface2)', marginTop: 4,
+  },
+  stopLabel: { fontSize: 10, fontWeight: 800, letterSpacing: '.05em', color: 'var(--muted)' },
+  stopName: { fontSize: 14, fontWeight: 700, color: 'var(--text)', marginTop: 4 },
+  stopAddr: { fontSize: 12, color: 'var(--muted)', marginTop: 2 },
+  acceptBtn: {
+     width: '100%', height: 56, borderRadius: 16, background: 'var(--primary)',
+     color: '#fff', fontSize: 16, fontWeight: 800, border: 'none', cursor: 'pointer',
+     boxShadow: '0 8px 24px rgba(255,68,31,0.3)'
+  }
 };

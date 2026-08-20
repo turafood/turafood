@@ -15,6 +15,7 @@ import { cop } from '@/lib/format';
 import TuraMap from '../../components/TuraMap';
 import Vertical3D, { VERTICAL_TINT } from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
+import HeaderHero from '../../components/HeaderHero';
 
 /** Centro de Buenaventura: encuadre por defecto del mapa */
 const BUENAVENTURA = { lat: 3.8801, lng: -77.0313 };
@@ -66,6 +67,15 @@ export default function SucursalesPage() {
 
   return (
     <>
+      <HeaderHero
+        title="Gestión de Sucursales"
+        subtitle="Administra tus puntos de venta, monitorea el rendimiento individual y expande tu negocio a nuevas zonas para multiplicar tus ventas."
+        images={[
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
+        ]}
+      />
+
       {/* Mapa */}
       <section style={S.mapCard}>
         <TuraMap points={points} circles height={280} radius={0} />
@@ -215,98 +225,99 @@ function Metric({ label, value, icon }) {
 
 const S = {
   mapCard: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20,
-    overflow: 'hidden', boxShadow: 'var(--shadowSm)', marginBottom: 16,
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
+    overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginBottom: 20,
+    backdropFilter: 'blur(20px)',
   },
   legend: {
-    display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px',
-    borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+    display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
+    borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap', color: '#fff'
   },
   legendItem: {
     display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 11.5, fontWeight: 700, color: 'var(--muted)',
+    fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
   },
   grid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20,
     alignItems: 'start',
   },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20,
-    overflow: 'hidden', boxShadow: '0 0 0 1.5px var(--primary), var(--shadowSm)',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
+    overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
   },
   cover: {
-    position: 'relative', height: 132, backgroundSize: 'cover', backgroundPosition: 'center',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    position: 'relative', height: 140, backgroundSize: 'cover', backgroundPosition: 'center',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)'
   },
   statusPill: {
-    position: 'absolute', top: 12, right: 12,
-    fontSize: 10.5, fontWeight: 800, padding: '5px 10px', borderRadius: 8,
-    boxShadow: '0 2px 8px rgba(20,16,10,.12)',
+    position: 'absolute', top: 14, right: 14,
+    fontSize: 10.5, fontWeight: 800, padding: '6px 12px', borderRadius: 10,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)', letterSpacing: '.05em'
   },
   avatar: {
-    width: 52, height: 52, borderRadius: 16, flex: 'none',
+    width: 56, height: 56, borderRadius: 18, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '1px solid var(--border)',
+    border: '2px solid rgba(24,24,24,0.9)', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', marginTop: -28, zIndex: 2, position: 'relative'
   },
   name: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 18, letterSpacing: '-.02em',
+    fontSize: 20, letterSpacing: '-.02em', color: '#fff'
   },
   kicker: {
-    display: 'block', fontSize: 11.5, color: 'var(--muted)', fontWeight: 700, marginTop: 2,
+    display: 'block', fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 700, marginTop: 4,
   },
   address: {
-    display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 14,
-    padding: 12, borderRadius: 13, background: 'var(--bg)',
+    display: 'flex', alignItems: 'flex-start', gap: 8, marginTop: 18,
+    padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)'
   },
   metrics: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(112px,1fr))',
-    gap: 10, marginTop: 14,
+    gap: 12, marginTop: 16,
   },
   metric: {
-    display: 'flex', flexDirection: 'column', gap: 3, padding: 12,
-    borderRadius: 13, background: 'var(--bg)', border: '1px solid var(--border)', minWidth: 0,
+    display: 'flex', flexDirection: 'column', gap: 4, padding: 14,
+    borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', minWidth: 0,
   },
   metricLabel: {
-    fontSize: 9.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.05em', marginTop: 4,
+    fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '.05em', marginTop: 4,
   },
   metricValue: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, letterSpacing: '-.02em',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: '#fff'
   },
   footerRow: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-    marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+    marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap',
   },
   activeTag: {
-    fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 999,
-    background: 'var(--surface2)', color: 'var(--muted)',
+    fontSize: 11.5, fontWeight: 800, padding: '6px 14px', borderRadius: 999,
+    background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)'
   },
   newCard: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-    padding: '28px 24px', borderRadius: 20, border: '1.5px dashed var(--faint)',
-    background: 'var(--surface)',
+    padding: '32px 24px', borderRadius: 24, border: '2px dashed rgba(255,255,255,0.1)',
+    background: 'rgba(24,24,24,0.4)', backdropFilter: 'blur(10px)',
   },
   newIconWrap: {
-    width: 104, height: 104, borderRadius: 28, background: 'var(--bg)',
+    width: 110, height: 110, borderRadius: 32, background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '1px solid var(--border)',
+    border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 30px rgba(0,0,0,0.2)'
   },
   newText: {
-    margin: '10px 0 0', fontSize: 12.5, color: 'var(--muted)',
+    margin: '12px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.6)',
     lineHeight: 1.55, maxWidth: 280,
   },
   newList: {
-    listStyle: 'none', margin: '18px 0 0', padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 9, width: '100%', maxWidth: 280,
+    listStyle: 'none', margin: '20px 0 0', padding: 0,
+    display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 280,
   },
   newItem: {
-    display: 'flex', alignItems: 'center', gap: 9, fontSize: 12.5,
-    color: 'var(--text)', textAlign: 'left',
+    display: 'flex', alignItems: 'center', gap: 10, fontSize: 13,
+    color: '#fff', textAlign: 'left', fontWeight: 600
   },
   contact: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 46, padding: '0 20px',
+    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 24px',
     borderRadius: 999, background: 'var(--primary)', color: '#fff',
-    fontSize: 13.5, fontWeight: 700, textDecoration: 'none', marginTop: 20,
-    boxShadow: '0 8px 20px rgba(255,68,31,.28)',
+    fontSize: 14, fontWeight: 800, textDecoration: 'none', marginTop: 24,
+    boxShadow: '0 8px 25px rgba(226,54,15,.3)',
   },
 };

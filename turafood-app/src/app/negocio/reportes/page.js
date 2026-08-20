@@ -25,7 +25,7 @@ import {
   summarizeByWeekday, summarizePrevious,
 } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
-import CabeceraSeccion from '../../components/CabeceraSeccion';
+import HeaderHero from '../../components/HeaderHero';
 
 const RANGES = [
   { label: '7 días', days: 7 },
@@ -104,11 +104,13 @@ export default function ReportesPage() {
 
   return (
     <div style={{ maxWidth: 1040 }}>
-      <CabeceraSeccion
-        escena="plata"
-        etiqueta="TUS NÚMEROS"
-        titulo="Cómo te fue esta semana"
-        texto="Qué se vendió, a qué hora entran los pedidos y qué platos mueven tu caja."
+      <HeaderHero
+        title="Rendimiento del negocio"
+        subtitle="Analiza qué se vende, a qué hora entran más pedidos y qué productos mueven tu caja. Usa estos datos para optimizar tus horarios y catálogo."
+        images={[
+          'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop', // Data/charts
+          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop' // Dashboard
+        ]}
       />
 
       {error && (
@@ -495,56 +497,63 @@ const GRID = 'repeat(6, minmax(0,1fr))';
 const S = {
   rangeBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    gap: 12, flexWrap: 'wrap', marginBottom: 16,
+    gap: 12, flexWrap: 'wrap', marginBottom: 20, marginTop: 10
   },
-  chip: { height: 36, padding: '0 15px', borderRadius: 11, fontSize: 12.5, fontWeight: 700 },
-  chipOn: { background: 'var(--text)', color: 'var(--surface)' },
-  chipOff: { background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' },
+  chip: { height: 40, padding: '0 18px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' },
+  chipOff: { background: 'rgba(24,24,24,0.7)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
 
-  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 },
+  export: {
+    height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+    background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
+    display: 'flex', alignItems: 'center', gap: 6, transition: 'background 0.2s'
+  },
+
+  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 },
   kpi: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, padding: 18, boxShadow: 'var(--shadowSm)',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', backdropFilter: 'blur(20px)', color: '#fff'
   },
   delta: {
-    display: 'inline-flex', alignItems: 'center', gap: 3, height: 23, padding: '0 8px',
-    borderRadius: 999, fontSize: 11.5, fontWeight: 800,
+    display: 'inline-flex', alignItems: 'center', gap: 4, height: 26, padding: '0 10px',
+    borderRadius: 999, fontSize: 12, fontWeight: 800,
   },
 
   panel: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20,
-    padding: 20, boxShadow: 'var(--shadowSm)', marginTop: 16,
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
+    padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 20, backdropFilter: 'blur(20px)', color: '#fff'
   },
-  duo: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16 },
+  duo: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20 },
 
   axis: {
     display: 'flex', justifyContent: 'space-between',
-    fontSize: 11, fontWeight: 700, color: 'var(--muted)', marginTop: 8,
+    fontSize: 11.5, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 12,
   },
   tip: {
     position: 'absolute', top: -6, pointerEvents: 'none', zIndex: 2,
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 13, padding: '9px 12px', boxShadow: 'var(--shadow)', whiteSpace: 'nowrap',
+    background: 'rgba(24,24,24,0.95)', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 16, padding: '12px 16px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', whiteSpace: 'nowrap',
+    color: '#fff'
   },
 
   feeCard: {
-    display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20,
-    padding: 18, boxShadow: 'var(--shadowSm)', marginTop: 16,
+    display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24,
+    padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 20, backdropFilter: 'blur(20px)', color: '#fff'
   },
   feeIcon: {
-    width: 46, height: 46, borderRadius: 15, flex: 'none',
+    width: 54, height: 54, borderRadius: 18, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'var(--bg)',
+    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'
   },
 
   detailToggle: {
-    display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-    padding: 18, background: 'none', textAlign: 'left',
+    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+    padding: 24, background: 'none', textAlign: 'left', color: '#fff'
   },
   row: {
-    display: 'grid', gridTemplateColumns: GRID, gap: 12, minWidth: 800,
-    padding: '13px 18px', borderTop: '1px solid var(--border)', fontSize: 13,
+    display: 'grid', gridTemplateColumns: GRID, gap: 16, minWidth: 800,
+    padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: 13.5,
   },
   headRow: {
     background: 'var(--bg)',

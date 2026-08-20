@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DAY_LABELS, getHours, upsertHour, setStoreOpen } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import HeaderHero from '../../components/HeaderHero';
 
 /** Orden de lunes a domingo, como se lee un horario */
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -123,7 +124,16 @@ export default function HorariosPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(330px,1fr))', gap: 16, alignItems: 'start' }}>
+      <HeaderHero
+        title="Disponibilidad y Horarios"
+        subtitle="Controla exactamente cuándo estás abierto al público. Usa la pausa inteligente para manejar picos de pedidos sin afectar tu posicionamiento en la plataforma."
+        images={[
+          'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop', // Open sign
+          'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1200&auto=format&fit=crop' // Restaurant interior
+        ]}
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(330px,1fr))', gap: 20, alignItems: 'start' }}>
         <section style={S.card}>
           <div style={S.cardTitle}>Horario de atención</div>
           <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
@@ -258,34 +268,30 @@ export default function HorariosPage() {
 
 const S = {
   card: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 22, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-    transition: 'box-shadow 0.3s ease',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(20px)', color: '#fff',
   },
-  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 },
+  cardTitle: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: '#fff' },
   track: { 
-    width: 44, height: 24, borderRadius: 99, padding: 3, display: 'flex', flex: 'none',
+    width: 48, height: 26, borderRadius: 99, padding: 3, display: 'flex', flex: 'none',
     transition: 'background 0.3s ease, box-shadow 0.3s ease'
   },
   knob: { 
-    width: 18, height: 18, borderRadius: '50%', background: '#fff', 
-    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.15)'
+    width: 20, height: 20, borderRadius: '50%', background: '#fff', 
+    transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow: '0 2px 5px rgba(0,0,0,.3)'
   },
   time: {
-    height: 42, padding: '0 14px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)',
-    background: 'var(--bg)', fontSize: 13.5, fontWeight: 700, outline: 'none',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', transition: 'border-color 0.2s',
+    height: 42, padding: '0 14px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(0,0,0,0.2)', fontSize: 13.5, fontWeight: 700, outline: 'none', color: '#fff',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.2)', transition: 'border-color 0.2s',
   },
-  chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, transition: 'all 0.2s ease' },
-  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
-  chipOff: { background: 'var(--surface2)', color: 'var(--text)', border: '1px solid transparent' },
-  bar: { height: 8, borderRadius: 99, background: 'var(--bg)', marginTop: 8, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.04)' },
-  warning: {
-    display: 'flex', gap: 11, background: '#FFF7E6', border: '1px solid #F0DCA8',
-    borderRadius: 18, padding: 18,
-  },
+  chip: { height: 42, padding: '0 18px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s ease' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 16px rgba(255,255,255,0.15)' },
+  chipOff: { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.1)' },
+  bar: { height: 8, borderRadius: 99, background: 'rgba(255,255,255,0.06)', marginTop: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.03)' },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'rgba(225,29,72,0.15)', color: '#FDA4AF', fontSize: 13, fontWeight: 600,
   },
 };

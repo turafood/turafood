@@ -455,7 +455,7 @@ export default function HomePage() {
           <div style={{ marginTop: 26, padding: '0 20px' }}>
             <span style={S.h2}>Lo mejor de Buenaventura</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '12px 20px 0' }}>
+          <div className="resp-grid" style={{ padding: '12px 20px 0' }}>
             {loading
               ? [0, 1, 2, 3].map((i) => <div key={i} style={{ ...S.skeleton, height: 100 }} />)
               : stores.map((s) => (

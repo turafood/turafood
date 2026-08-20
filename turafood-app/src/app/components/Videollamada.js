@@ -106,14 +106,14 @@ export default function Videollamada({ tema = 'light' }) {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* ------------------------------------------ qué va a pasar */}
       <section style={S.aviso}>
+        <div style={S.avisoGlow} />
         <span style={S.avisoIcono}>
-          <span className="ms" style={{ fontSize: 22 }}>videocam</span>
+          <span className="ms" style={{ fontSize: 24 }}>videocam</span>
         </span>
-        <div>
+        <div style={{ position: 'relative' }}>
           <h3 style={S.avisoTitulo}>Una videollamada corta y quedas listo</h3>
           <p style={S.avisoTexto}>
             Nos vemos 30 minutos con el equipo de TuraFood. Es una llamada
@@ -127,15 +127,15 @@ export default function Videollamada({ tema = 'light' }) {
       {/* ------------------------------------------ qué se gana */}
       <ul style={S.beneficios}>
         {[
-          ['lock_open', 'Se te quita el tope de 20 pedidos al día'],
-          ['campaign', 'Quedas habilitado para los espacios publicitarios de la app'],
-          ['handshake', 'Accedes a los servicios del equipo a precios de la ciudad'],
-        ].map(([icono, texto]) => (
+          ['lock_open', 'Se te quita el tope de 20 pedidos al día', '#86EFAC'],
+          ['campaign', 'Quedas habilitado para los espacios publicitarios de la app', '#93C5FD'],
+          ['handshake', 'Accedes a los servicios del equipo a precios de la ciudad', '#FDBA74'],
+        ].map(([icono, texto, color]) => (
           <li key={texto} style={S.beneficio}>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--green)', flex: 'none' }}>
-              {icono}
+            <span style={{ ...S.beneIcon, color, background: `color-mix(in srgb, ${color} 15%, transparent)` }}>
+              <span className="ms" style={{ fontSize: 18 }}>{icono}</span>
             </span>
-            {texto}
+            <span style={{ fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{texto}</span>
           </li>
         ))}
       </ul>
@@ -144,10 +144,10 @@ export default function Videollamada({ tema = 'light' }) {
       <div style={S.marco}>
         {estado === 'cargando' && (
           <div style={S.esqueleto} aria-hidden="true">
-            <span className="sk" style={{ height: 26, width: 180, borderRadius: 9 }} />
+            <span className="sk" style={{ height: 26, width: 180, borderRadius: 9, background: 'rgba(255,255,255,0.1)' }} />
             <div style={S.rejilla}>
               {Array.from({ length: 28 }).map((_, n) => (
-                <span key={n} className="sk" style={{ aspectRatio: '1', borderRadius: 8 }} />
+                <span key={n} className="sk" style={{ aspectRatio: '1', borderRadius: 12, background: 'rgba(255,255,255,0.05)' }} />
               ))}
             </div>
           </div>
@@ -155,25 +155,36 @@ export default function Videollamada({ tema = 'light' }) {
 
         {estado === 'falla' && (
           <div style={S.falla}>
-            <span className="ms" style={{ fontSize: 30, color: 'var(--muted)' }}>wifi_off</span>
+            <span className="ms" style={{ fontSize: 36, color: 'var(--primary)', textShadow: '0 0 20px rgba(255,68,31,0.4)' }}>wifi_off</span>
             <p style={S.fallaTexto}>
-              No pudimos abrir el calendario. Escríbenos por WhatsApp y
-              coordinamos la videollamada de una vez.
+              El calendario está tardando en cargar. Puedes intentarlo de nuevo o escribirnos por WhatsApp y coordinamos la videollamada de una vez.
             </p>
-            <a
-              href={`https://wa.me/${WHATSAPP_EQUIPO}?text=${encodeURIComponent('Hola, quiero agendar la videollamada para verificar mi negocio en TuraFood.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={S.fallaBoton}
-            >
-              <span className="ms" style={{ fontSize: 19 }}>chat</span>
-              Agendar por WhatsApp
-            </a>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
+              <a
+                href={`https://wa.me/${WHATSAPP_EQUIPO}?text=${encodeURIComponent('Hola, quiero agendar la videollamada para verificar mi negocio en TuraFood.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={S.fallaBoton}
+              >
+                <span className="ms" style={{ fontSize: 20 }}>chat</span>
+                Agendar por WhatsApp
+              </a>
+              <button onClick={() => window.location.reload()} style={S.fallaRetry}>
+                Reintentar carga
+              </button>
+            </div>
+            
+            {/* IFRAME DE RESPALDO: Si el script falló, igual inyectamos el iframe nativo por si acaso. */}
+            <div style={{ marginTop: 30, width: '100%', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 30 }}>
+               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>O intenta usar el calendario básico:</p>
+               <iframe 
+                 src={`https://cal.com/${ENLACE}?theme=dark`} 
+                 style={{ width: '100%', height: 600, border: 'none', borderRadius: 16, background: '#111' }} 
+               />
+            </div>
           </div>
         )}
 
-        {/* Siempre montado: el embed necesita el nodo para escribir
-            dentro, aunque todavía no haya cargado. */}
         <div
           ref={contenedor}
           style={{
@@ -186,7 +197,7 @@ export default function Videollamada({ tema = 'light' }) {
       </div>
 
       <p style={S.pie}>
-        <span className="ms" style={{ fontSize: 15 }}>shield</span>
+        <span className="ms" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }}>shield</span>
         La llamada es privada y solo la ve el equipo de TuraFood. No pedimos
         contraseñas ni datos bancarios en la llamada.
       </p>
@@ -196,60 +207,80 @@ export default function Videollamada({ tema = 'light' }) {
 
 const S = {
   aviso: {
-    display: 'flex', gap: 14, alignItems: 'flex-start',
-    padding: 18, borderRadius: 20,
-    background: 'var(--primary-tint)',
-    border: '1px solid color-mix(in srgb, var(--primary) 24%, transparent)',
+    position: 'relative', overflow: 'hidden',
+    display: 'flex', gap: 16, alignItems: 'flex-start',
+    padding: 24, borderRadius: 24,
+    background: 'rgba(255,68,31,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,68,31,0.15)',
+  },
+  avisoGlow: {
+    position: 'absolute', top: -50, left: -50, width: 150, height: 150,
+    background: 'radial-gradient(circle, rgba(255,68,31,0.2), transparent 70%)',
+    borderRadius: '50%', pointerEvents: 'none',
   },
   avisoIcono: {
-    width: 46, height: 46, borderRadius: 14, flex: 'none',
+    width: 52, height: 52, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'var(--primary)', color: '#fff',
+    background: 'linear-gradient(135deg, var(--primary) 0%, #D83A1A 100%)', color: '#fff',
+    boxShadow: '0 8px 24px rgba(255,68,31,0.3)', position: 'relative',
   },
   avisoTitulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 16.5, letterSpacing: '-.01em', color: 'var(--text)',
+    fontSize: 20, letterSpacing: '-.01em', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)',
   },
   avisoTexto: {
-    margin: '6px 0 0', fontSize: 13, lineHeight: 1.6, color: 'var(--muted)',
+    margin: '8px 0 0', fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.6)',
   },
 
   beneficios: {
-    listStyle: 'none', margin: 0, padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 10,
+    listStyle: 'none', margin: '8px 0', padding: 0,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12,
   },
   beneficio: {
-    display: 'flex', alignItems: 'flex-start', gap: 10,
-    fontSize: 13, lineHeight: 1.45, color: 'var(--text)', fontWeight: 600,
+    display: 'flex', alignItems: 'center', gap: 12,
+    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+    padding: 16, borderRadius: 18, transition: 'all 0.3s',
+  },
+  beneIcon: {
+    width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none'
   },
 
   marco: {
-    borderRadius: 20, overflow: 'hidden',
-    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 24, overflow: 'hidden',
+    background: 'rgba(10,10,10,0.8)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
   },
   esqueleto: {
-    padding: 20, display: 'flex', flexDirection: 'column', gap: 16,
+    padding: 24, display: 'flex', flexDirection: 'column', gap: 20,
   },
   rejilla: {
-    display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 7,
+    display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8,
   },
 
   falla: {
-    padding: '32px 22px', display: 'flex', flexDirection: 'column',
-    alignItems: 'center', gap: 12, textAlign: 'center',
+    padding: '40px 24px', display: 'flex', flexDirection: 'column',
+    alignItems: 'center', gap: 16, textAlign: 'center',
   },
   fallaTexto: {
-    margin: 0, fontSize: 13, lineHeight: 1.55, color: 'var(--muted)', maxWidth: 320,
+    margin: 0, fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.6)', maxWidth: 400,
   },
   fallaBoton: {
-    display: 'inline-flex', alignItems: 'center', gap: 8,
-    height: 46, padding: '0 22px', borderRadius: 999,
-    background: '#25D366', color: '#fff', textDecoration: 'none',
-    fontSize: 14.5, fontWeight: 800,
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    height: 50, padding: '0 24px', borderRadius: 999,
+    background: 'linear-gradient(135deg, #25D366 0%, #1DA851 100%)', color: '#fff', textDecoration: 'none',
+    fontSize: 15, fontWeight: 800, boxShadow: '0 8px 24px rgba(37, 211, 102, 0.3)',
+    transition: 'transform 0.2s',
+  },
+  fallaRetry: {
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    height: 50, padding: '0 24px', borderRadius: 999,
+    background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)',
+    fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s',
   },
 
   pie: {
-    display: 'flex', alignItems: 'center', gap: 8, margin: 0,
-    fontSize: 11.8, lineHeight: 1.5, color: 'var(--muted)',
+    display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 0',
+    fontSize: 12.5, lineHeight: 1.5, color: 'rgba(255,255,255,0.5)',
   },
 };

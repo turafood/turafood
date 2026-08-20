@@ -180,10 +180,44 @@ export default function VerificacionPage() {
 
   return (
     <div style={{ maxWidth: 820 }} ref={top}>
+      <style>{`
+        .verificacion-bg {
+          position: fixed; inset: 0; z-index: -1;
+          background: linear-gradient(to bottom, #111, #000);
+          overflow: hidden;
+        }
+        .wave-container {
+          position: absolute; width: 200%; height: 100%; top: 50%; left: -50%;
+          transform: translateY(-50%);
+          pointer-events: none; opacity: 0.15;
+        }
+        .wave {
+          position: absolute; width: 100%; height: 100%;
+          background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23FF441F" fill-opacity="1" d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,149.3C672,139,768,149,864,176C960,203,1056,245,1152,240C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+          background-size: 50% 100%;
+        }
+        .wave1 { animation: wave 20s linear infinite; bottom: 0; opacity: 0.5; }
+        .wave2 { animation: wave 15s linear infinite reverse; bottom: 10px; opacity: 0.3; background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="%23FFFFFF" fill-opacity="1" d="M0,224L48,208C96,192,192,160,288,154.7C384,149,480,171,576,176C672,181,768,171,864,138.7C960,107,1056,53,1152,48C1248,43,1344,85,1392,106.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>'); }
+        .wave3 { animation: wave 25s linear infinite; bottom: -20px; opacity: 0.2; filter: hue-rotate(30deg); }
+        @keyframes wave {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .anim-pulse-glow { animation: pulseGlow 4s infinite alternate; }
+        @keyframes pulseGlow { from { opacity: 0.6; filter: blur(20px); } to { opacity: 1; filter: blur(30px); } }
+      `}</style>
+      <div className="verificacion-bg">
+        <div className="wave-container">
+          <div className="wave wave1"></div>
+          <div className="wave wave2"></div>
+          <div className="wave wave3"></div>
+        </div>
+      </div>
       {/* Cabecera con progreso */}
       <section style={S.head}>
+        <div style={S.headGlow} className="anim-pulse-glow" />
         <div style={S.headTop}>
-          <div style={{ flex: 1, minWidth: 220 }}>
+          <div style={{ flex: 1, minWidth: 220, position: 'relative' }}>
             <div style={S.headTitle}>
               {approved
                 ? 'Tu negocio está aprobado'
@@ -199,9 +233,9 @@ export default function VerificacionPage() {
           </div>
 
           <div style={S.ring}>
-            <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, var(--surface2) 0)` }} />
+            <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, rgba(255,255,255,0.06) 0)` }} />
             <div style={S.ringHole}>
-              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19 }}>{pct}%</span>
+              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: '#fff' }}>{pct}%</span>
             </div>
           </div>
         </div>
@@ -209,7 +243,7 @@ export default function VerificacionPage() {
         {/* La promesa de las 24 horas, con reloj. Va arriba del riel
             porque responde la pregunta que trae la persona a esta
             pantalla: ¿cuándo me activan? */}
-        <div style={{ margin: '16px 0 4px' }}>
+        <div style={{ position: 'relative', margin: '16px 0 4px' }}>
           <Compromiso24h
             desde={business?.verification_call_at ?? business?.onboarding_at}
             aprobado={business?.status === 'active'}
@@ -231,15 +265,17 @@ export default function VerificacionPage() {
                   <span
                     style={{
                       ...S.railDot,
-                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'var(--surface2)',
-                      color: done || active ? '#fff' : 'var(--muted)',
+                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                      color: done || active ? '#fff' : 'rgba(255,255,255,0.4)',
+                      boxShadow: active ? '0 0 16px rgba(255,68,31,0.4)' : 'none',
+                      border: active ? 'none' : '1px solid rgba(255,255,255,0.1)'
                     }}
                   >
                     {done
                       ? <span className="ms" style={{ fontSize: 15 }}>check</span>
                       : <span style={{ fontSize: 12, fontWeight: 800 }}>{i + 1}</span>}
                   </span>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap' }}>{s.short}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: active ? '#fff' : 'rgba(255,255,255,0.6)' }}>{s.short}</span>
                 </button>
                 {i < STEPS.length - 1 && <span style={S.railLine} />}
               </li>
@@ -262,13 +298,13 @@ export default function VerificacionPage() {
               <div key={s.id} style={{ flex: '0 0 100%', minWidth: 0, paddingRight: i < STEPS.length - 1 ? 16 : 0, opacity: Math.abs(step - i) > 1 ? 0 : 1, transition: 'opacity 0.3s' }}>
                 <section style={{ ...S.card, opacity: isCurrent ? 1 : 0.5, pointerEvents: isCurrent ? 'auto' : 'none', transition: 'opacity 0.4s' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          <span style={{ ...S.stepIcon, background: checklist[i].done ? '#E6F6EE' : '#FFF1EC' }}>
-            <span className="ms" style={{ fontSize: 22, color: checklist[i].done ? '#0B8E54' : 'var(--primary)' }}>
+          <span style={{ ...S.stepIcon, background: checklist[i].done ? 'rgba(11,142,84,0.15)' : 'rgba(255,68,31,0.1)' }}>
+            <span className="ms" style={{ fontSize: 22, color: checklist[i].done ? '#0B8E54' : 'var(--primary)', textShadow: checklist[i].done ? '0 0 10px rgba(11,142,84,0.5)' : '0 0 10px rgba(255,68,31,0.5)' }}>
               {checklist[i].done ? 'check' : s.icon}
             </span>
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em' }}>
+            <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em', textShadow: '0 0 8px rgba(255,68,31,0.3)' }}>
               PASO {i + 1} DE {STEPS.length}
             </div>
             <h2 style={S.stepTitle}>{s.title}</h2>
@@ -503,102 +539,118 @@ function Note({ children }) {
 
 const S = {
   head: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 24, padding: 26, boxShadow: '0 4px 15px rgba(0,0,0,0.03)', marginBottom: 20,
+    position: 'relative', overflow: 'hidden',
+    background: 'linear-gradient(135deg, rgba(30,30,30,0.7) 0%, rgba(10,10,10,0.8) 100%)',
+    backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 28, padding: 28, boxShadow: '0 24px 50px rgba(0,0,0,0.5)', marginBottom: 24,
   },
-  headTop: { display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
+  headGlow: {
+    position: 'absolute', top: -50, right: -50, width: 250, height: 250,
+    background: 'radial-gradient(circle, rgba(255,68,31,0.15), transparent 70%)',
+    borderRadius: '50%', pointerEvents: 'none',
+  },
+  headTop: { position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
   headTitle: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', color: '#fff',
   },
   headSub: {
-    fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55, marginTop: 6, maxWidth: 520,
+    fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.55, marginTop: 6, maxWidth: 520,
   },
-  ring: { position: 'relative', width: 78, height: 78, flex: 'none' },
-  ringFill: { position: 'absolute', inset: 0, borderRadius: '50%' },
+  ring: { position: 'relative', width: 84, height: 84, flex: 'none' },
+  ringFill: { position: 'absolute', inset: 0, borderRadius: '50%', boxShadow: '0 0 20px rgba(255,68,31,0.3)' },
   ringHole: {
-    position: 'absolute', inset: 8, borderRadius: '50%', background: 'var(--surface)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    position: 'absolute', inset: 6, borderRadius: '50%', background: '#111',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.04)'
   },
   rail: {
-    display: 'flex', alignItems: 'center', gap: 4, listStyle: 'none',
-    margin: '20px 0 0', padding: '4px 0 2px',
+    position: 'relative', display: 'flex', alignItems: 'center', gap: 6, listStyle: 'none',
+    margin: '24px 0 0', padding: '4px 0 2px',
   },
-  railItem: { display: 'flex', alignItems: 'center', gap: 4, flex: 'none' },
+  railItem: { display: 'flex', alignItems: 'center', gap: 6, flex: 'none' },
   railBtn: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 12px',
-    borderRadius: 999, background: 'transparent',
+    display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 14px',
+    borderRadius: 999, background: 'transparent', transition: 'all 0.3s',
   },
-  railActive: { background: 'var(--bg)' },
+  railActive: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' },
   railDot: {
-    width: 24, height: 24, borderRadius: '50%', flex: 'none',
+    width: 28, height: 28, borderRadius: '50%', flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'all 0.3s',
   },
-  railLine: { width: 18, height: 2, background: 'rgba(0,0,0,0.06)', borderRadius: 2, flex: 'none' },
+  railLine: { width: 24, height: 2, background: 'rgba(255,255,255,0.08)', borderRadius: 2, flex: 'none' },
   card: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 24, padding: 26, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+    background: 'rgba(20,20,20,0.65)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 28, padding: 32, boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   stepIcon: {
+    width: 52, height: 52, borderRadius: 16, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    border: '1px solid rgba(255,68,31,0.15)',
+  },
+  stepTitle: {
+    margin: '6px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+    fontSize: 24, letterSpacing: '-.02em', color: '#fff',
+  },
+  stepSub: { margin: '8px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.55 },
+  label: { display: 'block', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: 10 },
+  input: {
+    width: '100%', height: 56, borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(0,0,0,0.3)', padding: '0 20px', fontSize: 16, outline: 'none', color: '#fff',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)', transition: 'all 0.3s',
+  },
+  chip: { height: 46, padding: '0 20px', borderRadius: 16, fontSize: 14, fontWeight: 700, transition: 'all 0.3s' },
+  chipOn: { background: '#fff', color: '#000', boxShadow: '0 6px 20px rgba(255,255,255,0.2)' },
+  chipOff: { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' },
+  nav: {
+    display: 'flex', alignItems: 'center', gap: 14, marginTop: 32,
+    paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap',
+  },
+  back: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 52, padding: '0 20px',
+    borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', 
+    fontSize: 14.5, fontWeight: 700, color: '#fff', transition: 'background 0.2s',
+  },
+  next: {
+    display: 'flex', alignItems: 'center', gap: 10, height: 52, padding: '0 26px',
+    borderRadius: 16, background: '#fff', color: '#000', fontSize: 15, fontWeight: 800,
+    boxShadow: '0 6px 24px rgba(255,255,255,0.2)', transition: 'all 0.3s',
+  },
+  submit: {
+    width: '100%', height: 60, borderRadius: 20, fontWeight: 800, fontSize: 16, marginTop: 24,
+    transition: 'all 0.3s',
+  },
+  docRow: {
+    display: 'flex', alignItems: 'center', gap: 14, padding: 18,
+    borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap',
+    background: 'rgba(255,255,255,0.02)',
+  },
+  docIcon: {
     width: 46, height: 46, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  stepTitle: {
-    margin: '5px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 21, letterSpacing: '-.02em',
-  },
-  stepSub: { margin: '6px 0 0', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.55 },
-  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 8 },
-  input: {
-    width: '100%', height: 50, borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)',
-    background: 'var(--bg)', padding: '0 16px', fontSize: 15.5, outline: 'none',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)', transition: 'border-color 0.2s',
-  },
-  chip: { height: 42, padding: '0 16px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
-  chipOn: { background: 'var(--text)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' },
-  chipOff: { background: 'var(--surface2)', color: 'var(--text)', border: '1px solid transparent' },
-  nav: {
-    display: 'flex', alignItems: 'center', gap: 11, marginTop: 26,
-    paddingTop: 20, borderTop: '1px solid rgba(0,0,0,0.04)', flexWrap: 'wrap',
-  },
-  back: {
-    display: 'flex', alignItems: 'center', gap: 7, height: 48, padding: '0 18px',
-    borderRadius: 14, border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)', fontSize: 14, fontWeight: 700,
-  },
-  next: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 22px',
-    borderRadius: 14, background: 'var(--text)', color: '#fff', fontSize: 14.5, fontWeight: 700,
-  },
-  submit: {
-    width: '100%', height: 52, borderRadius: 16, fontWeight: 800, fontSize: 14.5, marginTop: 20,
-  },
-  docRow: {
-    display: 'flex', alignItems: 'center', gap: 12, padding: 14,
-    borderRadius: 16, border: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap',
-  },
-  docIcon: {
-    width: 40, height: 40, borderRadius: 12, flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  docState: { fontSize: 10, fontWeight: 800, padding: '3px 7px', borderRadius: 6 },
+  docState: { fontSize: 10.5, fontWeight: 800, padding: '4px 8px', borderRadius: 8 },
   optional: {
-    fontSize: 9.5, fontWeight: 800, padding: '3px 6px', borderRadius: 5,
-    background: 'var(--surface2)', color: 'var(--muted)',
+    fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8,
+    background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)',
   },
   docBtn: {
-    height: 38, padding: '0 16px', borderRadius: 12,
-    border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)', fontSize: 13, fontWeight: 700,
+    height: 44, padding: '0 18px', borderRadius: 14, color: '#fff',
+    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', fontSize: 13.5, fontWeight: 700,
+    transition: 'all 0.2s',
   },
   docIconBtn: {
-    width: 38, height: 38, borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', background: 'var(--bg)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 44, height: 44, borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
   },
   note: {
-    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 14,
-    padding: 12, borderRadius: 12, background: 'var(--bg)',
+    display: 'flex', alignItems: 'flex-start', gap: 12, marginTop: 16,
+    padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
   },
   error: {
-    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
-    fontSize: 13, fontWeight: 600, lineHeight: 1.45,
+    display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 20, padding: '14px 18px',
+    borderRadius: 16, background: 'rgba(255,68,31,0.1)', color: '#FFB0A0', border: '1px solid rgba(255,68,31,0.2)',
+    fontSize: 13.5, fontWeight: 600, lineHeight: 1.45,
   },
 };

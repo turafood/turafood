@@ -167,8 +167,7 @@ export default function TuraIARider({ open, onClose }) {
               aria-label="Enviar"
               style={{
                 ...S.send,
-                background: draft.trim() ? 'var(--text)' : 'var(--surface2)',
-                color: draft.trim() ? '#fff' : 'var(--faint)',
+                opacity: draft.trim() ? 1 : 0.5,
               }}
             >
               <span className="ms" style={{ fontSize: 21 }}>arrow_upward</span>
@@ -181,64 +180,95 @@ export default function TuraIARider({ open, onClose }) {
 }
 
 const S = {
-  scrim: { position: 'absolute', inset: 0, background: 'rgba(23,20,15,.46)', zIndex: 100 },
+  scrim: {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,.75)', backdropFilter: 'blur(10px)', zIndex: 120,
+  },
   sheet: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 101,
-    background: 'var(--surface)', borderRadius: '30px 30px 0 0',
-    boxShadow: '0 -20px 60px rgba(0,0,0,.26)',
-    animation: 'up .3s cubic-bezier(.2,.9,.25,1)',
-    maxHeight: '84%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 130,
+    height: '85vh', maxHeight: 800,
+    background: 'rgba(20,20,20,0.65)', backdropFilter: 'blur(30px)',
+    borderTop: '1px solid rgba(255,255,255,0.1)', borderTopLeftRadius: 32, borderTopRightRadius: 32,
+    boxShadow: '0 -10px 40px rgba(0,0,0,0.5)',
+    display: 'flex', flexDirection: 'column',
   },
   grabber: {
-    width: 42, height: 4, borderRadius: 99, background: 'var(--faint)', margin: '0 auto 14px',
+    width: 48, height: 5, borderRadius: 99, background: 'rgba(255,255,255,.2)',
+    margin: '0 auto 16px',
   },
   avatar: {
-    width: 40, height: 40, borderRadius: 13, flex: 'none',
-    background: 'linear-gradient(150deg,#2A2620,var(--ink))',
+    width: 46, height: 46, borderRadius: 16, flex: 'none',
+    background: 'linear-gradient(135deg, rgba(217,154,21,0.2), rgba(217,154,21,0.05))',
+    border: '1px solid rgba(217,154,21,0.3)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(217,154,21,0.1)'
   },
   close: {
-    width: 34, height: 34, borderRadius: '50%', background: 'var(--surface2)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    width: 44, height: 44, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', cursor: 'pointer'
   },
-  sectionLabel: { fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.08em' },
-  tip: { border: '1px solid var(--border)', borderRadius: 16, padding: 14, background: 'var(--bg)' },
+  sectionLabel: {
+    fontSize: 11, fontWeight: 800, letterSpacing: '.06em', color: 'rgba(255,255,255,0.5)',
+  },
+  tip: {
+    background: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 18,
+    border: '1px solid rgba(255,255,255,0.05)',
+  },
   tipIcon: {
-    width: 32, height: 32, borderRadius: 9, flex: 'none',
+    width: 38, height: 38, borderRadius: 12, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   tipSkip: {
-    height: 34, padding: '0 14px', borderRadius: 999, border: '1px solid var(--border)',
-    background: 'var(--surface)', fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginTop: 11,
+    display: 'inline-flex', alignItems: 'center', gap: 6, height: 36, padding: '0 16px',
+    borderRadius: 99, background: 'rgba(255,255,255,0.08)', color: '#fff',
+    fontSize: 13, fontWeight: 700, marginTop: 14, marginLeft: 49,
+    border: 'none', cursor: 'pointer'
   },
   bubbleMe: {
-    maxWidth: '88%', padding: '12px 15px', fontSize: 14, lineHeight: 1.5, textWrap: 'pretty',
-    background: 'var(--primary)', color: '#fff', borderRadius: '18px 18px 6px 18px',
+    maxWidth: '85%', padding: '14px 18px', fontSize: 14.5, lineHeight: 1.5,
+    background: '#D99A15', color: '#000', borderRadius: '24px 24px 8px 24px',
+    fontWeight: 600,
   },
   bubbleAi: {
-    maxWidth: '88%', padding: '12px 15px', fontSize: 14, lineHeight: 1.5, textWrap: 'pretty',
-    background: 'var(--bg)', borderRadius: '18px 18px 18px 6px',
+    maxWidth: '85%', padding: '14px 18px', fontSize: 14.5, lineHeight: 1.5,
+    background: 'rgba(255,255,255,0.06)', color: '#fff', borderRadius: '8px 24px 24px 24px',
+    border: '1px solid rgba(255,255,255,0.08)',
   },
   thinking: {
-    display: 'flex', alignItems: 'center', gap: 9, padding: '12px 15px',
-    background: 'var(--bg)', borderRadius: '16px 16px 16px 5px', alignSelf: 'flex-start',
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    padding: '12px 18px', background: 'rgba(255,255,255,0.04)', borderRadius: '8px 24px 24px 24px',
+    border: '1px solid rgba(255,255,255,0.05)'
   },
   spinner: {
     width: 14, height: 14, borderRadius: '50%',
-    border: '2px solid var(--surface2)', borderTopColor: 'var(--text)',
-    animation: 'spin .7s linear infinite',
+    border: '2px solid rgba(255,255,255,.2)', borderTopColor: '#D99A15',
+    animation: 'spin 1s linear infinite',
   },
-  chip: {
-    flex: 'none', height: 36, padding: '0 14px', borderRadius: 999,
-    border: '1px solid var(--border)', background: 'var(--bg)',
-    fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap',
+  footer: {
+    padding: '12px 20px', background: 'rgba(0,0,0,0.3)', borderTop: '1px solid rgba(255,255,255,0.05)',
+  },
+  chipsRow: {
+    display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 16, WebkitOverflowScrolling: 'touch',
+  },
+  suggChip: {
+    whiteSpace: 'nowrap', padding: '8px 16px', borderRadius: 99, flex: 'none',
+    background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.9)',
+    fontSize: 13, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer'
+  },
+  inputRow: { display: 'flex', alignItems: 'flex-end', gap: 10 },
+  inputWrap: {
+    flex: 1, minWidth: 0, borderRadius: 20, background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    display: 'flex', alignItems: 'center', padding: '10px 16px', gap: 8,
   },
   input: {
-    flex: 1, height: 48, borderRadius: 999, border: '1px solid var(--border)',
-    background: 'var(--bg)', padding: '0 17px', fontSize: 16, outline: 'none', minWidth: 0,
+    flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none',
+    color: '#fff', fontSize: 15, fontFamily: 'inherit', resize: 'none',
   },
   send: {
-    width: 48, height: 48, borderRadius: '50%',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+    width: 44, height: 44, borderRadius: '50%', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: '#D99A15', color: '#000', border: 'none', cursor: 'pointer'
   },
 };

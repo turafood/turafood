@@ -10,6 +10,9 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
+import { supabase } from '@/lib/supabase';
+import { supabaseUpload } from '@/lib/upload';
+import PerformanceOverlay from '../components/PerformanceOverlay';
 import { cop } from '@/lib/format';
 import { saveProduct, createCategory } from '@/lib/negocio';
 import { ProductThumb } from '../../components/Vertical3D';
@@ -23,6 +26,7 @@ const EMPTY = {
 export default function ProductSheet({
   open, product, categories, businessId, vertical, onClose, onSaved, onCategoryCreated,
 }) {
+  const [showPerf, setShowPerf] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [newCategory, setNewCategory] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
@@ -135,10 +139,31 @@ export default function ProductSheet({
                 Completa los datos para mejorar el ranking de tu producto.
               </div>
             </div>
-            <button onClick={onClose} style={{ ...S.close, display: 'none' }} className="mobile-only" aria-label="Cerrar">
-              <span className="ms">close</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {product && (
+                <button
+                  type="button"
+                  onClick={() => setShowPerf(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, height: 32, padding: '0 12px',
+                    borderRadius: 99, background: 'linear-gradient(135deg, #2A2620, #17140F)',
+                    color: '#D99A15', fontSize: 12, fontWeight: 700, border: '1px solid rgba(217, 154, 21, 0.3)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer'
+                  }}
+                >
+                  <span className="ms" style={{ fontSize: 15 }}>bar_chart</span>
+                  Rendimiento
+                </button>
+              )}
+              <button onClick={onClose} style={{ ...S.close, display: 'none' }} className="mobile-only" aria-label="Cerrar">
+                <span className="ms">close</span>
+              </button>
+            </div>
           </header>
+
+          {showPerf && (
+            <PerformanceOverlay product={product} onClose={() => setShowPerf(false)} />
+          )}
 
           <form onSubmit={submit} className="sc" style={S.body}>
             <div style={S.sectionTitle}>1. Lo Básico</div>

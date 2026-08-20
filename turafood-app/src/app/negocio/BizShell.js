@@ -44,6 +44,7 @@ const PAGES = {
   '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
   '/negocio/suite': ['Tura Business Suite', 'Todo lo que hace crecer tu negocio, en un solo lugar'],
   '/negocio/crecimiento': ['Growth Partner', 'La app es gratis. Esto es lo que puedes alquilar para crecer'],
+  '/negocio/conocimiento': ['Base de Conocimiento', 'Tutoriales, guías y estrategias para crecer'],
   '/negocio/redes': ['Redes Sociales AI', 'Tus cuentas, tus posts y tu bandeja'],
   '/negocio/redes/crear': ['Crear publicación', 'Míralo antes de publicarlo'],
   '/negocio/redes/inbox': ['Bandeja de marketing', 'Todos tus mensajes en un solo lugar'],
@@ -106,6 +107,7 @@ const NAV_GROUPS = [
   {
     label: 'CRECER',
     items: [
+      { label: 'Base de Conocimiento', icon: 'menu_book', href: '/negocio/conocimiento' },
       { label: 'Growth Partner', icon: 'rocket_launch', href: '/negocio/crecimiento' },
       { label: 'Tura Business Suite', icon: 'auto_awesome', href: '/negocio/suite', disabled: true },
       { label: 'Redes Sociales AI', icon: 'share', href: '/negocio/redes', disabled: true },
@@ -521,22 +523,12 @@ export default function BizShell({ children }) {
 
             <Link href="/negocio/catalogo" style={S.newProduct} className="desktop-only">
               <span className="ms" style={{ fontSize: 18 }}>add</span>
-              {t('Nuevo producto')}
+              Nuevo producto
             </Link>
           </header>
 
           <main className="sc biz-main" data-tour="contenido" style={S.main}>
-            {/* Lo que le falta para quedar activo, en todas las
-                pantallas. Quien entró a probar no va a ir solo a
-                buscar la verificación: si no está delante, la cuenta
-                se queda a medias para siempre. */}
-            {path !== '/negocio/verificacion' && (
-              <ProgresoCuenta
-                titulo="Termina de activar tu negocio"
-                verificado={business?.status === 'active' && !onboardingPending}
-                pasos={pasosNegocio}
-              />
-            )}
+            {/* ProgresoCuenta fue movido directamente a /negocio/page.js */}
 
             {error && (
               <div style={S.error}>

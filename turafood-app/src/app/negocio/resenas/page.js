@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { relativeTime } from '@/lib/format';
 import { getReviews, replyToReview } from '@/lib/negocio';
 import { useBiz } from '../BizContext';
+import HeaderHero from '../../components/HeaderHero';
 
 const AVATAR_BG = [
   { bg: '#FFF1EC', color: '#E2360F' },
@@ -144,9 +145,18 @@ export default function ResenasPage() {
         </div>
       )}
 
+      <HeaderHero
+        title="Gestión de reputación"
+        subtitle="Construye confianza respondiendo a tus clientes. Una excelente calificación es el factor #1 para conseguir nuevos clientes orgánicamente en TuraFood."
+        images={[
+          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop', // Restaurant vibe
+          'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200&auto=format&fit=crop'
+        ]}
+      />
+
       {/* Resumen */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 16, alignItems: 'start' }}>
-        <section style={{ ...S.card, padding: 26, background: 'linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 20, alignItems: 'start' }}>
+        <section style={{ ...S.card, padding: 32, background: 'linear-gradient(135deg, rgba(24,24,24,0.9) 0%, rgba(20,20,20,0.95) 100%)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="ms" style={{ fontSize: 24, color: '#4285F4' }}>google</span>
@@ -416,34 +426,36 @@ export default function ResenasPage() {
 
 const S = {
   google: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 22, padding: 24, boxShadow: '0 4px 15px rgba(0,0,0,0.02)', marginTop: 24,
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 32, boxShadow: '0 8px 30px rgba(0,0,0,0.3)', marginTop: 24,
+    backdropFilter: 'blur(20px)', color: '#fff'
   },
   googleIcon: {
-    width: 54, height: 54, borderRadius: 16, background: 'linear-gradient(135deg, #EAF1FF 0%, #F3ECFF 100%)', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(46,107,255,0.1)'
+    width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, rgba(46,107,255,0.15) 0%, rgba(107,47,214,0.15) 100%)', flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(46,107,255,0.2)'
   },
   googleGrid: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
-    gap: 16, marginTop: 20,
+    gap: 16, marginTop: 24,
   },
   googleCard: {
-    display: 'flex', alignItems: 'center', gap: 14, padding: 16, borderRadius: 18,
-    background: 'var(--bg)', border: '1px solid rgba(0,0,0,0.06)',
-    textDecoration: 'none', color: 'var(--text)', minWidth: 0,
-    transition: 'box-shadow 0.2s, transform 0.2s',
+    display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 20,
+    background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)',
+    textDecoration: 'none', color: '#fff', minWidth: 0,
+    transition: 'box-shadow 0.2s, transform 0.2s, background 0.2s',
   },
   googleCardIcon: {
-    width: 44, height: 44, borderRadius: 14, flex: 'none',
+    width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  googleCardTitle: { display: 'block', fontSize: 14, fontWeight: 800 },
+  googleCardTitle: { display: 'block', fontSize: 15, fontWeight: 800, color: '#fff' },
   googleCardText: {
-    display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 3, lineHeight: 1.45,
+    display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,0.6)', marginTop: 4, lineHeight: 1.45,
   },
   card: {
-    background: 'var(--surface)', border: '1px solid rgba(0,0,0,0.04)',
-    borderRadius: 22, padding: 22, boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+    background: 'rgba(24,24,24,0.7)', border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(20px)', color: '#fff'
   },
   kpiIcon: {
     width: 38, height: 38, borderRadius: 12,

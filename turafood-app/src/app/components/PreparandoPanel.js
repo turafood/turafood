@@ -13,15 +13,15 @@
 import { useEffect, useState } from 'react';
 
 const ESCENAS = {
-  comidas_rapidas: { icon: 'fastfood',         titulo: 'Preparando tu espacio',    color: '#FFB020' },
-  farmacia:        { icon: 'local_pharmacy',   titulo: 'Organizando inventario',   color: '#4A90E2' },
-  licores:         { icon: 'sports_bar',       titulo: 'Alistando tu catálogo',    color: '#9B6BE8' },
-  turbo:           { icon: 'bolt',             titulo: 'Alistando entregas',       color: '#D97706' },
-  turapp:          { icon: 'apps',             titulo: 'Configurando servicios',   color: '#15803D' },
-  repartidor:      { icon: 'two_wheeler',      titulo: 'Preparando tu ruta',       color: '#25D366' },
+  comidas_rapidas: { icon: 'fastfood',         titulo: 'Entorno FastFood',         color: '#FFB020' },
+  farmacia:        { icon: 'local_pharmacy',   titulo: 'Entorno Health & Pharma',  color: '#4A90E2' },
+  licores:         { icon: 'sports_bar',       titulo: 'Entorno Nightlife',        color: '#9B6BE8' },
+  turbo:           { icon: 'bolt',             titulo: 'Entorno Turbo Logistics',  color: '#D97706' },
+  turapp:          { icon: 'apps',             titulo: 'Entorno Multi-Service',    color: '#15803D' },
+  repartidor:      { icon: 'two_wheeler',      titulo: 'Entorno Courier Grid',     color: '#25D366' },
 };
 
-const POR_DEFECTO = { icon: 'auto_awesome', titulo: 'Armando tu panel', color: '#FF7A4D' };
+const POR_DEFECTO = { icon: 'auto_awesome', titulo: 'Entorno de Operaciones', color: '#FF7A4D' };
 
 export default function PreparandoPanel({ nicho, pasos = [], listo }) {
   const [visto, setVisto] = useState(0);
@@ -61,6 +61,7 @@ export default function PreparandoPanel({ nicho, pasos = [], listo }) {
         }
       `}</style>
       <div style={S.capa} role="status" aria-live="polite">
+        <div style={S.gridBg} />
         <div style={S.centro}>
 
           {/* ---------------------------------------- El Loader PRO */}
@@ -92,31 +93,42 @@ export default function PreparandoPanel({ nicho, pasos = [], listo }) {
 
           {/* ---------------------------------------- El texto */}
           <h2 style={S.titulo}>{escena.titulo}</h2>
-          <p style={S.bajada}>Afinando cada detalle para ti.</p>
+          <p style={S.bajada}>Sincronizando topología de red...</p>
 
           {/* ---------------------------------------- Los pasos */}
-          <ol style={S.pasos}>
-            {pasos.map((p, n) => {
-              const hecho = n < visto;
-              const actual = n === visto;
-              return (
-                <li key={p} style={{ ...S.paso, opacity: hecho || actual ? 1 : 0.25 }}>
-                  <span
-                    style={{
-                      ...S.marca,
-                      background: hecho ? escena.color : (actual ? 'rgba(255,255,255,0.1)' : 'transparent'),
-                      borderColor: actual ? escena.color : 'transparent',
-                      boxShadow: actual ? `0 0 12px ${escena.color}66` : 'none',
-                    }}
-                  >
-                    {hecho && <span className="ms" style={{ fontSize: 13, color: '#fff' }}>check</span>}
-                    {actual && <span style={{ width: 6, height: 6, borderRadius: '50%', background: escena.color }} />}
-                  </span>
-                  <span style={{ fontWeight: actual ? 700 : 500, color: actual ? '#fff' : 'rgba(255,255,255,0.85)' }}>{p}</span>
-                </li>
-              );
-            })}
-          </ol>
+          <div style={S.pasosCaja}>
+            <ol style={S.pasos}>
+              {pasos.map((p, n) => {
+                const hecho = n < visto;
+                const actual = n === visto;
+                return (
+                  <li key={p} style={{ ...S.paso, opacity: hecho || actual ? 1 : 0.25 }}>
+                    <div style={{
+                      ...S.terminalLine,
+                      borderColor: actual ? escena.color : 'rgba(255,255,255,0.03)',
+                      background: actual ? `${escena.color}11` : 'rgba(0,0,0,0.2)',
+                    }}>
+                      <span style={{ 
+                        color: hecho ? escena.color : activo ? '#fff' : 'transparent',
+                        fontFamily: 'monospace', fontSize: 13, minWidth: 16,
+                        animation: actual ? 'pro-pulse-glow 1s infinite' : 'none'
+                      }}>
+                        {hecho ? '✓' : '>'}
+                      </span>
+                      <span style={{ 
+                        fontSize: 13, 
+                        fontWeight: actual ? 700 : 500,
+                        color: actual ? '#fff' : (hecho ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'),
+                        fontFamily: 'var(--font-jakarta)'
+                      }}>
+                        {p}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
 
           {listo && (
             <div style={{ ...S.bajada, color: escena.color, fontWeight: 700, marginTop: 24, animation: 'pro-float 2s infinite' }}>
@@ -134,9 +146,14 @@ const S = {
     position: 'fixed', inset: 0, zIndex: 400,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: 24,
-    // Un fondo oscuro muy premium con un mesh gradient sutil en CSS puro
-    background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03) 0%, transparent 60%), #050505',
+    background: '#040302',
     color: '#fff',
+  },
+  gridBg: {
+    position: 'absolute', inset: 0, opacity: 0.08,
+    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+    backgroundSize: '24px 24px',
+    pointerEvents: 'none',
   },
   centro: {
     width: '100%', maxWidth: 360,
@@ -190,28 +207,24 @@ const S = {
 
   pasosCaja: {
     width: '100%', marginTop: 36,
-    padding: '20px 24px',
-    background: 'rgba(255,255,255,0.03)',
+    padding: '24px',
+    background: 'rgba(20, 20, 20, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
     borderRadius: 24,
-    border: '1px solid rgba(255,255,255,0.05)',
-    boxShadow: '0 16px 40px rgba(0,0,0,0.3)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
   },
   pasos: {
     listStyle: 'none', margin: 0, padding: 0,
-    display: 'flex', flexDirection: 'column', gap: 18,
+    display: 'flex', flexDirection: 'column', gap: 14,
     width: '100%', textAlign: 'left',
   },
   paso: {
-    display: 'flex', alignItems: 'center', gap: 16,
-    fontSize: 15, transition: 'all .5s cubic-bezier(.2,0,0,1)',
+    transition: 'opacity .3s ease',
   },
-  marca: {
-    width: 26, height: 26, borderRadius: '50%', flex: 'none',
-    border: '1.5px solid transparent',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  terminalLine: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 14px', borderRadius: 12,
+    border: '1px solid rgba(255,255,255,0.03)',
     transition: 'all .4s cubic-bezier(.2,0,0,1)',
-  },
-  textoPaso: {
-    transition: 'color .4s',
   }
 };
