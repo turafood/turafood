@@ -293,7 +293,7 @@ export default function RepartidorHome() {
             </span>
           </div>
           <div style={S.tierTrack}>
-            <div style={{ height: '100%', borderRadius: 99, width: \`\${progress}%\`, background: 'linear-gradient(90deg,#F0C97A,#D99A15)' }} />
+            <div style={{ height: '100%', borderRadius: 99, width: `${progress}%`, background: 'linear-gradient(90deg,#F0C97A,#D99A15)' }} />
           </div>
           
           {/* Perks (Botones Píldora) */}

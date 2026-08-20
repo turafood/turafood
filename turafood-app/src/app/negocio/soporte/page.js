@@ -321,8 +321,8 @@ export default function SoportePage() {
                     style={{
                       ...S.catCard,
                       borderColor: on ? c.color : 'rgba(255,255,255,0.06)',
-                      background: on ? \`color-mix(in srgb, \${c.color} 15%, transparent)\` : 'rgba(255,255,255,0.03)',
-                      boxShadow: on ? \`0 4px 16px \${c.color}22\` : 'none',
+                      background: on ? `color-mix(in srgb, ${c.color} 15%, transparent)` : 'rgba(255,255,255,0.03)',
+                      boxShadow: on ? `0 4px 16px ${c.color}22` : 'none',
                     }}
                   >
                     <span className="ms" style={{ fontSize: 24, color: on ? c.color : 'rgba(255,255,255,0.3)' }}>
@@ -412,7 +412,7 @@ export default function SoportePage() {
           Abrir un Ticket de Chat
         </button>
         <a
-          href={\`https://wa.me/\${WHATSAPP}?text=Hola,%20soy%20\${encodeURIComponent(business?.name ?? 'un negocio')}%20y%20necesito%20ayuda\`}
+          href={`https://wa.me/${WHATSAPP}?text=Hola,%20soy%20${encodeURIComponent(business?.name ?? 'un negocio')}%20y%20necesito%20ayuda`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ ...S.heroGhost, background: 'rgba(37, 211, 102, 0.1)', color: '#25D366', border: '1px solid rgba(37, 211, 102, 0.2)' }}
@@ -454,7 +454,7 @@ export default function SoportePage() {
                   className="ticket-hover"
                   style={{ ...S.ticket, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
                 >
-                  <span style={{ ...S.catIcon, background: \`color-mix(in srgb, \${cat.color} 20%, transparent)\`, width: 52, height: 52 }}>
+                  <span style={{ ...S.catIcon, background: `color-mix(in srgb, ${cat.color} 20%, transparent)`, width: 52, height: 52 }}>
                     <span className="ms" style={{ fontSize: 26, color: cat.color }}>{cat.icon}</span>
                   </span>
 
@@ -464,7 +464,7 @@ export default function SoportePage() {
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
                       <span style={{ ...S.reference, background: 'rgba(0,0,0,0.3)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>#{t.reference}</span>
-                      <span style={{ ...S.statusPill, background: \`color-mix(in srgb, \${st.color} 20%, transparent)\`, color: st.color, border: \`1px solid color-mix(in srgb, \${st.color} 30%, transparent)\` }}>
+                      <span style={{ ...S.statusPill, background: `color-mix(in srgb, ${st.color} 20%, transparent)`, color: st.color, border: `1px solid color-mix(in srgb, ${st.color} 30%, transparent)` }}>
                         <span className="ms" style={{ fontSize: 14 }}>{st.icon}</span>
                         {st.label}
                       </span>
@@ -475,7 +475,7 @@ export default function SoportePage() {
                     {/* Semáforo visual */}
                     <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
-                        <div style={{ width: \`\${progressPct}%\`, height: '100%', background: barColor, borderRadius: 2 }} />
+                        <div style={{ width: `${progressPct}%`, height: '100%', background: barColor, borderRadius: 2 }} />
                       </div>
                     </div>
                   </span>
