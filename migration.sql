@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.conocimiento_docs (
 -- Políticas RLS para conocimiento_docs (Lectura pública para dueños de negocio)
 ALTER TABLE public.conocimiento_docs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Los artículos de conocimiento son públicos" ON public.conocimiento_docs;
 CREATE POLICY "Los artículos de conocimiento son públicos"
 ON public.conocimiento_docs FOR SELECT
 USING (true);
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS public.product_performance (
 -- Políticas RLS para product_performance
 ALTER TABLE public.product_performance ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Los dueños ven el rendimiento de sus productos" ON public.product_performance;
 CREATE POLICY "Los dueños ven el rendimiento de sus productos"
 ON public.product_performance FOR SELECT
 USING (auth.uid() = product_performance.business_id);
