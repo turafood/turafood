@@ -262,19 +262,21 @@ export function ReasonDialog({ open, title, note, confirmLabel = 'Rechazar', onC
 export const btn = {
   primary: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    height: 42, padding: '0 18px', borderRadius: 999, background: 'var(--primary)',
-    color: '#fff', fontSize: 13.5, fontWeight: 700,
+    height: 46, padding: '0 20px', borderRadius: 999, background: 'var(--primary)',
+    color: '#fff', fontSize: 14, fontWeight: 800, transition: 'all 0.2s ease',
+    boxShadow: '0 4px 15px rgba(255, 68, 31, 0.25)',
   },
   green: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    height: 46, padding: '0 18px', borderRadius: 14, background: 'var(--green)',
-    color: '#fff', fontSize: 14, fontWeight: 700, width: '100%',
+    height: 48, padding: '0 20px', borderRadius: 16, background: 'var(--green)',
+    color: '#fff', fontSize: 14.5, fontWeight: 800, width: '100%',
+    boxShadow: '0 4px 15px rgba(11, 142, 84, 0.25)', transition: 'all 0.2s ease',
   },
   ghost: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    height: 42, padding: '0 16px', borderRadius: 999,
-    border: '1px solid var(--border)', background: 'var(--surface)',
-    fontSize: 13, fontWeight: 700,
+    height: 46, padding: '0 18px', borderRadius: 999,
+    border: '1px solid rgba(0,0,0,0.06)', background: 'rgba(255,255,255,0.6)',
+    fontSize: 13.5, fontWeight: 800, backdropFilter: 'blur(10px)', transition: 'all 0.2s ease',
   },
   danger: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
@@ -285,21 +287,22 @@ export const btn = {
 
 const S = {
   panel: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, boxShadow: 'var(--shadowSm)',
+    background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.03)', overflow: 'hidden',
   },
   panelHead: {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-    gap: 12, flexWrap: 'wrap',
+    gap: 12, flexWrap: 'wrap', borderBottom: '1px solid rgba(0,0,0,0.03)', paddingBottom: 16,
   },
   panelTitle: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, letterSpacing: '-.01em',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, letterSpacing: '-.02em',
   },
-  panelSub: { fontSize: 12, color: 'var(--muted)', marginTop: 3 },
+  panelSub: { fontSize: 12.5, color: 'var(--muted)', marginTop: 4, fontWeight: 500 },
 
   kpi: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 22, padding: 18, boxShadow: 'var(--shadowSm)',
+    background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, padding: 20, boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+    transition: 'transform 0.2s ease',
   },
   kpiLabel: { fontSize: 12, fontWeight: 700, color: 'var(--muted)' },
   kpiIcon: {
@@ -343,18 +346,18 @@ const S = {
   heroStatValue: { fontSize: 14, fontWeight: 800, marginTop: 3 },
 
   pill: {
-    display: 'inline-flex', alignItems: 'center', gap: 4, height: 22, padding: '0 9px',
-    borderRadius: 999, fontSize: 10.5, fontWeight: 800, letterSpacing: '.02em',
+    display: 'inline-flex', alignItems: 'center', gap: 5, height: 24, padding: '0 10px',
+    borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: '.03em',
     whiteSpace: 'nowrap',
   },
 
-  tabs: { display: 'flex', gap: 7, flexWrap: 'wrap' },
+  tabs: { display: 'flex', gap: 8, flexWrap: 'wrap', background: 'rgba(0,0,0,0.03)', padding: 6, borderRadius: 16 },
   tab: {
-    display: 'inline-flex', alignItems: 'center', gap: 7, height: 36, padding: '0 15px',
-    borderRadius: 11, fontSize: 12.5, fontWeight: 700,
+    display: 'inline-flex', alignItems: 'center', gap: 8, height: 38, padding: '0 16px',
+    borderRadius: 12, fontSize: 13, fontWeight: 800, transition: 'all 0.2s ease',
   },
-  tabOn: { background: 'var(--text)', color: '#fff' },
-  tabOff: { background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)' },
+  tabOn: { background: '#fff', color: 'var(--text)', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' },
+  tabOff: { background: 'transparent', color: 'var(--muted)' },
   tabCount: {
     minWidth: 18, height: 18, padding: '0 5px', borderRadius: 99,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -376,8 +379,8 @@ const S = {
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 
-  meterTrack: { height: 7, borderRadius: 99, background: 'var(--surface2)', overflow: 'hidden' },
-  meterFill: { height: '100%', borderRadius: 99, transition: 'width .4s cubic-bezier(.2,0,0,1)' },
+  meterTrack: { height: 8, borderRadius: 99, background: 'rgba(0,0,0,0.04)', overflow: 'hidden' },
+  meterFill: { height: '100%', borderRadius: 99, transition: 'width .5s cubic-bezier(.2,0,0,1)' },
 
   modalScrim: {
     position: 'fixed', inset: 0, zIndex: 60, display: 'flex',

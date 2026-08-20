@@ -114,26 +114,27 @@ export default function SoportePage() {
                   return (
                     <div key={t.id} style={S.ticket}>
                       <span style={S.ticketIcon}>
-                        <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>
+                        <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>
                           {CATEGORY_ICON[t.category] ?? 'flag'}
                         </span>
                       </span>
 
                       <span style={{ flex: 1, minWidth: 200 }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 13.5, fontWeight: 700 }}>{t.subject}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 14.5, fontWeight: 800 }}>{t.subject}</span>
                           <Pill label={p.label} bg={p.bg} color={p.color} />
                         </span>
                         {t.body && <span style={S.body}>{t.body}</span>}
                         <span style={S.who}>
+                          <span className="ms" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 4 }}>person</span>
                           {t.who ?? '—'}
-                          {t.ref ? ` · ${t.ref}` : ''}
-                          {' · '}
-                          <span suppressHydrationWarning>{ago(t.created_at)}</span>
+                          {t.ref ? <span style={{ marginLeft: 6, padding: '2px 6px', background: 'rgba(0,0,0,0.04)', borderRadius: 4 }}>{t.ref}</span> : ''}
+                          <span style={{ margin: '0 8px', color: 'rgba(0,0,0,0.1)' }}>|</span>
+                          <span suppressHydrationWarning style={{ color: 'var(--muted)' }}>{ago(t.created_at)}</span>
                         </span>
                       </span>
 
-                      <span style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 'none' }}>
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 'none', minWidth: 110 }}>
                         <button style={S.actionBtn}>{t.action ?? 'Responder'}</button>
                         <button style={S.assignBtn}>Asignar</button>
                       </span>
@@ -175,35 +176,38 @@ export default function SoportePage() {
 }
 
 const S = {
-  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 },
-  split: { display: 'grid', gridTemplateColumns: 'minmax(0,1.6fr) minmax(260px,1fr)', gap: 16, marginTop: 16, alignItems: 'start' },
+  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 },
+  split: { display: 'grid', gridTemplateColumns: 'minmax(0,1.8fr) minmax(280px,1fr)', gap: 24, marginTop: 24, alignItems: 'start' },
 
   ticket: {
-    display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap',
-    padding: 14, borderRadius: 18, background: 'var(--bg)',
+    display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap',
+    padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.6)',
+    border: '1px solid rgba(0,0,0,0.03)', transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   },
   ticketIcon: {
-    width: 38, height: 38, borderRadius: 12, flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFF0ED',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,68,31,0.08)',
   },
-  body: { display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 5, lineHeight: 1.5 },
-  who: { display: 'block', fontSize: 11, color: 'var(--faint)', marginTop: 6, fontWeight: 600 },
+  body: { display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.55 },
+  who: { display: 'block', fontSize: 11.5, color: 'var(--text)', marginTop: 10, fontWeight: 700 },
   actionBtn: {
-    height: 32, padding: '0 14px', borderRadius: 999,
-    background: 'var(--primary)', color: '#fff', fontSize: 12, fontWeight: 700,
+    height: 36, padding: '0 16px', borderRadius: 999,
+    background: 'var(--primary)', color: '#fff', fontSize: 13, fontWeight: 800,
+    boxShadow: '0 4px 15px rgba(255,68,31,0.2)', transition: 'all 0.2s ease',
   },
   assignBtn: {
-    height: 32, padding: '0 14px', borderRadius: 999,
-    border: '1px solid var(--border)', fontSize: 12, fontWeight: 700,
+    height: 36, padding: '0 16px', borderRadius: 999,
+    border: '1px solid rgba(0,0,0,0.06)', background: 'transparent', fontSize: 13, fontWeight: 800,
+    color: 'var(--muted)', transition: 'all 0.2s ease',
   },
 
-  note: { margin: '6px 0 0', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.55 },
+  note: { margin: '10px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6 },
 
-  audit: { display: 'flex', alignItems: 'flex-start', gap: 11, padding: '11px 0' },
+  audit: { display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 0' },
   auditDot: {
-    width: 7, height: 7, borderRadius: '50%', background: 'var(--faint)',
-    flex: 'none', marginTop: 5,
+    width: 8, height: 8, borderRadius: '50%', background: 'rgba(0,0,0,0.1)',
+    flex: 'none', marginTop: 6,
   },
-  auditWhat: { display: 'block', fontSize: 12.5, fontWeight: 600, lineHeight: 1.45 },
-  auditWho: { display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 3 },
+  auditWhat: { display: 'block', fontSize: 13.5, fontWeight: 700, lineHeight: 1.45 },
+  auditWho: { display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 4 },
 };

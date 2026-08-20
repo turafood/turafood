@@ -14,7 +14,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  getBusinesses, getBusinessDocuments, reviewBusiness,
+  getBusinesses, getBusinessDocuments, reviewBusiness, getDocumentUrl,
   BUSINESS_STATUS, VERTICAL, DOC_KIND, ago,
 } from '@/lib/admin';
 import { Pill, Tabs, Initials, Empty, Skeleton, ErrorNote, ReasonDialog, btn } from '../../ui';
@@ -252,18 +252,30 @@ function Expediente({ business, docs, busy, onApprove, onReject }) {
         {/* Documentos */}
         <div style={{ marginTop: 20 }}>
           <div style={S.sectionLabel}>DOCUMENTOS</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
             {docs.length === 0 && (
               <div style={S.noDocs}>
                 Todavía no ha subido ningún documento.
               </div>
             )}
             {docs.map((d) => (
-              <div key={d.id} style={S.doc}>
+              <button 
+                key={d.id} 
+                style={S.doc}
+                className="adm-row"
+                onClick={async () => {
+                  try {
+                    const url = await getDocumentUrl(d.file_path);
+                    window.open(url, '_blank');
+                  } catch (e) {
+                    alert('No se pudo abrir el documento');
+                  }
+                }}
+              >
                 <span style={S.docIcon}>
                   <span className="ms" style={{ fontSize: 17, color: 'var(--muted)' }}>description</span>
                 </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                   <span style={S.docName}>{DOC_KIND[d.kind] ?? d.file_name}</span>
                   {d.size && <span style={S.docMeta}>{d.size}</span>}
                 </span>
@@ -274,9 +286,9 @@ function Expediente({ business, docs, busy, onApprove, onReject }) {
                     color: d.status === 'approved' ? 'var(--green)' : 'var(--faint)',
                   }}
                 >
-                  {d.status === 'approved' ? 'check_circle' : 'radio_button_unchecked'}
+                  {d.status === 'approved' ? 'check_circle' : 'visibility'}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -327,77 +339,79 @@ function Field({ label, value }) {
 }
 
 const S = {
-  layout: { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 340px', gap: 16, alignItems: 'start' },
+  layout: { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 380px', gap: 24, alignItems: 'start' },
   list: {
-    marginTop: 14, background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, boxShadow: 'var(--shadowSm)', overflow: 'hidden',
+    marginTop: 14, background: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', overflow: 'hidden',
   },
   item: {
-    display: 'flex', alignItems: 'center', gap: 13, width: '100%', padding: 14,
-    borderBottom: '1px solid var(--border)', transition: 'background .15s ease',
+    display: 'flex', alignItems: 'center', gap: 15, width: '100%', padding: 18,
+    borderBottom: '1px solid rgba(0,0,0,0.04)', transition: 'all .2s ease', cursor: 'pointer',
   },
-  itemOn: { background: '#FFF6F3', boxShadow: 'inset 3px 0 0 var(--primary)' },
+  itemOn: { background: '#FFF6F3', boxShadow: 'inset 4px 0 0 var(--primary)' },
   itemName: {
-    fontSize: 14, fontWeight: 700,
+    fontSize: 15, fontWeight: 700,
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 240,
   },
   itemMeta: {
-    display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 3,
+    display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 4,
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
   },
-  itemAgo: { display: 'block', fontSize: 10.5, color: 'var(--faint)', marginTop: 5 },
-  docCount: { fontSize: 11, fontWeight: 800, color: 'var(--muted)' },
+  itemAgo: { display: 'block', fontSize: 11, color: 'var(--faint)', marginTop: 6, fontWeight: 500 },
+  docCount: { fontSize: 12, fontWeight: 800, color: 'var(--muted)' },
 
   panel: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 20, boxShadow: 'var(--shadowSm)', overflow: 'hidden',
+    background: 'rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.04)', overflow: 'hidden',
   },
   cover: {
-    height: 78, background: 'linear-gradient(120deg,#EFEDE8,#E2DFD8)',
-    position: 'relative', display: 'flex', alignItems: 'flex-start', padding: 12,
+    height: 90, background: 'linear-gradient(120deg,#F5F3ED,#EAE7DF)',
+    position: 'relative', display: 'flex', alignItems: 'flex-start', padding: 16,
   },
   riskTag: {
-    display: 'inline-flex', alignItems: 'center', gap: 5, height: 24, padding: '0 10px',
-    borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '.04em',
+    display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 12px',
+    borderRadius: 999, fontSize: 11, fontWeight: 800, letterSpacing: '.04em',
   },
-  sectionLabel: { fontSize: 10, fontWeight: 800, letterSpacing: '.1em', color: 'var(--faint)' },
-  progressTrack: { height: 6, borderRadius: 99, background: 'var(--surface2)', overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: 99, transition: 'width .4s cubic-bezier(.2,0,0,1)' },
+  sectionLabel: { fontSize: 11, fontWeight: 800, letterSpacing: '.12em', color: 'var(--faint)' },
+  progressTrack: { height: 8, borderRadius: 99, background: 'rgba(0,0,0,0.04)', overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 99, transition: 'width .5s cubic-bezier(.2,0,0,1)' },
 
   field: {
     display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-    gap: 14, padding: '9px 0', borderBottom: '1px solid var(--border)',
+    gap: 14, padding: '12px 0', borderBottom: '1px dashed rgba(0,0,0,0.06)',
   },
 
   doc: {
-    display: 'flex', alignItems: 'center', gap: 10, padding: 11,
-    borderRadius: 14, background: 'var(--bg)',
+    display: 'flex', alignItems: 'center', gap: 12, padding: 14, cursor: 'pointer',
+    borderRadius: 18, background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(0,0,0,0.03)',
+    transition: 'all 0.2s ease',
   },
   docIcon: {
-    width: 30, height: 30, borderRadius: 9, background: 'var(--surface)',
+    width: 36, height: 36, borderRadius: 12, background: 'rgba(0,0,0,0.03)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
-  docName: { display: 'block', fontSize: 12.5, fontWeight: 700 },
-  docMeta: { display: 'block', fontSize: 10.5, color: 'var(--muted)', marginTop: 2 },
+  docName: { display: 'block', fontSize: 13.5, fontWeight: 700 },
+  docMeta: { display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 },
   noDocs: {
-    padding: 14, borderRadius: 14, background: 'var(--bg)',
-    fontSize: 12.5, color: 'var(--muted)', textAlign: 'center',
+    padding: 16, borderRadius: 18, background: 'rgba(0,0,0,0.02)',
+    fontSize: 13.5, color: 'var(--muted)', textAlign: 'center', border: '1px dashed rgba(0,0,0,0.06)'
   },
 
   rejectBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',
-    height: 44, borderRadius: 14, background: '#FFF0ED', color: '#C0341A',
-    fontSize: 13.5, fontWeight: 700,
+    height: 48, borderRadius: 16, background: '#FFF0ED', color: '#C0341A',
+    fontSize: 14, fontWeight: 700, transition: 'all 0.2s ease'
   },
   warn: {
-    margin: '12px 0 0', fontSize: 11.5, lineHeight: 1.5, color: 'var(--muted)',
+    margin: '14px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)',
   },
   reason: {
-    marginTop: 18, padding: 13, borderRadius: 14, background: '#FFF0ED',
+    marginTop: 20, padding: 16, borderRadius: 18, background: '#FFF0ED', border: '1px solid rgba(192,52,26,0.1)'
   },
 
   done: {
-    display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, padding: '13px 15px',
-    borderRadius: 16, background: '#E6F6EE', color: '#0B7A48', fontSize: 13, fontWeight: 700,
+    display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18, padding: '16px 20px',
+    borderRadius: 20, background: '#E6F6EE', color: '#0B7A48', fontSize: 14, fontWeight: 700,
+    boxShadow: '0 4px 15px rgba(11,122,72,0.1)'
   },
 };

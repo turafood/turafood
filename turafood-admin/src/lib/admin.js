@@ -136,6 +136,21 @@ export async function getBusinessDocuments(businessId) {
   return data ?? [];
 }
 
+/** Obtener la URL temporal para descargar/ver el documento privado */
+export async function getDocumentUrl(filePath) {
+  if (!isLive()) {
+    await delay(160);
+    return '#'; // mockup
+  }
+  const supabase = createClient();
+  const { data, error } = await supabase.storage
+    .from('business-docs')
+    .createSignedUrl(filePath, 60 * 60); // 1 hora de validez
+  
+  if (error) throw new Error(`Error obteniendo el documento: ${error.message}`);
+  return data?.signedUrl;
+}
+
 export async function reviewBusiness(businessId, approve, reason = null) {
   // Aprobar algo deja vieja la lista: sin esto seguiria
   // apareciendo como pendiente durante medio minuto.

@@ -115,25 +115,26 @@ export default function ServiciosPage() {
               return (
                 <div key={r.id} style={S.card}>
                   <span style={S.kindIcon}>
-                    <span className="ms" style={{ fontSize: 21, color: 'var(--primary)' }}>
+                    <span className="ms" style={{ fontSize: 24, color: 'var(--primary)' }}>
                       {KIND_ICON[r.kind] ?? 'more_horiz'}
                     </span>
                   </span>
 
                   <span style={{ flex: 1, minWidth: 200 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 14, fontWeight: 700 }}>{SERVICE_KIND[r.kind] ?? r.kind}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 14.5, fontWeight: 800 }}>{SERVICE_KIND[r.kind] ?? r.kind}</span>
                       <Pill label={st.label} bg={st.bg} color={st.color} />
                     </span>
                     <span style={S.meta}>
-                      {r.business_name}
-                      {r.payload?.plan ? ` · plan ${r.payload.plan}` : ' · sin plan elegido'}
-                      {' · '}
-                      <span suppressHydrationWarning>{ago(r.submitted_at ?? r.created_at)}</span>
+                      <span className="ms" style={{ fontSize: 13, verticalAlign: 'middle', marginRight: 4 }}>storefront</span>
+                      <span style={{ fontWeight: 700, color: 'var(--text)' }}>{r.business_name}</span>
+                      {r.payload?.plan ? <span style={{ marginLeft: 6, padding: '2px 8px', background: 'rgba(0,0,0,0.04)', borderRadius: 6, fontWeight: 700 }}>plan {r.payload.plan}</span> : ' · sin plan elegido'}
+                      <span style={{ margin: '0 8px', color: 'rgba(0,0,0,0.1)' }}>|</span>
+                      <span suppressHydrationWarning style={{ color: 'var(--muted)' }}>{ago(r.submitted_at ?? r.created_at)}</span>
                     </span>
                   </span>
 
-                  <span style={{ display: 'flex', gap: 7, flex: 'none', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'flex', gap: 8, flex: 'none', flexWrap: 'wrap' }}>
                     {r.status === 'submitted' && (
                       <button onClick={() => move(r, 'in_progress')} disabled={working} style={S.btnBlue}>
                         Tomar y montar
@@ -159,7 +160,7 @@ export default function ServiciosPage() {
 
                   {r.team_notes && (
                     <span style={S.notes}>
-                      <span className="ms" style={{ fontSize: 14, verticalAlign: '-2px' }}>sticky_note_2</span>
+                      <span className="ms" style={{ fontSize: 15, verticalAlign: '-3px' }}>sticky_note_2</span>
                       {' '}{r.team_notes}
                     </span>
                   )}
@@ -190,39 +191,43 @@ export default function ServiciosPage() {
 }
 
 const S = {
-  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 14 },
+  kpis: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 },
   card: {
-    display: 'flex', alignItems: 'center', gap: 13, flexWrap: 'wrap',
-    padding: 14, borderRadius: 18, background: 'var(--bg)',
+    display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap',
+    padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.6)',
+    border: '1px solid rgba(0,0,0,0.03)', transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   },
   kindIcon: {
-    width: 44, height: 44, borderRadius: 14, flex: 'none',
+    width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: '#FFF0ED',
+    background: 'rgba(255,68,31,0.08)',
   },
-  meta: { display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 4 },
+  meta: { display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 6 },
   btnBlue: {
-    height: 36, padding: '0 15px', borderRadius: 999,
-    background: '#EAF1FF', color: 'var(--blue)', fontSize: 12.5, fontWeight: 700,
+    height: 38, padding: '0 16px', borderRadius: 999,
+    background: '#EAF1FF', color: 'var(--blue)', fontSize: 13, fontWeight: 800,
+    transition: 'all 0.2s ease',
   },
   btnGreen: {
-    display: 'inline-flex', alignItems: 'center', gap: 5,
-    height: 36, padding: '0 15px', borderRadius: 999,
-    background: 'var(--green)', color: '#fff', fontSize: 12.5, fontWeight: 700,
+    display: 'inline-flex', alignItems: 'center', gap: 6,
+    height: 38, padding: '0 18px', borderRadius: 999,
+    background: 'var(--green)', color: '#fff', fontSize: 13, fontWeight: 800,
+    boxShadow: '0 4px 15px rgba(11,142,84,0.2)', transition: 'all 0.2s ease',
   },
   btnGhost: {
-    height: 36, padding: '0 15px', borderRadius: 999,
-    border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 700,
+    height: 38, padding: '0 16px', borderRadius: 999,
+    border: '1px solid rgba(0,0,0,0.06)', background: 'transparent', fontSize: 13, fontWeight: 800,
+    color: 'var(--muted)', transition: 'all 0.2s ease',
   },
   notes: {
-    width: '100%', fontSize: 12, color: 'var(--muted)', lineHeight: 1.5,
-    paddingTop: 10, borderTop: '1px solid var(--border)',
+    width: '100%', fontSize: 13, color: 'var(--muted)', lineHeight: 1.55,
+    paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.04)',
   },
   footnote: {
-    margin: '14px 2px 0', fontSize: 12, color: 'var(--muted)', lineHeight: 1.6,
+    margin: '18px 4px 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.6,
   },
   code: {
-    background: 'var(--surface2)', borderRadius: 6, padding: '2px 6px',
-    fontSize: 11.5, margin: '0 3px',
+    background: 'rgba(0,0,0,0.04)', borderRadius: 6, padding: '2px 8px',
+    fontSize: 12, margin: '0 4px', fontWeight: 600,
   },
 };

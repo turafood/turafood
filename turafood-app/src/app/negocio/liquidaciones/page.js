@@ -289,17 +289,18 @@ const GRID = 'minmax(0,1.4fr) 100px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 12
 
 const S = {
   countdown: {
-    display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 12,
-    height: 28, padding: '0 12px', borderRadius: 999,
-    background: 'rgba(255,255,255,.1)', fontSize: 12, fontWeight: 700,
+    display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 16,
+    height: 32, padding: '0 14px', borderRadius: 999,
+    background: 'rgba(255,255,255,.15)', fontSize: 13, fontWeight: 800,
   },
   card: {
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 20, boxShadow: 'var(--shadowSm)',
+    background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, padding: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
   },
   heroCard: {
-    background: 'linear-gradient(135deg,var(--ink),#3A332A)',
-    borderRadius: 28, padding: 20, color: '#fff',
+    background: 'linear-gradient(135deg,var(--ink),#29231C)',
+    borderRadius: 24, padding: 24, color: '#fff',
+    boxShadow: '0 8px 30px rgba(20,16,10,.3)',
   },
   mixItem: {
     display: 'flex', alignItems: 'center', gap: 6,
@@ -318,8 +319,9 @@ const S = {
     paddingTop: 14, borderTop: '1px solid var(--border)',
   },
   table: {
-    background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18,
-    boxShadow: 'var(--shadowSm)', marginTop: 16, overflow: 'hidden',
+    background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0,0,0,0.04)', borderRadius: 24, boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+    marginTop: 20, overflow: 'hidden',
   },
   row: {
     display: 'grid', gridTemplateColumns: GRID, gap: 12, minWidth: 840,
@@ -336,7 +338,7 @@ const S = {
     padding: '56px 20px', textAlign: 'center',
   },
   emptyIcon: {
-    width: 46, height: 46, borderRadius: 14, background: 'var(--bg)',
+    width: 56, height: 56, borderRadius: 18, background: 'rgba(0,0,0,0.03)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   error: {

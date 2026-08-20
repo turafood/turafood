@@ -237,7 +237,6 @@ export default function EquipoPage() {
 function Row({ icon, label, value, last }) {
   return (
     <div
-    <div
       style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '16px 0',
         borderBottom: last ? 'none' : '1px solid rgba(0,0,0,0.04)',
