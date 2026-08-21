@@ -40,12 +40,20 @@ export async function updateSession(request) {
     }
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with cross-site routing.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.auth.getUser();
+    if (!error) {
+      user = data?.user ?? null;
+    }
+  } catch {
+    // Si la cookie expiró o no se encuentra el refresh token (guest o sesión antigua),
+    // user se mantiene en null de forma segura sin romper la respuesta del middleware.
+    user = null;
+  }
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
   const isProtectedRoute = 

@@ -65,7 +65,15 @@ export async function updateSession(request) {
     },
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (!error) {
+      user = data?.user ?? null;
+    }
+  } catch {
+    user = null;
+  }
 
   const redirect = (to) => {
     const url = request.nextUrl.clone();
