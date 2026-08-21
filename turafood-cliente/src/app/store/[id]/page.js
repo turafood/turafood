@@ -122,165 +122,181 @@ export default function StorePage() {
 
         <div className="sc" style={{ flex: 1, overflowY: 'auto', paddingBottom: 112, marginTop: -44, minHeight: 0 }}>
 
-          {/* Portada */}
-          <div style={{ position: 'relative', height: 214, ...bg(store?.cover_url) }}>
-            <div style={S.coverShade} />
-            <div style={S.coverActions}>
-              <button onClick={() => router.back()} style={S.roundBtn} aria-label="Volver">
-                <span className="ms" style={{ fontSize: 21 }}>arrow_back_ios_new</span>
-              </button>
-              <div style={{ display: 'flex', gap: 9 }}>
-                <button
-                  onClick={toggleTheme}
-                  style={S.roundBtn}
-                  aria-label="Cambiar tema"
-                  title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-                >
-                  <span className="ms" style={{ fontSize: 20, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
-                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-                  </span>
+          {/* Contenedor Centrado para Desktop y Fluido en Mobile */}
+          <div className="store-page-container">
+
+            {/* Portada */}
+            <div style={{
+              position: 'relative', height: 240, ...bg(store?.cover_url),
+              borderRadius: '0 0 24px 24px', overflow: 'hidden', marginTop: 44,
+            }}>
+              <div style={S.coverShade} />
+              <div style={S.coverActions}>
+                <button onClick={() => router.back()} style={S.roundBtn} aria-label="Volver">
+                  <span className="ms" style={{ fontSize: 21 }}>arrow_back_ios_new</span>
                 </button>
-                <button
-                  onClick={() => setFav((f) => !f)}
-                  style={S.roundBtn}
-                  aria-label={fav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-                >
-                  <span
-                    className={`ms ${fav ? 'ms-fill' : ''}`}
-                    style={{ fontSize: 21, color: fav ? 'var(--primary)' : 'var(--text)' }}
+                <div style={{ display: 'flex', gap: 9 }}>
+                  <button
+                    onClick={toggleTheme}
+                    style={S.roundBtn}
+                    aria-label="Cambiar tema"
+                    title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
                   >
-                    favorite
-                  </span>
-                </button>
-                <button style={S.roundBtn} aria-label="Compartir">
-                  <span className="ms" style={{ fontSize: 21 }}>ios_share</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Hoja con la ficha del negocio */}
-          <div style={S.sheet}>
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
-              {loading ? 'Cargando…' : store?.name}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
-              {store?.category}
-              {store?.distance_km != null && ` · ${kmLabel(store.distance_km)}`}
-            </div>
-
-            <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-              <div style={S.statCard}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, fontWeight: 800, fontSize: 14 }}>
-                  <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--amber)' }}>star</span>
-                  {store?.rating ?? '—'}
+                    <span className="ms" style={{ fontSize: 20, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
+                      {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setFav((f) => !f)}
+                    style={S.roundBtn}
+                    aria-label={fav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                  >
+                    <span
+                      className={`ms ${fav ? 'ms-fill' : ''}`}
+                      style={{ fontSize: 21, color: fav ? 'var(--primary)' : 'var(--text)' }}
+                    >
+                      favorite
+                    </span>
+                  </button>
+                  <button style={S.roundBtn} aria-label="Compartir">
+                    <span className="ms" style={{ fontSize: 21 }}>ios_share</span>
+                  </button>
                 </div>
-                <div style={S.statLabel}>
-                  {store ? `${Number(store.reviews_count).toLocaleString('es-CO')} reseñas` : ''}
-                </div>
-              </div>
-              <div style={S.statCard}>
-                <div style={{ fontWeight: 800, fontSize: 14 }}>
-                  {store ? etaLabel(store.prep_time_min) : '—'}
-                </div>
-                <div style={S.statLabel}>Entrega</div>
-              </div>
-              <div style={S.statCard}>
-                <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--green)' }}>
-                  {store ? feeLabel(store.delivery_fee) : '—'}
-                </div>
-                <div style={S.statLabel}>Envío</div>
               </div>
             </div>
 
-            <div style={S.couponNotice}>
-              <span className="ms" style={{ fontSize: 20, color: '#A8730B' }}>local_activity</span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: '#7A5405', lineHeight: 1.35 }}>
-                15% off en tu primer pedido con TURA15
-              </span>
-            </div>
-          </div>
+            {/* Hoja con la ficha del negocio */}
+            <div style={{
+              ...S.sheet,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 24,
+              boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+              marginTop: -20,
+              padding: '24px 24px 18px',
+            }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em' }}>
+                {loading ? 'Cargando…' : store?.name}
+              </div>
+              <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>
+                {store?.category}
+                {store?.distance_km != null && ` · ${kmLabel(store.distance_km)}`}
+              </div>
 
-          {/* Chips de categoría (sticky) */}
-          <div className="hs" style={S.catBar}>
-            {menu.map((g) => {
-              const active = activeGroup?.id === g.id;
-              return (
-                <button
-                  key={g.id}
-                  onClick={() => scrollToCat(g.id)}
-                  style={{
-                    flex: 'none', height: 34, padding: '0 14px', borderRadius: 999,
-                    fontSize: 13, fontWeight: 700,
-                    background: active ? 'var(--text)' : 'var(--surface)',
-                    color: active ? '#fff' : 'var(--text)',
-                    border: active ? 'none' : '1px solid var(--border)',
-                  }}
+              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                <div style={S.statCard}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontWeight: 800, fontSize: 15 }}>
+                    <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--amber)' }}>star</span>
+                    {store?.rating ?? '—'}
+                  </div>
+                  <div style={S.statLabel}>
+                    {store ? `${Number(store.reviews_count).toLocaleString('es-CO')} reseñas` : ''}
+                  </div>
+                </div>
+                <div style={S.statCard}>
+                  <div style={{ fontWeight: 800, fontSize: 15 }}>
+                    {store ? etaLabel(store.prep_time_min) : '—'}
+                  </div>
+                  <div style={S.statLabel}>Entrega</div>
+                </div>
+                <div style={S.statCard}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--green)' }}>
+                    {store ? feeLabel(store.delivery_fee) : '—'}
+                  </div>
+                  <div style={S.statLabel}>Envío</div>
+                </div>
+              </div>
+
+              <div style={S.couponNotice}>
+                <span className="ms" style={{ fontSize: 20, color: '#A8730B' }}>local_activity</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#7A5405', lineHeight: 1.35 }}>
+                  15% off en tu primer pedido con TURA15
+                </span>
+              </div>
+            </div>
+
+            {/* Chips de categoría (sticky) */}
+            <div className="hs" style={{ ...S.catBar, background: 'var(--bg)', borderRadius: 16, marginTop: 12, padding: '12px 0' }}>
+              {menu.map((g) => {
+                const active = activeGroup?.id === g.id;
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => scrollToCat(g.id)}
+                    style={{
+                      flex: 'none', height: 36, padding: '0 16px', borderRadius: 999,
+                      fontSize: 13.5, fontWeight: 700,
+                      background: active ? 'var(--text)' : 'var(--surface)',
+                      color: active ? 'var(--bg)' : 'var(--text)',
+                      border: active ? 'none' : '1px solid var(--border)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {g.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Menú con Grilla Responsiva para Desktop */}
+            <div style={{ padding: '18px 0 0' }}>
+              {loading && (
+                <div className="store-products-grid">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} style={{ height: 110, borderRadius: 20, background: 'var(--surface2)' }} />
+                  ))}
+                </div>
+              )}
+
+              {menu.map((group) => (
+                <section
+                  key={group.id}
+                  ref={(el) => { sectionRefs.current[group.id] = el; }}
+                  style={{ scrollMarginTop: 70, marginBottom: 28 }}
                 >
-                  {g.name}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Menú */}
-          <div style={{ padding: '14px 20px 0' }}>
-            {loading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} style={{ height: 100, borderRadius: 15, background: 'var(--surface2)' }} />
-                ))}
-              </div>
-            )}
-
-            {menu.map((group) => (
-              <section
-                key={group.id}
-                ref={(el) => { sectionRefs.current[group.id] = el; }}
-                style={{ scrollMarginTop: 70 }}
-              >
-                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 18, marginTop: 8 }}>
-                  {group.name}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', marginTop: 6 }}>
-                  {group.products.map((m) => {
-                    const off = m.compare_price
-                      ? `-${Math.round(((m.compare_price - m.price) / m.compare_price) * 100)}%`
-                      : null;
-                    return (
-                      <button
-                        key={m.id}
-                        onClick={() => handleProductClick(m)}
-                        style={S.menuRow}
-                      >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 15 }}>{m.name}</div>
-                          <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4, marginTop: 3 }}>
-                            {m.description}
+                  <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, marginBottom: 14 }}>
+                    {group.name}
+                  </div>
+                  <div className="store-products-grid">
+                    {group.products.map((m) => {
+                      const off = m.compare_price
+                        ? `-${Math.round(((m.compare_price - m.price) / m.compare_price) * 100)}%`
+                        : null;
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => handleProductClick(m)}
+                          className="store-dish-card"
+                        >
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, fontSize: 15.5 }}>{m.name}</div>
+                            <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4, marginTop: 4 }}>
+                              {m.description}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, marginTop: 10 }}>
+                              <span style={{ fontWeight: 800, fontSize: 16 }}>{cop(m.price)}</span>
+                              {off && (
+                                <>
+                                  <span style={S.offTag}>{off}</span>
+                                  <span style={{ fontSize: 11.5, color: 'var(--faint)', textDecoration: 'line-through' }}>
+                                    {cop(m.compare_price)}
+                                  </span>
+                                </>
+                              )}
+                            </div>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, marginTop: 8 }}>
-                            <span style={{ fontWeight: 800, fontSize: 15 }}>{cop(m.price)}</span>
-                            {off && (
-                              <>
-                                <span style={S.offTag}>{off}</span>
-                                <span style={{ fontSize: 11.5, color: 'var(--faint)', textDecoration: 'line-through' }}>
-                                  {cop(m.compare_price)}
-                                </span>
-                              </>
-                            )}
+                          <div style={{ position: 'relative', flex: 'none', width: 90, height: 90, borderRadius: 16, ...bg(m.image_url) }}>
+                            <span style={S.addChip}>
+                              <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>add</span>
+                            </span>
                           </div>
-                        </div>
-                        <div style={{ position: 'relative', flex: 'none', width: 86, height: 86, borderRadius: 15, ...bg(m.image_url) }}>
-                          <span style={S.addChip}>
-                            <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>add</span>
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
           </div>
         </div>
 

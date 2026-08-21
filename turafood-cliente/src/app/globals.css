@@ -428,3 +428,55 @@ button:disabled {
     display: none !important;
   }
 }
+
+/* ============================================================
+   ESTILOS DE TIENDA Y PRODUCTOS CENTRADOS EN DESKTOP
+   ============================================================ */
+.store-page-container {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.store-products-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+@media (min-width: 768px) {
+  .store-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 16px !important;
+  }
+}
+
+.store-dish-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+@media (min-width: 768px) {
+  .store-dish-card {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 20px !important;
+    padding: 16px 18px !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.02) !important;
+  }
+  .store-dish-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+    border-color: rgba(255,68,31,0.3) !important;
+  }
+}
