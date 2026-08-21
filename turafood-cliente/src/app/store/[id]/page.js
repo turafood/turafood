@@ -18,12 +18,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
+import { useThemeStore } from '@/store/useThemeStore';
 import { getBusiness, getMenu } from '@/lib/data';
 import { cop, feeLabel, etaLabel, kmLabel } from '@/lib/format';
 import ProductModal from '../../components/ProductModal';
 
 export default function StorePage() {
   const router = useRouter();
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const { id } = useParams();
   const searchParams = useSearchParams();
   const productIdFromUrl = searchParams.get('product');
@@ -118,6 +121,16 @@ export default function StorePage() {
                 <span className="ms" style={{ fontSize: 21 }}>arrow_back_ios_new</span>
               </button>
               <div style={{ display: 'flex', gap: 9 }}>
+                <button
+                  onClick={toggleTheme}
+                  style={S.roundBtn}
+                  aria-label="Cambiar tema"
+                  title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+                >
+                  <span className="ms" style={{ fontSize: 20, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
+                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                  </span>
+                </button>
                 <button
                   onClick={() => setFav((f) => !f)}
                   style={S.roundBtn}

@@ -1043,10 +1043,10 @@ export default function HomePage() {
                 }}
               >
                 {[
-                  { id: 'f1', image: '/images/food-fork.jpg', badge: 'TOP RESTAURANTE', title: 'Marisquería El Faro', subtitle: 'El mejor encocado de la semana', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
-                  { id: 'f2', image: '/images/burger.jpg', badge: 'OFERTA LIMITADA', title: 'Hasta 40% OFF', subtitle: 'En tus hamburguesas favoritas', action: () => router.push('/offers') },
-                  { id: 'f3', image: '/images/steak-ribeye.jpg', badge: 'NUEVO', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
-                  { id: 'f4', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop', badge: 'LICORES Y MÁS', title: 'Zona de Licores', subtitle: 'Bebidas frías para tu noche', action: () => router.push('/list?v=liquor') },
+                  { id: 'f1', image: '/images/food-fork.jpg', badge: '⭐ 4.9 · TOP RESTAURANTE', title: 'Marisquería El Faro', subtitle: 'Pescados y mariscos del Pacífico', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
+                  { id: 'f2', image: '/images/steak-ribeye.jpg', badge: '⭐ 4.8 · TOP ASADOS', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas y carnes', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
+                  { id: 'f3', image: '/images/burger.jpg', badge: '🔥 40% OFF · TOP BURGERS', title: 'Burger House Bahia', subtitle: 'Hamburguesas artesanales premium', action: () => router.push('/store/b0000000-0000-4000-8000-000000000002') },
+                  { id: 'f4', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop', badge: '⚡ TURBO · LICORES', title: 'Licores la 15', subtitle: 'Bebidas frías directo a tu puerta', action: () => router.push('/store/b0000000-0000-4000-8000-000000000004') },
                 ].map((slide) => (
                   <button
                     key={slide.id}
@@ -1258,9 +1258,6 @@ export default function HomePage() {
                           boxShadow: '0 4px 14px rgba(16,185,129,0.32)',
                           transition: 'all .15s ease',
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.04)'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; }}
-                        title={`Pedir ${item.name} ahora`}
                       >
                         <span className="ms ms-fill" style={{ fontSize: 16 }}>bolt</span>
                         <span>Pedir</span>
@@ -1290,30 +1287,6 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* 5. Pide de nuevo Móvil */}
-            <div style={{ marginTop: 24, padding: '0 20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={S.h2}>Pide de nuevo</span>
-                <button onClick={() => router.push('/account/orders')} style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--primary)' }}>Ver todos</button>
-              </div>
-            </div>
-            <div className="hs" style={{ display: 'flex', gap: 13, padding: '12px 20px 0' }}>
-              {loading
-                ? [0, 1, 2].map((i) => <div key={i} style={{ ...S.skeleton, width: 198, height: 160 }} />)
-                : again.map((s) => (
-                  <button key={s.id} onClick={() => router.push(`/store/${s.id}`)} style={{ flex: 'none', width: 198, textAlign: 'left', padding: 0 }}>
-                    <Cover src={s.cover_url} alt={s.name} radius={18} sizes="200px" style={{ height: 118 }}>
-                      {Number(s.delivery_fee) === 0 && <span style={S.freeShip}>ENVÍO GRATIS</span>}
-                    </Cover>
-                    <div className="tr1" style={{ fontWeight: 700, fontSize: 14.5, marginTop: 9 }}>{s.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
-                      <span className="ms ms-fill" style={{ fontSize: 14, color: 'var(--amber)' }}>star</span>
-                      {s.rating} · {etaLabel(s.prep_time_min)}
-                    </div>
-                  </button>
-                ))}
             </div>
 
             {/* Promos irresistibles Móvil */}

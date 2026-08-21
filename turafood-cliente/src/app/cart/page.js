@@ -15,8 +15,12 @@ import { useCartStore } from '@/store/useCartStore';
 import { getBusiness, getMenu } from '@/lib/data';
 import { quote } from '@/lib/pricing';
 import { cop } from '@/lib/format';
+import { useThemeStore } from '@/store/useThemeStore';
+
 export default function CartPage() {
   const router = useRouter();
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   const items = useCartStore((s) => s.items);
   const businessId = useCartStore((s) => s.businessId);
@@ -29,7 +33,6 @@ export default function CartPage() {
   const addLine = useCartStore((s) => s.addLine);
 
   const [store, setStore] = useState(null);
-  const [suggested, setSuggested] = useState([]);
   const [turbo, setTurbo] = useState(false);
 
   useEffect(() => {
@@ -115,9 +118,28 @@ export default function CartPage() {
                 </div>
               </div>
             </div>
-            <button onClick={clearCart} style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 8 }}>
-              Vaciar canasta
-            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={toggleTheme}
+                style={{
+                  height: 38, width: 38, borderRadius: 12,
+                  background: 'var(--surface)', border: '1px solid var(--border)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
+                  boxShadow: 'var(--shadowSm)',
+                }}
+                title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+                aria-label="Cambiar tema"
+              >
+                <span className="ms" style={{ fontSize: 19 }}>
+                  {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                </span>
+              </button>
+              <button onClick={clearCart} style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 8 }}>
+                Vaciar canasta
+              </button>
+            </div>
           </div>
         </div>
 
@@ -179,41 +201,6 @@ export default function CartPage() {
                   })}
                 </div>
               </div>
-
-              {/* Cross-selling PRO */}
-              {suggested.length > 0 && (
-                <div style={{ ...S.card, padding: 22 }}>
-                  <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, marginBottom: 14 }}>
-                    Completa tu pedido con estos favoritos
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                    {suggested.map((p) => (
-                      <div key={p.id} style={{ ...S.suggestCard, width: 'auto', height: 130 }}>
-                        <div style={{ ...bg(p.image_url), position: 'absolute', inset: 0, borderRadius: 16 }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.85) 100%)', borderRadius: 16 }} />
-                        <button
-                          onClick={() => addLine(
-                            {
-                              productId: p.id, name: p.name, unitPrice: Number(p.price),
-                              basePrice: Number(p.price), comparePrice: p.compare_price ?? null,
-                              image_url: p.image_url, extraIds: [], notes: '', opts: '', qty: 1,
-                            },
-                            { id: store.id, name: store.name, image: store.cover_url },
-                          )}
-                          style={S.suggestAdd}
-                          aria-label={`Agregar ${p.name}`}
-                        >
-                          <span className="ms" style={{ fontSize: 18, color: '#fff' }}>add</span>
-                        </button>
-                        <div style={{ position: 'relative', zIndex: 2, padding: 12, marginTop: 'auto' }}>
-                          <div style={{ fontWeight: 800, fontSize: 13.5, color: '#fff' }}>{cop(p.price)}</div>
-                          <div className="tr1" style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>{p.name}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Upsell Turbo */}
               <button onClick={() => setTurbo(!turbo)} style={{ ...S.turboCard, ...(turbo ? S.turboCardActive : {}), padding: '16px 20px', cursor: 'pointer' }}>
@@ -340,6 +327,22 @@ export default function CartPage() {
               {businessName}
             </span>
           </div>
+          <button
+            onClick={toggleTheme}
+            style={{
+              height: 38, width: 38, borderRadius: 12,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
+              boxShadow: 'var(--shadowSm)', flex: 'none',
+            }}
+            title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+            aria-label="Cambiar tema"
+          >
+            <span className="ms" style={{ fontSize: 19 }}>
+              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
         </div>
 
         <div className="mobile-only sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 190px', minHeight: 0 }}>
@@ -395,40 +398,6 @@ export default function CartPage() {
           })}
 
           <button onClick={clearCart} style={S.clearBtn}>Vaciar canasta</button>
-
-          {suggested.length > 0 && (
-            <div style={S.suggestBlock}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16 }}>
-                Comprado frecuentemente con
-              </div>
-              <div className="hs" style={{ display: 'flex', gap: 12, margin: '14px -20px 0', padding: '0 20px', paddingBottom: 10 }}>
-                {suggested.map((p) => (
-                  <div key={p.id} style={S.suggestCard}>
-                    <div style={{ ...bg(p.image_url), position: 'absolute', inset: 0, borderRadius: 16 }} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.85) 100%)', borderRadius: 16 }} />
-                    <button
-                      onClick={() => addLine(
-                        {
-                          productId: p.id, name: p.name, unitPrice: Number(p.price),
-                          basePrice: Number(p.price), comparePrice: p.compare_price ?? null,
-                          image_url: p.image_url, extraIds: [], notes: '', opts: '', qty: 1,
-                        },
-                        { id: store.id, name: store.name, image: store.cover_url },
-                      )}
-                      style={S.suggestAdd}
-                      aria-label={`Agregar ${p.name}`}
-                    >
-                      <span className="ms" style={{ fontSize: 18, color: '#fff' }}>add</span>
-                    </button>
-                    <div style={{ position: 'relative', zIndex: 2, padding: 12 }}>
-                      <div style={{ fontWeight: 800, fontSize: 13, color: '#fff' }}>{cop(p.price)}</div>
-                      <div className="tr1" style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{p.name}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <button onClick={() => setTurbo(!turbo)} style={{...S.turboCard, ...(turbo ? S.turboCardActive : {})}}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

@@ -19,6 +19,7 @@ import { createClient, isConfigured } from '@/utils/supabase/client';
 
 /** Mensaje por estado. Solo avisamos de los que le importan al cliente. */
 const MESSAGES = {
+  pending: { icon: 'hourglass_top', tone: '#FF441F', title: 'Comanda en vivo enviada', body: 'Pendiente de confirmación por el restaurante' },
   accepted: { icon: 'restaurant', tone: '#2E6BFF', title: 'Pedido aceptado', body: 'El negocio ya está preparando tu pedido' },
   preparing: { icon: 'skillet', tone: '#A8730B', title: 'En preparación', body: 'Tu comida se está preparando' },
   ready: { icon: 'takeout_dining', tone: '#11B26A', title: 'Pedido listo', body: 'Buscando repartidor' },
@@ -33,24 +34,32 @@ export default function LiveOrders() {
   const router = useRouter();
   const [toast, setToast] = useState(null);
 
+  // Escuchar eventos locales de creación de comanda
+  useEffect(() => {
+    let timer;
+    const handleOrderEvent = (e) => {
+      const order = e.detail;
+      if (!order) return;
+      const statusKey = order.status || 'pending';
+      const msg = MESSAGES[statusKey] || MESSAGES.pending;
+      setToast({ ...msg, orderId: order.id, orderNumber: order.order_number });
+      clearTimeout(timer);
+      timer = setTimeout(() => setToast(null), 6500);
+    };
+
+    window.addEventListener('turafood:order-status', handleOrderEvent);
+    return () => {
+      window.removeEventListener('turafood:order-status', handleOrderEvent);
+      clearTimeout(timer);
+    };
+  }, []);
+
   useEffect(() => {
     if (!isConfigured()) return undefined;
 
     const supabase = createClient();
     let channel;
     let timer;
-
-    /**
-     * El efecto es asíncrono y React lo monta, desmonta y vuelve a
-     * montar en desarrollo. La limpieza del primer montaje corría
-     * mientras el `await` seguía pendiente, así que `channel` todavía
-     * era undefined y no se quitaba nada; el segundo montaje pedía un
-     * canal con el mismo nombre, Supabase devolvía el que ya estaba
-     * suscrito, y agregarle un callback a un canal ya suscrito revienta.
-     *
-     * Dos cosas lo arreglan: esta bandera, para no suscribir un canal
-     * que ya nadie va a usar, y un nombre único por montaje.
-     */
     let cancelado = false;
     const nombre = `mis-pedidos:${Math.random().toString(36).slice(2)}`;
 
