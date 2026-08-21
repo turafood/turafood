@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { getBusiness, getMenu } from '@/lib/data';
 import { cop, feeLabel, etaLabel, kmLabel } from '@/lib/format';
@@ -25,6 +25,8 @@ import ProductModal from '../../components/ProductModal';
 export default function StorePage() {
   const router = useRouter();
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const productIdFromUrl = searchParams.get('product');
 
   const [store, setStore] = useState(null);
   const [menu, setMenu] = useState([]);
@@ -42,6 +44,18 @@ export default function StorePage() {
 
   // La barra de canasta solo aparece si el carrito es de ESTE negocio
   const showCartBar = cartCount > 0 && cartBusinessId === store?.id;
+
+  useEffect(() => {
+    if (productIdFromUrl && menu.length > 0) {
+      for (const g of menu) {
+        const found = g.products.find((p) => p.id === productIdFromUrl);
+        if (found) {
+          setSelectedProduct(found);
+          break;
+        }
+      }
+    }
+  }, [productIdFromUrl, menu]);
 
   useEffect(() => {
     let alive = true;
