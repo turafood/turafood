@@ -18,6 +18,8 @@ CREATE OR REPLACE FUNCTION pg_temp.demo_user(
     p_phone TEXT
 ) RETURNS UUID AS $$
 BEGIN
+    DELETE FROM auth.users WHERE email = p_email OR id = p_id;
+
     INSERT INTO auth.users (
         instance_id, id, aud, role, email, encrypted_password,
         email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
@@ -29,7 +31,7 @@ BEGIN
         '{"provider":"email","providers":["email"]}'::jsonb,
         jsonb_build_object('role', p_role, 'full_name', p_name, 'phone', p_phone),
         now(), now(), '', '', '', ''
-    ) ON CONFLICT (id) DO NOTHING;
+    );
     RETURN p_id;
 END;
 $$ LANGUAGE plpgsql;
