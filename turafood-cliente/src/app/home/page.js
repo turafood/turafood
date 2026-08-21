@@ -541,7 +541,10 @@ export default function HomePage() {
                   <div style={{ position: 'relative', height: 160, width: '100%' }}>
                     <Cover src={s.cover_url} alt={s.name} radius={0} sizes="400px" style={{ width: '100%', height: '100%' }} />
                     <button
-                      onClick={(e) => handleFav(e, s.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFav(s.id);
+                      }}
                       style={{
                         position: 'absolute', top: 12, right: 12, zIndex: 10,
                         width: 36, height: 36, borderRadius: '50%',
@@ -549,8 +552,9 @@ export default function HomePage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.15)', cursor: 'pointer',
                       }}
+                      aria-label="Guardar en favoritos"
                     >
-                      <span className={`ms ${favs.has(s.id) ? 'ms-fill' : ''}`} style={{ fontSize: 20, color: favs.has(s.id) ? 'var(--primary)' : 'var(--muted)' }}>
+                      <span className={`ms ${favs.includes(s.id) ? 'ms-fill' : ''}`} style={{ fontSize: 20, color: favs.includes(s.id) ? 'var(--primary)' : 'var(--muted)' }}>
                         favorite
                       </span>
                     </button>
