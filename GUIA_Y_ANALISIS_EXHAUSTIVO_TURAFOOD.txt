@@ -1,0 +1,377 @@
+================================================================================
+                    TURAFOOD AI — ECOSISTEMA DIGITAL INTEGRAL
+              GUÍA Y ANÁLISIS EXHAUSTIVO DE ARQUITECTURA Y OPERACIONES
+                         Buenaventura, Valle del Cauca — 2026
+================================================================================
+
+Este documento condensa de manera exhaustiva todo el ecosistema de Turafood, las 
+3 aplicaciones independientes que lo componen, la infraestructura en Supabase, el 
+diseño responsivo diferenciado (Mobile-First vs Desktop), las pasarelas de pago, 
+el sistema de tracking en tiempo real, el generador PRO de comandas para WhatsApp, 
+el flujo de despliegue en Easypanel y las políticas de seguridad.
+
+Sirve como manual maestro de arquitectura, desarrollo y operaciones para el equipo.
+
+================================================================================
+ÍNDICE GENERAL
+================================================================================
+1. VISIÓN GENERAL DEL ECOSISTEMA Y ARQUITECTURA MULTI-APP
+2. APP 1: TURAFOOD CLIENTE (turafood.com) — EXPERIENCIA DE USUARIO FINAL
+3. APP 2: TURAFOOD PARTNERS (app.turafood.com) — NEGOCIOS Y REPARTIDORES
+4. APP 3: TURAFOOD ADMIN (dash.turafood.com) — SUPER ADMINISTRADOR
+5. BASE DE DATOS, RLS Y REALTIME (SUPABASE)
+6. FORMATO Y GENERADOR PRO DE COMANDAS WHATSAPP
+7. SISTEMA DE TRACKING EN VIVO, MAPAS DUALES Y HÁPTICA
+8. RESILENCIA OFFLINE Y CONECTIVIDAD EN BUENAVENTURA
+9. MATRIZ DE VARIABLES DE ENTORNO Y CONFIGURACIÓN EASYPANEL
+10. GUÍA DE RESOLUCIÓN DE PROBLEMAS (TROUBLESHOOTING PLAYBOOK)
+11. ROADMAP DE EVOLUCIÓN Y MEJORAS FUTURAS
+
+================================================================================
+1. VISIÓN GENERAL DEL ECOSISTEMA Y ARQUITECTURA MULTI-APP
+================================================================================
+
+Turafood está concebido como una plataforma de micro-frontends moderna y altamente 
+optimizada, dividida en 3 aplicaciones independientes sobre Next.js 16 (Turbopack) 
+que comparten una base de datos centralizada y autenticación unificada en Supabase:
+
+  +-------------------------------------------------------------------------+
+  |                          CLIENTES / CONSUMIDORES                         |
+  |                        Dominio: turafood.com                            |
+  |               App: `turafood-cliente` (Puerto interno: 80)               |
+  +-------------------------------------------------------------------------+
+                                      |
+                                      v
+  +-------------------------------------------------------------------------+
+  |                 SUPABASE CLOUD (PostgreSQL + Auth + Realtime)           |
+  |            Base de Datos: btaddjjzpvyqltkchqki.supabase.co              |
+  |                 RLS Activo + WebSockets de Realtime                      |
+  +-------------------------------------------------------------------------+
+                        |                               |
+                        v                               v
+  +-----------------------------------+   +---------------------------------+
+  |      NEGOCIOS Y REPARTIDORES      |   |       SUPER ADMINISTRACIÓN      |
+  |     Dominio: app.turafood.com     |   |    Dominio: dash.turafood.com   |
+  | App: `turafood-app` (Puerto: 80)  |   | App: `turafood-admin` (Pto: 80) |
+  +-----------------------------------+   +---------------------------------+
+
+Tecnologías Fundamentales:
+- Framework: Next.js 16.3.1 con Turbopack y compilación autónoma (output: 'standalone').
+- Estado Global: Zustand 5 (tiendas ultraligeras sin re-renders innecesarios).
+- Estilos: Vanilla CSS moderno con Design System de variables CSS, modo Dark/Light nativo, 
+  soporte de Glassmorphism y tipografía Google Fonts (Bricolage Grotesque + Inter).
+- Mapas: Leaflet.js con OpenStreetMap y capas optimizadas para bajo consumo de datos.
+- Audio & Háptica: Web Audio API sintético + Navigator Vibration API.
+- Infraestructura de Servidores: Servidor VPS con EasyPanel (Docker + Traefik).
+
+================================================================================
+2. APP 1: TURAFOOD CLIENTE (turafood.com)
+================================================================================
+
+La aplicación del cliente (`turafood-cliente`) es la cara pública del servicio, 
+diseñada bajo la filosofía "Mobile-First PRO" con adaptación automática y elegante 
+en pantallas grandes (Desktop / Laptop).
+
+2.1. CUSTOMER JOURNEY RESPONSIVO DIFERENCIADO:
+--------------------------------------------------------------------------------
+- EN MÓVIL (Celulares):
+  * El usuario navega en pantalla completa.
+  * Al tocar un producto en `/store/[id]`, NO se despliega ningún modal popup 
+    invasivo; el usuario entra fluidamente a `/product/[id]`, donde personaliza 
+    su plato (tamaño obligatorio, adicionales opcionales, notas de cocina) y lo 
+    agrega con la barra inferior flotante.
+  * Navegación suave con gestos táctiles y transiciones instantáneas.
+
+- EN DESKTOP / LAPTOP:
+  * Todo el contenido está centrado en contenedores de ancho máximo (1040px) 
+    evitando que los elementos se estiren de lado a lado en monitores panorámicos.
+  * El menú de platos se transforma de una lista vertical a una cuadrícula de 
+    2 a 3 columnas (`.store-products-grid`) con tarjetas elevadas y efectos hover.
+  * Al hacer clic en un plato en Desktop, se abre el modal rápido de personalización 
+    `ProductModal` para no perder de vista la tienda.
+
+2.2. ESTRUCTURA DE RUTAS Y PANTALLAS DEL CLIENTE:
+--------------------------------------------------------------------------------
+- `/home` (Explorador Principal):
+  * Barra de búsqueda con autocompletado y debounce.
+  * Carrusel de restaurantes top con altura visual amplia.
+  * Filtros dinámicos por categorías (Mariscos, Asados, Comida Rápida, Tradicional).
+  * Selector de Modo Oscuro / Claro persistente.
+  * Botón Flotante de IA "Tura IA" con diseño de alto contraste en Dark Mode.
+
+- `/store/[id]` (Página del Restaurante):
+  * Portada hero con bordes redondeados y gradiente de sombra.
+  * Ficha técnica: calificación con estrellas, tiempo de preparación, costo de envío.
+  * Banner de cupón de bienvenida (`TURA15` - 15% OFF).
+  * Barra de navegación horizontal sticky por categorías del menú.
+  * Barra flotante de carrito cuando hay productos agregados de esa tienda.
+
+- `/product/[id]` (Personalización de Plato):
+  * Selector de tamaño con radios de validación obligatoria.
+  * Selector de acompañamientos con tope máximo de 3 ítems.
+  * Campo de texto para notas especiales del cliente ("sin cebolla", etc.).
+  * Contador de cantidad e integrador de precios dinámicos (+ extras).
+
+- `/cart` (Canasta de Compras):
+  * Resumen de ítems agrupados por restaurante.
+  * Aplicador de cupones con cálculo de descuento en tiempo real.
+  * Desglose: Subtotal + Tarifa de Envío + Tarifa de Servicio + Descuento.
+
+- `/checkout` (Confirmación y Pago):
+  * Selector de dirección guardada o nueva ubicación en Buenaventura.
+  * Métodos de pago: Efectivo contra entrega, ePayco (tarjetas/PSE) y Billetera Tura.
+  * Vibración háptica confirmatoria (`navigator.vibrate([40, 60, 40])`).
+  * Generación y envío de comanda estructurada a WhatsApp del negocio.
+
+- `/tracking` (Seguimiento Ultra PRO en Tiempo Real):
+  * Mapa dual interactivo Leaflet (Vista Restaurante -> Cliente).
+  * Marcadores visuales dinámicos (Cocina, Repartidor en moto, Casa).
+  * Barra de progreso con 5 estados: Recibido, En Preparación, En Camino, En la Puerta, Entregado.
+  * Alertas sonoras con Web Audio y pulsos de vibración en cada cambio de estado.
+  * Botón "Compartir Seguimiento en WhatsApp" que genera un enlace web único 
+    `https://turafood.com/tracking?order=...` para la familia.
+
+- `/rate` (Calificación del Pedido):
+  * Selector interactivo de 1 a 5 estrellas con comentarios de experiencia.
+  * Inserción protegida en Supabase `reviews` compatible con usuarios invitados.
+
+- `/offers` (Ofertas y Cupones):
+  * Cupones activos con botón de copia rápida al portapapeles.
+  * Lista de comercios con promociones activas.
+
+- `/favorites` (Favoritos):
+  * Tiendas guardadas con sincronización dual (Local Storage + Supabase).
+
+- `/notifications` (Bandeja de Avisos):
+  * Historial de eventos push y cambios de estado con marcas de leído/no leído.
+
+- `/account/*` (Gestión de Usuario):
+  * `/account/orders`: Historial de pedidos anteriores con botón de "Volver a Pedir".
+  * `/account/addresses`: Gestión de direcciones guardadas en Buenaventura.
+  * `/account/wallet`: Saldo y recarga de TuraCréditos.
+  * `/account/referrals`: Sistema de referidos y cupones ganados.
+
+================================================================================
+3. APP 2: TURAFOOD PARTNERS (app.turafood.com)
+================================================================================
+
+La aplicación de partners (`turafood-app`) es un portal multi-rol que gestiona tanto 
+a los dueños de restaurantes como a la flota de domiciliarios de Buenaventura.
+
+3.1. ROL NEGOCIO (`/negocio`):
+--------------------------------------------------------------------------------
+- Comanda Digital en Vivo: Escucha de pedidos entrantes en tiempo real vía Supabase Realtime.
+- Flujo de Estados: Aceptar Pedido -> Iniciar Preparación -> Listo para Entrega -> Entregado.
+- Gestión de Catálogo y Menú: Creación y edición de platos, precios, fotos y extras.
+- Horarios de Apertura y Cierre con switch de estado de tienda en vivo.
+- Agente de IA para Restaurantes (`/negocio/agente-ia`): Respuestas automáticas a clientes.
+- Agente de Voz y Marketing (`/negocio/crecimiento/agente-voz`): Llamadas y promociones.
+- Métricas y Liquidaciones: Reporte de ventas diarias, comisiones y transferencias.
+
+3.2. ROL REPARTIDOR (`/repartidor`):
+--------------------------------------------------------------------------------
+- Bolsa de Pedidos Disponibles: Notificaciones sonoras de nuevas carreras disponibles.
+- Hoja de Ruta GPS: Ruta trazada desde el restaurante hasta el domicilio del cliente.
+- Chat y Llamada Directa con el restaurante y con el cliente.
+- Billetera de Ganancias: Registro de propinas, carreras completadas y balance a cobrar.
+- Prueba de Entrega: Confirmación mediante código de seguridad o firma digital.
+
+3.3. ENRUTADOR SEGURO POR ROL (Middleware Proxy):
+--------------------------------------------------------------------------------
+- La sesión lee `profiles.role` en el servidor.
+- Un negocio no puede acceder a las rutas de repartidor, y un repartidor no puede 
+  acceder a las pantallas de restaurante.
+- Usuarios no autenticados son redirigidos amistosamente a `/entrar`.
+
+================================================================================
+4. APP 3: TURAFOOD ADMIN (dash.turafood.com)
+================================================================================
+
+El panel de superadministrador (`turafood-admin`) permite controlar la operación total:
+- Auditoría General de Ventas y Pedidos en tiempo real en todo Buenaventura.
+- Validación y Aprobación de nuevos restaurantes y documentos de repartidores.
+- Configuración de Zonas de Entrega (Cascajal, Isla, Continente) y tarifas base por kilómetro.
+- Creación y desactivación de cupones globales (`TURA15`, `PROMO5K`, etc.).
+- Soporte en Vivo: Intervención en disputas entre clientes, repartidores y restaurantes.
+
+================================================================================
+5. BASE DE DATOS, RLS Y REALTIME (SUPABASE)
+================================================================================
+
+La base de datos PostgreSQL en Supabase (`btaddjjzpvyqltkchqki.supabase.co`) cuenta 
+con un esquema normalizado con seguridad por filas (RLS) y canales Realtime.
+
+5.1. TABLAS PRINCIPALES:
+--------------------------------------------------------------------------------
+1. `profiles`: Usuarios (clientes, negocios, repartidores, admins) con nombre, teléfono, rol.
+2. `business_profiles`: Datos del restaurante (nombre, categoría, cover_url, rating, prep_time, etc.).
+3. `products`: Platos individuales vinculados a cada restaurante con precio y estado activo.
+4. `product_extras`: Tamaños (obligatorios) y acompañamientos (opcionales) con `price_delta`.
+5. `orders`: Pedidos con estados (`pending`, `confirmed`, `preparing`, `ready`, `on_the_way`, `delivered`, `cancelled`).
+6. `order_items`: Desglose de platos, notas y extras seleccionados por cada orden.
+7. `reviews`: Calificaciones de 1 a 5 estrellas y comentarios por restaurante y pedido.
+8. `coupons`: Cupones de descuento (porcentaje, monto fijo o envío gratis).
+9. `messages`: Mensajes del chat en vivo entre cliente, repartidor y soporte.
+10. `notifications`: Registro de alertas push y notificaciones de sistema.
+
+5.2. SEGURIDAD Y REALTIME IDEMPOTENTE:
+--------------------------------------------------------------------------------
+- Script Maestro de Configuración: `EJECUTAR-EN-SUPABASE-FINAL.sql`
+- Permisos `GRANT ALL` otorgados al rol `anon` y `authenticated` sobre tablas y secuencias.
+- Políticas RLS configuradas con `DROP POLICY IF EXISTS` para garantizar ejecución sin fallos.
+- Publicación de Realtime activa para sincronizar pedidos, tracking y reseñas al instante:
+  `ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;`
+  `ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;`
+  `ALTER PUBLICATION supabase_realtime ADD TABLE public.reviews;`
+
+================================================================================
+6. FORMATO Y GENERADOR PRO DE COMANDAS WHATSAPP
+================================================================================
+
+Ubicación del archivo: `turafood-cliente/src/lib/comandaWhatsapp.js`
+
+6.1. ESTRUCTURA VISUAL DE LA COMANDA:
+--------------------------------------------------------------------------------
+La comanda se genera con codificación UTF-8 universal compatible con WhatsApp Web, 
+Android y iOS, utilizando caracteres tipográficos limpios y emojis visuales:
+
+  🍽️ *NUEVO PEDIDO TURAFOOD*
+  ═══════════════════════
+  📍 *Restaurante:* Asadero El Puerto
+  🏷️ *Pedido:* #A49F2
+  📅 *Fecha:* 21/08/2026, 08:30 a. m.
+  ═══════════════════════
+
+  👤 *DATOS DEL CLIENTE:*
+  • *Nombre:* Carlos Valencia
+  • *Teléfono:* +57 312 345 6789
+  • *Dirección:* Calle 5 # 12-34, Barrio El Firme
+  • *Zona:* Isla Cascajal
+
+  📋 *DETALLE DEL PEDIDO:*
+  • *2x* *Media de Aguardiente*
+    💰 _$63.800_
+    📝 _Nota: Bien fría por favor_
+
+  ═══════════════════════
+  💵 *RESUMEN DE CUENTA:*
+  • *Subtotal:* $63.800
+  • *Domicilio:* $3.900
+  • *Tarifa de Servicio:* $1.200
+  • *Descuento (TURA15):* -$9.570
+  ⭐ *TOTAL A COBRAR:* *$59.330*
+
+  💳 *MÉTODO DE PAGO:*
+  • *Efectivo contra entrega* (Paga con: $100.000 — Cambio: $40.670)
+
+  🛵 *SEGUIMIENTO EN VIVO:*
+  https://turafood.com/tracking?order=814e1030-d242-4085-b22d
+
+  ═══════════════════════
+  _Gracias por pedir a través de Turafood Buenaventura_ 🚀
+
+================================================================================
+7. SISTEMA DE TRACKING EN VIVO, MAPAS DUALES Y HÁPTICA
+================================================================================
+
+Ubicación del archivo: `turafood-cliente/src/app/tracking/page.js`
+
+7.1. CARACTERÍSTICAS TÉCNICAS:
+--------------------------------------------------------------------------------
+1. Mapa Dual Leaflet interactivo:
+   - Capas dinámicas centradas en Buenaventura con marcadores personalizados (Restaurante, Domiciliario, Casa).
+   - Animación de desplazamiento suave con interpolación de coordenadas.
+2. Web Audio Synthesizer:
+   - Emite bips agradables generados por código (sin archivos MP3 externos que consuman datos) 
+     cada vez que el pedido avanza de etapa (ej. cuando la moto sale a reparto).
+3. Vibración Háptica:
+   - Emite pulsos rítmicos (`[50, 80, 50]`) en teléfonos móviles compatibles al recibir actualizaciones.
+4. Compartir Seguimiento:
+   - Botón directo que redacta un mensaje de WhatsApp para compartir el enlace en vivo 
+     con familiares o amigos en casa.
+
+================================================================================
+8. RESILENCIA OFFLINE Y CONECTIVIDAD EN BUENAVENTURA
+================================================================================
+
+Ubicación del archivo: `turafood-cliente/src/app/components/AppShell.js`
+
+- En zonas de Buenaventura con cobertura intermitente (zonas insulares o baja señal):
+  * Un listener global `window.addEventListener('offline' / 'online')` detecta cortes al instante.
+  * Despliega un banner superior no invasivo de color ámbar: 
+    _"Sin conexión a internet. Los datos se actualizarán cuando regrese la señal."_
+  * Al recuperar señal, muestra un banner verde de reconexión: _"¡Conexión restablecida!"_.
+  * El carrito y los favoritos quedan guardados en `localStorage` para no perder la orden.
+
+================================================================================
+9. MATRIZ DE VARIABLES DE ENTORNO Y CONFIGURACIÓN EASYPANEL
+================================================================================
+
+9.1. SERVICIO 1: `cliente` (turafood-cliente)
+--------------------------------------------------------------------------------
+Pestaña Environment en EasyPanel:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://btaddjjzpvyqltkchqki.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+NEXT_PUBLIC_BASE_URL=https://turafood.com
+PORT=80
+NODE_ENV=production
+```
+
+9.2. SERVICIO 2: `app` (turafood-app)
+--------------------------------------------------------------------------------
+Pestaña Environment en EasyPanel:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://btaddjjzpvyqltkchqki.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+NEXT_PUBLIC_BASE_URL=https://app.turafood.com
+PORT=80
+NODE_ENV=production
+```
+
+9.3. SERVICIO 3: `dash` (turafood-admin)
+--------------------------------------------------------------------------------
+Pestaña Environment en EasyPanel:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://btaddjjzpvyqltkchqki.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+PORT=80
+NODE_ENV=production
+```
+
+================================================================================
+10. GUÍA DE RESOLUCIÓN DE PROBLEMAS (TROUBLESHOOTING PLAYBOOK)
+================================================================================
+
+1. Error `AuthApiError: refresh_token_not_found (status: 400)`:
+   - Causa: Un usuario invitado navega sin sesión y el middleware intenta leer el token.
+   - Solución Aplicada: `getUser()` está envuelto en `try/catch` seguro en `middleware.js` y `proxy.js`.
+
+2. Error `duplicate key value violates unique constraint "business_profiles_slug_key"`:
+   - Causa: Intentar ejecutar `seed.sql` cuando los negocios ya existen en Supabase.
+   - Solución: Si los restaurantes ya están creados, solo se requiere correr `EJECUTAR-EN-SUPABASE-FINAL.sql`.
+
+3. Error de Dominio no responde en EasyPanel (Timeout 502 / 504):
+   - Causa: Discordancia entre el puerto donde escucha Next.js y el puerto configurado en Domains.
+   - Solución: Asegurar que `PORT=80` esté definido en Environment y que en Domains apunte a `:80`.
+
+4. Error durante `next build` en EasyPanel:
+   - Causa: Fragmentos o etiquetas JSX sin cerrar.
+   - Solución: Siempre validar localmente con `npm run build` antes de hacer push a master.
+
+================================================================================
+11. ROADMAP DE EVOLUCIÓN Y MEJORAS FUTURAS
+================================================================================
+
+1. Integración de Notificaciones Push Nativas Web (Web Push API / OneSignal):
+   - Envío de alertas al móvil incluso con el navegador cerrado cuando el pedido sale a reparto.
+2. Modo Kiosco para Restaurantes:
+   - Pantalla auto-refrescante para montar en tabletas de cocina con impresión automática de tickets térmicos.
+3. Algoritmo de Despacho Inteligente:
+   - Asignación automática del repartidor más cercano al restaurante mediante cálculo de distancia geodésica.
+4. Módulo de Fidelización con Gamificación:
+   - Ruleta de premios de TuraCréditos tras completar 5 pedidos exitosos.
+
+================================================================================
+DOCUMENTO GENERADO PARA TURAFOOD — TODOS LOS DERECHOS RESERVADOS 2026
+================================================================================
