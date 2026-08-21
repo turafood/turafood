@@ -199,39 +199,39 @@ export default function HomePage() {
         </div>
 
         {/* ============================================================
-            1. HERO BANNER ONBOARDING HORIZONTAL (DE PRIMERO - TALL & PRO)
+            1. HERO BANNER ONBOARDING HORIZONTAL (ESTILO APP.TURAFOOD.COM - SEAMLESS OBSIDIAN)
             ============================================================ */}
         <div className="desktop-only" style={{ padding: '24px 48px 0', width: '100%' }}>
           <div style={{
             width: '100%',
-            borderRadius: 26,
-            background: 'linear-gradient(135deg, #17140F 0%, #0D0B09 100%)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.22)',
+            borderRadius: 28,
+            background: 'linear-gradient(135deg, #0A0A0A 0%, #050505 100%)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '28px 40px',
+            padding: '36px 46px',
             position: 'relative',
-            gap: 36,
-            minHeight: 230,
+            gap: 40,
+            minHeight: 280,
           }}>
-            {/* Fondo con brillo sutil */}
+            {/* Fondo con brillo sutil naranja cálido */}
             <div style={{
-              position: 'absolute', top: -70, left: -70, width: 260, height: 260,
-              borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.22) 0%, transparent 70%)',
-              filter: 'blur(35px)', pointerEvents: 'none',
+              position: 'absolute', top: -80, left: -80, width: 300, height: 300,
+              borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.16) 0%, transparent 70%)',
+              filter: 'blur(45px)', pointerEvents: 'none',
             }} />
 
-            {/* Columna Izquierda: Información & Badges */}
-            <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Columna Izquierda: Contenido & Llamado a la Acción */}
+            <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 14 }}>
               {/* Pills superiores */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span style={{
-                  background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 12, fontWeight: 800,
+                  background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 12, fontWeight: 800,
                   padding: '5px 14px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 7,
-                  backdropFilter: 'blur(8px)',
+                  backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)',
                 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', animation: 'pulse 2s infinite' }} />
                   La plataforma de IA para tu Negocio
@@ -242,27 +242,27 @@ export default function HomePage() {
                 }}>
                   Tura Food AI
                 </span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 700, letterSpacing: '.04em' }}>
                   MKT PARA NEGOCIOS LOCALES
                 </span>
               </div>
 
               {/* Badges de beneficio */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 2 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                 <span style={{
-                  background: 'rgba(255,184,0,0.15)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)',
+                  background: 'rgba(255,184,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.25)',
                   fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
                 }}>
                   🔥 Más pedidos & ventas
                 </span>
                 <span style={{
-                  background: 'rgba(17,178,106,0.15)', color: 'var(--green)', border: '1px solid rgba(17,178,106,0.3)',
+                  background: 'rgba(17,178,106,0.12)', color: 'var(--green)', border: '1px solid rgba(17,178,106,0.25)',
                   fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
                 }}>
                   ⚡ 0% Comisiones
                 </span>
                 <span style={{
-                  background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)',
+                  background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)',
                   fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
                 }}>
                   co Buenaventura
@@ -271,46 +271,78 @@ export default function HomePage() {
 
               {/* Título Principal */}
               <h2 style={{
-                margin: '4px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-                fontSize: 28, letterSpacing: '-.02em', color: '#fff', lineHeight: 1.2,
+                margin: '2px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+                fontSize: 32, letterSpacing: '-.025em', color: '#fff', lineHeight: 1.18,
               }}>
                 Tu competencia ya está online. <span style={{ color: 'var(--amber)', fontStyle: 'italic' }}>¿Y tú?</span>
               </h2>
 
-              <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 580 }}>
-                Crea tu cuenta gratis hoy y ten tu restaurante digital funcionando en minutos, con comanda directa a WhatsApp.
+              <p style={{ margin: 0, fontSize: 14.5, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5, maxWidth: 560 }}>
+                Crea tu cuenta gratis hoy y ten tu negocio digital funcionando en minutos, con comanda directa a WhatsApp.
               </p>
 
-              {/* Botón de Acción y Social Proof */}
+              {/* Plazas y Urgencia */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{
+                  background: 'rgba(255,68,31,0.1)', border: '1px solid rgba(255,68,31,0.2)',
+                  color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 99,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF441F' }} />
+                  Solo quedan <strong style={{ color: '#FFB800' }}>49 plazas</strong> de 100
+                </span>
+                <span style={{
+                  background: 'rgba(17,178,106,0.1)', border: '1px solid rgba(17,178,106,0.25)',
+                  color: 'var(--green)', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 99,
+                }}>
+                  SIEMPRE GRATIS
+                </span>
+              </div>
+
+              {/* Botón Card de Inscribir Negocio en app.turafood.com */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 4 }}>
                 <button
-                  onClick={() => window.open('http://localhost:4300/negocio', '_blank')}
+                  onClick={() => window.open('https://app.turafood.com', '_blank')}
                   style={{
-                    height: 48, padding: '0 22px', borderRadius: 14,
-                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-                    color: '#fff', fontSize: 14, fontWeight: 800, border: 'none',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                    boxShadow: '0 4px 18px rgba(255,68,31,0.38)',
-                    transition: 'transform .15s',
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '12px 22px', borderRadius: 18,
+                    background: 'linear-gradient(135deg, rgba(255,68,31,0.14), rgba(255,68,31,0.04))',
+                    border: '1px solid rgba(255,68,31,0.35)',
+                    cursor: 'pointer', transition: 'all .2s ease',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255,68,31,0.35)'; }}
                 >
-                  <span className="ms" style={{ fontSize: 20 }}>storefront</span>
-                  <span>Acceso para Negocios</span>
-                  <span style={{ fontSize: 11, fontWeight: 800, background: 'rgba(0,0,0,0.25)', padding: '2px 6px', borderRadius: 6 }}>GRATIS</span>
-                  <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12,
+                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 14px rgba(255,68,31,0.4)', flex: 'none',
+                  }}>
+                    <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>storefront</span>
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 800, fontSize: 15, color: '#fff' }}>Inscribir mi Negocio</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, background: 'rgba(255,184,0,0.2)', color: '#FFB800', padding: '2px 6px', borderRadius: 6 }}>GRATIS</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>
+                      Inscribe tu restaurante o tienda en <b>app.turafood.com</b>
+                    </div>
+                  </div>
+                  <span className="ms" style={{ fontSize: 20, color: 'rgba(255,255,255,0.8)', marginLeft: 8 }}>arrow_forward</span>
                 </button>
 
-                <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
-                  PA&apos; TURÍN CON AMOR ❤️ · ★★★★★ 4.9
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>
+                  PA&apos; TURÍN CON AMOR ❤️ · ★★★★★ 4.9 · 100% de la venta para ti
                 </span>
               </div>
             </div>
 
-            {/* Columna Derecha: Video / Chica Afro Cartoon en loop (Seamlessly Blended) */}
+            {/* Columna Derecha: Chica Afro Cartoon 100% Integrada y Fundida (MÁS GRANDE & PRO) */}
             <div style={{
-              position: 'relative', width: 280, height: 210, overflow: 'hidden',
+              position: 'relative', width: 440, height: 320,
               flex: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <video
@@ -320,19 +352,15 @@ export default function HomePage() {
                 muted
                 playsInline
                 style={{
-                  width: '100%', height: '100%', objectFit: 'cover',
-                  WebkitMaskImage: 'radial-gradient(ellipse at 50% 50%, black 55%, transparent 88%)',
-                  maskImage: 'radial-gradient(ellipse at 50% 50%, black 55%, transparent 88%)',
+                  width: '100%', height: '100%', objectFit: 'contain',
+                  background: 'transparent',
+                  transform: 'scale(1.22)',
+                  transformOrigin: 'center right',
+                  WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 58%, transparent 96%)',
+                  maskImage: 'radial-gradient(circle at 50% 50%, black 58%, transparent 96%)',
+                  filter: 'drop-shadow(0 12px 36px rgba(0,0,0,0.7))',
                 }}
               />
-              <div style={{
-                position: 'absolute', bottom: 6, right: 14,
-                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                padding: '4px 10px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, color: '#fff',
-              }}>
-                Tura Food AI
-              </div>
             </div>
           </div>
         </div>
@@ -505,6 +533,123 @@ export default function HomePage() {
           </div>
 
           <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '8px 0 108px', minHeight: 0 }}>
+            {/* HERO ONBOARDING BANNER MÓVIL (ESTILO APP.TURAFOOD.COM) */}
+            <div style={{ padding: '12px 18px 8px' }}>
+              <div style={{
+                borderRadius: 24,
+                background: 'linear-gradient(135deg, #0A0A0A 0%, #050505 100%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 16px 36px rgba(0,0,0,0.3)',
+                padding: '20px 18px',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: 12,
+              }}>
+                {/* Glow sutil */}
+                <div style={{
+                  position: 'absolute', top: -50, left: '50%', transform: 'translateX(-50%)',
+                  width: 200, height: 200, borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(255,68,31,0.18) 0%, transparent 70%)',
+                  filter: 'blur(30px)', pointerEvents: 'none',
+                }} />
+
+                {/* Pill Superior */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <span style={{
+                    background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 11, fontWeight: 800,
+                    padding: '4px 10px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 5,
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
+                    La plataforma de IA para tu Negocio
+                  </span>
+                  <span style={{
+                    background: 'linear-gradient(135deg, #FF441F, #E2360F)', color: '#fff', fontSize: 10.5,
+                    fontWeight: 800, padding: '3px 8px', borderRadius: 6, letterSpacing: '.04em',
+                  }}>
+                    Tura Food AI
+                  </span>
+                </div>
+
+                {/* Video Chica Afro Cartoon Fundida con el fondo */}
+                <div style={{
+                  position: 'relative', width: '100%', height: 180,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'transparent',
+                }}>
+                  <video
+                    src="/turafood-ai-video.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      width: '100%', height: '100%', objectFit: 'contain',
+                      WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 50%, transparent 95%)',
+                      maskImage: 'radial-gradient(circle at 50% 50%, black 50%, transparent 95%)',
+                      filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))',
+                    }}
+                  />
+                </div>
+
+                {/* Beneficio Badges */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <span style={{
+                    background: 'rgba(255,184,0,0.12)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.25)',
+                    fontSize: 10.5, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+                  }}>
+                    🔥 Más ventas
+                  </span>
+                  <span style={{
+                    background: 'rgba(17,178,106,0.12)', color: 'var(--green)', border: '1px solid rgba(17,178,106,0.25)',
+                    fontSize: 10.5, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+                  }}>
+                    ⚡ 0% Comisiones
+                  </span>
+                  <span style={{
+                    background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)',
+                    fontSize: 10.5, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+                  }}>
+                    co Buenaventura
+                  </span>
+                </div>
+
+                {/* Título & Subtítulo */}
+                <div>
+                  <div style={{
+                    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20,
+                    color: '#fff', letterSpacing: '-.02em', lineHeight: 1.2,
+                  }}>
+                    Tu competencia ya está online. <span style={{ color: 'var(--amber)', fontStyle: 'italic' }}>¿Y tú?</span>
+                  </div>
+                  <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)', marginTop: 4, lineHeight: 1.4 }}>
+                    Crea tu cuenta gratis hoy y ten tu negocio digital funcionando en minutos.
+                  </div>
+                </div>
+
+                {/* Botón Card CTA Inscribir Negocio en app.turafood.com */}
+                <button
+                  onClick={() => window.open('https://app.turafood.com', '_blank')}
+                  style={{
+                    width: '100%', height: 46, borderRadius: 14,
+                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                    color: '#fff', fontSize: 13.5, fontWeight: 800, border: 'none',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: '0 4px 16px rgba(255,68,31,0.35)', marginTop: 4,
+                  }}
+                >
+                  <span className="ms" style={{ fontSize: 18 }}>storefront</span>
+                  <span>Inscribir mi Negocio</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 800, background: 'rgba(0,0,0,0.25)', padding: '2px 6px', borderRadius: 6 }}>GRATIS</span>
+                  <span className="ms" style={{ fontSize: 16 }}>arrow_forward</span>
+                </button>
+              </div>
+            </div>
+
             {/* Slider Móvil */}
             <div style={{ padding: '16px 0 0' }}>
               <div
