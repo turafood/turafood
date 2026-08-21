@@ -48,6 +48,15 @@ export default function StorePage() {
   // La barra de canasta solo aparece si el carrito es de ESTE negocio
   const showCartBar = cartCount > 0 && cartBusinessId === store?.id;
 
+  const handleProductClick = (m) => {
+    // Solo popup en desktop/laptop; en mobile flujo de pantallas /product/[id]
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setSelectedProduct(m);
+    } else {
+      router.push(`/product/${m.id}`);
+    }
+  };
+
   useEffect(() => {
     if (productIdFromUrl && menu.length > 0) {
       for (const g of menu) {
@@ -241,7 +250,7 @@ export default function StorePage() {
                     return (
                       <button
                         key={m.id}
-                        onClick={() => setSelectedProduct(m)}
+                        onClick={() => handleProductClick(m)}
                         style={S.menuRow}
                       >
                         <div style={{ flex: 1, minWidth: 0 }}>
