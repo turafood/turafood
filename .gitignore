@@ -53,6 +53,9 @@ coverage/
 
 # Prototipos y mockups (referencia local, no versionar)
 Tura Shop PWA - V2 - 13-08-2026/
+Cartoon/
+Landing page de Tura Food AI*/
+*.zip
 
 # Capturas y referencias de diseño. Se conservan en disco, pero no
 # tienen por qué viajar al servidor de despliegue.

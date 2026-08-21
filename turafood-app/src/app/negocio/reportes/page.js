@@ -89,15 +89,13 @@ export default function ReportesPage() {
   const avgBefore = before.orders ? Math.round(before.gross / before.orders) : 0;
 
   const isPro = Boolean(business?.pro_plan);
-  const ratePct = totals.gross ? Math.round((totals.fee / totals.gross) * 100) : 0;
-
   const bestDay = weekly.reduce((a, b) => (b.avgGross > a.avgGross ? b : a), weekly[0]);
   const peakHour = hourly.reduce((a, b) => (b.orders > a.orders ? b : a), hourly[0]);
 
   const exportCsv = () => {
-    const head = 'Fecha;Pedidos;Ticket promedio;Venta bruta;Comisión;Neto';
-    const rows = daily.map((d) => [
-      d.date.toLocaleDateString('es-CO'), d.orders, d.avg, d.gross, d.fee, d.net,
+    const head = 'Fecha;Pedidos;Promedio;VentaTotal';
+    const rows = daily.map(d => [
+      d.date.toLocaleDateString('es-CO'), d.orders, d.avg, d.gross,
     ].join(';'));
     const csv = [head, ...rows].join('\n');
     const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' });
@@ -151,13 +149,8 @@ export default function ReportesPage() {
       {/* KPIs con comparación contra el periodo anterior */}
       <div style={S.kpis}>
         <Kpi
-          label="Venta bruta" value={cop(totals.gross)}
+          label="Venta Total" value={cop(totals.gross)}
           now={totals.gross} then={before.gross} days={days}
-        />
-        <Kpi
-          label="Neto a recibir" value={cop(totals.net)}
-          now={totals.net} then={before.net} days={days}
-          foot="Se consigna los viernes"
         />
         <Kpi
           label="Pedidos entregados" value={String(totals.orders)}
@@ -173,7 +166,7 @@ export default function ReportesPage() {
       <section style={S.panel}>
         <PanelHead
           title="Cómo vienen tus ventas"
-          sub={`Neto por día · ${daily[0]?.date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })} al ${daily[daily.length - 1]?.date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`}
+          sub={`Total por día · ${daily[0]?.date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })} al ${daily[daily.length - 1]?.date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`}
         />
         <AreaChart days={daily} />
       </section>
@@ -201,31 +194,6 @@ export default function ReportesPage() {
         </section>
       </div>
 
-      {/* Comisión, aparte porque es plata que sale */}
-      <section style={S.feeCard}>
-        <span style={S.feeIcon}>
-          <span className="ms" style={{ fontSize: 22, color: isPro ? 'var(--green)' : 'var(--primary)' }}>
-            {isPro ? 'verified' : 'percent'}
-          </span>
-        </span>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ fontWeight: 800, fontSize: 14.5 }}>
-            {isPro ? 'Comisión TuraFood' : `Comisión TuraFood · ${ratePct}%`}
-          </div>
-          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.5 }}>
-            {isPro
-              ? 'Con Biz Pro no pagas porcentaje por pedido. Esto es lo que te habrías gastado sin el plan.'
-              : 'Se descuenta en la liquidación del viernes, no lo pagas aparte.'}
-          </div>
-        </div>
-        <div style={{
-          fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24,
-          letterSpacing: '-.02em', color: isPro ? 'var(--green)' : 'var(--text)',
-        }}>
-          {isPro ? `${cop(totals.fee)} ahorrados` : cop(totals.fee)}
-        </div>
-      </section>
-
       {/* Detalle, cerrado por defecto */}
       <section style={{ ...S.panel, padding: 0, overflow: 'hidden' }}>
         <button onClick={() => setDetail((v) => !v)} style={S.detailToggle}>
@@ -234,7 +202,7 @@ export default function ReportesPage() {
               Detalle día por día
             </span>
             <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-              {daily.length} días, con comisión y neto de cada uno
+              {daily.length} días de rendimiento
             </span>
           </span>
           <span className="ms" style={{ fontSize: 22, color: 'var(--muted)' }}>
@@ -244,22 +212,19 @@ export default function ReportesPage() {
 
         {detail && (
           <div style={{ overflowX: 'auto' }} className="anim-fade">
-            <div style={{ ...S.row, ...S.headRow }}>
+            <div style={{ ...S.row, ...S.headRow, gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
               <span>FECHA</span><span>PEDIDOS</span><span>TICKET PROM.</span>
-              <span>VENTA BRUTA</span><span>COMISIÓN</span>
-              <span style={{ textAlign: 'right' }}>NETO</span>
+              <span style={{ textAlign: 'right' }}>VENTA TOTAL</span>
             </div>
 
             {[...daily].reverse().map((d, i) => (
-              <div key={i} style={{ ...S.row, background: i === 0 ? 'var(--primary-tint)' : 'transparent' }}>
+              <div key={i} style={{ ...S.row, gridTemplateColumns: '1fr 1fr 1fr 1fr', background: i === 0 ? 'var(--primary-tint)' : 'transparent' }}>
                 <span style={{ fontWeight: 700 }}>
                   {d.date.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })}
                 </span>
                 <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{d.orders}</span>
                 <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{d.orders ? cop(d.avg) : '—'}</span>
-                <span style={{ fontWeight: 700 }}>{cop(d.gross)}</span>
-                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{cop(d.fee)}</span>
-                <span style={{ fontWeight: 800, textAlign: 'right' }}>{cop(d.net)}</span>
+                <span style={{ fontWeight: 800, textAlign: 'right' }}>{cop(d.gross)}</span>
               </div>
             ))}
           </div>
@@ -509,8 +474,8 @@ const S = {
     gap: 12, flexWrap: 'wrap', marginBottom: 20, marginTop: 10
   },
   chip: { height: 40, padding: '0 18px', borderRadius: 14, fontSize: 13.5, fontWeight: 700, transition: 'all 0.2s' },
-  chipOn: { background: '#fff', color: '#000', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' },
-  chipOff: { background: 'var(--surface)', color: 'rgba(255,255,255,0.7)', border: '1px solid var(--border)' },
+  chipOn: { background: 'var(--text)', color: 'var(--surface)', boxShadow: 'var(--shadow)' },
+  chipOff: { background: 'var(--surface)', color: 'var(--muted)', border: '1px solid var(--border)' },
 
   export: {
     height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700,
@@ -536,12 +501,12 @@ const S = {
 
   axis: {
     display: 'flex', justifyContent: 'space-between',
-    fontSize: 11.5, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 12,
+    fontSize: 11.5, fontWeight: 700, color: 'var(--muted)', marginTop: 12,
   },
   tip: {
     position: 'absolute', top: -6, pointerEvents: 'none', zIndex: 2,
-    background: 'rgba(24,24,24,0.95)', border: '1px solid var(--border)',
-    borderRadius: 16, padding: '12px 16px', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', whiteSpace: 'nowrap',
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    borderRadius: 16, padding: '12px 16px', boxShadow: 'var(--shadow)', whiteSpace: 'nowrap',
     color: 'var(--text)'
   },
 
@@ -553,7 +518,7 @@ const S = {
   feeIcon: {
     width: 54, height: 54, borderRadius: 18, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'var(--surface2)', border: '1px solid rgba(255,255,255,0.08)'
+    background: 'var(--surface2)', border: '1px solid var(--border)'
   },
 
   detailToggle: {
@@ -562,10 +527,10 @@ const S = {
   },
   row: {
     display: 'grid', gridTemplateColumns: GRID, gap: 16, minWidth: 800,
-    padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: 13.5,
+    padding: '16px 24px', borderTop: '1px solid var(--border)', fontSize: 13.5,
   },
   headRow: {
-    background: 'var(--bg)',
+    background: 'var(--surface2)',
     fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.05em',
   },
   error: {

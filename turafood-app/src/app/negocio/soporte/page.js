@@ -486,22 +486,25 @@ export default function SoportePage() {
       {/* Tab: Preguntas Frecuentes */}
       {activeTab === 'faq' && (
         <section className="glass-panel" style={{ animation: 'fade-in 0.3s ease' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-            <div style={{ maxWidth: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20, marginBottom: 20 }}>
+            <div style={{ maxWidth: 640 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', color: '#0B8E54', fontSize: 11, fontWeight: 800, marginBottom: 10 }}>
+                <span>✓</span> MODELO 0% COMISIONES & PAGO DIRECTO AL RESTAURANTE
+              </div>
               <h2 style={{ ...S.panelTitle, color: 'var(--text)' }}>Lo que más nos preguntan</h2>
-              <p style={{ ...S.panelSub, color: 'var(--text)', opacity: 0.8, lineHeight: 1.5, marginTop: 10 }}>
-                Sabemos que el tiempo de tu negocio es oro. Por eso, antes de que nos escribas y tengas que esperar una respuesta, te dejamos aquí las soluciones a las dudas más comunes. <b>Te aseguramos que la respuesta a tu problema probablemente está aquí abajo.</b>
+              <p style={{ ...S.panelSub, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8 }}>
+                En TuraFood no cobramos comisiones ni retenemos tu dinero. Aquí tienes las soluciones claras sobre pagos inmediatos, Tura Turbo 15 min, el Kit Growth AI y soporte en Buenaventura.
               </p>
             </div>
             
             <a
-              href={`https://wa.me/${WHATSAPP}?text=Hola,%20soy%20${encodeURIComponent(business?.name ?? 'un negocio')}%20y%20necesito%20ayuda`}
+              href={`https://wa.me/${WHATSAPP}?text=Hola,%20soy%20${encodeURIComponent(business?.name ?? 'un negocio')}%20y%20necesito%20soporte%20VIP`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ ...S.heroGhost, background: 'color-mix(in srgb, #25D366 10%, transparent)', color: '#25D366', border: '1px solid color-mix(in srgb, #25D366 30%, transparent)' }}
+              style={{ ...S.heroGhost, background: '#25D366', color: '#fff', border: 'none', boxShadow: '0 4px 16px rgba(37,211,102,0.3)', fontWeight: 800 }}
             >
-              <span className="ms pulse-active" style={{ fontSize: 20 }}>whatsapp</span>
-              WhatsApp de Emergencia
+              <span className="ms" style={{ fontSize: 20 }}>chat</span>
+              WhatsApp VIP en Vivo
             </a>
           </div>
 

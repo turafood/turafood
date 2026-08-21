@@ -34,7 +34,7 @@ export const TEMAS = ['light', 'dark', 'puerto'];
 export const TEMA_INFO = {
   light:  { icono: 'light_mode', nombre: 'Claro' },
   dark:   { icono: 'dark_mode',  nombre: 'Oscuro' },
-  puerto: { icono: 'sailing',    nombre: 'Puerto' },
+  puerto: { icono: 'sailing',    nombre: 'Turín Turán' },
 };
 
 export function useTheme() {

@@ -89,5 +89,27 @@ export function createClient() {
   return createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        get(name) {
+          if (typeof document === 'undefined') return '';
+          const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+          return match ? match[2] : '';
+        },
+        set(name, value, options) {
+          if (typeof document === 'undefined') return;
+          // Cross-domain cookie configuration
+          const domain = window.location.hostname.includes('turafood.com') ? '.turafood.com' : window.location.hostname;
+          let cookie = `${name}=${value}; domain=${domain}; path=/; max-age=${options.maxAge ?? 31536000}; SameSite=Lax`;
+          if (window.location.protocol === 'https:') cookie += '; Secure';
+          document.cookie = cookie;
+        },
+        remove(name, options) {
+          if (typeof document === 'undefined') return;
+          const domain = window.location.hostname.includes('turafood.com') ? '.turafood.com' : window.location.hostname;
+          document.cookie = `${name}=; domain=${domain}; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        },
+      },
+    }
   );
 }

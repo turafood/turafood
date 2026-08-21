@@ -184,15 +184,19 @@ export default function ScheduleSheet({
 
 const S = {
   backdrop: {
-    position: 'absolute', inset: 0, zIndex: 330,
-    background: 'rgba(20,16,10,.46)', backdropFilter: 'blur(4px)',
-    display: 'flex', alignItems: 'flex-end',
+    position: 'fixed', inset: 0, zIndex: 330,
+    background: 'rgba(15, 12, 9, 0.72)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: '16px',
     animation: 'fade .16s ease both',
   },
   sheet: {
-    width: '100%', maxHeight: '88%', display: 'flex', flexDirection: 'column',
-    background: 'var(--bg)', borderRadius: '26px 26px 0 0',
-    animation: 'slideup .28s cubic-bezier(.32,.72,0,1) both',
+    width: '100%', maxWidth: 500, maxHeight: '88vh', display: 'flex', flexDirection: 'column',
+    background: 'var(--bg)', borderRadius: 28,
+    border: '1px solid var(--border)',
+    boxShadow: '0 24px 70px rgba(0,0,0,0.35)',
+    animation: 'scaleUp .22s cubic-bezier(0.16, 1, 0.3, 1) both',
+    overflow: 'hidden',
   },
   header: {
     flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between',

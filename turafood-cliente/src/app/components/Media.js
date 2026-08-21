@@ -27,6 +27,10 @@ export function Cover({
   style,
   children,
 }) {
+  // Fallback visual si el negocio no tiene foto cargada
+  const fallback = '/images/steak-ribeye.jpg';
+  const imgSrc = src || fallback;
+
   return (
     <div
       style={{
@@ -37,9 +41,9 @@ export function Cover({
         ...style,
       }}
     >
-      {src && (
+      {imgSrc && (
         <Image
-          src={src}
+          src={imgSrc}
           alt={alt}
           fill
           sizes={sizes}

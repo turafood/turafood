@@ -209,64 +209,22 @@ export default function EquipoPage() {
             </div>
           </section>
 
-          {/* Plan */}
+          {/* Verificación Cal.com */}
           <section className="glass-panel golden-glow">
-            <div style={{ ...S.cardTitle, color: '#F2D399' }}>Tu Plan Premium</div>
+            <div style={{ ...S.cardTitle, color: 'var(--gold)' }}>Finaliza tu registro</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, marginTop: 8, marginBottom: 20 }}>
+              Agenda una rápida videollamada con nuestro equipo para verificar tu identidad y la autenticidad de tu negocio. Al aprobarse, tendrás <b>ventas ilimitadas sin comisiones, para siempre.</b>
+            </div>
 
-            {isPro ? (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 16 }}>
-                  <span className="ms ms-fill pulse-active" style={{ fontSize: 24, color: '#D99A15' }}>stars</span>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>Biz Pro</span>
-                </div>
-                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8 }}>
-                  Sin comisión por pedido: pagas solo la mensualidad. Todo lo que vendes es tuyo.
-                </div>
-                <div style={S.planRows}>
-                  <PlanRow label="Comisión por pedido" value="0%" />
-                  <PlanRow label="Mensualidad" value={`${cop(PRO_INTRO)} / mes`} />
-                  {business?.pro_plan_expires_at && (
-                     <PlanRow label="Siguiente cobro" value={new Date(business.pro_plan_expires_at).toLocaleDateString('es-CO')} />
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 16 }}>
-                  <span className="ms" style={{ fontSize: 22, color: 'var(--muted)' }}>storefront</span>
-                  <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>Plan Starter (Por Comisión)</span>
-                </div>
-                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.55, marginTop: 8 }}>
-                  Pagas {rate}% de comisión por cada pedido entregado. 
-                  {business?.vertical === 'pharmacy' || business?.vertical === 'liquor' ? ' Farmacias y licoreras 15%.' : ''}
-                </div>
+            <div style={{ background: 'var(--surface)', borderRadius: 16, overflow: 'hidden', height: 450, border: '1px solid rgba(255,255,255,0.1)' }}>
+              {/* Usando iframe estándar de Cal.com */}
+              <iframe 
+                src="https://cal.com/turafood/verificacion" 
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                title="Agenda de Verificación"
+              />
+            </div>
 
-                <div style={S.proOffer}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="ms ms-fill pulse-active" style={{ fontSize: 22, color: '#D99A15' }}>stars</span>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: '#F2D399', letterSpacing: '-0.02em' }}>
-                      Sube a Biz Pro
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 12 }}>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, color: 'var(--text)', letterSpacing: '-0.03em' }}>
-                      {cop(PRO_INTRO)}
-                    </span>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>/ mes</span>
-                  </div>
-                  <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, marginTop: 8 }}>
-                    Los primeros {PRO_INTRO_MONTHS} meses. Después {cop(PRO_REGULAR)} al mes.
-                    <br/><b style={{ color: 'var(--text)' }}>Dejas de pagar el {rate}% por pedido hoy mismo.</b>
-                  </div>
-                  <button onClick={subscribe} disabled={busy} style={S.subscribe}>
-                    {busy ? 'Estableciendo conexión segura…' : `Activar PRO por ${cop(PRO_INTRO)}`}
-                  </button>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.45, marginTop: 12 }}>
-                    El plan se activa cuando la pasarela confirma el pago de forma automática.
-                  </div>
-                </div>
-              </>
-            )}
           </section>
         </div>
       </div>
@@ -305,10 +263,10 @@ const S = {
   avatar: {
     position: 'relative',
     width: 68, height: 68, borderRadius: 22, 
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%)',
+    background: 'var(--surface2)',
     color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, flex: 'none',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)'
+    boxShadow: 'var(--shadow)', border: '1px solid var(--border)'
   },
   dot: {
     width: 38, height: 38, borderRadius: 12, flex: 'none',
@@ -318,22 +276,22 @@ const S = {
     display: 'flex', gap: 12, marginTop: 22, borderRadius: 18, padding: 18,
   },
   teamNote: {
-    display: 'flex', gap: 12, marginTop: 24, background: 'rgba(0,0,0,0.3)',
-    borderRadius: 18, padding: 18, border: '1px solid rgba(255,255,255,0.05)',
+    display: 'flex', gap: 12, marginTop: 24, background: 'var(--surface)',
+    borderRadius: 18, padding: 18, border: '1px solid var(--border)',
   },
   signOut: {
     width: '100%', height: 54, borderRadius: 18, border: '1px solid rgba(255,68,31,0.3)',
-    background: 'rgba(255,68,31,0.05)', color: '#FFB0A0', fontWeight: 800, fontSize: 15, 
-    marginTop: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'all 0.3s'
+    background: 'rgba(255,68,31,0.05)', color: 'var(--primary)', fontWeight: 800, fontSize: 15, 
+    marginTop: 24, cursor: 'pointer', transition: 'all 0.3s'
   },
   planRows: {
     display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20,
-    paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)',
+    paddingTop: 16, borderTop: '1px solid var(--border)',
   },
   proOffer: {
     marginTop: 24, padding: 26, borderRadius: 22,
-    background: 'linear-gradient(145deg, rgba(217, 154, 21, 0.15) 0%, rgba(217, 154, 21, 0.02) 100%)',
-    border: '1px solid rgba(217, 154, 21, 0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+    background: 'var(--surface2)',
+    border: '1px solid var(--border)', boxShadow: 'var(--shadow)',
   },
   subscribe: {
     width: '100%', height: 56, borderRadius: 18, background: 'linear-gradient(120deg, #D99A15, #F2D399)',

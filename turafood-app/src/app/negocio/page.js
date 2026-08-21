@@ -314,49 +314,47 @@ export default function ResumenPage() {
         </div>
       </div>
 
-      {/* Hero + KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
-        <div style={{ ...S.card, background: 'linear-gradient(145deg, #251c1a 0%, #120e0d 100%)', color: '#fff', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(255,68,31,0.08), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
-          {/* El resplandor sutil de fondo */}
-          <div style={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, background: 'var(--primary)', filter: 'blur(70px)', opacity: 0.2 }} />
-          
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.6)', display: 'flex', alignItems: 'center', gap: 8 }}>
+      {/* Hero + KPIs Compactos y Proporcionales (Alto Contraste en Light y Dark) */}
+      <div data-tour="kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
+        <div style={{
+          ...S.card,
+          padding: '20px 24px',
+          background: 'var(--surface)',
+          color: 'var(--text)',
+          border: '1px solid var(--border)',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minHeight: 142,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '.06em', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
               INGRESOS EN VIVO 🚀
             </span>
-            <span style={{ ...S.heroDelta, color: delta >= 0 ? '#7BE0AE' : '#FFB0A0' }}>
-              <span className="ms" style={{ fontSize: 13 }}>{delta >= 0 ? 'trending_up' : 'trending_down'}</span>
+            <span style={{
+              display: 'flex', alignItems: 'center', gap: 4, padding: '3px 9px', borderRadius: 999,
+              background: delta >= 0 ? '#E6F6EE' : '#FFF0ED',
+              color: delta >= 0 ? '#0B8E54' : '#FF441F',
+              fontSize: 11.5, fontWeight: 800,
+            }}>
+              <span className="ms" style={{ fontSize: 14 }}>{delta >= 0 ? 'trending_up' : 'trending_down'}</span>
               {`${delta >= 0 ? '+' : ''}${delta.toFixed(1).replace('.', ',')}%`}
             </span>
           </div>
-          <div style={S.heroValue}>{loading ? '…' : cop(today.gross)}</div>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 4, height: 38, marginTop: 14 }}>
-            {days.map((d, i) => (
-              <span
-                key={i}
-                style={{
-                  flex: 1, borderRadius: '3px 3px 1px 1px',
-                  height: `${Math.max(6, (d.gross / chartMax) * 100)}%`,
-                  background: i === days.length - 1
-                    ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
-                    : 'rgba(255,255,255,.16)',
-                }}
-              />
-            ))}
+
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, letterSpacing: '-.02em', color: 'var(--text)', margin: '4px 0' }}>
+            {loading ? '…' : cop(today.gross)}
           </div>
-          <div style={S.heroStats}>
-            <span>
-              <span style={S.heroStatLabel}>NUEVAS ÓRDENES</span>
-              <span style={S.heroStatValue}>{today.orders}</span>
-            </span>
-            <span>
-              <span style={S.heroStatLabel}>TICKET MÁX.</span>
-              <span style={S.heroStatValue}>{cop(today.avg * 1.2)}</span>
-            </span>
-            <span>
-              <span style={S.heroStatLabel}>MARCHANDO</span>
-              <span style={S.heroStatValue}>{inKitchen}</span>
-            </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
+            <span><b style={{ color: 'var(--text)' }}>{today.orders}</b> órdenes</span>
+            <span style={{ color: 'var(--border)' }}>·</span>
+            <span>Ticket: <b style={{ color: 'var(--text)' }}>{cop(today.avg * 1.2)}</b></span>
+            <span style={{ color: 'var(--border)' }}>·</span>
+            <span><b style={{ color: 'var(--text)' }}>{inKitchen}</b> marchando</span>
           </div>
         </div>
 
@@ -613,19 +611,19 @@ export default function ResumenPage() {
           )}
         </section>
 
-        <section style={{ ...S.card, background: 'linear-gradient(145deg, #251c1a 0%, #120e0d 100%)', color: '#fff', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', overflow: 'hidden', boxShadow: '0 20px 40px rgba(255,68,31,0.08)' }}>
+        <section style={{ ...S.card, background: 'var(--night)', color: '#fff', border: '1px solid var(--nightBorder)', position: 'relative', overflow: 'hidden', boxShadow: '0 24px 48px rgba(0,0,0,0.2)' }}>
           {/* Brillo de fondo para la tarjeta oscura */}
           <div style={{ position: 'absolute', top: -100, right: -50, width: 250, height: 250, background: 'var(--primary)', filter: 'blur(90px)', opacity: 0.15 }} />
           
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', backdropFilter: 'blur(4px)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,68,31,0.1)', color: 'var(--primary)', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', backdropFilter: 'blur(4px)' }}>
               <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Tura IA
             </span>
             <div style={{ ...S.cardTitle, color: '#fff' }}>Insights para tu negocio</div>
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20, position: 'relative', zIndex: 1 }}>
-            <div style={{ background: 'rgba(255,255,255,0.04)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ background: 'var(--night2)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
               <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', marginBottom: 8 }}>trending_up</span>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: '#fff' }}>Demanda en aumento</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
@@ -633,7 +631,7 @@ export default function ResumenPage() {
               </div>
             </div>
             
-            <div style={{ background: 'rgba(255,255,255,0.04)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ background: 'var(--night2)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,255,255,0.05)' }}>
               <span className="ms" style={{ fontSize: 20, color: '#FBBF24', marginBottom: 8 }}>schedule</span>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: '#fff' }}>Optimiza tus tiempos</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
@@ -750,27 +748,37 @@ export default function ResumenPage() {
 
 function Kpi({ label, value, icon, bg, fg, delta, up }) {
   return (
-    <div style={{ ...S.card, padding: '26px', border: 'none', boxShadow: '0 6px 24px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.02)', background: 'var(--surface)' }}>
+    <div style={{
+      ...S.card,
+      padding: '20px 24px',
+      border: '1px solid var(--border)',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+      background: 'var(--surface)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      minHeight: 142,
+    }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div style={{ flex: 1 }}>
+        <div>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.01em' }}>{label}</span>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, letterSpacing: '-.02em', marginTop: 12, color: 'var(--text)' }}>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 32, letterSpacing: '-.02em', marginTop: 6, color: 'var(--text)' }}>
             {value}
           </div>
         </div>
-        <span style={{ ...S.kpiIcon, background: bg, boxShadow: 'none', width: 48, height: 48, borderRadius: 16 }} className="anim-bounce">
+        <span style={{ background: bg, width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none', border: '1px solid var(--border)' }}>
           <span className="ms" style={{ fontSize: 22, color: fg }}>{icon}</span>
         </span>
       </div>
       <div
         style={{
-          display: 'flex', alignItems: 'center', gap: 6, marginTop: 16,
-          fontSize: 12.5, fontWeight: 800, color: up ? 'var(--green)' : 'var(--primary)',
+          display: 'flex', alignItems: 'center', gap: 6,
+          fontSize: 12.5, fontWeight: 800, color: up ? '#0B8E54' : '#FF441F',
         }}
       >
         <span className="ms" style={{ fontSize: 16 }}>{up ? 'trending_up' : 'trending_down'}</span>
         {delta}
-        <span style={{ color: 'var(--faint)', fontWeight: 600 }}>vs. ayer</span>
+        <span style={{ color: 'var(--muted)', fontWeight: 600, marginLeft: 2 }}>vs. ayer</span>
       </div>
     </div>
   );

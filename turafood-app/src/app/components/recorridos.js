@@ -24,9 +24,9 @@
 export const PASOS_NEGOCIO = [
   {
     arte: 'tienda',
-    titulo: 'Descubre tu panel',
+    titulo: 'Bienvenido a tu Suite',
     texto:
-      'Estás dentro sin fricción. Cargamos un menú y pedidos de prueba para que explores. Cuando estés listo, bórralos y empieza a vender.',
+      'Tu panel todo-en-uno para Buenaventura. Te preparamos órdenes y catálogo de prueba en Modo Demo para que experimentes.',
   },
   {
     selector: '[data-tour="nav"]',
@@ -36,18 +36,18 @@ export const PASOS_NEGOCIO = [
       'Pedidos, menú, finanzas y reportes. Todo organizado a un clic para que gestiones tu negocio sin perder un solo segundo.',
   },
   {
-    selector: '[data-tour="contenido"]',
+    selector: '[data-tour="kpis"]',
     arte: 'comandas',
-    titulo: 'Comandas en tiempo real',
+    titulo: 'Métricas en tiempo real',
     texto:
-      'De la cocina a la entrega de forma fluida. Mueve pedidos con un toque y mantén a tus clientes informados al instante.',
+      'Ingresos en vivo, ticket promedio y pedidos marchando. Visualiza el pulso de tus ventas al instante.',
   },
   {
-    selector: '[data-tour="progreso"]',
+    selector: '[data-tour="modo-demo"]',
     arte: 'progreso',
-    titulo: 'Empieza a vender hoy',
+    titulo: 'Modo Demo y Apertura',
     texto:
-      'Puedes recibir hasta 20 pedidos diarios ahora mismo. Completa tu perfil cuando quieras para quitar el límite y crecer sin frenos.',
+      'Alterna entre el simulador de prueba y tus ventas reales con un toque, y activa tu local cuando abras cocina.',
   },
   {
     selector: '[data-tour="ia"]',

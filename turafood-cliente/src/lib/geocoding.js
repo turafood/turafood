@@ -64,44 +64,79 @@ function formatFeature(feature) {
   };
 }
 
+/** Lista de Barrios y Puntos Clave de Buenaventura para autocompletado instantáneo */
+export const BUENAVENTURA_BARRIOS = [
+  { name: 'Centro', detail: 'Comuna 1 · Zona Comercial y Bancaria', lat: 3.88425, lng: -77.02905 },
+  { name: 'Pueblo Nuevo', detail: 'Comuna 1 · Muelle y Galería', lat: 3.88600, lng: -77.02700 },
+  { name: 'La Independencia', detail: 'Comuna 10 · Vía Principal', lat: 3.87008, lng: -77.05412 },
+  { name: 'El Jorge', detail: 'Comuna 4 · Av. Simón Bolívar', lat: 3.87755, lng: -77.04010 },
+  { name: 'Bellavista', detail: 'Comuna 7 · Zona Residencial', lat: 3.87200, lng: -77.04800 },
+  { name: 'Juan XXIII', detail: 'Comuna 6 · Zona Residencial', lat: 3.87450, lng: -77.04350 },
+  { name: 'San Luis', detail: 'Comuna 7 · Carrera 54', lat: 3.86850, lng: -77.05800 },
+  { name: 'Punta del Este', detail: 'Comuna 5 · Vía Alterna', lat: 3.87480, lng: -77.04520 },
+  { name: 'La Playita', detail: 'Comuna 1 · Vía al Muelle', lat: 3.87960, lng: -77.03680 },
+  { name: 'Nayita', detail: 'Comuna 1 · Frente al Malecón', lat: 3.88200, lng: -77.03400 },
+  { name: 'Alberto Lleras Camargo', detail: 'Comuna 3 · Zona Portuaria', lat: 3.87800, lng: -77.03800 },
+  { name: 'Matías Mulumba', detail: 'Comuna 12 · Vía al Aeropuerto', lat: 3.86200, lng: -77.06500 },
+  { name: 'Transformación', detail: 'Comuna 11 · Zona Continental', lat: 3.86500, lng: -77.06000 },
+  { name: 'El Galeón', detail: 'Comuna 4 · Los Laureles', lat: 3.87600, lng: -77.04200 },
+  { name: 'Muelle Turístico', detail: 'Malecón Bahía de la Cruz', lat: 3.88700, lng: -77.02600 },
+  { name: 'Avenida Simón Bolívar', detail: 'Arteria Principal del Puerto', lat: 3.87500, lng: -77.04500 },
+];
+
 /**
- * Busca direcciones. Devuelve máximo 6 sugerencias, primero las que
- * caen dentro de Buenaventura.
+ * Busca direcciones. Devuelve coincidencias instantáneas locales de
+ * Buenaventura combinadas con Photon/OpenStreetMap.
  */
 export async function searchAddress(query, signal) {
-  const q = query.trim();
-  if (q.length < 3) return [];
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
 
-  const url = new URL(PHOTON);
-  url.searchParams.set('q', q);
-  url.searchParams.set('limit', '25');
-  // OJO: Photon NO acepta lang=es — responde 400. Solo admite
-  // de/en/fr/it. Lo omitimos: los nombres de calles vienen de
-  // OpenStreetMap en su idioma original, que aquí ya es español.
+  // 1. Coincidencias locales inmediatas en barrios de Buenaventura
+  const localMatches = BUENAVENTURA_BARRIOS
+    .filter(b => b.name.toLowerCase().includes(q) || b.detail.toLowerCase().includes(q))
+    .map(b => ({
+      id: `local-${b.name}`,
+      label: query.includes('#') || query.includes('Cra') || query.includes('Cl') ? query : `Barrio ${b.name}`,
+      detail: b.detail,
+      lat: b.lat,
+      lng: b.lng,
+      inCoverage: true,
+    }));
 
-  // TuraFood opera SOLO en Buenaventura. El bbox limita la búsqueda al
-  // puerto: sin esto, "Bellavista" traía resultados de Ecuador.
-  url.searchParams.set(
-    'bbox',
-    `${BOUNDS.minLng},${BOUNDS.minLat},${BOUNDS.maxLng},${BOUNDS.maxLat}`,
-  );
-  url.searchParams.set('lat', String(BUENAVENTURA_CENTER.lat));
-  url.searchParams.set('lon', String(BUENAVENTURA_CENTER.lng));
+  try {
+    const url = new URL(PHOTON);
+    url.searchParams.set('q', query.trim());
+    url.searchParams.set('limit', '15');
+    url.searchParams.set('bbox', `${BOUNDS.minLng},${BOUNDS.minLat},${BOUNDS.maxLng},${BOUNDS.maxLat}`);
+    url.searchParams.set('lat', String(BUENAVENTURA_CENTER.lat));
+    url.searchParams.set('lon', String(BUENAVENTURA_CENTER.lng));
 
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error('No pudimos buscar la dirección. Intenta de nuevo.');
+    const res = await fetch(url, { signal });
+    if (!res.ok) return localMatches;
 
-  const data = await res.json();
+    const data = await res.json();
+    const remote = (data.features ?? [])
+      .map(formatFeature)
+      .filter((f) => f.inCoverage && f.lat != null);
 
-  return (data.features ?? [])
-    .map(formatFeature)
-    // Descarte duro: si el bbox dejó pasar algo, aquí no entra
-    .filter((f) => f.inCoverage && f.lat != null)
-    // Sin duplicados por nombre + zona
-    .filter((f, i, arr) => arr.findIndex((o) => o.label === f.label && o.detail === f.detail) === i)
-    // Lo más cercano al centro del puerto primero
-    .sort((a, b) => distanceTo(a) - distanceTo(b))
-    .slice(0, 8);
+    // Unir locales con remotos sin duplicar
+    const combined = [...localMatches, ...remote];
+    const unique = [];
+    const seen = new Set();
+
+    for (const item of combined) {
+      const key = `${item.label.toLowerCase()}-${item.detail.toLowerCase()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(item);
+      }
+    }
+
+    return unique.slice(0, 8);
+  } catch {
+    return localMatches;
+  }
 }
 
 /** Distancia aproximada al centro, para ordenar resultados */

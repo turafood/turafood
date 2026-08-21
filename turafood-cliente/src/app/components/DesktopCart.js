@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { getBusiness } from '@/lib/data';
 import { quote } from '@/lib/pricing';
 import { cop } from '@/lib/format';
+import { Cover } from './Media';
 
 export default function DesktopCart() {
   const router = useRouter();
@@ -31,18 +32,9 @@ export default function DesktopCart() {
     return () => { alive = false; };
   }, [businessId]);
 
+  // Si la canasta está vacía, no ocupa espacio en desktop
   if (items.length === 0) {
-    return (
-      <div style={S.empty}>
-        <span className="ms" style={{ fontSize: 36, color: 'var(--faint)' }}>shopping_bag</span>
-        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16, marginTop: 10 }}>
-          Tu canasta está vacía
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4, textAlign: 'center', lineHeight: 1.4 }}>
-          Explora los sitios abiertos y arma tu pedido.
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const t = quote({
@@ -67,8 +59,12 @@ export default function DesktopCart() {
         </div>
         {items.map((it) => (
           <div key={it.id} style={S.itemRow}>
+            {it.image && (
+              <Cover src={it.image} alt={it.productName} radius={10} sizes="44px" style={{ width: 44, height: 44, flex: 'none' }} />
+            )}
             <div style={S.itemMain}>
               <div style={S.itemName}>{it.productName}</div>
+              {it.opts && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{it.opts}</div>}
               <div style={S.itemPrice}>{cop(it.price * it.qty)}</div>
             </div>
             <div style={S.qtyWrap}>

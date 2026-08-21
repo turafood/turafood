@@ -30,7 +30,7 @@ import ArteRecorrido from './ArteRecorrido';
 const CLAVE = 'turafood:recorrido';
 
 /** Aire alrededor del elemento iluminado */
-const MARGEN = 8;
+const MARGEN = 10;
 
 export default function Recorrido({ id, pasos, autoIniciar = true }) {
   const [abierto, setAbierto] = useState(false);
@@ -75,30 +75,38 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
     const el = document.querySelector(paso.selector);
     if (!el) { setCaja(null); return; }
 
-    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    // Si es un bloque grande como KPIs, scrollear al inicio para que quepa la tarjeta debajo
+    const isLarge = paso.selector === '[data-tour="kpis"]';
+    el.scrollIntoView({ block: isLarge ? 'start' : 'center', inline: 'nearest', behavior: 'auto' });
+    
+    // Obtenemos el rectángulo real visible
     const r = el.getBoundingClientRect();
+    const pad = paso.selector === '[data-tour="modo-demo"]' ? 6 : 12;
+
     setCaja({
-      top: r.top - MARGEN,
-      left: r.left - MARGEN,
-      width: r.width + MARGEN * 2,
-      height: r.height + MARGEN * 2,
+      top: Math.max(4, r.top - pad),
+      left: Math.max(4, r.left - pad),
+      width: Math.min(window.innerWidth - 8, r.width + pad * 2),
+      height: r.height + pad * 2,
     });
   }, [i, pasos]);
 
   useEffect(() => {
     if (!abierto) return undefined;
     medir();
-    // Un respiro más, por si el scroll movió las cosas
-    const t = setTimeout(medir, 320);
+    // Medición adicional tras frame de renderizado
+    const raf = requestAnimationFrame(medir);
+    const t = setTimeout(medir, 150);
 
     window.addEventListener('resize', medir);
     window.addEventListener('scroll', medir, true);
     return () => {
+      cancelAnimationFrame(raf);
       clearTimeout(t);
       window.removeEventListener('resize', medir);
       window.removeEventListener('scroll', medir, true);
     };
-  }, [abierto, medir]);
+  }, [abierto, medir, i]);
 
   /* ---------------------------------------------------------- teclado */
   useEffect(() => {
@@ -124,8 +132,6 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
 
   const anterior = () => setI(Math.max(i - 1, 0));
 
-  // Se mide después de pintar, y solo se guarda si cambió: escribir el
-  // mismo número en cada render dispara un bucle.
   useLayoutEffect(() => {
     const el = refTarjeta.current;
     if (!el) return;
@@ -133,9 +139,6 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
     if (h && Math.abs(h - altoTarjeta) > 1) setAltoTarjeta(h);
   }, [i, abierto, altoTarjeta]);
 
-  // Todos los hooks quedan por encima de este return. React exige que
-  // se llamen siempre en el mismo orden, y salir antes de uno lo
-  // rompe — se cayó así al mover esta medición debajo.
   if (!abierto || !pasos.length) return null;
 
   const paso = pasos[i];
@@ -143,21 +146,11 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
 
   /* -------------------------------------------- dónde va la tarjeta */
   const tarjeta = (() => {
-    const anchoTarjeta = 320;
-    const margen = 14;
+    const anchoTarjeta = 330;
+    const margen = 16;
 
     if (!caja) {
-      // Sin objetivo: centrada. Sirve para el paso de bienvenida.
-      //
-      // Se centra con números y NO con `translate(-50%,-50%)`, aunque
-      // sea lo obvio: la animación `anim-pop` termina en
-      // `transform: none` con fill-mode `both`, así que al acabar le
-      // borra el translate a la tarjeta y la deja con su esquina
-      // superior izquierda en el centro de la pantalla — medio
-      // tarjetón por fuera, abajo y a la derecha.
-      //
-      // Una animación le gana a un estilo en línea. Por eso no se
-      // pueden mezclar las dos cosas en la misma propiedad.
+      // Sin objetivo: centrada en la pantalla
       return {
         top: Math.max((window.innerHeight - altoTarjeta) / 2, margen),
         left: Math.max((window.innerWidth - anchoTarjeta) / 2, margen),
@@ -166,22 +159,30 @@ export default function Recorrido({ id, pasos, autoIniciar = true }) {
 
     const alto = altoTarjeta;
 
-    const cabeAbajo = caja.top + caja.height + alto + margen < window.innerHeight;
-    let top = cabeAbajo
-      ? caja.top + caja.height + margen
-      : caja.top - alto - margen;
+    // Si el elemento está en la mitad superior de la pantalla, poner la tarjeta debajo
+    const espacioAbajo = window.innerHeight - (caja.top + caja.height);
+    const espacioArriba = caja.top;
 
-    // Pase lo que pase, dentro de la pantalla. Este es el candado: si
-    // la estimación falla, la tarjeta se pega al borde pero se ve
-    // completa, con sus botones.
+    let top = 0;
+    if (espacioAbajo >= alto + margen || espacioAbajo >= espacioArriba) {
+      top = caja.top + caja.height + margen;
+    } else {
+      top = caja.top - alto - margen;
+    }
+
+    // Asegurar que la tarjeta nunca quede fuera de la pantalla
     top = Math.min(
       Math.max(top, margen),
       Math.max(window.innerHeight - alto - margen, margen),
     );
 
-    // Alineada al elemento, pero sin salirse de la pantalla
-    const left = Math.min(
-      Math.max(caja.left, margen),
+    // Centrar horizontalmente respecto a la caja enfocada o alinear con margen seguro
+    let left = caja.left + (caja.width - anchoTarjeta) / 2;
+    if (paso.selector === '[data-tour="modo-demo"]') {
+      left = caja.left + caja.width - anchoTarjeta;
+    }
+    left = Math.min(
+      Math.max(left, margen),
       window.innerWidth - anchoTarjeta - margen,
     );
 
@@ -277,25 +278,23 @@ const S = {
    */
   foco: {
     position: 'absolute',
-    borderRadius: 18,
-    boxShadow: '0 0 0 9999px rgba(12,10,9,.62), 0 0 0 2px rgba(255,255,255,.55) inset',
-    transition: 'top .34s cubic-bezier(.2,0,0,1), left .34s cubic-bezier(.2,0,0,1), width .34s, height .34s',
+    borderRadius: 20,
+    boxShadow: '0 0 0 9999px rgba(8,7,10,.72), 0 0 0 2px rgba(255,68,31,.6) inset, 0 0 24px rgba(255,68,31,.2)',
+    transition: 'top .34s cubic-bezier(.16,1,.3,1), left .34s cubic-bezier(.16,1,.3,1), width .34s, height .34s',
     pointerEvents: 'none',
   },
 
   tarjeta: {
     position: 'absolute',
-    width: 320, maxWidth: 'calc(100vw - 28px)',
+    width: 330, maxWidth: 'calc(100vw - 28px)',
     pointerEvents: 'auto',
-    padding: 18, borderRadius: 22,
-    // Vidrio: la superficie con transparencia y desenfoque fuerte, más
-    // un borde claro arriba que simula el canto de un cristal.
-    background: 'color-mix(in srgb, var(--surface) 82%, transparent)',
-    backdropFilter: 'blur(28px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(28px) saturate(180%)',
-    border: '1px solid color-mix(in srgb, var(--text) 12%, transparent)',
-    boxShadow: '0 24px 60px rgba(12,10,9,.34), inset 0 1px 0 rgba(255,255,255,.5)',
-    transition: 'top .34s cubic-bezier(.2,0,0,1), left .34s cubic-bezier(.2,0,0,1)',
+    padding: '20px 20px 18px', borderRadius: 24,
+    background: 'color-mix(in srgb, var(--surface) 92%, #141217)',
+    backdropFilter: 'blur(30px) saturate(190%)',
+    WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+    border: '1px solid color-mix(in srgb, var(--primary) 28%, var(--border))',
+    boxShadow: '0 30px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25)',
+    transition: 'top .34s cubic-bezier(.16,1,.3,1), left .34s cubic-bezier(.16,1,.3,1)',
   },
   /**
    * El recuadro donde vive la ilustración. Da el ambiente: un

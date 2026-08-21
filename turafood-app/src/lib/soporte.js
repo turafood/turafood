@@ -32,32 +32,37 @@ export const TICKET_STATUS = {
   closed: { label: 'Cerrada', bg: 'var(--surface2)', color: 'var(--muted)', icon: 'lock' },
 };
 
-/** Preguntas que se resuelven solas: bajan la mitad de las solicitudes */
+/** Preguntas Frecuentes — Modelo Real TuraFood (0% Comisiones, Pago Directo, IA & Turbo) */
 export const FAQ = [
   {
-    id: 'payout',
-    q: '¿Cuándo me consignan?',
-    a: 'Todos los viernes, con el corte del domingo anterior. En Liquidaciones ves el periodo en curso y cuánto va acumulado. Si el viernes es festivo, la consignación sale el siguiente día hábil.',
+    id: 'commission',
+    q: '¿TuraFood cobra comisiones por cada pedido que vendo?',
+    a: 'No. Cero comisiones (0%). A diferencia de otras plataformas tradicionales, TuraFood no te descuenta el 20% o 30% de tus platos. El 100% de la venta de tu comida va directamente a ti.',
   },
   {
-    id: 'commission',
-    q: '¿Por qué me descontaron comisión?',
-    a: 'Es el 10% por pedido entregado (15% en farmacia y licorera). Se descuenta solo del valor de los productos, no del envío ni de la propina. Con Biz Pro pasa a 0% y solo pagas la mensualidad.',
+    id: 'payouts',
+    q: '¿Cómo y cuándo recibo el dinero de mis clientes?',
+    a: 'Directo e inmediato a tu cuenta. El cliente te transfiere directamente a tu Nequi, Daviplata, cuenta bancaria o paga en efectivo al recibir el pedido. TuraFood nunca retiene tu dinero ni te hace esperar semanas para pagarte.',
+  },
+  {
+    id: 'turbo',
+    q: '¿Cómo funciona la modalidad Tura Turbo ⚡ (15 Minutos)?',
+    a: 'Tura Turbo es nuestro sistema de despacho ultra-rápido. Puedes activar la insignia Turbo en tus platos más ágiles de preparar; el algoritmo de Repartidor IA asigna al domiciliario más cercano con un cronómetro de entrega garantizada en menos de 15 minutos.',
+  },
+  {
+    id: 'kit_growth',
+    q: '¿Qué incluye el Kit Turafood Ultra Growth AI?',
+    a: 'Incluye la suite completa de crecimiento: Agente de Voz IA 24/7 que contesta la línea telefónica y toma pedidos de forma autónoma, automatizaciones de WhatsApp + SMS + Email para recuperar carritos, y la ficha de Google My Business optimizada en el Top #1 de Google Maps.',
   },
   {
     id: 'limit',
-    q: 'Me dice que llegué al límite de 20 pedidos',
-    a: 'Es el tope mientras tu cuenta esté sin verificar. Sube tus documentos en Verificación y el límite se levanta cuando aprobemos. Mientras tanto se reinicia cada día a medianoche.',
+    q: '¿Por qué mi cuenta nueva tiene un tope de 20 pedidos diarios?',
+    a: 'Es una medida de seguridad temporal para nuevas cuentas. Solo debes ingresar a la sección "Verificación" y completar tu registro para levantar todos los topes y recibir pedidos ilimitados.',
   },
   {
-    id: 'courier',
-    q: 'Un pedido lleva mucho sin repartidor',
-    a: 'Márcalo como listo apenas salga de cocina: los repartidores solo ven los pedidos listos. Si pasan más de 15 minutos sin que nadie lo tome, escríbenos y lo asignamos a mano.',
-  },
-  {
-    id: 'photos',
-    q: 'No puedo subir la foto de un producto',
-    a: 'El límite es 5 MB por foto, en JPG, PNG o WebP. Si tu foto pesa más, ábrela en la galería del celular y compártela por WhatsApp contigo mismo: baja de peso sola y la puedes subir.',
+    id: 'couriers',
+    q: '¿Puedo usar mis propios domiciliarios o la red de TuraFood?',
+    a: 'Ambas opciones. Puedes vincular a tus domiciliarios de confianza en "Repartidor IA" para que reciban las órdenes en su app, o apoyarte en la flota aliada de TuraFood cuando tengas alta demanda.',
   },
 ];
 

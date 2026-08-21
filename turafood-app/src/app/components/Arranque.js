@@ -1,465 +1,420 @@
 'use client';
 
 /**
- * EL ARRANQUE: SEIS TOQUES Y EL PANEL QUEDA A SU MEDIDA
+ * PERSONALIZACIÓN DE TEMA INTERACTIVO ULTRA PREMIUM (FIGMA STYLE)
  *
- * Aparece apenas la persona elige "Tengo un negocio" o "Quiero
- * repartir", antes de entrar al panel.
- *
- * POR QUÉ UNA HOJA Y NO UNA PANTALLA COMPLETA
- *
- * Sube desde abajo y deja ver el panel detrás, medio velado. Es a
- * propósito: la persona ve que YA ESTÁ ADENTRO y que esto es un paso
- * corto, no otro formulario antes de poder entrar. Una pantalla
- * completa se siente como un registro más — justo lo que quitamos.
- *
- * Y se puede saltar en cualquier momento. Quien no quiera contestar
- * entra igual; solo pierde que le armemos el panel a su medida.
- *
- * MÓVIL PRIMERO, DE VERDAD
- *
- *   · En celular la hoja ocupa hasta el 92% del alto y las opciones
- *     van en una columna, con 56px de alto mínimo — el pulgar no
- *     acierta en menos.
- *   · En escritorio se convierte en una tarjeta centrada de 560px.
- *   · El botón de avanzar vive pegado abajo, dentro del área segura
- *     del iPhone, y nunca se va con el scroll.
- *
- * NADA DE ESCRIBIR
- *
- * Todas las respuestas son de tocar. En un celular, la diferencia
- * entre tocar y escribir es la diferencia entre contestar y cerrar.
- *
- * ICONOS, NO EMOJIS
- *
- * Los emojis los pinta el sistema operativo: en un Android viejo
- * varios salen como un cuadrito, cada plataforma los dibuja distinto y
- * ninguno respeta el tema. Ver `IconoArranque`.
+ * Cambia en tiempo real entre Claro, Oscuro y Puerto reflejando
+ * la transformación visual completa del panel en vivo con mini-mockups
+ * de alta fidelidad.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import IconoArranque from './IconoArranque';
+import { useEffect, useState } from 'react';
 import { TEMAS, TEMA_INFO, useTheme } from '@/lib/prefs';
 
-/**
- * El último paso no es una pregunta: es enseñarle que puede cambiar
- * el aspecto. Nadie descubre solo un botón de tema en una barra
- * superior llena de iconos, y quien trabaja de noche en una cocina
- * agradece el oscuro. El del puerto lo agradecen todos.
- *
- * Va de último a propósito: es lo único que no configura nada del
- * negocio, así que quien salte antes no se pierde nada importante.
- */
-const PASO_TEMA = {
-  id: '__tema',
-  titulo: 'Una última cosa: ¿cómo lo quieres ver?',
-  bajada: 'Lo cambias cuando quieras desde el botón de arriba.',
-  tema: true,
+const THEME_DATA = {
+  light: {
+    id: 'light',
+    name: 'Modo Claro',
+    tagline: 'Máxima claridad y frescura',
+    desc: 'Diseñado para luz natural y ambientes diurnos en el restaurante.',
+    icon: 'light_mode',
+    accent: '#FF441F',
+    accentGradient: 'linear-gradient(135deg, #FF7A4D, #E2360F)',
+    glow: 'rgba(255, 68, 31, 0.35)',
+    sheetBg: 'linear-gradient(145deg, #FFFFFF 0%, #F5F2EC 100%)',
+    sheetBorder: 'rgba(255, 68, 31, 0.25)',
+    textColor: '#17140F',
+    subColor: '#736B60',
+    mockup: {
+      bg: '#FAF9F6',
+      sidebar: '#EBE8E1',
+      card: '#FFFFFF',
+      border: 'rgba(0,0,0,0.08)',
+      textPrimary: '#17140F',
+      textMuted: '#999185',
+      chartBar: '#FF441F',
+      pillBg: '#FFF1EC',
+      pillColor: '#FF441F',
+    },
+  },
+  dark: {
+    id: 'dark',
+    name: 'Modo Oscuro',
+    tagline: 'Negro mate & Alto contraste',
+    desc: 'Elegancia pura, menor fatiga visual y ahorro de batería.',
+    icon: 'dark_mode',
+    accent: '#E8C766',
+    accentGradient: 'linear-gradient(135deg, #F6E4A6, #E8C766, #FF7A4D)',
+    glow: 'rgba(232, 199, 102, 0.35)',
+    sheetBg: 'linear-gradient(145deg, #181410 0%, #0A0806 100%)',
+    sheetBorder: 'rgba(232, 199, 102, 0.3)',
+    textColor: '#FFFFFF',
+    subColor: 'rgba(255, 255, 255, 0.7)',
+    mockup: {
+      bg: '#120F0C',
+      sidebar: '#1E1812',
+      card: '#221C16',
+      border: 'rgba(232,199,102,0.18)',
+      textPrimary: '#FFFFFF',
+      textMuted: '#8C8375',
+      chartBar: '#E8C766',
+      pillBg: 'rgba(232,199,102,0.15)',
+      pillColor: '#E8C766',
+    },
+  },
+  puerto: {
+    id: 'puerto',
+    name: 'Turín Turán',
+    tagline: 'Bandera del Puerto · Oro & Esmeralda',
+    desc: 'Inspirado en la bandera de Buenaventura (Amarillo Oro & Verde Esmeralda) sobre dark glass.',
+    icon: 'sailing',
+    accent: '#E8C766',
+    accentSecondary: '#11B26A',
+    accentGradient: 'linear-gradient(135deg, #F6E4A6 0%, #E8C766 45%, #11B26A 100%)',
+    glow: 'rgba(232, 199, 102, 0.35)',
+    sheetBg: 'linear-gradient(145deg, #0E1A13 0%, #060D09 100%)',
+    sheetBorder: 'rgba(232, 199, 102, 0.3)',
+    textColor: '#FFFFFF',
+    subColor: 'rgba(255, 255, 255, 0.75)',
+    mockup: {
+      bg: '#0A140F',
+      sidebar: '#122018',
+      card: '#16281E',
+      border: 'rgba(232,199,102,0.2)',
+      textPrimary: '#FFFFFF',
+      textMuted: '#9BB3A5',
+      chartBar: '#E8C766',
+      chartBar2: '#11B26A',
+      pillBg: 'rgba(17,178,106,0.2)',
+      pillColor: '#11B26A',
+    },
+  },
 };
 
-// Las fotografías premium para cada paso (subidas por el usuario)
-const FONDOS_PASOS = [
-  '/burger_new.png',
-  '/steak_board.png',
-  '/tomahawk.png',
-  '/lamb_chops.png',
-  '/meat_fork.png',
-  '/burger_new.png',
-];
-
-export default function Arranque({ preguntas: base, onListo, onSaltar, guardando }) {
-  const [i, setI] = useState(0);
-  const [resp, setResp] = useState({});
+export default function Arranque({ onListo, onSaltar, guardando }) {
   const { theme, setTheme } = useTheme();
+  const activeCfg = THEME_DATA[theme] || THEME_DATA.dark;
 
-  const preguntas = useMemo(() => [...base, PASO_TEMA], [base]);
-
-  const paso = preguntas[i];
-  const ultimo = i === preguntas.length - 1;
-  const valor = resp[paso.id];
-
-  // Contestada: en las de varias, con una alcanza
-  // El del tema siempre está contestado: ya hay uno puesto.
-  const contestada = paso.tema
-    ? true
-    : paso.multiple ? Array.isArray(valor) && valor.length > 0 : Boolean(valor);
-
-  // Escape para salir. Quien lo busca sabe lo que hace.
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape' && !guardando) onSaltar?.(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onSaltar, guardando]);
 
-  // Al cambiar de pregunta, arriba del todo. Si no, la segunda
-  // pregunta aparece a media altura y se ve rota.
-  useEffect(() => {
-    document.getElementById('arranque-scroll')?.scrollTo({ top: 0 });
-  }, [i]);
-
-  const elegir = (opcion) => {
-    setResp((p) => {
-      if (!paso.multiple) return { ...p, [paso.id]: opcion };
-      const ya = Array.isArray(p[paso.id]) ? p[paso.id] : [];
-      return {
-        ...p,
-        [paso.id]: ya.includes(opcion) ? ya.filter((x) => x !== opcion) : [...ya, opcion],
-      };
-    });
-
-    // En las de una sola opción se avanza solo. Ahorra un toque por
-    // pregunta, que en seis preguntas son seis toques menos.
-    if (!paso.multiple && !ultimo) {
-      setTimeout(() => setI((n) => n + 1), 260);
-    }
+  const seleccionarTema = (nuevoTema) => {
+    setTheme(nuevoTema);
   };
 
-  const avanzar = () => {
-    if (ultimo) onListo?.(resp);   // `__tema` nunca entra a `resp`
-    else setI((n) => n + 1);
+  const completar = () => {
+    onListo?.({ tema: theme, nicho: 'comidas' });
   };
-
-  const pct = useMemo(
-    () => Math.round(((i + (contestada ? 1 : 0)) / preguntas.length) * 100),
-    [i, contestada, preguntas.length],
-  );
-
-  const bgImg = FONDOS_PASOS[Math.min(i + 1, FONDOS_PASOS.length - 1)];
 
   return (
     <div 
       style={{
         ...S.velo,
-        background: 'rgba(20, 16, 9, 0.85)',
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        background: theme === 'light' ? 'rgba(20, 16, 10, 0.65)' : 'rgba(4, 3, 2, 0.88)',
+        backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
       }} 
       className="anim-fade"
     >
       <section
-        style={S.hoja}
+        style={{
+          ...S.hoja,
+          background: activeCfg.sheetBg,
+          borderColor: activeCfg.sheetBorder,
+          boxShadow: `0 30px 90px rgba(0,0,0,0.7), 0 0 40px ${activeCfg.glow}`,
+          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
         className="arranque-hoja anim-slideup"
         role="dialog"
         aria-modal="true"
-        aria-label="Configura tu panel"
+        aria-label="Elige tu interfaz"
       >
 
-        {/* ---------------------------------------- barra de arriba */}
-        <header style={S.cabecera}>
+        {/* ─────────── CABECERA ─────────── */}
+        <header style={{
+          ...S.cabecera,
+          borderBottom: `1px solid ${theme === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}`,
+        }}>
           <div style={S.cabeceraFila}>
-            <span style={S.paso}>
-              Paso {i + 1} de {preguntas.length}
-            </span>
-            <button onClick={onSaltar} style={S.saltar} disabled={guardando}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 13, color: activeCfg.accent }}>✨</span>
+              <span style={{ ...S.paso, color: activeCfg.accent }}>
+                PERSONALIZACIÓN VISUAL
+              </span>
+            </div>
+            <button
+              onClick={onSaltar}
+              style={{
+                ...S.saltar,
+                color: theme === 'light' ? '#8C857B' : 'rgba(255,255,255,0.5)',
+              }}
+              disabled={guardando}
+            >
               Saltar
             </button>
           </div>
-          
-          <div style={S.barra}>
-            <span style={{ ...S.barraRelleno, width: `${pct}%` }} />
-          </div>
         </header>
 
-        {/* ---------------------------------------- la pregunta */}
+        {/* ─────────── CUERPO INTERACTIVO ─────────── */}
         <div id="arranque-scroll" style={S.cuerpo}>
           
-          {/* Imagen ilustrativa incrustada con máscara suave en las puntas */}
-          <div style={{ position: 'relative', zIndex: 1, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+          {/* ICON 3D MOCKUP DINÁMICO */}
+          <div style={{ position: 'relative', zIndex: 1, margin: '4px 0 16px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{
-              width: '100%', height: 180,
-              background: `url("${bgImg}") center/cover`,
-              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              opacity: 0.95
-            }} />
+              position: 'relative',
+              width: 84, height: 84,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              animation: 'tffloat 5s ease-in-out infinite',
+            }}>
+              {/* Glow Ambiental Reactivo */}
+              <div style={{
+                position: 'absolute', inset: -14,
+                background: `radial-gradient(circle, ${activeCfg.glow} 0%, transparent 70%)`,
+                filter: 'blur(22px)', borderRadius: '50%', pointerEvents: 'none',
+                transition: 'background 0.4s ease',
+              }} />
+
+              {/* 3D Mockup Badge */}
+              <div style={{
+                width: 70, height: 70, borderRadius: 20,
+                background: theme === 'light'
+                  ? 'linear-gradient(145deg, #FFFFFF, #EAE7DE)'
+                  : 'linear-gradient(145deg, #241D14 0%, #15110B 100%)',
+                border: `1px solid ${activeCfg.accent}`,
+                boxShadow: '0 16px 36px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transform: 'rotate(-3deg)',
+                position: 'relative',
+                transition: 'all 0.3s ease',
+              }}>
+                <span className="ms" style={{
+                  fontSize: 34,
+                  color: activeCfg.accent,
+                  filter: `drop-shadow(0 4px 10px ${activeCfg.glow})`,
+                  transition: 'all 0.3s ease',
+                }}>
+                  {activeCfg.icon}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <h2 style={{ ...S.titulo, color: '#fff', textAlign: 'center' }}>
-            {paso.titulo.split(' ').map((word, i, arr) => {
-              if (i === arr.length - 1 && paso.id === '__tema') {
-                 return <span key={i} className="tf-serif tf-gold-text">{word}</span>;
-              }
-              return word + ' ';
-            })}
+          <h2 style={{
+            ...S.titulo,
+            color: activeCfg.textColor,
+            textAlign: 'center',
+            transition: 'color 0.3s ease',
+          }}>
+            ¿Cómo quieres ver tu <span style={{ color: activeCfg.accent }}>interfaz?</span>
           </h2>
-          {paso.bajada && <p style={{ ...S.bajada, color: 'rgba(255,255,255,0.7)', textAlign: 'center' }}>{paso.bajada}</p>}
+          
+          <p style={{
+            ...S.bajada,
+            color: activeCfg.subColor,
+            textAlign: 'center',
+            transition: 'color 0.3s ease',
+          }}>
+            {activeCfg.desc}
+          </p>
 
-          {/* El paso del tema: tres muestras que se ven como se va a
-              ver la app, no tres nombres. Se aplica al tocar, así que
-              la prueba es la pantalla misma. */}
-          {paso.tema ? (
-            <div style={S.temas}>
-              {TEMAS.map((t) => {
-                const on = theme === t;
-                return (
-                  <button
-                    key={t}
-                    onClick={() => setTheme(t)}
-                    aria-pressed={on}
-                    style={{
-                      ...S.temaCard,
-                      borderColor: on ? 'var(--gold)' : 'rgba(255,255,255,0.08)',
-                      background: on ? 'rgba(232,199,102,0.08)' : 'rgba(255,255,255,0.03)',
-                      boxShadow: on ? '0 6px 20px rgba(184,145,47,0.2)' : 'none',
-                    }}
-                  >
-                    <span style={{ ...S.temaMuestra, ...MUESTRA[t] }}>
-                      <span style={{ ...S.temaBarra, background: MUESTRA[t].acento }} />
-                      <span style={{ ...S.temaLinea, background: MUESTRA[t].linea, width: '62%' }} />
-                      <span style={{ ...S.temaLinea, background: MUESTRA[t].linea, width: '40%' }} />
-                    </span>
-
-                    <span style={S.temaNombre}>
-                      <span className="ms" style={{ fontSize: 16 }}>{TEMA_INFO[t].icono}</span>
-                      {TEMA_INFO[t].nombre}
-                    </span>
-
-                    {on && (
-                      <span className="ms" style={S.temaCheck}>check_circle</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-          <div
-            style={{
-              ...S.opciones,
-              gridTemplateColumns: paso.columnas === 2
-                ? 'repeat(auto-fill, minmax(148px, 1fr))'
-                : '1fr',
-            }}
-          >
-            {paso.opciones.map((o) => {
-              const activo = paso.multiple
-                ? (valor || []).includes(o.id)
-                : valor === o.id;
+          {/* ─────────── 3 MINI MOCKUP UI CARDS (FIGMA LEVEL) ─────────── */}
+          <div style={S.gridTemas}>
+            {TEMAS.map((tKey) => {
+              const cfg = THEME_DATA[tKey];
+              const isSelected = theme === tKey;
+              const m = cfg.mockup;
 
               return (
                 <button
-                  key={o.id}
-                  onClick={() => elegir(o.id)}
-                  className="arranque-opcion tf-card"
+                  key={tKey}
+                  type="button"
+                  onClick={() => seleccionarTema(tKey)}
                   style={{
-                    ...S.opcion,
-                    background: activo ? 'rgba(232,199,102,0.1)' : 'rgba(255,255,255,0.03)',
-                    borderColor: activo ? 'var(--gold)' : 'rgba(255,255,255,0.08)',
+                    ...S.themeCard,
+                    borderColor: isSelected ? cfg.accent : theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                    background: isSelected
+                      ? theme === 'light' ? '#FFFFFF' : 'rgba(255,255,255,0.06)'
+                      : theme === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                    boxShadow: isSelected
+                      ? `0 12px 28px rgba(0,0,0,0.25), 0 0 20px ${cfg.glow}`
+                      : 'none',
+                    transform: isSelected ? 'translateY(-3px)' : 'none',
                   }}
                 >
+                  {/* Miniature App Dashboard Screen */}
                   <div style={{
-                    width: 48, height: 48, borderRadius: 16, flex: 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: activo ? 'linear-gradient(145deg, #F6E4A6, #B8912F)' : 'rgba(255,255,255,0.05)',
-                    color: activo ? '#1a1206' : '#fff',
-                    boxShadow: activo ? '0 8px 20px rgba(184,145,47,0.3)' : 'none'
+                    ...S.miniScreen,
+                    background: m.bg,
+                    borderColor: m.border,
                   }}>
-                    <IconoArranque icon={o.icon} size={24} />
+                    {/* Top Window Bar */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 6px', borderBottom: `1px solid ${m.border}` }}>
+                      <div style={{ display: 'flex', gap: 3 }}>
+                        <span style={{ width: 4.5, height: 4.5, borderRadius: '50%', background: '#FF5F56' }} />
+                        <span style={{ width: 4.5, height: 4.5, borderRadius: '50%', background: '#FFBD2E' }} />
+                        <span style={{ width: 4.5, height: 4.5, borderRadius: '50%', background: '#27C93F' }} />
+                      </div>
+                      <div style={{ height: 4, width: 26, borderRadius: 99, background: m.border }} />
+                    </div>
+
+                    {/* Dashboard Layout Content */}
+                    <div style={{ display: 'flex', flex: 1, padding: 5, gap: 5 }}>
+                      {/* Mini Sidebar */}
+                      <div style={{ width: 14, borderRadius: 4, background: m.sidebar, display: 'flex', flexDirection: 'column', gap: 3, padding: '4px 2px', alignItems: 'center' }}>
+                        <span style={{ width: 6, height: 3, borderRadius: 1, background: cfg.accent }} />
+                        <span style={{ width: 6, height: 3, borderRadius: 1, background: m.border }} />
+                        <span style={{ width: 6, height: 3, borderRadius: 1, background: m.border }} />
+                      </div>
+
+                      {/* Mini Workspace */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {/* Mini Hero Card */}
+                        <div style={{ background: m.card, borderRadius: 5, padding: 4, border: `1px solid ${m.border}` }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ width: 22, height: 3, borderRadius: 1, background: m.textPrimary }} />
+                            <span style={{ width: 14, height: 4, borderRadius: 99, background: m.pillBg }} />
+                          </div>
+                          {/* Mini Bar Chart */}
+                          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 12, marginTop: 4 }}>
+                            <span style={{ width: 3, height: '40%', background: m.border, borderRadius: 1 }} />
+                            <span style={{ width: 3, height: '70%', background: m.border, borderRadius: 1 }} />
+                            <span style={{ width: 3, height: '100%', background: cfg.accent, borderRadius: 1 }} />
+                            <span style={{ width: 3, height: '60%', background: m.border, borderRadius: 1 }} />
+                            <span style={{ width: 3, height: '85%', background: cfg.accent, borderRadius: 1 }} />
+                          </div>
+                        </div>
+
+                        {/* Mini Order Row */}
+                        <div style={{ background: m.card, borderRadius: 4, padding: '3px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: `1px solid ${m.border}` }}>
+                          <span style={{ width: 16, height: 3, borderRadius: 1, background: m.textMuted }} />
+                          <span style={{ width: 10, height: 3, borderRadius: 1, background: '#10B981' }} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ flex: 1, textAlign: 'left' }}>
-                    <span style={{ ...S.opcionLabel, color: '#fff' }}>{o.label}</span>
-                    {o.detalle && <span style={{ ...S.opcionDetalle, color: 'rgba(255,255,255,0.6)' }}>{o.detalle}</span>}
+
+                  {/* Card Title & Icon */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span className="ms" style={{ fontSize: 16, color: isSelected ? cfg.accent : activeCfg.subColor }}>
+                        {cfg.icon}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: activeCfg.textColor }}>
+                        {TEMA_INFO[tKey].nombre}
+                      </span>
+                    </div>
+
+                    {/* Radio Check Circle */}
+                    <div style={{
+                      width: 18, height: 18, borderRadius: '50%',
+                      border: isSelected ? `2px solid ${cfg.accent}` : `1.5px solid ${theme === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}`,
+                      background: isSelected ? cfg.accent : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all .2s ease',
+                    }}>
+                      {isSelected && (
+                        <span className="ms" style={{ fontSize: 13, color: '#fff', fontWeight: 900 }}>check</span>
+                      )}
+                    </div>
                   </div>
-                  <div style={{
-                    ...S.marca,
-                    background: activo ? 'var(--gold)' : 'transparent',
-                    borderColor: activo ? 'var(--gold)' : 'rgba(255,255,255,0.15)',
-                    boxShadow: activo ? '0 0 0 4px rgba(232,199,102,0.2)' : 'none'
-                  }}>
-                    {activo && <span className="ms" style={{ fontSize: 18, color: '#1a1206', fontWeight: 800 }}>check</span>}
+
+                  <div style={{ fontSize: 10.5, color: activeCfg.subColor, textAlign: 'left', marginTop: 3, lineHeight: 1.2 }}>
+                    {cfg.tagline}
                   </div>
                 </button>
               );
             })}
           </div>
-          )}
 
-          {paso.tema && (
-            <p style={S.temaNota}>
-              El del puerto lleva los colores de la bandera de Buenaventura.
-            </p>
-          )}
         </div>
 
-        {/* ---------------------------------------- pie fijo */}
-        <footer style={S.pie}>
-            <button
-              onClick={() => setI((n) => n - 1)}
-              style={{ ...S.atras, opacity: i === 0 ? 0 : 1, pointerEvents: i === 0 ? 'none' : 'auto' }}
-              aria-label="Pregunta anterior"
-            >
-              <span className="ms">arrow_back</span>
-            </button>
-
-            <button
-              onClick={avanzar}
-              disabled={guardando || (!contestada && !paso.tema)}
-              className="arranque-avanzar tf-3d-gold"
-              style={{
-                ...S.avanzar,
-                opacity: (!contestada && !paso.tema) ? 0.5 : 1,
-                background: 'linear-gradient(135deg, #F6E4A6, #B8912F)',
-                color: '#1a1206'
-              }}
-            >
-              {guardando ? (
-                <span className="pro-pulse">Guardando…</span>
-              ) : (
-                <>
-                  {ultimo ? 'Todo listo' : 'Siguiente'}
-                  <span className="ms" style={{ fontSize: 22, fontWeight: 800 }}>
-                    {ultimo ? 'check' : 'arrow_forward'}
-                  </span>
-                </>
-              )}
-            </button>
+        {/* ─────────── PIE / BOTÓN DE ENTRADA ─────────── */}
+        <footer style={{
+          ...S.pie,
+          borderTop: `1px solid ${theme === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'}`,
+        }}>
+          <button
+            onClick={completar}
+            disabled={guardando}
+            className="md3-btn"
+            style={{
+              ...S.boton,
+              background: activeCfg.accentGradient,
+              boxShadow: `0 10px 24px ${activeCfg.glow}`,
+              color: '#fff',
+              fontWeight: 800,
+            }}
+          >
+            {guardando ? 'Abriendo panel…' : 'Entrar al panel'}
+            <span className="ms" style={{ fontSize: 20 }}>arrow_forward</span>
+          </button>
         </footer>
+
       </section>
     </div>
   );
 }
 
-/**
- * Cómo se ve cada tema en la muestra. Son los mismos colores reales
- * de `globals.css`, escritos acá porque la muestra tiene que pintar
- * un tema que NO es el que está puesto — no puede leer las variables.
- */
-const MUESTRA = {
-  light:  { background: '#F6F5F2', acento: '#FF441F', linea: 'rgba(23,20,15,.18)' },
-  dark:   { background: '#131110', acento: '#FF441F', linea: 'rgba(255,255,255,.22)' },
-  puerto: { background: '#FFFDF5', acento: '#009739', linea: 'rgba(0,151,57,.24)' },
-};
-
 const S = {
-  temas: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 24 },
-  temaCard: {
-    position: 'relative',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-    padding: '14px 10px', borderRadius: 20,
-    border: '1px solid var(--border)', background: 'var(--surface)',
-    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
-  },
-  temaMuestra: {
-    width: '100%', height: 56, borderRadius: 12,
-    display: 'flex', flexDirection: 'column', gap: 6,
-    padding: 10, overflow: 'hidden',
-    border: '1px solid rgba(128,128,128,.12)',
-  },
-  temaBarra: { height: 8, borderRadius: 4, width: '46%' },
-  temaLinea: { height: 5, borderRadius: 3 },
-  temaNombre: {
-    display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 13, fontWeight: 600, color: 'var(--text)',
-  },
-  temaCheck: {
-    position: 'absolute', top: -8, right: -8,
-    fontSize: 20, color: 'var(--text)',
-    background: 'var(--bg)', borderRadius: '50%',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  },
-  temaNota: {
-    margin: '20px 0 0', fontSize: 13, lineHeight: 1.5,
-    color: 'var(--muted)', textAlign: 'center',
-  },
-
   velo: {
-    position: 'fixed', inset: 0, zIndex: 300,
+    position: 'fixed', inset: 0, zIndex: 60,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(0,0,0,0.75) url("https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=2000&auto=format&fit=crop") no-repeat center center / cover',
-    backgroundBlendMode: 'multiply',
-    backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)',
-    padding: 20,
+    padding: 16,
   },
-
   hoja: {
-    position: 'relative',
-    width: '100%', maxWidth: 540,
-    maxHeight: '90dvh',
-    display: 'flex', flexDirection: 'column',
-    background: '#141009',
+    width: '100%', maxWidth: 520,
     borderRadius: 28,
-    border: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 40px 100px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,0.05)',
-    overflow: 'hidden',
+    display: 'flex', flexDirection: 'column',
+    maxHeight: '92dvh', overflow: 'hidden',
+    border: '1px solid',
   },
-
-  cabecera: { flex: 'none', padding: '24px 32px 0' },
+  cabecera: {
+    flex: 'none', padding: '18px 24px 14px',
+  },
   cabeceraFila: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  barra: {
-    height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.08)', overflow: 'hidden',
-  },
-  barraRelleno: {
-    display: 'block', height: '100%', borderRadius: 99,
-    background: 'var(--gold)',
-    transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
   },
   paso: {
-    fontSize: 12, fontWeight: 800, letterSpacing: '.08em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+    fontSize: 10.5, fontWeight: 900, letterSpacing: '.08em',
   },
   saltar: {
-    fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)',
-    background: 'none', padding: '4px 0', border: 'none',
-    transition: 'color .2s', cursor: 'pointer',
+    fontSize: 12.5, fontWeight: 700,
+    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
   },
-
   cuerpo: {
-    flex: 1, minHeight: 0, overflowY: 'auto',
-    padding: '28px 32px 16px',
-    WebkitOverflowScrolling: 'touch',
+    flex: 1, padding: '20px 24px 24px', overflowY: 'auto',
   },
   titulo: {
-    margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 32, lineHeight: 1.15, letterSpacing: '-.03em', color: 'var(--text)',
+    margin: '0 0 6px', fontSize: 23, fontWeight: 800,
+    fontFamily: 'var(--font-bricolage)', lineHeight: 1.18, letterSpacing: '-.025em',
   },
   bajada: {
-    margin: '12px 0 0', fontSize: 15, lineHeight: 1.5, color: 'var(--muted)',
+    margin: '0 0 22px', fontSize: 13, lineHeight: 1.5,
   },
 
-  opciones: {
-    display: 'grid', gap: 14, marginTop: 32,
+  gridTemas: {
+    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12,
   },
-  opcion: {
-    display: 'flex', alignItems: 'center', gap: 18,
-    minHeight: 76, padding: '16px 20px',
-    borderRadius: 20, border: '1px solid var(--border)',
-    background: 'var(--surface2)',
-    textAlign: 'left', cursor: 'pointer',
-    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
+  themeCard: {
+    position: 'relative', display: 'flex', flexDirection: 'column',
+    padding: '10px 10px 12px', borderRadius: 20, border: '1.5px solid',
+    cursor: 'pointer', textAlign: 'left', transition: 'all .25s ease',
   },
-  opcionLabel: {
-    display: 'block', fontSize: 17, fontWeight: 700, letterSpacing: '-.01em', color: 'var(--text)',
-  },
-  opcionDetalle: {
-    display: 'block', marginTop: 4, fontSize: 13.5, lineHeight: 1.4, color: 'var(--muted)',
-  },
-  marca: {
-    width: 26, height: 26, flex: 'none',
-    border: '2px solid var(--border)',
-    borderRadius: '50%',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'all .3s cubic-bezier(0.16, 1, 0.3, 1)',
+  miniScreen: {
+    width: '100%', height: 74, borderRadius: 12, border: '1px solid',
+    display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
   },
 
   pie: {
-    flex: 'none', display: 'flex', gap: 16, alignItems: 'center',
-    padding: '24px 32px 32px',
-    background: 'transparent',
+    flex: 'none', padding: '16px 24px 22px',
   },
-  atras: {
-    width: 60, height: 60, borderRadius: 20, flex: 'none',
-    border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
-    color: '#fff', cursor: 'pointer',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'background .3s, transform .2s',
-  },
-  avanzar: {
-    flex: 1, height: 60, borderRadius: 20,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-    background: 'linear-gradient(135deg, var(--primary), #FF7B3B)', border: 'none', cursor: 'pointer',
-    color: '#fff',
-    fontSize: 17, fontWeight: 700, letterSpacing: '-.01em',
-    boxShadow: '0 8px 30px rgba(255,68,31,0.3)',
-    transition: 'all .4s cubic-bezier(0.16, 1, 0.3, 1)',
+  boton: {
+    width: '100%', height: 50, borderRadius: 16,
+    border: 'none', fontSize: 15, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    transition: 'all .2s ease',
   },
 };

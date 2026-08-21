@@ -18,7 +18,7 @@
  * El acceso con cuenta está abajo, para quien ya tiene una.
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { isConfigured } from '@/utils/supabase/client';
@@ -26,8 +26,8 @@ import { probarComo } from '@/lib/sesion';
 import Arranque from '../components/Arranque';
 import { PREGUNTAS_NEGOCIO, PREGUNTAS_REPARTIDOR } from '../components/preguntasArranque';
 import { guardarArranque } from '@/lib/arranque';
-
 import HeroBackdrop from '../components/HeroBackdrop';
+import LegalModal from '../components/LegalModal';
 
 const ROLES = [
   {
@@ -45,6 +45,16 @@ export default function EntrarPage() {
   const [busy, setBusy] = useState(null);
   const [paso, setPaso] = useState(null);
   const [error, setError] = useState(null);
+  const [pregunta, setPregunta] = useState(null);
+  const [cargandoSesion, setCargandoSesion] = useState(false);
+  const [legalModal, setLegalModal] = useState(null); // 'terminos' | 'privacidad' | null
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
 
   // Cuando la sesión ya está lista pero antes de entrar al panel, se
   // pregunta. En este punto la persona YA está adentro: si cierra o
@@ -135,74 +145,168 @@ export default function EntrarPage() {
   }
 
   return (
-    <div style={{...S.page, background: 'var(--night)', color: '#fff'}}>
-      {/* Background gradients similar to landing */}
-      <div style={{position: 'absolute', right: '-10%', top: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.12), transparent 60%)', pointerEvents: 'none'}} />
-      <div style={{position: 'absolute', left: '-10%', bottom: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,199,102,0.1), transparent 60%)', pointerEvents: 'none'}} />
-
-      <HeroBackdrop brightness={0.08} />
+    <div style={{
+      ...S.page,
+      background: 'radial-gradient(100% 60% at 50% 10%, #171519 0%, #0E0D10 50%, #080709 100%)',
+      color: '#fff'
+    }}>
+      {/* Subtle Warm Ambient Glows */}
+      <div style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', width: 640, height: 280, background: 'radial-gradient(ellipse at top, rgba(232,199,102,0.06) 0%, rgba(255,68,31,0.03) 40%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', right: '-10%', top: '15%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,122,77,0.04), transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', left: '-10%', bottom: '5%', width: 380, height: 380, borderRadius: '50%', background: 'radial-gradient(circle, rgba(17,178,106,0.03), transparent 65%)', pointerEvents: 'none' }} />
 
       <div className="sc" style={S.scroller}>
         <div style={S.center}>
-          {/* Floating badges animation */}
-          <div className="tf-hide-sm" style={{position: 'absolute', left: -40, top: 80, animation: 'tffloat 5s ease-in-out infinite', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 17, padding: '12px 14px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: 11}}>
-             <div style={{width: 38, height: 38, borderRadius: 11, background: 'rgba(17,178,106,.14)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><span className="ms" style={{fontSize: 21, color: 'var(--green)'}}>event_available</span></div>
-             <div><div style={{fontSize: 13, fontWeight: 800, color: 'var(--text)'}}>Nueva reserva</div><div style={{fontSize: 11.5, color: 'var(--muted)', marginTop: 1}}>Mesa 4 · 8:30 PM</div></div>
-          </div>
-          <div className="tf-hide-sm" style={{position: 'absolute', right: -60, top: 40, animation: 'tffloat 6s ease-in-out infinite .8s', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 17, padding: '12px 14px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: 11}}>
-             <div style={{width: 38, height: 38, borderRadius: 11, background: 'rgba(255,68,31,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}><span className="ms" style={{fontSize: 21, color: 'var(--primary)'}}>support_agent</span></div>
-             <div><div style={{fontSize: 13, fontWeight: 800, color: 'var(--text)'}}>Voice AI atendió</div><div style={{fontSize: 11.5, color: 'var(--muted)', marginTop: 1}}>Llamada · reserva creada</div></div>
+          
+          {/* Top Brand & Platform Pill (Clean & Spacious) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 10, marginBottom: 6 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 16px',
+              background: 'rgba(255,255,255,0.04)', borderRadius: 99,
+              border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8,
+              backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#11B26A', boxShadow: '0 0 8px #11B26A' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', color: 'rgba(255,255,255,0.85)' }}>
+                La plataforma de IA para tu Negocio
+              </span>
+            </div>
+
+            <div style={S.brand}>
+              <span style={{...S.logo, boxShadow: '0 6px 20px rgba(255,68,31,.4)'}}>t</span>
+              <span>
+                <span style={{...S.brandName, color: '#fff'}}>Tura Food <span className="tf-serif" style={{color: 'var(--primary)'}}>AI</span></span>
+                <span style={{...S.brandKicker, color: 'var(--gold)', letterSpacing: '0.12em'}}>MKT PARA NEGOCIOS LOCALES</span>
+              </span>
+            </div>
           </div>
 
-          <div style={{...S.brand, position: 'relative', zIndex: 10}}>
-            <span style={{...S.logo, boxShadow: '0 8px 20px rgba(255,68,31,.3)'}}>t</span>
-            <span>
-              <span style={{...S.brandName, color: '#fff'}}>Tura Food <span className="tf-serif" style={{color: 'var(--primary)'}}>AI</span></span>
-              <span style={{...S.brandKicker, color: 'var(--gold)', letterSpacing: '0.12em'}}>BUSINESS SUITE</span>
+          {/* Hero Seamless Video (Turafood AI - VIDEO) */}
+          <div style={{ position: 'relative', zIndex: 5, marginTop: -2, marginBottom: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{
+              position: 'relative',
+              width: 'min(350px, 84vw)',
+              height: 'min(210px, 26vh)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+              WebkitMaskImage: 'radial-gradient(ellipse 65% 55% at 50% 50%, black 42%, rgba(0,0,0,0.75) 62%, transparent 95%)',
+              maskImage: 'radial-gradient(ellipse 65% 55% at 50% 50%, black 42%, rgba(0,0,0,0.75) 62%, transparent 95%)',
+            }}>
+              {/* Soft Ambient Core Flare */}
+              <div style={{
+                position: 'absolute', inset: -10,
+                background: 'radial-gradient(circle at center, rgba(232, 199, 102, 0.08) 0%, rgba(255, 122, 77, 0.05) 50%, transparent 70%)',
+                filter: 'blur(24px)',
+                pointerEvents: 'none',
+              }} />
+
+              {/* Video Element */}
+              <video
+                ref={videoRef}
+                src="/turafood-ai-video.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                controls={false}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  position: 'relative',
+                  zIndex: 2,
+                }}
+              >
+                <source src="/turafood-ai-video.mp4" type="video/mp4" />
+                <source src="/turafood-video-onboarding.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+
+          {/* Value Prop Badges */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap', position: 'relative', zIndex: 10 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#E8C766', background: 'rgba(232,199,102,0.12)', border: '1px solid rgba(232,199,102,0.25)', padding: '2px 8px', borderRadius: 99 }}>
+              🔥 Más pedidos & ventas
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#11B26A', background: 'rgba(17,178,106,0.12)', border: '1px solid rgba(17,178,106,0.25)', padding: '2px 8px', borderRadius: 99 }}>
+              ⚡ 0% Comisiones
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#60A5FA', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', padding: '2px 8px', borderRadius: 99 }}>
+              🇨🇴 Buenaventura
             </span>
           </div>
 
-          {/* Imagen Premium Flotante (Hero Asset del usuario) */}
-          <div style={{ position: 'relative', zIndex: 5, marginTop: 12, marginBottom: -12, display: 'flex', justifyContent: 'center', animation: 'tffloat 7s ease-in-out infinite' }}>
-            <div style={{
-              width: 300, height: 380,
-              background: 'url(/burger_new.png) center/cover',
-              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              opacity: 0.95
-            }} />
-          </div>
-
-          <h1 style={{...S.title, color: '#fff', textShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 10, position: 'relative', lineHeight: 1.05}}>
-            Todo el puerto <br />en una sola <span className="tf-serif tf-gold-text" style={{fontWeight: 400}}>APP.</span>
+          {/* Persuasive Main Headline */}
+          <h1 style={{...S.title, color: '#fff', textShadow: '0 10px 30px rgba(0,0,0,0.6)', zIndex: 10, position: 'relative', textAlign: 'center'}}>
+            Tu competencia ya está online. <span className="tf-serif tf-gold-text" style={{fontWeight: 400, fontStyle: 'italic'}}>¿Y tú?</span>
           </h1>
-          <p style={{...S.subtitle, color: 'rgba(255,255,255,0.7)', zIndex: 10, position: 'relative'}}>
-            La tecnología que necesitas para digitalizar tu negocio, recibir órdenes y organizar tus propios domiciliarios. Sin comisiones abusivas.
+          <p style={{...S.subtitle, color: 'rgba(255,255,255,0.72)', zIndex: 10, position: 'relative', textAlign: 'center', marginBottom: 12}}>
+            Crea tu cuenta gratis hoy y ten tu negocio digital funcionando en minutos.
           </p>
 
-          <div style={{...S.opciones, zIndex: 10, position: 'relative'}}>
-            {ROLES.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => entrar(r)}
-                disabled={Boolean(busy)}
-                className="entrar-op tf-card"
-                style={{ ...S.opcion, opacity: busy && busy !== r.id ? 0.45 : 1, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <span style={{ ...S.opcionIcono, background: `linear-gradient(145deg, #FF7A4D, #E2360F)`, color: '#fff', boxShadow: '0 8px 20px rgba(255,68,31,0.3)' }}>
-                  <span className="ms" style={{ fontSize: 25, color: '#fff' }}>{r.icon}</span>
+          {/* Integrated Apple/Notion Glass Scarcity & CTA Section */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', position: 'relative', zIndex: 10 }}>
+            
+            {/* Apple Minimalist Glass Counter Bar */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: 14, padding: '7px 12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF441F', boxShadow: '0 0 6px #FF441F', animation: 'pro-pulse 1.5s infinite' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>
+                  Solo quedan <span style={{ color: '#E8C766', fontWeight: 900 }}>49 plazas</span> de 100
                 </span>
-                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <span style={{...S.opcionTitulo, color: '#fff'}}>
-                    {busy === r.id ? 'Abriendo…' : r.titulo}
+              </div>
+              <span style={{ fontSize: 9.5, fontWeight: 800, color: '#11B26A', background: 'rgba(17,178,106,0.15)', padding: '2px 7px', borderRadius: 99, border: '1px solid rgba(17,178,106,0.25)', letterSpacing: '0.04em' }}>
+                SIEMPRE GRATIS
+              </span>
+            </div>
+
+            {/* CTA Button */}
+            <div style={S.opciones}>
+              {ROLES.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => entrar(r)}
+                  disabled={Boolean(busy)}
+                  className="entrar-op tf-card"
+                  style={{
+                    ...S.opcion,
+                    opacity: busy && busy !== r.id ? 0.45 : 1,
+                    background: 'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+                    border: '1px solid rgba(232, 199, 102, 0.25)',
+                    boxShadow: '0 12px 36px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12)',
+                  }}
+                >
+                  <span style={{
+                    ...S.opcionIcono,
+                    background: `linear-gradient(145deg, #FF5B2E, #E2360F)`,
+                    color: '#fff',
+                    boxShadow: '0 8px 22px rgba(255,68,31,0.45)'
+                  }}>
+                    <span className="ms" style={{ fontSize: 24, color: '#fff' }}>{r.icon}</span>
                   </span>
-                  <span style={S.opcionDetalle}>{r.detalle}</span>
-                </span>
-                <span className="ms" style={{ fontSize: 21, color: 'rgba(255,255,255,.4)', flex: 'none' }}>
-                  arrow_forward
-                </span>
-              </button>
-            ))}
+                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <span style={{...S.opcionTitulo, color: '#fff', display: 'flex', alignItems: 'center', gap: 6}}>
+                      {busy === r.id ? 'Abriendo panel…' : r.titulo}
+                      <span style={{ fontSize: 10, padding: '2px 6px', background: 'rgba(232,199,102,0.2)', color: '#E8C766', borderRadius: 99, fontWeight: 700 }}>GRATIS</span>
+                    </span>
+                    <span style={{...S.opcionDetalle, color: 'rgba(255,255,255,0.6)'}}>{r.detalle}</span>
+                  </span>
+                  <span className="ms" style={{ fontSize: 20, color: 'var(--gold)', flex: 'none', transform: 'translateX(0)', transition: 'transform .2s' }}>
+                    arrow_forward
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {error && (
@@ -212,14 +316,41 @@ export default function EntrarPage() {
             </div>
           )}
 
-          <p style={S.nota}>
-            Digitaliza tu negocio de una. Podrás vincular a tus propios repartidores y el dinero siempre irá directo a tus cuentas.
-          </p>
+          {/* Social Proof & Porteño Tag Strip */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            marginTop: 10, padding: '6px 12px', background: 'rgba(255,255,255,0.02)',
+            borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)', flexWrap: 'wrap'
+          }}>
+            <span style={{ fontSize: 10.5, color: '#E8C766', fontWeight: 800, letterSpacing: '0.04em' }}>
+              PA´ TURÍN CON AMOR ❤️
+            </span>
+            <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+              · ★★★★★ 4.9 · 100% de la venta para ti
+            </span>
+          </div>
 
           <div style={S.pie}>
-            <span style={S.pieTexto}>¿Ya tienes cuenta?</span>
+            <span style={S.pieTexto}>¿Ya tienes cuenta activa?</span>
             <Link href="/auth" style={S.pieEnlace}>Inicia sesión</Link>
           </div>
+
+          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 10.5, color: 'rgba(255,255,255,0.35)', position: 'relative', zIndex: 10 }}>
+            Al registrarte aceptas los{' '}
+            <button type="button" onClick={() => setLegalModal('terminos')} style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.65)', textDecoration: 'underline', textUnderlineOffset: 2, fontWeight: 700, cursor: 'pointer', fontSize: 'inherit' }}>
+              Términos SaaS
+            </button>
+            {' '}y la{' '}
+            <button type="button" onClick={() => setLegalModal('privacidad')} style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.65)', textDecoration: 'underline', textUnderlineOffset: 2, fontWeight: 700, cursor: 'pointer', fontSize: 'inherit' }}>
+              Política de Privacidad
+            </button>.
+          </div>
+
+          <LegalModal
+            isOpen={Boolean(legalModal)}
+            initialTab={legalModal || 'terminos'}
+            onClose={() => setLegalModal(null)}
+          />
         </div>
       </div>
     </div>
@@ -227,11 +358,10 @@ export default function EntrarPage() {
 }
 
 /**
- * LA ESPERA (ULTRA PRO)
+ * LA ESPERA (ULTRA PRO - JOTSY STYLE BENTO)
  *
- * Reemplazamos los pasos simples por "mejor información" tecnológica y
- * un diseño estilo terminal/app premium para que la espera de 2-3s
- * se sienta como que un sistema avanzado está arrancando.
+ * Diseño Bento horizontal ultra compacto para encajar al 100% en pantalla
+ * con métricas en tiempo real y animación del avatar sin cortes.
  */
 const getPasosAbriendo = (nicho) => {
   if (nicho === 'comidas') {
@@ -264,6 +394,7 @@ const getPasosAbriendo = (nicho) => {
 function Abriendo({ rol, paso, nicho }) {
   const PASOS = getPasosAbriendo(nicho);
   const actual = Math.max(PASOS.findIndex((p) => p.id === paso), 0);
+  const progresoPct = Math.round(((actual + 1) / PASOS.length) * 100);
 
   return (
     <div style={T.page}>
@@ -272,72 +403,120 @@ function Abriendo({ rol, paso, nicho }) {
 
       <div style={T.center}>
         <div style={{ ...T.card, overflow: 'hidden' }}>
-          {/* Imagen Hero flotante incrustada con máscara suave */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center' }}>
+          
+          {/* Top Bento Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ ...S.logo, width: 32, height: 32, fontSize: 18 }}>t</span>
+              <div>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16, color: '#fff', lineHeight: 1.1 }}>
+                  Tura Food <span className="tf-serif tf-gold-text">AI</span>
+                </div>
+                <div style={{ fontSize: 10.5, color: '#E8C766', fontWeight: 700, letterSpacing: '0.06em' }}>
+                  PA´ TURÍN CON AMOR ❤️
+                </div>
+              </div>
+            </div>
+
             <div style={{
-              width: '100%', height: 160,
-              background: 'url(/burger_new.png) center/cover',
-              WebkitMaskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse at center, black 65%, transparent 100%)',
-              opacity: 0.95
-            }} />
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '4px 10px', background: 'rgba(17,178,106,0.14)',
+              border: '1px solid rgba(17,178,106,0.3)', borderRadius: 99,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#11B26A', boxShadow: '0 0 6px #11B26A' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#11B26A' }}>{progresoPct}% LISTO</span>
+            </div>
           </div>
 
-          <div style={{ ...T.cardHeader, position: 'relative', zIndex: 1, padding: '0 24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: -20 }}>
-            <div style={{ ...T.orbContainer, marginBottom: 12 }}>
-              <div style={{ ...T.orbPulse, background: rol?.accent ?? '#FF7A4D' }} className="pro-pulse" />
-              <div style={{ ...T.orbSolid, background: rol?.accent ?? '#FF7A4D' }} />
+          {/* Main Horizontal Content Split */}
+          <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+            
+            {/* Left: Animated Video Avatar with seamless blending */}
+            <div style={{
+              flex: '1 1 180px',
+              maxWidth: 220,
+              height: 180,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              margin: '0 auto',
+              overflow: 'hidden',
+              WebkitMaskImage: 'radial-gradient(ellipse 65% 55% at 50% 50%, black 45%, rgba(0,0,0,0.8) 65%, transparent 96%)',
+              maskImage: 'radial-gradient(ellipse 65% 55% at 50% 50%, black 45%, rgba(0,0,0,0.8) 65%, transparent 96%)',
+            }}>
+              <video
+                src="/turafood-ai-video.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  position: 'relative',
+                  zIndex: 2,
+                }}
+              >
+                <source src="/turafood-ai-video.mp4" type="video/mp4" />
+                <source src="/turafood-video-onboarding.mp4" type="video/mp4" />
+              </video>
             </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ ...T.marca, textAlign: 'center' }}>Tura Food <span className="tf-serif tf-gold-text">AI</span></div>
-              <div style={{ ...T.rolTexto, textAlign: 'center', marginTop: 4 }}>
-                todo el puerto en una sola APP
+
+            {/* Right: Interactive High-Tech Steps */}
+            <div style={{ flex: '1 1 260px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 2 }}>
+                ¡Todo listo para arrancar! 👋
+              </div>
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.6)', marginBottom: 6 }}>
+                Configurando tus comandas y conectando la red de domicilios de Buenaventura.
+              </div>
+
+              <div style={T.pasos}>
+                {PASOS.map((p, i) => {
+                  const hecho = i < actual;
+                  const activo = i === actual;
+                  return (
+                    <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.35 : 1 }}>
+                      <div style={{
+                        ...T.terminalLine,
+                        background: activo ? 'rgba(232,199,102,0.1)' : 'rgba(0,0,0,0.25)',
+                        borderColor: activo ? 'rgba(232,199,102,0.3)' : 'transparent',
+                        padding: '6px 10px',
+                      }}>
+                        <span style={{ 
+                          color: hecho ? '#11B26A' : activo ? '#E8C766' : 'transparent',
+                          fontFamily: 'monospace', fontSize: 13, minWidth: 16,
+                          animation: activo ? 'blink 1s infinite' : 'none',
+                        }}>
+                          {hecho ? '✓' : '>'}
+                        </span>
+                        <span style={{ 
+                          fontSize: 12, 
+                          fontWeight: activo ? 800 : 600,
+                          color: activo ? '#fff' : (hecho ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)'),
+                          fontFamily: 'var(--font-jakarta)',
+                        }}>
+                          {p.label}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          <div style={T.pasos}>
-            {PASOS.map((p, i) => {
-              const hecho = i < actual;
-              const activo = i === actual;
-              return (
-                <div key={p.id} style={{ ...T.paso, opacity: i > actual ? 0.3 : 1 }}>
-                  <div style={{
-                    ...T.terminalLine,
-                    background: activo ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)',
-                    borderColor: activo ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    boxShadow: activo ? '0 4px 20px rgba(0,0,0,0.2)' : 'none'
-                  }}>
-                    <span style={{ 
-                      color: hecho ? (rol?.accent ?? '#FF7A4D') : activo ? '#fff' : 'transparent',
-                      fontFamily: 'monospace', fontSize: 14, minWidth: 20,
-                      animation: activo ? 'blink 1s infinite' : 'none',
-                      textShadow: hecho ? `0 0 10px ${rol?.accent ?? '#FF7A4D'}88` : 'none'
-                    }}>
-                      {hecho ? '✓' : '>'}
-                    </span>
-                    <span style={{ 
-                      fontSize: 13.5, 
-                      fontWeight: activo ? 800 : 600,
-                      color: activo ? '#fff' : (hecho ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.3)'),
-                      fontFamily: 'var(--font-jakarta)',
-                      letterSpacing: '0.02em'
-                    }}>
-                      {p.label}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={T.barra}>
+          {/* Glowing Animated Progress Bar */}
+          <div style={{ ...T.barra, marginTop: 14 }}>
             <span
               style={{
                 ...T.barraRelleno,
-                width: `${((actual + 1) / PASOS.length) * 100}%`,
-                background: rol?.accent ?? '#FF7A4D',
-                boxShadow: `0 0 10px ${rol?.accent ?? '#FF7A4D'}88`,
+                width: `${progresoPct}%`,
+                background: 'linear-gradient(90deg, #FF7A4D, #E8C766, #11B26A)',
+                boxShadow: '0 0 12px rgba(232,199,102,0.6)',
               }}
             />
           </div>
@@ -360,8 +539,11 @@ function Abriendo({ rol, paso, nicho }) {
 
 const T = {
   page: {
-    position: 'relative', minHeight: '100dvh', background: '#040302', color: '#fff',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+    position: 'fixed', inset: 0, width: '100vw', height: '100vh',
+    background: 'radial-gradient(100% 60% at 50% 20%, #151417 0%, #0D0C0F 55%, #070608 100%)',
+    color: '#fff',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
+    overflow: 'hidden',
   },
   gridBg: {
     position: 'absolute', inset: 0, opacity: 0.08,
@@ -370,20 +552,20 @@ const T = {
     pointerEvents: 'none',
   },
   center: {
-    position: 'relative', zIndex: 2, width: '100%', maxWidth: 360,
+    position: 'relative', zIndex: 2, width: '100%', maxWidth: 580,
     animation: 'up .4s cubic-bezier(0.16, 1, 0.3, 1) both',
   },
   card: {
-    background: 'linear-gradient(145deg, rgba(30,30,30,0.8) 0%, rgba(15,15,15,0.95) 100%)', 
+    background: 'linear-gradient(145deg, #161518 0%, #0E0D10 100%)', 
     backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
-    border: '1px solid rgba(255,255,255,0.08)', borderRadius: 28, padding: 36,
-    boxShadow: '0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
+    border: '1px solid rgba(232,199,102,0.2)', borderRadius: 24, padding: '20px 24px',
+    boxShadow: '0 25px 60px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08)',
   },
   cardHeader: {
-    display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32,
+    display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20,
   },
   orbContainer: {
-    position: 'relative', width: 44, height: 44, flex: 'none',
+    position: 'relative', width: 38, height: 38, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'rgba(255,255,255,0.03)', borderRadius: '50%',
     border: '1px solid rgba(255,255,255,0.05)',
@@ -393,112 +575,110 @@ const T = {
     animation: 'pro-pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
   },
   orbSolid: {
-    position: 'relative', width: 12, height: 12, borderRadius: '50%', zIndex: 2,
-    boxShadow: '0 0 16px rgba(255,255,255,0.8)',
+    position: 'relative', width: 10, height: 10, borderRadius: '50%', zIndex: 2,
+    boxShadow: '0 0 14px rgba(255,255,255,0.8)',
   },
   marca: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22,
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20,
     letterSpacing: '-.02em', color: '#fff',
-    textShadow: '0 2px 10px rgba(0,0,0,0.5)'
   },
   rolTexto: { 
-    fontSize: 12.5, color: 'rgba(255,255,255,.7)', marginTop: 4, 
+    fontSize: 11.5, color: 'rgba(255,255,255,.7)', marginTop: 2, 
     fontFamily: 'monospace', letterSpacing: '0.05em' 
   },
   pasos: {
-    display: 'flex', flexDirection: 'column', gap: 12,
+    display: 'flex', flexDirection: 'column', gap: 6,
   },
   paso: { 
     transition: 'opacity .4s ease, transform .4s ease',
   },
   terminalLine: {
-    display: 'flex', alignItems: 'center', gap: 12,
-    padding: '16px 18px', borderRadius: 16,
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '8px 12px', borderRadius: 12,
     backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    transition: 'all 0.3s ease',
   },
   barra: {
-    height: 6, borderRadius: 99, background: 'rgba(255,255,255,.06)',
-    overflow: 'hidden', marginTop: 36,
-    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+    height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 99,
+    overflow: 'hidden', marginTop: 14,
   },
   barraRelleno: {
     display: 'block', height: '100%', borderRadius: 99,
-    transition: 'width .6s cubic-bezier(0.16, 1, 0.3, 1)',
+    transition: 'width .5s cubic-bezier(0.16, 1, 0.3, 1)',
     boxShadow: '0 0 10px rgba(255,255,255,0.3)',
   },
 };
 
 const S = {
-  page: { position: 'relative', minHeight: '100dvh', background: '#080706', color: '#fff' },
+  page: { position: 'fixed', inset: 0, width: '100vw', height: '100vh', background: '#0F0E11', color: '#fff', overflow: 'hidden' },
   scroller: {
-    position: 'relative', zIndex: 2, minHeight: '100dvh', maxHeight: '100dvh',
-    overflowY: 'auto', display: 'flex',
+    position: 'relative', zIndex: 2, width: '100%', height: '100%',
+    overflowY: 'auto', display: 'flex', flexDirection: 'column',
   },
-  center: { margin: 'auto', width: '100%', maxWidth: 430, padding: '36px 22px 30px' },
+  center: { margin: 'auto', width: '100%', maxWidth: 410, padding: '14px 20px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' },
 
-  brand: { display: 'flex', alignItems: 'center', gap: 11, marginBottom: 30 },
+  brand: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 },
   logo: {
-    width: 38, height: 38, borderRadius: 12, background: 'var(--primary)', color: '#fff',
+    width: 34, height: 34, borderRadius: 10, background: 'var(--primary)', color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22,
-    boxShadow: '0 6px 18px rgba(255,68,31,.45)',
+    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20,
+    boxShadow: '0 4px 14px rgba(255,68,31,.45)',
   },
   brandName: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 18, letterSpacing: '-.02em', lineHeight: 1.1,
+    fontSize: 16.5, letterSpacing: '-.02em', lineHeight: 1.1,
   },
   brandKicker: {
-    display: 'block', fontSize: 9.5, fontWeight: 800, letterSpacing: '.11em',
-    color: 'rgba(255,255,255,.42)', marginTop: 3,
+    display: 'block', fontSize: 9, fontWeight: 800, letterSpacing: '.11em',
+    color: 'rgba(255,255,255,.42)', marginTop: 2,
   },
 
   title: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 'clamp(30px, 8vw, 38px)', lineHeight: 1.08,
-    letterSpacing: '-.035em', textWrap: 'balance',
+    fontSize: 'clamp(24px, 5.5vw, 30px)', lineHeight: 1.1,
+    letterSpacing: '-.03em', textWrap: 'balance',
   },
   subtitle: {
-    margin: '13px 0 0', fontSize: 14.5, lineHeight: 1.6, color: 'rgba(255,255,255,.62)',
+    margin: '6px 0 0', fontSize: 12.5, lineHeight: 1.45, color: 'rgba(255,255,255,.62)',
   },
 
-  opciones: { display: 'flex', flexDirection: 'column', gap: 11, marginTop: 28 },
+  opciones: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 14 },
   opcion: {
-    display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: 16,
-    borderRadius: 20,
-    background: 'rgba(255,255,255,.06)',
+    display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '12px 14px',
+    borderRadius: 18,
+    background: 'rgba(255,255,255,.05)',
     backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,.13)',
+    border: '1px solid rgba(255,255,255,.11)',
     boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
     color: '#fff',
     transition: 'all 0.3s ease',
   },
   opcionIcono: {
-    width: 50, height: 50, borderRadius: 16, flex: 'none',
+    width: 44, height: 44, borderRadius: 14, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   opcionTitulo: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 16.5, letterSpacing: '-.01em',
+    fontSize: 15.5, letterSpacing: '-.01em',
   },
   opcionDetalle: {
-    display: 'block', fontSize: 12, color: 'rgba(255,255,255,.55)',
-    marginTop: 3, lineHeight: 1.4,
+    display: 'block', fontSize: 11.5, color: 'rgba(255,255,255,.55)',
+    marginTop: 2, lineHeight: 1.35,
   },
 
-  nota: { margin: '20px 0 0', fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,.45)' },
+  nota: { margin: '10px 0 0', fontSize: 11, lineHeight: 1.45, color: 'rgba(255,255,255,.45)' },
   alert: {
-    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16, padding: '12px 14px',
-    borderRadius: 13, background: 'rgba(255,68,31,.14)',
+    display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 12, padding: '10px 12px',
+    borderRadius: 12, background: 'rgba(255,68,31,.14)',
     border: '1px solid rgba(255,68,31,.32)', color: '#FFC7BA',
-    fontSize: 12.5, fontWeight: 600, lineHeight: 1.45,
+    fontSize: 12, fontWeight: 600, lineHeight: 1.4,
   },
   pie: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    marginTop: 26, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,.1)',
+    marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,.08)',
     flexWrap: 'wrap',
   },
-  pieTexto: { fontSize: 13.5, color: 'rgba(255,255,255,.5)' },
-  pieEnlace: { fontSize: 13.5, fontWeight: 700, color: '#fff', textDecoration: 'none' },
+  pieTexto: { fontSize: 12, color: 'rgba(255,255,255,.5)' },
+  pieEnlace: { fontSize: 12, fontWeight: 800, color: 'var(--primary)' },
 };

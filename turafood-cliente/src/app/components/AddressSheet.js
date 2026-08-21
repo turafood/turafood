@@ -262,28 +262,83 @@ export default function AddressSheet({ open, onClose, onSave }) {
                 )}
               </div>
 
-              <button onClick={useMyLocation} style={S.locateBtn}>
-                <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>my_location</span>
-                Usar mi ubicación actual
-              </button>
+              {/* Botones de acción rápida y GPS */}
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <button onClick={useMyLocation} style={{ ...S.locateBtn, flex: 1, margin: 0 }}>
+                  <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>my_location</span>
+                  Mi ubicación actual
+                </button>
+              </div>
+
+              {/* Chips de Barrios Populares de Buenaventura */}
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>
+                  Barrios Populares de Buenaventura
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {['Centro', 'Pueblo Nuevo', 'La Independencia', 'El Jorge', 'Juan XXIII', 'Bellavista', 'San Luis'].map((b) => (
+                    <button
+                      key={b}
+                      onClick={() => {
+                        setQuery(`Barrio ${b}`);
+                        setPicked({
+                          id: `chip-${b}`,
+                          label: `Barrio ${b}`,
+                          detail: `Buenaventura, Valle del Cauca`,
+                          lat: 3.8801,
+                          lng: -77.0312,
+                          inCoverage: true,
+                        });
+                      }}
+                      style={{
+                        padding: '6px 12px', borderRadius: 99,
+                        background: 'var(--surface2)', border: '1px solid var(--border)',
+                        fontSize: 12, fontWeight: 700, color: 'var(--text)',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                      }}
+                    >
+                      <span className="ms" style={{ fontSize: 14, color: 'var(--primary)' }}>location_on</span>
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="sc" style={S.results}>
-              {query.trim().length > 0 && query.trim().length < 3 && (
-                <div style={S.hint}>Escribe al menos 3 letras.</div>
-              )}
-
-              {query.trim().length >= 3 && !searching && results.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '36px 20px' }}>
-                  <span className="ms" style={{ fontSize: 30, color: 'var(--faint)' }}>location_off</span>
-                  <div style={{ fontWeight: 700, fontSize: 14, marginTop: 10 }}>
-                    No encontramos esa dirección
-                  </div>
-                  <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 4, lineHeight: 1.45 }}>
-                    Prueba con el nombre del barrio, o ubícala en el mapa con tu
-                    ubicación actual.
-                  </div>
-                </div>
+              {/* Opción directa: usar lo que escribió sin obligar a geolocalizador */}
+              {query.trim().length >= 3 && (
+                <button
+                  onClick={() => {
+                    setPicked({
+                      id: `manual-${Date.now()}`,
+                      label: query.trim(),
+                      detail: 'Buenaventura, Valle del Cauca',
+                      lat: 3.8801,
+                      lng: -77.0312,
+                      inCoverage: true,
+                    });
+                  }}
+                  style={{
+                    ...S.result,
+                    background: 'rgba(255, 68, 31, 0.05)',
+                    border: '1px solid rgba(255, 68, 31, 0.2)',
+                    marginBottom: 10, borderRadius: 14,
+                  }}
+                >
+                  <span style={{ ...S.resultIcon, background: 'var(--primary)', color: '#fff' }}>
+                    <span className="ms" style={{ fontSize: 19, color: '#fff' }}>edit_location</span>
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <span style={{ display: 'block', fontWeight: 800, fontSize: 13.5, color: 'var(--primary)' }}>
+                      Usar dirección escrita:
+                    </span>
+                    <span className="tr1" style={{ display: 'block', fontWeight: 700, fontSize: 14, color: 'var(--text)', marginTop: 1 }}>
+                      &quot;{query.trim()}&quot;
+                    </span>
+                  </span>
+                  <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>arrow_forward</span>
+                </button>
               )}
 
               {results.map((r) => (
@@ -307,15 +362,15 @@ export default function AddressSheet({ open, onClose, onSave }) {
 
               {query.trim().length === 0 && (
                 <div style={S.hint}>
-                  Escribe tu dirección y te mostramos coincidencias reales de
-                  Buenaventura mientras tecleas.
+                  Escribe tu dirección o barrio y te mostramos coincidencias reales de
+                  Buenaventura al instante.
                 </div>
               )}
             </div>
           </>
         )}
 
-        {/* Paso 2: confirmar sobre el mapa */}
+        {/* Paso 2: confirmar y editar sobre el mapa */}
         {picked && (
           <>
             <div style={S.mapWrap}>
@@ -355,33 +410,40 @@ export default function AddressSheet({ open, onClose, onSave }) {
 
               <div style={S.mapHint}>
                 <span className="ms" style={{ fontSize: 15 }}>drag_pan</span>
-                {moving ? 'Suelta para ubicar aquí' : 'Mueve el mapa para ajustar el punto'}
+                {moving ? 'Suelta para ubicar aquí' : 'Mueve el mapa para ajustar el punto exacto'}
               </div>
             </div>
 
             <div className="sc" style={S.form}>
-              <div style={S.pickedCard}>
-                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', flex: 'none' }}>location_on</span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontWeight: 700, fontSize: 14 }}>{picked.label}</span>
-                  {picked.detail && (
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>
-                      {picked.detail}
-                    </span>
-                  )}
-                </span>
-                <button onClick={() => setPicked(null)} style={S.changeBtn}>Cambiar</button>
-              </div>
+              {/* Campos dinámicos y editables por el usuario */}
+              <label style={S.label}>DIRECCIÓN O CALLE (EDITABLE)</label>
+              <input
+                value={picked.label || ''}
+                onChange={(e) => setPicked(p => ({ ...p, label: e.target.value }))}
+                placeholder="Ej. Carrera 3 # 4-58"
+                style={S.detailInput}
+              />
 
-              {!picked.inCoverage && (
-                <div style={S.warn}>
-                  <span className="ms" style={{ fontSize: 17 }}>warning</span>
-                  Esta dirección está fuera de Buenaventura. Puede que no haya
-                  cobertura de domicilios.
-                </div>
-              )}
+              <label style={{ ...S.label, marginTop: 12 }}>BARRIO O SECTOR</label>
+              <input
+                value={picked.detail || ''}
+                onChange={(e) => setPicked(p => ({ ...p, detail: e.target.value }))}
+                placeholder="Ej. Centro, Comuna 1"
+                style={S.detailInput}
+              />
 
-              <label style={S.label}>¿QUÉ LUGAR ES?</label>
+              <label htmlFor="detalle" style={{ ...S.label, marginTop: 12 }}>
+                TORRE, APARTAMENTO O REFERENCIA
+              </label>
+              <input
+                id="detalle"
+                value={detail}
+                onChange={(e) => setDetail(e.target.value)}
+                placeholder="Ej. Torre B, apto 402. Portón negro frente a la tienda."
+                style={S.detailInput}
+              />
+
+              <label style={{ ...S.label, marginTop: 14 }}>TIPO DE LUGAR</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {LABELS.map((l) => {
                   const on = label === l.id;
@@ -391,10 +453,11 @@ export default function AddressSheet({ open, onClose, onSave }) {
                       onClick={() => setLabel(l.id)}
                       style={{
                         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                        height: 44, borderRadius: 13, fontSize: 13, fontWeight: 700,
+                        height: 42, borderRadius: 12, fontSize: 13, fontWeight: 700,
                         background: on ? 'var(--text)' : 'var(--surface)',
                         color: on ? '#fff' : 'var(--text)',
                         border: on ? 'none' : '1px solid var(--border)',
+                        cursor: 'pointer',
                       }}
                     >
                       <span className="ms" style={{ fontSize: 18 }}>{l.icon}</span>
@@ -403,17 +466,6 @@ export default function AddressSheet({ open, onClose, onSave }) {
                   );
                 })}
               </div>
-
-              <label htmlFor="detalle" style={{ ...S.label, marginTop: 16 }}>
-                TORRE, APARTAMENTO O REFERENCIA
-              </label>
-              <input
-                id="detalle"
-                value={detail}
-                onChange={(e) => setDetail(e.target.value)}
-                placeholder="Ej. Torre B, apto 402. Portón negro."
-                style={S.detailInput}
-              />
 
               {error && (
                 <div style={S.error}>
@@ -425,7 +477,7 @@ export default function AddressSheet({ open, onClose, onSave }) {
 
             <div style={S.footer}>
               <button onClick={save} disabled={saving} style={S.saveBtn}>
-                {saving ? 'Guardando…' : 'Guardar dirección'}
+                {saving ? 'Guardando…' : 'Confirmar y guardar dirección'}
               </button>
             </div>
           </>
@@ -437,15 +489,16 @@ export default function AddressSheet({ open, onClose, onSave }) {
 
 const S = {
   backdrop: {
-    position: 'absolute', inset: 0, zIndex: 350,
-    background: 'rgba(20,16,10,.46)', backdropFilter: 'blur(4px)',
-    display: 'flex', alignItems: 'flex-end',
+    position: 'fixed', inset: 0, zIndex: 350,
+    background: 'rgba(20,16,10,.5)', backdropFilter: 'blur(6px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: 16,
     animation: 'fade .16s ease both',
   },
   sheet: {
-    width: '100%', height: '92%', display: 'flex', flexDirection: 'column',
-    background: 'var(--bg)', borderRadius: '26px 26px 0 0',
-    animation: 'slideup .28s cubic-bezier(.32,.72,0,1) both', overflow: 'hidden',
+    width: '100%', maxWidth: 520, height: '90vh', maxHeight: 720, display: 'flex', flexDirection: 'column',
+    background: 'var(--bg)', borderRadius: 24, boxShadow: '0 24px 60px rgba(0,0,0,0.25)',
+    animation: 'pop .24s cubic-bezier(.32,.72,0,1) both', overflow: 'hidden',
   },
   header: {
     flex: 'none', display: 'flex', alignItems: 'center', gap: 12,

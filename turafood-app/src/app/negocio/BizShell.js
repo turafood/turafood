@@ -27,99 +27,96 @@ import Recorrido from '../components/Recorrido';
 import { PASOS_NEGOCIO } from '../components/recorridos';
 import LocalMini from '../components/LocalMini';
 
-/** Títulos de cada sección — PAGES del mockup, línea 1126 */
+/** Títulos de cada sección — PAGES del mockup */
 const PAGES = {
-  '/negocio': ['Resumen de hoy', null],
-  '/negocio/pedidos': ['Pedidos en vivo', 'Se actualiza automáticamente'],
-  '/negocio/historial': ['Historial de pedidos', 'Todos los pedidos de esta sucursal'],
-  '/negocio/catalogo': ['Menú y productos', 'Precios, disponibilidad y fotos'],
-  '/negocio/promociones': ['Promociones y cupones', 'Lo que ven tus clientes en la app'],
-  '/negocio/horarios': ['Horarios y disponibilidad', 'Cuándo puede pedirte un cliente'],
-  '/negocio/pagos': ['Cómo te pagan', 'Los medios que aceptas y que ven tus clientes'],
-  '/negocio/sucursales': ['Sucursales', 'Tus puntos en Buenaventura'],
-  '/negocio/reportes': ['Reportes de ventas', 'Los últimos 7 días'],
-  '/negocio/resenas': ['Reseñas de clientes', 'Lo que opinan de tu comida y tu servicio'],
-  '/negocio/repartidores': ['Repartidores propios', 'Sincronización de tu flota con la app'],
-  '/negocio/equipo': ['Equipo y cuenta', 'Roles, verificación y plan'],
-  '/negocio/verificacion': ['Verificación de tu negocio', 'Lo que necesitamos para aprobarte'],
+  '/negocio': ['Panel General', 'Métricas y resumen operativo de hoy'],
+  '/negocio/pedidos': ['Pedidos en Vivo', 'Se actualiza automáticamente en tiempo real'],
+  '/negocio/catalogo': ['Menú + Productos', 'Precios, disponibilidad, stock y fotos'],
+  '/negocio/kit': ['Kit Turafood · Ultra Suite', 'Voz IA 24/7 + SMS + WhatsApp + Email + Google My Business'],
+  '/negocio/agente-ia': ['Agente IA Recepcionista', 'Centro de mando AI - Recepción de pedidos y reservas'],
+  '/negocio/redes/inbox': ['SMS + WhatsApp + Email', 'Bandeja omnicanal de marketing y fidelización'],
+  '/negocio/email-mkt': ['Email Marketing', 'Campañas y automatizaciones de correo'],
   '/negocio/suite': ['Tura Business Suite', 'Todo lo que hace crecer tu negocio, en un solo lugar'],
-  '/negocio/crecimiento': ['Growth Partner', 'La app es gratis. Esto es lo que puedes alquilar para crecer'],
-  '/negocio/conocimiento': ['Base de Conocimiento', 'Tutoriales, guías y estrategias para crecer'],
-  '/negocio/redes': ['Redes Sociales AI', 'Tus cuentas, tus posts y tu bandeja'],
-  '/negocio/redes/crear': ['Crear publicación', 'Míralo antes de publicarlo'],
-  '/negocio/redes/inbox': ['Bandeja de marketing', 'Todos tus mensajes en un solo lugar'],
+  '/negocio/crecimiento/google-negocio': ['Negocios Locales', 'Para que te encuentren en Maps y en el buscador'],
+  '/negocio/repartidores': ['Radar en Vivo', 'Sincronización de tu flota con la app'],
+  '/negocio/turbo': ['Tura Turbo ⚡', 'Entregas ultra-rápidas en menos de 15 minutos con promesa garantizada'],
+  '/negocio/repartidores/ajustes': ['Motor de Despacho', 'Reglas de auto-asignación y rastreo'],
+  '/negocio/repartidores/liquidacion': ['Finanzas y Pagos', 'Métricas y pagos a tus domiciliarios'],
+  '/negocio/pagos': ['Métodos de Pago', 'Los medios que aceptas y que ven tus clientes'],
+  '/negocio/horarios': ['Horarios', 'Cuándo puede pedirte un cliente'],
+  '/negocio/promociones': ['Promociones', 'Lo que ven tus clientes en la app'],
+  '/negocio/resenas': ['Reseñas', 'Lo que opinan de tu comida y tu servicio'],
+  '/negocio/sucursales': ['Sucursales', 'Tus puntos en Buenaventura'],
+  '/negocio/historial': ['Historial de Pedidos', 'Todos los pedidos de esta sucursal'],
+  '/negocio/reportes': ['Reportes', 'Los últimos 7 días y análisis financiero'],
+  '/negocio/afiliados': ['Afiliados & Wallet', 'Invita a otros negocios y gana comisiones recurrentes y créditos'],
+  '/negocio/verificacion': ['Verificación', 'Lo que necesitamos para aprobarte'],
   '/negocio/soporte': ['Soporte', 'Estamos del otro lado'],
+  '/negocio/conocimiento': ['Documentación Tfood', 'Base de conocimiento, tutoriales y guías'],
+  '/negocio/roles': ['Roles y Permisos', 'Control de acceso para cocina, caja, administración y domiciliarios'],
+  '/negocio/seguridad': ['Seguridad y Clave', 'Cambio de contraseña, sesiones activas y autenticación segura'],
+  '/negocio/equipo': ['Equipo y Ajustes', 'Roles, verificación y plan'],
+  '/negocio/crecimiento': ['Growth Partner', 'La app es gratis. Esto es lo que puedes alquilar para crecer'],
+  '/negocio/redes': ['Redes Sociales AI', 'Tus cuentas, tus posts y tu bandeja'],
+  '/negocio/redes/crear': ['Crear Publicación', 'Míralo antes de publicarlo'],
   '/negocio/crecimiento/google': ['Google Ads AI', 'Tu ficha, tus campañas y YouTube en un solo lugar'],
-  '/negocio/crecimiento/google-negocio': ['Ficha de Google', 'Para que te encuentren en Maps y en el buscador'],
   '/negocio/crecimiento/google-ads': ['Campañas en Google', 'Aparece de primero cuando busquen lo que vendes'],
-  '/negocio/crecimiento/agente-voz': ['Agente de voz', 'Una línea que contesta y toma pedidos sola'],
+  '/negocio/crecimiento/agente-voz': ['Agente de Voz', 'Una línea que contesta y toma pedidos sola'],
 };
 
-/** Grupos del menú lateral — navGroups del mockup, línea 1464 */
-/**
- * EL MENÚ, AGRUPADO POR LO QUE LA PERSONA HACE
- *
- * Antes eran siete grupos con nombres de organigrama —PRINCIPAL,
- * CATÁLOGO, CLIENTES, OPERACIÓN, FINANZAS— que describen cómo está
- * armado el sistema por dentro, no lo que el dueño va a hacer. Nadie
- * entra pensando "voy a la sección de operación": entra pensando "voy
- * a cambiarle el precio a la hamburguesa".
- *
- * Ahora son cinco, ordenados por cada cuánto se abren:
- *
- *   DÍA A DÍA   lo que toca todos los días, arriba y a la mano
- *   MI NEGOCIO  lo que se configura una vez y se retoca de vez en cuando
- *   LA PLATA    lo que se mira los domingos o cuando llega el corte
- *   CRECER      lo opcional, que no estorba pero está
- *   (sin nombre) papeles, soporte y ajustes — el pie del menú
- *
- * El último grupo va sin título a propósito: es el cajón de lo que se
- * busca cuando se necesita, y ponerle un rótulo lo subiría de
- * jerarquía sin ganar nada.
- */
+/** Grupos del menú lateral */
 const NAV_GROUPS = [
   {
-    label: 'DÍA A DÍA',
+    label: 'OPERACIONES',
     items: [
-      { label: 'Resumen', icon: 'space_dashboard', href: '/negocio' },
-      { label: 'Pedidos en vivo', icon: 'notifications_active', href: '/negocio/pedidos', badge: 'new' },
-      { label: 'Menú y productos', icon: 'restaurant_menu', href: '/negocio/catalogo' },
+      { label: 'Panel general', icon: 'space_dashboard', href: '/negocio' },
+      { label: 'Pedidos en vivo', icon: 'receipt_long', href: '/negocio/pedidos', badge: 'new' },
+      { label: 'Menú + Productos', icon: 'restaurant_menu', href: '/negocio/catalogo' },
+    ],
+  },
+  {
+    label: 'TURA GROWTH AI',
+    items: [
+      { label: 'Kit Turafood', icon: 'auto_awesome', href: '/negocio/kit', badge: '⚡ ULTRA' },
+      { label: 'Email Marketing', icon: 'mark_email_unread', href: '/negocio/email-mkt' },
+      { label: 'Negocios Locales', icon: 'storefront', href: '/negocio/crecimiento/google-negocio' },
+    ],
+  },
+  {
+    label: 'REPARTIDOR IA',
+    items: [
+      { label: 'Radar en Vivo', icon: 'radar', href: '/negocio/repartidores' },
+      { label: 'Tura Turbo', icon: 'bolt', href: '/negocio/turbo', badge: '15 min' },
+      { label: 'Motor de Despacho', icon: 'route', href: '/negocio/repartidores/ajustes' },
+      { label: 'Finanzas y Pagos', icon: 'account_balance_wallet', href: '/negocio/repartidores/liquidacion' },
     ],
   },
   {
     label: 'MI NEGOCIO',
     items: [
-      { label: 'Cómo te pagan', icon: 'point_of_sale', href: '/negocio/pagos' },
+      { label: 'Métodos de Pago', icon: 'payments', href: '/negocio/pagos' },
       { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
       { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
-      { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: 'reviews' },
+      { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: '4.9 ★' },
       { label: 'Sucursales', icon: 'store', href: '/negocio/sucursales' },
-      { label: 'Repartidores', icon: 'two_wheeler', href: '/negocio/repartidores' },
     ],
   },
   {
-    label: 'LA PLATA',
+    label: 'FINANZAS PRO',
     items: [
       { label: 'Historial de pedidos', icon: 'history', href: '/negocio/historial' },
       { label: 'Reportes', icon: 'insights', href: '/negocio/reportes' },
+      { label: 'Afiliados & Wallet', icon: 'card_giftcard', href: '/negocio/afiliados', badge: '10%' },
     ],
   },
   {
-    label: 'CRECER',
+    label: 'SEGURIDAD Y EQUIPO',
     items: [
-      { label: 'Base de Conocimiento', icon: 'menu_book', href: '/negocio/conocimiento' },
-      { label: 'Growth Partner', icon: 'rocket_launch', href: '/negocio/crecimiento' },
-      { label: 'Tura Business Suite', icon: 'auto_awesome', href: '/negocio/suite', disabled: true },
-      { label: 'Redes Sociales AI', icon: 'share', href: '/negocio/redes', disabled: true },
-      { label: 'Google Ads AI', icon: 'travel_explore', href: '/negocio/crecimiento/google', disabled: true },
-    ],
-  },
-  {
-    // Sin título: es el cajón de lo que se busca cuando se necesita.
-    items: [
+      { label: 'Roles y permisos', icon: 'shield_person', href: '/negocio/roles', badge: 'PRO' },
+      { label: 'Seguridad y clave', icon: 'lock_reset', href: '/negocio/seguridad' },
       { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
       { label: 'Soporte', icon: 'support_agent', href: '/negocio/soporte' },
-      { label: 'Equipo y ajustes', icon: 'settings', href: '/negocio/equipo' },
+      { label: 'Documentación Tfood', icon: 'menu_book', href: '/negocio/conocimiento' },
     ],
   },
 ];
@@ -147,6 +144,14 @@ export default function BizShell({ children }) {
   const [demoMode, setDemoMode] = useState(true);
   const [hasTurnedOffDemo, setHasTurnedOffDemo] = useState(true);
   const [showDemoPopup, setShowDemoPopup] = useState(false);
+
+  // Modal: Equipo Turafood (Agendar llamada 1-a-1 & soporte)
+  const [showTeamPanel, setShowTeamPanel] = useState(false);
+  const [teamTopic, setTeamTopic] = useState('ventas');
+  const [teamDay, setTeamDay] = useState('hoy');
+  const [teamHour, setTeamHour] = useState('02:30 PM');
+  const [teamPhone, setTeamPhone] = useState('');
+  const [teamScheduled, setTeamScheduled] = useState(false);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -350,7 +355,7 @@ export default function BizShell({ children }) {
 
   return (
     <BizContext.Provider value={ctx}>
-      <div style={S.root}>
+      <div className="pro-scale-layout" style={S.root}>
         {/* Velo del cajón lateral en celular */}
         {drawer && <div onClick={() => setDrawer(false)} style={S.scrim} />}
 
@@ -360,14 +365,14 @@ export default function BizShell({ children }) {
           data-tour="nav"
           className={`biz-side${drawer ? ' is-open' : ''}${rail.collapsed ? ' is-rail' : ''}`}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '20px 18px 18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '20px 18px 18px' }}>
             <div style={S.logo}>t</div>
-            <div className="rail-hide" style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 15.5, letterSpacing: '-.01em' }}>
-                TuraFood
+            <div className="rail-hide" style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 15.5, letterSpacing: '-.02em', display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text)' }}>
+                Tura Food <span className="tf-serif" style={{ color: 'var(--primary)', fontStyle: 'italic', fontWeight: 700 }}>AI</span>
               </div>
-              <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 800, letterSpacing: '.08em' }}>
-                NEGOCIOS
+              <div style={{ fontSize: 9.5, color: 'var(--muted)', fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Todo tu negocio en una APP
               </div>
             </div>
           </div>
@@ -421,7 +426,59 @@ export default function BizShell({ children }) {
                 )}
                 {g.items.map((i) => {
                   const on = path === i.href;
-                  const badge = badgeValue(i.badge);
+                  
+                  const rawBadge = i.badge;
+                  let badgeDisplay = null;
+                  let badgeStyle = S.navBadge;
+
+                  if (rawBadge === 'new') {
+                    if (newCount > 0) badgeDisplay = newCount;
+                  } else if (rawBadge === 'reviews') {
+                    if (pendingReviews > 0) badgeDisplay = pendingReviews;
+                  } else if (rawBadge === 'onboarding') {
+                    if (onboardingPending) badgeDisplay = '1';
+                  } else if (rawBadge) {
+                    badgeDisplay = rawBadge;
+                    if (rawBadge === '⚡ ULTRA' || rawBadge === 'NUEVO') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
+                        background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff',
+                        fontSize: 9.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(255,68,31,0.4)', letterSpacing: '.03em'
+                      };
+                    } else if (rawBadge === '15 min') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
+                        background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff',
+                        fontSize: 9.5, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(255,68,31,0.35)', letterSpacing: '.02em'
+                      };
+                    } else if (rawBadge === '10%') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
+                        background: 'rgba(232,199,102,0.18)', color: 'var(--gold)', border: '1px solid rgba(232,199,102,0.35)',
+                        fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      };
+                    } else if (rawBadge === '24/7') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
+                        background: 'rgba(16,185,129,0.15)', color: '#10B981',
+                        fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      };
+                    } else if (rawBadge === 'PRO') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 6px', borderRadius: 6,
+                        background: 'linear-gradient(135deg, #2A2620, #17140F)', color: '#D99A15', border: '1px solid rgba(217, 154, 21, 0.3)',
+                        fontSize: 9.5, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '.05em'
+                      };
+                    } else if (rawBadge === '4.9 ★') {
+                      badgeStyle = {
+                        flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
+                        background: 'rgba(251,191,36,0.15)', color: '#D97706',
+                        fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      };
+                    }
+                  }
 
                   if (i.disabled) {
                     return (
@@ -455,7 +512,7 @@ export default function BizShell({ children }) {
                         {i.icon}
                       </span>
                       <span className="rail-hide" style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{t(i.label)}</span>
-                      {badge > 0 && <span style={S.navBadge}>{badge}</span>}
+                      {badgeDisplay && <span className="rail-hide" style={badgeStyle}>{badgeDisplay}</span>}
                     </Link>
                   );
                 })}
@@ -512,36 +569,47 @@ export default function BizShell({ children }) {
 
             <div style={{ flex: 1 }} />
 
+            <div data-tour="modo-demo" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 4px', borderRadius: 14 }}>
+            {/* Modo Demo solid pill toggle */}
             <button
               onClick={handleToggleDemo}
               style={{
-                ...S.openBtn,
-                background: demoMode ? 'linear-gradient(135deg, var(--primary), #FF7B3B)' : 'var(--surface2)',
-                color: demoMode ? '#fff' : 'var(--muted)',
-                marginRight: 8,
-                position: 'relative',
+                display: 'flex', alignItems: 'center', gap: 9, height: 38,
+                padding: '0 5px 0 14px', borderRadius: 999,
+                background: demoMode ? '#FF5B2E' : 'var(--surface2)',
+                border: demoMode ? 'none' : '1px solid var(--border)',
+                color: demoMode ? '#FFFFFF' : 'var(--muted)',
+                cursor: 'pointer', flex: 'none',
+                boxShadow: demoMode ? '0 3px 12px rgba(255, 91, 46, 0.35)' : 'none',
+                transition: 'all .2s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
-              title={demoMode ? 'Apagar Modo Demo' : 'Simular Datos'}
+              title={t('Alterna entre datos de prueba y tus datos reales')}
             >
-              <span className="open-label" style={{ fontSize: 12.5, fontWeight: 800 }}>
-                {demoMode ? 'Modo Demo' : 'Demo Off'}
+              <span className="demo-label" style={{ fontSize: 12.5, fontWeight: 800, color: demoMode ? '#fff' : 'var(--muted)' }}>
+                {demoMode ? t('Modo Demo') : t('Modo Real')}
               </span>
-              <span style={{ ...S.switchTrack, background: demoMode ? 'rgba(255,255,255,0.4)' : 'var(--faint)' }}>
-                <span style={{ ...S.switchKnob, background: '#fff', transform: demoMode ? 'translateX(16px)' : 'none' }} />
+              <span style={{
+                width: 32, height: 20, borderRadius: 99, padding: 2, display: 'flex', flex: 'none',
+                background: demoMode ? 'rgba(255,255,255,0.35)' : 'var(--faint)',
+              }}>
+                <span style={{
+                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                  transform: demoMode ? 'translateX(12px)' : 'translateX(0)',
+                  transition: 'transform .18s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                }} />
               </span>
-              {demoMode && !hasTurnedOffDemo && (
-                <div style={{ position: 'absolute', right: -25, bottom: -20, animation: 'hand-nudge 2.5s infinite', zIndex: 10 }}>
-                  <span style={{ fontSize: 32, filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }}>👆🏽</span>
-                </div>
-              )}
             </button>
 
+            {/* Tienda abierta / cerrada */}
             <button
               onClick={toggleOpen}
               style={{
                 ...S.openBtn,
-                background: business?.is_open ? '#E6F6EE' : 'var(--surface2)',
-                color: business?.is_open ? '#0B7A48' : 'var(--muted)',
+                background: business?.is_open ? 'rgba(16,185,129,0.16)' : 'var(--surface2)',
+                border: business?.is_open ? '1px solid rgba(16,185,129,0.4)' : '1px solid var(--border)',
+                color: business?.is_open ? 'var(--green)' : 'var(--muted)',
+                boxShadow: business?.is_open ? '0 2px 10px rgba(16,185,129,0.15)' : 'none',
               }}
             >
               <span className="open-label" style={{ fontSize: 12.5, fontWeight: 800 }}>
@@ -551,7 +619,9 @@ export default function BizShell({ children }) {
                 <span style={{ ...S.switchKnob, transform: business?.is_open ? 'translateX(16px)' : 'none' }} />
               </span>
             </button>
+          </div>
 
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {/* Idioma: la bandera dice a qué idioma se cambia */}
             <button onClick={toggleLang} style={S.iconBtn} aria-label={t('Cambiar idioma')} title={t('Cambiar idioma')}>
               <span style={{ fontSize: 15, lineHeight: 1 }}>{lang === 'es' ? '🇺🇸' : '🇨🇴'}</span>
@@ -565,9 +635,6 @@ export default function BizShell({ children }) {
               title={`Tema: ${TEMA_INFO[theme]?.nombre ?? 'Claro'} — toca para cambiar`}
             >
               <span className="ms" style={{ fontSize: 20 }}>
-                {/* El icono muestra el tema ACTUAL, no el siguiente.
-                    Con tres temas, "el siguiente" ya no se adivina y
-                    el botón se vuelve una lotería. */}
                 {TEMA_INFO[theme]?.icono ?? 'light_mode'}
               </span>
             </button>
@@ -577,13 +644,20 @@ export default function BizShell({ children }) {
               {newCount > 0 && <span style={S.dot} />}
             </Link>
 
-            <Link href="/negocio/catalogo" style={S.newProduct} className="desktop-only">
-              <span className="ms" style={{ fontSize: 18 }}>add</span>
-              Nuevo producto
-            </Link>
+            {/* Botón Equipo Turafood en Negro Mate (Siempre Visible) */}
+            <button
+              onClick={() => { setShowTeamPanel(true); setTeamScheduled(false); }}
+              style={S.teamBtn}
+              aria-label="Equipo Turafood - Agendar llamada"
+              title="Habla con el equipo de Turafood"
+            >
+              <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--amber)' }}>support_agent</span>
+              <span>Equipo Turafood</span>
+            </button>
+          </div>
           </header>
 
-          <main className="sc biz-main" data-tour="contenido" style={S.main}>
+          <main className="sc biz-main" style={S.main}>
             {/* ProgresoCuenta fue movido directamente a /negocio/page.js */}
 
             {error && (
@@ -639,43 +713,406 @@ export default function BizShell({ children }) {
         </nav>
         )}
 
-        {/* Popup de confirmación para salir de Modo Demo */}
+        {/* Modal PRO Minimalista y Persuasivo con SVG */}
         {showDemoPopup && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-            <div style={{ background: 'var(--surface)', padding: '36px 32px', borderRadius: 32, maxWidth: 380, textAlign: 'center', boxShadow: '0 24px 48px rgba(0,0,0,0.4)', animation: 'slideup 0.4s cubic-bezier(0.16, 1, 0.3, 1)', border: '1px solid var(--border)' }}>
-              <div style={{ width: 72, height: 72, borderRadius: 24, background: 'rgba(255,68,31,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-                <span className="ms" style={{ fontSize: 36, color: 'var(--primary)' }}>rocket_launch</span>
-              </div>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontSize: 24, fontWeight: 800, letterSpacing: '-.02em', marginBottom: 12, color: 'var(--text)' }}>
-                ¿Entrar a Producción?
-              </div>
-              <div style={{ fontSize: 14.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 32 }}>
-                Estás a punto de salir del entorno de pruebas. A partir de ahora verás <strong style={{ color: 'var(--text)' }}>únicamente los datos y ventas reales</strong> de tu negocio.
-              </div>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button 
-                  onClick={() => setShowDemoPopup(false)} 
-                  style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'var(--surface2)', color: 'var(--text)', fontWeight: 700, transition: 'all 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.08)'}
-                  onMouseOut={(e) => e.currentTarget.style.background = 'var(--surface2)'}
+          <div
+            onClick={() => setShowDemoPopup(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              background: 'rgba(0, 0, 0, 0.72)',
+              backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 20, animation: 'tfFadeIn .18s ease both',
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%', maxWidth: 360,
+                background: '#141210',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: 26, padding: '26px 22px',
+                boxShadow: '0 24px 70px rgba(0,0,0,0.65)',
+                position: 'relative', overflow: 'hidden',
+              }}
+            >
+              {/* Header Icon SVG + Close */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 16,
+                  background: 'linear-gradient(135deg, rgba(255,91,46,0.18) 0%, rgba(255,143,0,0.12) 100%)',
+                  border: '1px solid rgba(255,91,46,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 0 20px rgba(255,91,46,0.25)',
+                }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF5B2E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
+                    <path d="M8.5 2h7" />
+                    <path d="M7 16h10" />
+                  </svg>
+                </div>
+                <button
+                  onClick={() => setShowDemoPopup(false)}
+                  style={{
+                    width: 32, height: 32, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.06)', border: 'none',
+                    color: '#8A8278', cursor: 'pointer', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    transition: 'all .15s ease',
+                  }}
+                  aria-label="Cerrar"
                 >
-                  Seguir probando
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
                 </button>
-                <button 
-                  onClick={confirmExitDemo} 
-                  style={{ flex: 1, padding: '14px', borderRadius: 16, background: 'var(--primary)', color: '#fff', fontWeight: 800, boxShadow: '0 8px 20px rgba(255,68,31,0.3)', transition: 'all 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+              </div>
+
+              {/* Copy persuasivo y breve */}
+              <h2 style={{
+                margin: '0 0 8px', fontFamily: 'var(--font-bricolage)',
+                fontSize: 20, fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em',
+              }}>
+                ¿Listo para vender en vivo? 🚀
+              </h2>
+              <p style={{
+                margin: '0 0 22px', fontSize: 13.5, color: '#9E978E',
+                lineHeight: 1.5, fontWeight: 400,
+              }}>
+                Pasa a <strong>Modo Real</strong> para recibir clientes, comandas y pedidos reales de Buenaventura.
+              </p>
+
+              {/* Botones */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button
+                  onClick={confirmExitDemo}
+                  style={{
+                    width: '100%', height: 46, borderRadius: 14,
+                    background: 'linear-gradient(135deg, #11B26A 0%, #0E9358 100%)',
+                    color: '#FFFFFF', border: 'none', fontWeight: 800, fontSize: 14,
+                    cursor: 'pointer', boxShadow: '0 6px 20px rgba(17, 178, 106, 0.35)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    transition: 'transform .15s ease, box-shadow .15s ease',
+                  }}
                 >
-                  ¡Vamos!
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+                    <path d="M2 7h20" />
+                  </svg>
+                  Activar Ventas Reales
+                </button>
+
+                <button
+                  onClick={() => setShowDemoPopup(false)}
+                  style={{
+                    width: '100%', height: 42, borderRadius: 14,
+                    background: 'rgba(255,255,255,0.05)', color: '#D4CDC3',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                    transition: 'background .15s ease',
+                  }}
+                >
+                  Seguir en Modo Demo
                 </button>
               </div>
             </div>
           </div>
         )}
 
+        {/* Modal: Equipo Turafood · Agendar Llamada & Soporte */}
+        {showTeamPanel && (
+          <div
+            onClick={() => setShowTeamPanel(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 120,
+              background: 'rgba(10, 8, 6, 0.75)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: 20,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '100%', maxWidth: 540,
+                background: 'var(--surface)',
+                borderRadius: 24,
+                border: '1px solid var(--border)',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
+                overflow: 'hidden',
+                display: 'flex', flexDirection: 'column',
+                maxHeight: '90vh',
+              }}
+            >
+              {/* Header */}
+              <div style={{
+                padding: '24px 28px 18px',
+                borderBottom: '1px solid var(--border)',
+                background: 'linear-gradient(135deg, rgba(232,199,102,0.08) 0%, transparent 100%)',
+                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
+                    <span style={{
+                      background: 'rgba(232, 199, 102, 0.15)', color: '#D4AF37',
+                      fontSize: 10.5, fontWeight: 800, letterSpacing: '.08em',
+                      padding: '4px 10px', borderRadius: 99, textTransform: 'uppercase',
+                      border: '1px solid rgba(232, 199, 102, 0.3)',
+                    }}>
+                      ⚡ EQUIPO LOCAL · BUENAVENTURA
+                    </span>
+                  </div>
+                  <h2 style={{ margin: 0, fontSize: 21, fontFamily: 'var(--font-bricolage)', fontWeight: 800, color: 'var(--text)' }}>
+                    Equipo Turafood
+                  </h2>
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted)', lineHeight: 1.4 }}>
+                    Agenda una llamada 1-a-1 con nuestro equipo para escalar tus ventas o resolver dudas.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowTeamPanel(false)}
+                  style={{
+                    width: 32, height: 32, borderRadius: 10,
+                    border: '1px solid var(--border)', background: 'var(--surface2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: 'var(--muted)', flex: 'none',
+                  }}
+                  aria-label="Cerrar modal"
+                >
+                  <span className="ms" style={{ fontSize: 18 }}>close</span>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="sc" style={{ padding: '24px 28px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {teamScheduled ? (
+                  <div style={{
+                    padding: 28, borderRadius: 20, textAlign: 'center',
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                  }}>
+                    <div style={{
+                      width: 56, height: 56, borderRadius: '50%',
+                      background: 'var(--green)', color: '#fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 16px', boxShadow: '0 8px 24px rgba(16,185,129,0.3)',
+                    }}>
+                      <span className="ms" style={{ fontSize: 32 }}>check</span>
+                    </div>
+                    <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, color: 'var(--text)' }}>
+                      ¡Llamada Agendada con Éxito!
+                    </h3>
+                    <p style={{ margin: '0 0 18px', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+                      Un especialista del Equipo Turafood te llamará puntualmente ({teamDay === 'hoy' ? 'Hoy' : teamDay === 'manana' ? 'Mañana' : 'En 2 días'} a las {teamHour}). Te enviamos confirmación a tu WhatsApp.
+                    </p>
+                    <button
+                      onClick={() => setShowTeamPanel(false)}
+                      style={{
+                        padding: '10px 24px', borderRadius: 14,
+                        background: 'var(--text)', color: 'var(--bg)',
+                        border: 'none', fontWeight: 800, fontSize: 13.5, cursor: 'pointer',
+                      }}
+                    >
+                      Entendido
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Especialista Asignado */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '14px 18px', borderRadius: 18,
+                      background: 'var(--surface2)', border: '1px solid var(--border)',
+                    }}>
+                      <div style={{
+                        width: 44, height: 44, borderRadius: 14,
+                        background: 'linear-gradient(135deg, #FF5B2E, #E2360F)',
+                        color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, fontWeight: 800, flex: 'none',
+                      }}>
+                        SM
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)' }}>Sebastián M.</span>
+                          <span style={{
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            fontSize: 11, fontWeight: 700, color: 'var(--green)',
+                          }}>
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+                            En línea ahora
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                          Growth Lead &amp; Asesor Gastronómico · Buenaventura
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Selector de Tema */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>
+                        ¿En qué te podemos ayudar?
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        {[
+                          { id: 'ventas', label: '📈 Escalar ventas y promos' },
+                          { id: 'menu', label: '📸 Optimizar fotos y menú' },
+                          { id: 'tecnico', label: '⚙️ Configuración y pagos' },
+                          { id: 'domis', label: '🛵 Repartidores y Turbo' },
+                        ].map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => setTeamTopic(t.id)}
+                            style={{
+                              padding: '10px 12px', borderRadius: 14,
+                              border: teamTopic === t.id ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                              background: teamTopic === t.id ? 'var(--primary-tint)' : 'var(--surface2)',
+                              color: teamTopic === t.id ? 'var(--primary)' : 'var(--text)',
+                              fontSize: 12.5, fontWeight: 700, textAlign: 'left',
+                              cursor: 'pointer', transition: 'all .15s ease',
+                            }}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Selector de Fecha y Hora */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>
+                        Selecciona el horario
+                      </label>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                        {[
+                          { id: 'hoy', label: 'Hoy' },
+                          { id: 'manana', label: 'Mañana' },
+                          { id: 'pasado', label: 'En 2 días' },
+                        ].map((d) => (
+                          <button
+                            key={d.id}
+                            onClick={() => setTeamDay(d.id)}
+                            style={{
+                              flex: 1, padding: '8px 10px', borderRadius: 12,
+                              border: teamDay === d.id ? '1.5px solid var(--text)' : '1px solid var(--border)',
+                              background: teamDay === d.id ? 'var(--text)' : 'var(--surface2)',
+                              color: teamDay === d.id ? 'var(--bg)' : 'var(--muted)',
+                              fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                            }}
+                          >
+                            {d.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                        {['10:00 AM', '02:30 PM', '04:30 PM', '06:00 PM'].map((h) => (
+                          <button
+                            key={h}
+                            onClick={() => setTeamHour(h)}
+                            style={{
+                              padding: '8px 6px', borderRadius: 10,
+                              border: teamHour === h ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                              background: teamHour === h ? 'var(--primary-tint)' : 'var(--surface2)',
+                              color: teamHour === h ? 'var(--primary)' : 'var(--text)',
+                              fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center',
+                            }}
+                          >
+                            {h}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Teléfono de contacto */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6 }}>
+                        Tu número de WhatsApp / Llamada
+                      </label>
+                      <input
+                        type="tel"
+                        value={teamPhone || (business?.phone || '')}
+                        onChange={(e) => setTeamPhone(e.target.value)}
+                        placeholder="+57 318 000 0000"
+                        style={{
+                          width: '100%', height: 44, borderRadius: 14,
+                          border: '1px solid var(--border)', background: 'var(--surface2)',
+                          padding: '0 16px', fontSize: 14, fontWeight: 600,
+                          color: 'var(--text)', outline: 'none',
+                        }}
+                      />
+                    </div>
+
+                    {/* Botón de Agendar */}
+                    <button
+                      onClick={() => {
+                        setTeamScheduled(true);
+                        toast('¡Cita agendada con el Equipo Turafood!');
+                      }}
+                      style={{
+                        width: '100%', height: 48, borderRadius: 16,
+                        background: 'linear-gradient(135deg, #1C1917 0%, #12100E 100%)',
+                        color: '#fff', border: '1px solid rgba(255, 255, 255, 0.15)',
+                        fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                      }}
+                    >
+                      <span className="ms ms-fill" style={{ fontSize: 18, color: 'var(--amber)' }}>calendar_today</span>
+                      Agendar Asesoría 1-a-1
+                    </button>
+
+                    {/* Separador */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
+                      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>O contacto instantáneo</span>
+                      <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                    </div>
+
+                    {/* Botones de Contacto Directo */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <a
+                        href="https://wa.me/573161110001?text=Hola%20Equipo%20Turafood,%20necesito%20ayuda%20con%20mi%20negocio"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          height: 44, borderRadius: 14, background: '#E7F6EE', color: '#0B6E44',
+                          border: '1px solid rgba(11, 110, 68, 0.2)', fontSize: 13, fontWeight: 700,
+                          textDecoration: 'none', cursor: 'pointer',
+                        }}
+                      >
+                        <span className="ms ms-fill" style={{ fontSize: 18 }}>chat</span>
+                        WhatsApp
+                      </a>
+                      <a
+                        href="tel:+573161110001"
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          height: 44, borderRadius: 14, background: 'var(--surface2)', color: 'var(--text)',
+                          border: '1px solid var(--border)', fontSize: 13, fontWeight: 700,
+                          textDecoration: 'none', cursor: 'pointer',
+                        }}
+                      >
+                        <span className="ms" style={{ fontSize: 18 }}>call</span>
+                        Llamar ahora
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notificación flotante */}
         {toastMsg && (
-          <div style={S.toast}>
+          <div style={S.toast} role="status">
             <span className="ms" style={{ fontSize: 20, color: 'var(--green)' }}>check_circle</span>
             <span style={{ fontSize: 13.5, fontWeight: 600 }}>{toastMsg}</span>
           </div>
@@ -686,8 +1123,20 @@ export default function BizShell({ children }) {
 }
 
 const S = {
+  demoBtn: {
+    display: 'flex', alignItems: 'center', gap: 8, height: 40,
+    padding: '0 6px 0 10px', borderRadius: 13, border: '1px solid var(--border)',
+    flex: 'none', cursor: 'pointer', transition: 'all .2s ease',
+  },
+  switchTrackMini: {
+    width: 32, height: 18, borderRadius: 99, padding: 2, display: 'flex', flex: 'none',
+  },
+  switchKnobMini: {
+    width: 14, height: 14, borderRadius: '50%', background: '#fff',
+    transition: 'transform .18s ease', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+  },
   root: {
-    display: 'flex', minHeight: '100dvh', maxHeight: '100dvh',
+    display: 'flex', width: '100%',
     overflow: 'hidden', background: 'var(--bg)', position: 'relative',
   },
   scrim: {
@@ -772,6 +1221,12 @@ const S = {
   dot: {
     position: 'absolute', top: 8, right: 9, width: 7, height: 7, borderRadius: '50%',
     background: 'var(--primary)', border: '1.5px solid var(--surface)',
+  },
+  teamBtn: {
+    display: 'flex', alignItems: 'center', gap: 7, height: 38, padding: '0 16px', borderRadius: 999,
+    background: 'linear-gradient(135deg, #1C1917 0%, #12100E 100%)', color: '#fff', fontSize: 13, fontWeight: 700,
+    border: '1px solid rgba(255, 255, 255, 0.16)', boxShadow: '0 4px 14px rgba(0, 0, 0, 0.22)',
+    cursor: 'pointer', transition: 'all .2s cubic-bezier(0.16, 1, 0.3, 1)', whiteSpace: 'nowrap', flex: 'none',
   },
   newProduct: {
     alignItems: 'center', gap: 7, height: 40, padding: '0 15px', borderRadius: 999,

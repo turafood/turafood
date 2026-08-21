@@ -20,6 +20,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { getBusiness, getMenu } from '@/lib/data';
 import { cop, feeLabel, etaLabel, kmLabel } from '@/lib/format';
+import ProductModal from '../../components/ProductModal';
+
 export default function StorePage() {
   const router = useRouter();
   const { id } = useParams();
@@ -30,6 +32,7 @@ export default function StorePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fav, setFav] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const sectionRefs = useRef({});
 
@@ -211,7 +214,7 @@ export default function StorePage() {
                     return (
                       <button
                         key={m.id}
-                        onClick={() => router.push(`/product/${m.id}`)}
+                        onClick={() => setSelectedProduct(m)}
                         style={S.menuRow}
                       >
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -245,7 +248,7 @@ export default function StorePage() {
           </div>
         </div>
 
-        {/* Barra de canasta */}
+        {/* Barra de canasta móvil */}
         {showCartBar && (
           <div style={S.cartBarWrap}>
             <button onClick={() => router.push('/cart')} style={S.cartBar}>
@@ -259,6 +262,15 @@ export default function StorePage() {
               </span>
             </button>
           </div>
+        )}
+
+        {/* Modal de Producto Rápido & Personalización */}
+        {selectedProduct && (
+          <ProductModal
+            product={selectedProduct}
+            store={store}
+            onClose={() => setSelectedProduct(null)}
+          />
         )}
       </div>
     </>

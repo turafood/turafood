@@ -120,9 +120,55 @@
   --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
 }
 
+/* ------------------------------------------------------------
+   TEMA TURÍN TURÁN (BANDERA DEL PUERTO DE BUENAVENTURA)
+   Amarillo Oro + Verde Esmeralda sobre fondo oscuro ultra-premium.
+   ------------------------------------------------------------ */
+:root[data-theme='puerto'] {
+  --backdrop: #070E0A;
+  --bg: #0C1611;
+  --surface: #13221A;
+  --surface2: #1A2F24;
+
+  --text: #F8F7F2;
+  --muted: #9BB3A5;
+  --faint: #5E7A6B;
+  --border: rgba(232, 199, 102, 0.22);
+
+  --primary: #E8C766;
+  --primaryDark: #C9A540;
+  --onPrimary: #121008;
+
+  --green: #11B26A;
+  --amber: #FBBF24;
+  --blue: #2E6BFF;
+
+  --gold: #E8C766;
+  --gold2: #F6E4A6;
+  --goldDeep: #B8912F;
+  --night: #060B08;
+  --night2: #0E1A13;
+  --nightBorder: rgba(17, 178, 106, 0.25);
+
+  --primary-tint: rgba(232, 199, 102, 0.16);
+  --green-tint: rgba(17, 178, 106, 0.18);
+  --amber-tint: rgba(251, 191, 36, 0.18);
+  --blue-tint: rgba(46, 107, 255, 0.16);
+
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.40);
+
+  --ink: #182B21;
+  --ink2: #0F1D16;
+  --onInk: #F8F7F2;
+  --inkSoft: rgba(248, 247, 242, 0.65);
+  --inkLine: rgba(232, 199, 102, 0.15);
+}
+
 /* El panel usa el color de fondo plano; el degradado radial claro
    solo tiene sentido en tema claro. */
-:root[data-theme='dark'] body {
+:root[data-theme='dark'] body,
+:root[data-theme='puerto'] body {
   background: var(--bg);
 }
 
@@ -146,6 +192,17 @@ body {
   color: var(--text);
   background: radial-gradient(120% 90% at 50% 0%, #F2F0EC, #DFDCD6);
   min-height: 100dvh;
+}
+
+/* Escala de densidad para el panel de Negocios en Desktop (Efecto zoom 90%) */
+.pro-scale-layout {
+  height: 100dvh;
+}
+@media (min-width: 1024px) {
+  .pro-scale-layout {
+    zoom: 0.90;
+    height: calc(100vh / 0.9) !important; /* Compensa la reducción del 90% para llenar el 100% de la pantalla */
+  }
 }
 
 a {

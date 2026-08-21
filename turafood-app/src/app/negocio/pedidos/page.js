@@ -36,9 +36,9 @@ const minutesSince = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso)
  * negocio le prometió al cliente: pasado eso, la comanda se pone roja.
  */
 function urgency(minutes, limit) {
-  if (minutes >= limit) return { key: 'late', color: 'var(--primary)', bg: '#FFF1EC', label: 'Atrasado' };
-  if (minutes >= limit * 0.66) return { key: 'soon', color: '#A8730B', bg: '#FFF7E6', label: 'Va justo' };
-  return { key: 'ok', color: '#0B7A48', bg: '#E6F6EE', label: 'A tiempo' };
+  if (minutes >= limit) return { key: 'late', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.14)', label: 'Atrasado' };
+  if (minutes >= limit * 0.66) return { key: 'soon', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.14)', label: 'Va justo' };
+  return { key: 'ok', color: '#10B981', bg: 'rgba(16, 185, 129, 0.14)', label: 'A tiempo' };
 }
 
 export default function PedidosPage() {
@@ -605,7 +605,7 @@ const S = {
   },
   footer: {
     display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-    gap: 10, marginTop: 16, paddingTop: 14, borderTop: '1px dashed rgba(255,255,255,0.1)',
+    gap: 10, marginTop: 16, paddingTop: 14, borderTop: '1px dashed var(--border)',
   },
   paid: {
     fontSize: 10, fontWeight: 800, padding: '3px 6px', borderRadius: 6,

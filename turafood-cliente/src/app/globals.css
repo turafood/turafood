@@ -249,18 +249,18 @@ button:disabled {
    `display` en su style inline — el inline gana sobre la clase y
    ambas variantes terminan visibles a la vez.
    ------------------------------------------------------------ */
-.mobile-only { display: none; }
-.desktop-only { display: flex; }
+.mobile-only { display: none !important; }
+.desktop-only { display: flex !important; }
 
 @container device (max-width: 900px) {
-  .mobile-only { display: block; }
-  .desktop-only { display: none; }
+  .mobile-only { display: block !important; }
+  .desktop-only { display: none !important; }
 }
 
 /* Fuera del marco (páginas sin chasis) decide el viewport */
 @media (max-width: 900px) {
-  .mobile-only { display: block; }
-  .desktop-only { display: none; }
+  .mobile-only { display: block !important; }
+  .desktop-only { display: none !important; }
 }
 
 /* Truncado de una línea, muy usado en las tarjetas del diseño */
@@ -298,7 +298,7 @@ button:disabled {
   position: relative;
   flex: none;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   min-height: 100dvh;
   background: var(--bg);
   display: flex;
@@ -367,5 +367,18 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+}
+
+/* Responsive visibility utilities */
+@media (max-width: 899px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .mobile-only {
+    display: none !important;
   }
 }

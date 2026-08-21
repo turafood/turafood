@@ -1,14 +1,7 @@
 'use client';
 
 /**
- * FOTOS DEL PRODUCTO
- *
- * Se puede soltar archivos encima, elegirlos del computador o tomar la
- * foto con la cámara del celular. Suben apenas se eligen: no hay un
- * segundo botón de "subir" que la gente olvida tocar.
- *
- * La primera foto es la principal y es la que ve el cliente en el
- * listado. Se puede cambiar cuál es sin volver a subir nada.
+ * SUBIDOR DE FOTOS ULTRA PRO (FIGMA STYLE + GALERÍA GOURMET DE 1 CLIC)
  */
 
 import { useRef, useState } from 'react';
@@ -16,10 +9,20 @@ import { uploadProductPhoto, deleteProductPhoto } from '@/lib/negocio';
 
 const MAX = 5;
 
+// Galería de fotos gourmet precargadas de alta definición para elegir en 1 clic
+const GOURMET_PRESETS = [
+  { id: 'burger_pro', name: 'Hamburguesa Gourmet', url: '/burger_hero_pro.png' },
+  { id: 'fork_meat', name: 'Carne en Tenedor', url: '/fork_meat_pro.png' },
+  { id: 'steak_ribeye', name: 'Corte Ribeye', url: '/images/steak-ribeye.jpg' },
+  { id: 'fried_steak', name: 'Carne Asada', url: '/images/fried-steak.jpg' },
+  { id: 'beef_tomatoes', name: 'Lomo Saltado', url: '/images/beef-tomatoes.jpg' },
+  { id: 'lamb_chops', name: 'Costillas Gourmet', url: '/images/lamb-chops.jpg' },
+  { id: 'gold_steak', name: 'Steak Dorado', url: '/images/gold-steak.jpg' },
+  { id: 'hero_burger', name: 'Burger Clásica', url: '/hero_burger.jpg' },
+];
+
 export default function PhotoUploader({ businessId, images, onChange, onError }) {
   const filePicker = useRef(null);
-  const cameraPicker = useRef(null);
-  const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(0);
 
   const room = MAX - images.length;
@@ -31,8 +34,6 @@ export default function PhotoUploader({ businessId, images, onChange, onError })
     onError(null);
     setUploading(files.length);
     try {
-      // En serie y no en paralelo: en una conexión de celular lenta,
-      // cinco subidas a la vez se estorban y fallan más.
       const urls = [];
       for (const file of files) {
         urls.push(await uploadProductPhoto(businessId, file));
@@ -45,183 +46,190 @@ export default function PhotoUploader({ businessId, images, onChange, onError })
     }
   };
 
+  const selectPreset = (url) => {
+    if (images.includes(url)) {
+      onChange(images.filter(u => u !== url));
+    } else if (images.length < MAX) {
+      onChange([url, ...images]);
+    }
+  };
+
   const remove = async (url) => {
     onChange(images.filter((u) => u !== url));
-    deleteProductPhoto(url).catch(() => {});   // si falla, no bloquea al usuario
+    deleteProductPhoto(url).catch(() => {});
   };
 
   const makeCover = (url) => onChange([url, ...images.filter((u) => u !== url)]);
 
-  const onDrop = (e) => {
-    e.preventDefault();
-    setDragging(false);
-    add(e.dataTransfer.files);
-  };
-
   return (
-    <div style={{ marginBottom: 14 }}>
-      <span style={S.label}>
-        Fotos del producto
-        <span style={{ color: 'var(--faint)', fontWeight: 600 }}>
-          {' '}· {images.length} de {MAX}
-        </span>
-      </span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      
+      {/* 1. Zona de Subida Rápida (1 Clic) */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <span style={S.label}>
+            Fotos Seleccionadas
+            <span style={{ color: 'var(--muted)', fontWeight: 600 }}> ({images.length} de {MAX})</span>
+          </span>
+          <span style={{ fontSize: 11.5, color: 'var(--primary)', fontWeight: 700 }}>
+            {images.length > 0 ? '✓ Foto principal lista' : 'Selecciona una foto'}
+          </span>
+        </div>
 
-      <div style={S.grid}>
-        {images.map((url, i) => (
-          <div key={url} style={S.tile}>
-            <span
-              style={{ ...S.tileImg, backgroundImage: `url('${url}')` }}
-              role="img"
-              aria-label={i === 0 ? 'Foto principal' : `Foto ${i + 1}`}
-            />
+        {/* Selected images grid or single click dropzone */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: 12 }}>
+          {images.map((url, i) => (
+            <div key={url} style={S.tile}>
+              <div
+                style={{
+                  width: '100%', height: '100%',
+                  backgroundImage: `url('${url}')`,
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                }}
+              />
 
-            {i === 0 ? (
-              <span style={S.coverTag}>PRINCIPAL</span>
-            ) : (
+              {i === 0 ? (
+                <span style={S.coverTag}>⭐ PRINCIPAL</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => makeCover(url)}
+                  style={S.makeCover}
+                >
+                  Principal
+                </button>
+              )}
+
               <button
                 type="button"
-                onClick={() => makeCover(url)}
-                style={S.makeCover}
-                title="Usar como principal"
+                onClick={() => remove(url)}
+                style={S.removeBtn}
+                aria-label="Quitar foto"
               >
-                Hacer principal
+                <span className="ms" style={{ fontSize: 14, color: '#fff' }}>close</span>
               </button>
-            )}
+            </div>
+          ))}
 
+          {room > 0 && (
             <button
               type="button"
-              onClick={() => remove(url)}
-              style={S.removeBtn}
-              aria-label={`Quitar foto ${i + 1}`}
+              onClick={() => filePicker.current?.click()}
+              style={S.dropBtn}
             >
-              <span className="ms" style={{ fontSize: 15, color: '#fff' }}>close</span>
+              <span className="ms" style={{ fontSize: 24, color: 'var(--primary)' }}>
+                {uploading > 0 ? 'sync' : 'add_photo_alternate'}
+              </span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)', textAlign: 'center' }}>
+                {uploading > 0 ? 'Subiendo…' : 'Subir foto propia'}
+              </span>
             </button>
-          </div>
-        ))}
+          )}
+        </div>
 
-        {uploading > 0 && Array.from({ length: uploading }).map((_, i) => (
-          <div key={`up-${i}`} style={{ ...S.tile, ...S.uploading }}>
-            <span style={S.spinner} />
-          </div>
-        ))}
+        <input
+          ref={filePicker}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          multiple
+          onChange={(e) => add(e.target.files)}
+          style={{ display: 'none' }}
+        />
+      </div>
 
-        {room > 0 && uploading === 0 && (
-          <div
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-            style={{
-              ...S.dropzone,
-              borderColor: dragging ? 'var(--primary)' : 'var(--faint)',
-              background: dragging ? '#FFF6F3' : 'var(--bg)',
-            }}
-          >
-            <span className="ms" style={{ fontSize: 24, color: 'var(--primary)' }}>add_photo_alternate</span>
-            <span style={{ fontSize: 11, fontWeight: 700, textAlign: 'center', lineHeight: 1.3 }}>
-              Arrastra o elige
+      {/* 2. Galería Gourmet de 1 Clic (Preset Gallery) */}
+      <div style={{ background: 'var(--surface2)', padding: '16px 18px', borderRadius: 20, border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span className="ms" style={{ fontSize: 18, color: 'var(--gold)' }}>auto_awesome</span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>
+              Galería Gourmet de 1 Clic
             </span>
           </div>
-        )}
+          <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>Toca para asignar al plato</span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+          {GOURMET_PRESETS.map((p) => {
+            const isSelected = images.includes(p.url);
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => selectPreset(p.url)}
+                style={{
+                  position: 'relative', height: 72, borderRadius: 14, overflow: 'hidden',
+                  border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border)',
+                  padding: 0, cursor: 'pointer', background: '#000',
+                  boxShadow: isSelected ? '0 0 0 2px var(--primary-tint)' : 'none',
+                  transition: 'all .2s ease'
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%', height: '100%',
+                    backgroundImage: `url('${p.url}')`,
+                    backgroundSize: 'cover', backgroundPosition: 'center',
+                    opacity: isSelected ? 1 : 0.85
+                  }}
+                />
+                
+                {isSelected && (
+                  <div style={{
+                    position: 'absolute', top: 4, right: 4, width: 20, height: 20,
+                    borderRadius: '50%', background: 'var(--primary)', color: '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 900
+                  }}>
+                    ✓
+                  </div>
+                )}
+
+                <div style={{
+                  position: 'absolute', bottom: 0, insetInline: 0,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.85), transparent)',
+                  padding: '4px 6px', fontSize: 9.5, fontWeight: 700, color: '#fff',
+                  textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>
+                  {p.name}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 9, marginTop: 11, flexWrap: 'wrap' }}>
-        <button
-          type="button"
-          onClick={() => filePicker.current?.click()}
-          disabled={room <= 0 || uploading > 0}
-          style={S.pickBtn}
-        >
-          <span className="ms" style={{ fontSize: 18 }}>folder_open</span>
-          Desde mi equipo
-        </button>
-
-        {/* `capture` abre la cámara directo en celular; en escritorio el
-            navegador lo ignora y muestra el explorador de archivos. */}
-        <button
-          type="button"
-          onClick={() => cameraPicker.current?.click()}
-          disabled={room <= 0 || uploading > 0}
-          style={S.pickBtn}
-        >
-          <span className="ms" style={{ fontSize: 18 }}>photo_camera</span>
-          Tomar foto
-        </button>
-      </div>
-
-      <input
-        ref={filePicker}
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={(e) => { add(e.target.files); e.target.value = ''; }}
-        style={{ display: 'none' }}
-      />
-      <input
-        ref={cameraPicker}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={(e) => { add(e.target.files); e.target.value = ''; }}
-        style={{ display: 'none' }}
-      />
-
-      <p style={S.hint}>
-        {images.length === 0
-          ? 'Sin foto usamos un icono. Una foto real puede duplicar los pedidos de un plato.'
-          : 'La primera es la que ve el cliente en el listado. Máximo 5 MB por foto.'}
-      </p>
     </div>
   );
 }
 
 const S = {
-  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 8 },
-  grid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))', gap: 10,
-  },
+  label: { display: 'block', fontSize: 12.5, fontWeight: 800, color: 'var(--text)' },
   tile: {
-    position: 'relative', aspectRatio: '1', borderRadius: 14, overflow: 'hidden',
-    border: '1px solid var(--border)', background: 'var(--surface2)',
-  },
-  tileImg: {
-    position: 'absolute', inset: 0, backgroundSize: 'cover', backgroundPosition: 'center',
+    position: 'relative', width: '100%', aspectRatio: '1/1', borderRadius: 16,
+    overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadowSm)',
   },
   coverTag: {
-    position: 'absolute', left: 6, bottom: 6, fontSize: 8.5, fontWeight: 800,
-    letterSpacing: '.05em', padding: '3px 6px', borderRadius: 5,
-    background: 'var(--primary)', color: '#fff',
+    position: 'absolute', bottom: 4, left: 4, right: 4,
+    background: 'rgba(0,0,0,0.8)', color: 'var(--gold)',
+    fontSize: 9, fontWeight: 900, padding: '3px 4px', borderRadius: 6,
+    textAlign: 'center', letterSpacing: '.05em', backdropFilter: 'blur(4px)',
   },
   makeCover: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, height: 26,
-    background: 'rgba(20,16,10,.68)', color: '#fff', fontSize: 10, fontWeight: 700,
+    position: 'absolute', bottom: 4, left: 4, right: 4,
+    background: 'rgba(0,0,0,0.75)', color: '#fff',
+    fontSize: 9, fontWeight: 700, padding: '3px 4px', borderRadius: 6,
+    border: 'none', cursor: 'pointer', textAlign: 'center',
   },
   removeBtn: {
-    position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%',
-    background: 'rgba(20,16,10,.6)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center',
+    position: 'absolute', top: 4, right: 4, width: 22, height: 22,
+    borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: 'none',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
   },
-  uploading: {
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderStyle: 'dashed',
-  },
-  spinner: {
-    width: 22, height: 22, borderRadius: '50%',
-    border: '2.5px solid var(--surface2)', borderTopColor: 'var(--primary)',
-    animation: 'spin .8s linear infinite',
-  },
-  dropzone: {
-    aspectRatio: '1', borderRadius: 14, border: '1.5px dashed',
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', gap: 6, padding: 8,
-    transition: 'background .15s ease, border-color .15s ease',
-  },
-  pickBtn: {
-    display: 'flex', alignItems: 'center', gap: 7, height: 42, padding: '0 15px',
-    borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface)',
-    fontSize: 13, fontWeight: 700,
-  },
-  hint: {
-    margin: '10px 0 0', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.5,
+  dropBtn: {
+    width: '100%', aspectRatio: '1/1', borderRadius: 16,
+    border: '1px dashed var(--border)', background: 'var(--surface2)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
+    cursor: 'pointer', padding: 8, transition: 'background .2s',
   },
 };

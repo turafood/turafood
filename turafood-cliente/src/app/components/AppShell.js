@@ -23,7 +23,6 @@ import SearchOverlay from './SearchOverlay';
 import LiveOrders from './LiveOrders';
 import AiOverlay, { useAi } from './AiOverlay';
 import RehidratarCarrito from './RehidratarCarrito';
-import DesktopCart from './DesktopCart';
 
 /** Rutas a pantalla completa: sin barra inferior */
 const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate'];
@@ -31,12 +30,16 @@ const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/c
 /** Rutas con fondo oscuro (el onboarding y el login) */
 const DARK = ['/auth', '/'];
 
+/** Rutas del flujo que se centran en desktop como un popup enfocado */
+const FOCUSED_FLOW = ['/auth'];
+
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const [clock, setClock] = useState('');
 
   const isDark = DARK.includes(pathname);
   const showNav = !NO_NAV.some((p) => (p === '/' ? pathname === '/' : pathname.startsWith(p)));
+  const isFocused = FOCUSED_FLOW.some((p) => (p === '/' ? pathname === '/' : pathname.startsWith(p)));
 
   useEffect(() => {
     const tick = () => setClock(
@@ -52,18 +55,30 @@ export default function AppShell({ children }) {
       <RehidratarCarrito />
       <div className="tablet-device" style={{ background: isDark ? '#0C0B0A' : 'var(--bg)' }}>
 
-
         {/* El layout principal de pantalla */}
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          {/* Contenido principal (móvil ocupa 100%, desktop la izquierda) */}
-          <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          {/* Contenido principal (móvil ocupa 100%, desktop centrado o con sidebar) */}
+          <div style={{
+            flex: 1, position: 'relative', overflow: 'hidden',
+            display: 'flex', flexDirection: 'column',
+            alignItems: isFocused ? 'center' : 'stretch',
+            justifyContent: isFocused ? 'center' : 'stretch',
+            padding: isFocused ? '20px 0' : 0,
+            background: isFocused ? 'radial-gradient(ellipse at center, rgba(255,91,46,0.03) 0%, var(--bg) 70%)' : 'transparent',
+          }}>
             {/* Solo esto cambia al navegar */}
-            <div key={pathname} className="route-fade" style={S.route}>
+            <div
+              key={pathname}
+              className={`route-fade ${isFocused ? 'focused-flow-card' : ''}`}
+              style={{
+                ...S.route,
+                ...(isFocused ? S.focusedCard : {}),
+              }}
+            >
               {children}
             </div>
             
-            {/* Botón flotante de Tura IA: disponible en toda la app,
-                no solo en el inicio. Se esconde donde ya hay barra de acción. */}
+            {/* Botón flotante de Tura IA */}
             {showNav && <AiFab />}
 
             <LiveOrders />
@@ -71,10 +86,6 @@ export default function AppShell({ children }) {
             <AiOverlay />
             <FloatingCart />
             {showNav && <BottomNav />}
-          </div>
-          {/* Carrito de escritorio (Sidebar derecha, se oculta en móvil) */}
-          <div className="desktop-only" style={{ zIndex: 10, height: '100%' }}>
-            <DesktopCart />
           </div>
         </div>
       </div>
@@ -120,5 +131,18 @@ const S = {
     flexDirection: 'column',
     minHeight: 0,
     position: 'relative',
+  },
+  focusedCard: {
+    width: '100%',
+    maxWidth: 480,
+    minHeight: 'calc(100vh - 48px)',
+    maxHeight: '92vh',
+    borderRadius: 28,
+    border: '1px solid var(--border)',
+    boxShadow: '0 24px 70px rgba(0,0,0,0.08)',
+    background: 'var(--surface)',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
   },
 };

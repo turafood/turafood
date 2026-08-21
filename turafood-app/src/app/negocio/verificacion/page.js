@@ -1,25 +1,17 @@
 'use client';
 
 /**
- * VERIFICACIÓN DEL NEGOCIO — ASISTENTE
+ * VERIFICACIÓN DEL NEGOCIO ULTRA PRO (FIGMA STYLE + CERO GLITCHES DE SCROLL)
  *
- * Aquí vive lo que antes era el alta previa al ingreso. La diferencia
- * es que ahora se recorre paso a paso desde adentro y se puede dejar a
- * medias: cada paso se guarda al avanzar y el riel de arriba muestra
- * en qué punto va.
- *
- * Se puede saltar a cualquier paso tocando el riel. Obligar a pasar en
- * orden molesta a quien solo entró a cambiar la cuenta bancaria.
- *
- * "Enviar a revisión" llama a `submit_business_for_review()`, que
- * revalida todo en el servidor: si esta pantalla marca algo como listo
- * por error, la base no deja pasar igual.
+ * Módulo de verificación paso a paso, limpio, sin desbordamientos
+ * horizontales y con estética premium de alto contraste.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  getDocuments, updateBusiness, uploadDocument, deleteDocument,
-  submitForReview, checklistOf, REQUIRED_DOCS, DOC_LABELS,
+  updateBusiness,
+  submitForReview,
+  checklistOf,
 } from '@/lib/negocio';
 import Vertical3D from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
@@ -27,51 +19,36 @@ import Videollamada from '../../components/Videollamada';
 import Compromiso24h from '../../components/Compromiso24h';
 
 const VERTICALS = [
-  { value: 'restaurant', label: 'Restaurante' },
+  { value: 'restaurant', label: 'Restaurante / Comidas' },
   { value: 'pharmacy', label: 'Farmacia' },
-  { value: 'market', label: 'Minimercado' },
+  { value: 'market', label: 'Supermercado' },
   { value: 'liquor', label: 'Licorera' },
-  { value: 'store', label: 'Tienda' },
+  { value: 'store', label: 'Tienda de Barrio' },
 ];
 
-const BANKS = ['Bancolombia', 'Davivienda', 'Nequi', 'Daviplata', 'BBVA', 'Banco de Bogotá'];
-const ACCOUNT_TYPES = ['Ahorros', 'Corriente'];
-const DOC_ORDER = ['rut', 'chamber', 'id_card', 'health'];
-
-/** Los cuatro pasos, con los campos que guarda cada uno */
-/**
- * TRES PASOS, NINGUNO OBLIGATORIO
- *
- * Antes eran cuatro y pedían NIT, cámara de comercio, RUT, concepto
- * sanitario y cuenta bancaria antes de aprobar. Eso dejaba por fuera a
- * la mitad de los negocios del puerto — los que trabajan hace años sin
- * papeles al día — que es justo a quienes queremos adentro.
- *
- * Ahora se piden datos livianos y la verificación de verdad pasa en
- * una videollamada con el equipo. Ahí se conoce el negocio, se
- * resuelven dudas y se decide si se le levantan los topes. Un humano
- * decidiendo en 30 minutos es mejor filtro que un PDF que nadie mira.
- *
- * Los tres pasos se pueden saltar. Lo único que hace falta para
- * agendar la llamada es un WhatsApp donde contestar.
- */
 const STEPS = [
   {
-    id: 'datos', icon: 'person', short: 'Tus datos',
+    id: 'datos',
+    icon: 'person',
+    short: '1. Tus Datos',
     title: '¿Con quién hablamos?',
-    sub: 'Solo lo básico para poder llamarte. Nada de esto sale en la app.',
+    sub: 'Datos del propietario o administrador para coordinar la activación.',
     fields: ['owner_name', 'nit', 'phone'],
   },
   {
-    id: 'negocio', icon: 'storefront', short: 'Tu negocio',
-    title: 'Cuéntanos de tu negocio',
-    sub: 'Así aparece tu tienda para los clientes. Lo cambias cuando quieras.',
+    id: 'negocio',
+    icon: 'storefront',
+    short: '2. Tu Negocio',
+    title: 'Ficha de tu negocio',
+    sub: 'Información visible para los clientes y domiciliarios en Buenaventura.',
     fields: ['name', 'vertical', 'address', 'neighborhood'],
   },
   {
-    id: 'llamada', icon: 'videocam', short: 'Videollamada',
-    title: 'Agenda tu videollamada',
-    sub: 'El equipo de TuraFood te conoce y te levanta los topes.',
+    id: 'llamada',
+    icon: 'videocam',
+    short: '3. Videollamada',
+    title: 'Agenda tu videollamada express',
+    sub: 'Conoce al equipo de TuraFood en 15 mins y levanta los topes a ilimitado.',
     fields: [],
   },
 ];
@@ -81,11 +58,9 @@ export default function VerificacionPage() {
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(null);
-  const [docs, setDocs] = useState([]);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
-  const top = useRef(null);
 
   useEffect(() => {
     if (!business) return;
@@ -97,44 +72,22 @@ export default function VerificacionPage() {
       address: business.address ?? '',
       neighborhood: business.neighborhood ?? '',
       courier_notes: business.courier_notes ?? '',
-      bank_name: business.bank_name ?? BANKS[0],
-      bank_account_type: business.bank_account_type ?? 'Ahorros',
-      bank_account_number: business.bank_account_number ?? '',
-      bank_account_holder: business.bank_account_holder ?? '',
+      owner_name: business.owner_name ?? '',
     });
   }, [business]);
 
-  useEffect(() => {
-    if (!business) return;
-    let alive = true;
-    getDocuments(business.id)
-      .then((rows) => { if (alive) setDocs(rows); })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [business]);
-
-  // Al cambiar de paso, volver arriba: si no, se entra a media pantalla
-  useEffect(() => {
-    top.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [step]);
-
-  const merged = useMemo(
-    () => (business && form ? { ...business, ...form } : business),
-    [business, form],
-  );
-  const checklist = useMemo(() => checklistOf(merged), [merged]);
+  const checklist = useMemo(() => checklistOf(business, []), [business]);
   const doneCount = checklist.filter((c) => c.done).length;
   const pct = Math.round((doneCount / checklist.length) * 100);
   const complete = doneCount === checklist.length;
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  /** Guarda el paso actual y se mueve a `to` */
-  const saveAndGo = async (to) => {
+  const saveAndGo = async (nextStep) => {
     const current = STEPS[step];
     setError(null);
 
-    if (current.fields.length) {
+    if (current.fields.length && business?.id) {
       setSaving(true);
       try {
         const patch = Object.fromEntries(current.fields.map((k) => [k, form[k]]));
@@ -148,11 +101,12 @@ export default function VerificacionPage() {
       setSaving(false);
     }
 
-    if (to === 'done') {
-      toast('Guardado');
+    if (nextStep === 'done') {
+      toast('✓ Datos guardados con éxito');
       return;
     }
-    setStep(to);
+
+    setStep(nextStep);
   };
 
   const send = async () => {
@@ -161,7 +115,7 @@ export default function VerificacionPage() {
     try {
       await submitForReview();
       await refreshBusiness?.();
-      toast('Registro enviado a revisión');
+      toast('🚀 Registro enviado a revisión');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -170,460 +124,435 @@ export default function VerificacionPage() {
   };
 
   if (loading || !form) {
-    return <div style={{ padding: 40, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>Cargando…</div>;
+    return (
+      <div style={{ padding: 60, textAlign: 'center', fontSize: 14, color: 'var(--muted)' }}>
+        Cargando verificación…
+      </div>
+    );
   }
 
   const approved = business?.status === 'active';
   const submitted = Boolean(business?.submitted_at);
   const current = STEPS[step];
-  const isLast = step === STEPS.length - 1;
 
   return (
-    <div style={{ maxWidth: 820 }} ref={top}>
-      <style>{`
-        .anim-slideup { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-      `}</style>
+    <div style={S.container}>
       
-      {/* Cabecera con progreso */}
-      <section style={{ ...S.head, position: 'relative' }}>
-        <div style={S.headGlow} />
-        <div style={S.headTop}>
-          <div style={{ flex: 1, minWidth: 220, position: 'relative' }}>
-            <div style={S.headTitle}>
-              {approved
-                ? 'Tu negocio está aprobado'
-                : submitted ? 'Registro en revisión' : 'Completa tu registro'}
+      {/* ─────────── HERO HEADER ULTRA PRO ─────────── */}
+      <section style={S.hero}>
+        <div style={S.heroGlow} />
+
+        <div style={S.heroContent}>
+          <div style={{ flex: 1, minWidth: 260 }}>
+            {/* Status Pill */}
+            <div style={S.statusBadge}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: approved ? '#10B981' : '#FBBF24', boxShadow: approved ? '0 0 10px #10B981' : '0 0 10px #FBBF24' }} />
+              <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '.04em' }}>
+                {approved
+                  ? 'NEGOCIO ACTIVO & SIN LÍMITES'
+                  : submitted
+                    ? 'REGISTRO EN REVISIÓN (MENOS DE 24H)'
+                    : 'VERIFICACIÓN EN CURSO (TOPE: 20 PEDIDOS/DÍA)'}
+              </span>
             </div>
-            <div style={S.headSub}>
+
+            <h1 style={S.heroTitle}>
               {approved
-                ? 'Ya estás visible en la app de clientes y sin límite de pedidos diarios.'
-                : submitted
-                  ? 'Recibimos tus documentos. Los revisamos en menos de 24 horas; mientras tanto sigues vendiendo con un límite de 20 pedidos diarios.'
-                  : 'Mientras esté incompleto vendes con un límite de 20 pedidos diarios. Al aprobarlo se levanta.'}
-            </div>
+                ? '¡Tu negocio está 100% verificado!'
+                : 'Verificación y Activación VIP'}
+            </h1>
+
+            <p style={S.heroSub}>
+              {approved
+                ? 'Tu tienda ya es visible para todos los clientes en Buenaventura con recepción de órdenes ilimitadas y repartidores prioritarios.'
+                : 'Completa los 3 pasos rápidos para levantar los límites de despacho y activar el pago directo a tus cuentas.'}
+            </p>
           </div>
 
-          <div style={S.ring}>
-            <div style={{ ...S.ringFill, background: `conic-gradient(var(--primary) ${pct * 3.6}deg, var(--border) 0)` }} />
-            <div style={S.ringHole}>
-              <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: 'var(--text)' }}>{pct}%</span>
+          {/* Donut Chart de Progreso */}
+          <div style={S.donutBox}>
+            <div style={{
+              ...S.donutRing,
+              background: `conic-gradient(#FF7A4D ${pct * 3.6}deg, rgba(255,255,255,0.08) 0)`,
+            }}>
+              <div style={S.donutHole}>
+                <span style={{ fontSize: 24, fontWeight: 900, fontFamily: 'var(--font-bricolage)', color: '#fff' }}>
+                  {pct}%
+                </span>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '.05em' }}>
+                  COMPLETO
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* La promesa de las 24 horas, con reloj. Va arriba del riel
-            porque responde la pregunta que trae la persona a esta
-            pantalla: ¿cuándo me activan? */}
-        <div style={{ position: 'relative', margin: '16px 0 4px' }}>
+        {/* Compromiso 24 Horas */}
+        <div style={{ marginTop: 20 }}>
           <Compromiso24h
             desde={business?.verification_call_at ?? business?.onboarding_at}
             aprobado={business?.status === 'active'}
           />
         </div>
 
-        {/* Riel de pasos: se puede saltar a cualquiera */}
-        <ol className="hs" style={S.rail}>
-          {STEPS.map((s, i) => {
-            const done = checklist[i].done;
-            const active = i === step;
+        {/* Stepper Tabs Bar */}
+        <div style={S.stepperBar}>
+          {STEPS.map((s, idx) => {
+            const isDone = checklist[idx]?.done;
+            const isActive = idx === step;
             return (
-              <li key={s.id} style={S.railItem}>
-                <button
-                  onClick={() => setStep(i)}
-                  style={{ ...S.railBtn, ...(active ? S.railActive : null) }}
-                  aria-current={active ? 'step' : undefined}
-                >
-                  <span
-                    style={{
-                      ...S.railDot,
-                      background: done ? 'var(--green)' : active ? 'var(--primary)' : 'var(--border)',
-                      color: done || active ? '#fff' : 'var(--muted)',
-                      boxShadow: active ? '0 0 16px rgba(255,68,31,0.4)' : 'none',
-                      border: active ? 'none' : '1px solid var(--border)'
-                    }}
-                  >
-                    {done
-                      ? <span className="ms" style={{ fontSize: 15 }}>check</span>
-                      : <span style={{ fontSize: 12, fontWeight: 800 }}>{i + 1}</span>}
-                  </span>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, whiteSpace: 'nowrap', color: active ? 'var(--text)' : 'var(--muted)' }}>{s.short}</span>
-                </button>
-                {i < STEPS.length - 1 && <span style={S.railLine} />}
-              </li>
+              <button
+                key={s.id}
+                onClick={() => setStep(idx)}
+                style={{
+                  ...S.stepTab,
+                  background: isActive ? '#fff' : 'rgba(255,255,255,0.06)',
+                  color: isActive ? '#141009' : 'rgba(255,255,255,0.8)',
+                  boxShadow: isActive ? '0 6px 20px rgba(0,0,0,0.3)' : 'none',
+                }}
+              >
+                <span style={{
+                  width: 22, height: 22, borderRadius: '50%',
+                  background: isDone ? '#10B981' : isActive ? '#FF441F' : 'rgba(255,255,255,0.15)',
+                  color: '#fff', fontSize: 11, fontWeight: 900,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+                }}>
+                  {isDone ? '✓' : idx + 1}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 800 }}>{s.short}</span>
+              </button>
             );
           })}
-        </ol>
+        </div>
       </section>
 
-      {/* Carrusel de pasos (Wizard) */}
-      <div style={{ overflow: 'hidden', padding: '4px 0', margin: '-4px 0' }}>
-        <div style={{ 
-          display: 'flex', 
-          transform: `translateX(-${step * 100}%)`, 
-          transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-          alignItems: 'flex-start'
-        }}>
-          {STEPS.map((s, i) => {
-            const isCurrent = i === step;
-            return (
-              <div key={s.id} style={{ flex: '0 0 100%', minWidth: 0, paddingRight: i < STEPS.length - 1 ? 16 : 0, opacity: Math.abs(step - i) > 1 ? 0 : 1, transition: 'opacity 0.3s' }}>
-                <section style={{ ...S.card, opacity: isCurrent ? 1 : 0.5, pointerEvents: isCurrent ? 'auto' : 'none', transition: 'opacity 0.4s' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-          <span style={{ ...S.stepIcon, background: checklist[i].done ? 'rgba(11,142,84,0.15)' : 'rgba(255,68,31,0.1)' }}>
-            <span className="ms" style={{ fontSize: 22, color: checklist[i].done ? '#0B8E54' : 'var(--primary)', textShadow: checklist[i].done ? '0 0 10px rgba(11,142,84,0.5)' : '0 0 10px rgba(255,68,31,0.5)' }}>
-              {checklist[i].done ? 'check' : s.icon}
-            </span>
-          </span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em', textShadow: '0 0 8px rgba(255,68,31,0.3)' }}>
-              PASO {i + 1} DE {STEPS.length}
+      {/* ─────────── CARD DEL PASO ACTIVO (CERO OVERFLOW GLITCH) ─────────── */}
+      <section style={S.activeCard} className="anim-fade">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
+          <div style={{
+            width: 46, height: 46, borderRadius: 14,
+            background: 'var(--primary-tint)', color: 'var(--primary)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+          }}>
+            <span className="ms" style={{ fontSize: 24 }}>{current.icon}</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em' }}>
+              PASO {step + 1} DE {STEPS.length}
             </div>
-            <h2 style={S.stepTitle}>{s.title}</h2>
-            <p style={S.stepSub}>{s.sub}</p>
+            <h2 style={{ fontSize: 18, fontWeight: 800, margin: '2px 0 0', color: 'var(--text)' }}>
+              {current.title}
+            </h2>
+            <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
+              {current.sub}
+            </div>
           </div>
         </div>
 
-        <div style={{ marginTop: 22 }}>
-          {s.id === 'datos' && (
-            <>
-              <Field label="Tu nombre" value={form.owner_name} onChange={(v) => set('owner_name', v)} placeholder="Como te presentas" />
-              <Field label="WhatsApp" value={form.phone} onChange={(v) => set('phone', v)} placeholder="313 759 4713" />
-              <Field label="Cédula o NIT (opcional)" value={form.nit} onChange={(v) => set('nit', v)} placeholder="Lo puedes dejar en blanco" />
-              <Note>
-                Con el WhatsApp nos basta para coordinar la llamada. Lo demás
-                lo puedes llenar después o decirlo ahí mismo.
-              </Note>
-            </>
-          )}
+        {/* 1. Paso Datos */}
+        {current.id === 'datos' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <Field
+              label="Nombre del Propietario / Administrador"
+              value={form.owner_name}
+              onChange={(v) => set('owner_name', v)}
+              placeholder="Ej. Carlos Martínez"
+            />
+            <Field
+              label="Número de WhatsApp Directo"
+              value={form.phone}
+              onChange={(v) => set('phone', v)}
+              placeholder="Ej. 313 759 4713"
+            />
+            <Field
+              label="Cédula de Ciudadanía o NIT (Opcional)"
+              value={form.nit}
+              onChange={(v) => set('nit', v)}
+              placeholder="Ej. 1111823902 o 901.234.567-8"
+            />
 
-          {s.id === 'negocio' && (
-            <>
-              <Field label="Nombre comercial" value={form.name} onChange={(v) => set('name', v)} placeholder="Ej. Asadero El Puerto" />
-              <Chips label="Tipo de negocio" options={VERTICALS} value={form.vertical} onChange={(v) => set('vertical', v)} />
-              <Field label="Dirección" value={form.address} onChange={(v) => set('address', v)} placeholder="Cra. 3 # 4-58" />
-              <Field label="Barrio o comuna" value={form.neighborhood} onChange={(v) => set('neighborhood', v)} placeholder="Centro, Comuna 1" />
-              <Note>
-                Entre más clara la dirección, menos llamadas recibes del
-                repartidor y más rápido sale el pedido.
-              </Note>
-            </>
-          )}
+            <div style={S.infoBox}>
+              <span className="ms" style={{ color: 'var(--primary)', fontSize: 20 }}>verified_user</span>
+              <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.45 }}>
+                Tus datos están protegidos con encriptación bancaria y solo se usan para confirmar tus liquidaciones directas.
+              </div>
+            </div>
+          </div>
+        )}
 
-          {s.id === 'llamada' && <Videollamada />}
-        </div>
+        {/* 2. Paso Negocio */}
+        {current.id === 'negocio' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <Field
+              label="Nombre Comercial del Restaurante / Negocio"
+              value={form.name}
+              onChange={(v) => set('name', v)}
+              placeholder="Ej. Asadero & Parrilla El Puerto"
+            />
+
+            {/* Selector de Nicho */}
+            <div>
+              <span style={S.label}>Tipo de Comercio</span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 8 }}>
+                {VERTICALS.map((v) => {
+                  const sel = form.vertical === v.value;
+                  return (
+                    <button
+                      key={v.value}
+                      type="button"
+                      onClick={() => set('vertical', v.value)}
+                      style={{
+                        padding: '10px 14px', borderRadius: 12, textAlign: 'left',
+                        border: sel ? '2px solid var(--primary)' : '1px solid var(--border)',
+                        background: sel ? 'var(--primary-tint)' : 'var(--surface2)',
+                        color: sel ? 'var(--primary)' : 'var(--text)',
+                        fontSize: 12.5, fontWeight: 800, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>{v.label}</span>
+                      {sel && <span>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <Field
+                label="Dirección Física"
+                value={form.address}
+                onChange={(v) => set('address', v)}
+                placeholder="Ej. Carrera 3 # 4-58"
+              />
+              <Field
+                label="Barrio o Comuna"
+                value={form.neighborhood}
+                onChange={(v) => set('neighborhood', v)}
+                placeholder="Ej. Centro, Comuna 1"
+              />
+            </div>
+
+            <div style={S.infoBox}>
+              <span className="ms" style={{ color: 'var(--green)', fontSize: 20 }}>location_on</span>
+              <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.45 }}>
+                Una dirección clara le permite a los domiciliarios de TuraFood recoger tus pedidos en tiempo récord.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3. Paso Videollamada */}
+        {current.id === 'llamada' && (
+          <div>
+            <Videollamada />
+          </div>
+        )}
 
         {error && (
-          <div style={S.error}>
-            <span className="ms" style={{ fontSize: 18, flex: 'none' }}>error</span>
+          <div style={S.errorBox}>
+            <span className="ms" style={{ fontSize: 18 }}>error</span>
             <span>{error}</span>
           </div>
         )}
 
-        <div style={S.nav}>
-          {i > 0 && (
-            <button onClick={() => setStep(i - 1)} style={S.back}>
+        {/* Navegación del Wizard */}
+        <div style={S.wizardNav}>
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={() => setStep(step - 1)}
+              style={S.backBtn}
+            >
               <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
               Atrás
             </button>
           )}
+
           <div style={{ flex: 1 }} />
+
           <button
-            onClick={() => saveAndGo(i === STEPS.length - 1 ? 'done' : i + 1)}
+            type="button"
+            onClick={() => saveAndGo(step === STEPS.length - 1 ? 'done' : step + 1)}
             disabled={saving}
             className="md3-btn"
-            style={S.next}
+            style={S.nextBtn}
           >
-            {saving ? 'Guardando…' : i === STEPS.length - 1 ? 'Guardar' : 'Guardar y continuar'}
-            {i < STEPS.length - 1 && <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>}
+            {saving
+              ? 'Guardando…'
+              : step === STEPS.length - 1
+                ? 'Guardar Información'
+                : 'Guardar y Continuar'}
+            {step < STEPS.length - 1 && (
+              <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+            )}
           </button>
         </div>
       </section>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Cierre: qué falta y el botón de enviar */}
+      {/* ─────────── RESUMEN FINAL / CHECKLIST BOTTOM ─────────── */}
       {!approved && (
-        <section style={{ ...S.card, marginTop: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-            <Vertical3D vertical={business?.vertical} size={56} />
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17 }}>
-                {complete ? 'Todo listo para revisar' : `Te faltan ${checklist.length - doneCount} de ${checklist.length}`}
+        <section style={S.bottomCard}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <Vertical3D vertical={business?.vertical} size={64} />
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)' }}>
+                {complete ? '🎉 Todo listo para verificación definitiva' : `Tienes ${doneCount} de ${checklist.length} campos completos`}
               </div>
-              <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, lineHeight: 1.5 }}>
                 {complete
-                  ? 'Envíalo y te respondemos en menos de 24 horas.'
-                  : checklist.filter((c) => !c.done).map((c) => c.label).join(' · ')}
+                  ? 'Envía tu registro a revisión y activaremos tu cuenta con prioridad en menos de 24 horas.'
+                  : 'Completa los pasos restantes para levantar los topes de 20 pedidos diarios.'}
               </div>
             </div>
-          </div>
 
-          <button
-            onClick={send}
-            disabled={!complete || sending}
-            className="md3-btn"
-            style={{
-              ...S.submit,
-              ...(complete
-                ? { background: 'var(--primary)', color: 'var(--text)', boxShadow: '0 10px 24px rgba(255,68,31,.28)' }
-                : { background: 'var(--surface2)', color: 'var(--faint)' }),
-            }}
-          >
-            {sending
-              ? 'Enviando…'
-              : complete
-                ? (submitted ? 'Actualizar mi registro' : 'Enviar a revisión')
-                : 'Completa los pasos que faltan'}
-          </button>
+            <button
+              onClick={send}
+              disabled={sending}
+              style={{
+                height: 48, padding: '0 24px', borderRadius: 14, border: 'none',
+                background: complete ? 'linear-gradient(135deg, #10B981, #059669)' : 'var(--surface2)',
+                color: complete ? '#fff' : 'var(--muted)',
+                fontSize: 14, fontWeight: 800, cursor: complete ? 'pointer' : 'default',
+                boxShadow: complete ? '0 8px 20px rgba(16,185,129,0.35)' : 'none',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}
+            >
+              <span className="ms" style={{ fontSize: 18 }}>send</span>
+              {sending ? 'Enviando…' : 'Enviar a Revisión'}
+            </button>
+          </div>
         </section>
       )}
-    </div>
-  );
-}
 
-/** Fila de documento: subir, ver estado, reemplazar o quitar */
-function DocRow({ kind, doc, businessId, onChange, onError }) {
-  const input = useRef(null);
-  const [busy, setBusy] = useState(false);
-  const meta = DOC_LABELS[kind];
-  const required = REQUIRED_DOCS.includes(kind);
-
-  const pick = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-
-    setBusy(true);
-    onError(null);
-    try {
-      await uploadDocument(businessId, kind, file);
-      onChange(await getDocuments(businessId));
-    } catch (err) {
-      onError(err.message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const remove = async () => {
-    setBusy(true);
-    try {
-      await deleteDocument(businessId, kind, doc?.file_path);
-      onChange(await getDocuments(businessId));
-    } catch (err) {
-      onError(err.message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const state = doc?.status === 'approved'
-    ? { bg: '#E6F6EE', fg: '#0B8E54', icon: 'verified', label: 'Aprobado' }
-    : doc?.status === 'rejected'
-      ? { bg: '#FFF1EC', fg: '#E2360F', icon: 'error', label: 'Rechazado' }
-      : doc
-        ? { bg: '#FFF7E6', fg: '#A8730B', icon: 'schedule', label: 'En revisión' }
-        : { bg: 'var(--surface2)', fg: 'var(--muted)', icon: 'upload_file', label: '' };
-
-  return (
-    <div style={{ ...S.docRow, borderStyle: doc ? 'solid' : 'dashed' }}>
-      <span style={{ ...S.docIcon, background: state.bg }}>
-        <span className="ms" style={{ fontSize: 20, color: state.fg }}>{state.icon}</span>
-      </span>
-
-      <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13.5, fontWeight: 700 }}>{meta.label}</span>
-          {!required && <span style={S.optional}>OPCIONAL</span>}
-          {state.label && <span style={{ ...S.docState, background: state.bg, color: state.fg }}>{state.label}</span>}
-        </span>
-        <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-          {doc?.file_name ?? meta.hint}
-        </span>
-        {doc?.reject_reason && (
-          <span style={{ display: 'block', fontSize: 11.5, color: 'var(--primary)', marginTop: 3 }}>
-            {doc.reject_reason}
-          </span>
-        )}
-      </span>
-
-      <input
-        ref={input}
-        type="file"
-        accept="application/pdf,image/jpeg,image/png,image/webp"
-        onChange={pick}
-        style={{ display: 'none' }}
-      />
-
-      <span style={{ display: 'flex', gap: 6, flex: 'none' }}>
-        <button onClick={() => input.current?.click()} disabled={busy} style={S.docBtn}>
-          {busy ? '…' : doc ? 'Cambiar' : 'Subir'}
-        </button>
-        {doc && (
-          <button onClick={remove} disabled={busy} style={S.docIconBtn} aria-label={`Quitar ${meta.label}`}>
-            <span className="ms" style={{ fontSize: 17, color: 'var(--muted)' }}>delete</span>
-          </button>
-        )}
-      </span>
     </div>
   );
 }
 
 function Field({ label, value, onChange, placeholder }) {
   return (
-    <label style={{ display: 'block', marginBottom: 14 }}>
+    <div>
       <span style={S.label}>{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={S.input} />
-    </label>
-  );
-}
-
-function Chips({ label, options, value, onChange }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <span style={S.label}>{label}</span>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-        {options.map((o) => {
-          const on = value === o.value;
-          return (
-            <button key={o.value} onClick={() => onChange(o.value)} style={{ ...S.chip, ...(on ? S.chipOn : S.chipOff) }}>
-              {o.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function Note({ children }) {
-  return (
-    <div style={S.note}>
-      <span className="ms" style={{ fontSize: 17, color: 'var(--muted)', flex: 'none' }}>info</span>
-      <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>{children}</span>
+      <input
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={S.input}
+      />
     </div>
   );
 }
 
 const S = {
-  head: {
-    position: 'relative', overflow: 'hidden',
+  container: {
+    maxWidth: 860,
+    margin: '0 auto',
+    padding: '24px 20px 80px',
+    width: '100%',
+  },
+
+  hero: {
+    position: 'relative',
+    borderRadius: 28,
+    padding: '36px 32px',
+    background: 'linear-gradient(135deg, #1A1612 0%, #0A0806 100%)',
+    border: '1px solid rgba(232, 199, 102, 0.25)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+    marginBottom: 24,
+    color: '#fff',
+    overflow: 'hidden',
+  },
+  heroGlow: {
+    position: 'absolute', top: -80, right: -80, width: 300, height: 300,
+    borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,122,77,0.25) 0%, transparent 70%)',
+    filter: 'blur(40px)', pointerEvents: 'none',
+  },
+  heroContent: {
+    display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+    gap: 24, flexWrap: 'wrap', position: 'relative', zIndex: 2,
+  },
+  statusBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px',
+    borderRadius: 99, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+    marginBottom: 14, color: 'rgba(255,255,255,0.9)',
+  },
+  heroTitle: {
+    fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 800,
+    fontFamily: 'var(--font-bricolage)', lineHeight: 1.15, margin: '0 0 10px', color: '#fff',
+  },
+  heroSub: {
+    fontSize: 14, lineHeight: 1.55, color: 'rgba(255,255,255,0.7)', margin: 0,
+  },
+
+  donutBox: { flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  donutRing: {
+    width: 86, height: 86, borderRadius: '50%', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', padding: 8,
+    boxShadow: '0 0 20px rgba(255,122,77,0.3)',
+  },
+  donutHole: {
+    width: '100%', height: '100%', borderRadius: '50%', background: '#120F0C',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+  },
+
+  stepperBar: {
+    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
+    marginTop: 24, position: 'relative', zIndex: 2,
+  },
+  stepTab: {
+    height: 46, padding: '0 14px', borderRadius: 14, border: 'none',
+    display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+    transition: 'all .25s ease',
+  },
+
+  activeCard: {
     background: 'var(--surface)',
     border: '1px solid var(--border)',
-    borderRadius: 20, padding: 24, boxShadow: 'var(--shadow)', marginBottom: 16,
+    borderRadius: 24,
+    padding: '32px 30px',
+    boxShadow: 'var(--shadow)',
+    marginBottom: 20,
   },
-  headGlow: {
-    position: 'absolute', top: -50, right: -50, width: 250, height: 250,
-    background: 'radial-gradient(circle, rgba(217, 154, 21, 0.08), transparent 70%)',
-    borderRadius: '50%', pointerEvents: 'none',
+  label: {
+    display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 8,
   },
-  headTop: { position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' },
-  headTitle: {
-    fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', color: 'var(--text)',
-  },
-  headSub: {
-    fontSize: 13, color: 'var(--muted)', lineHeight: 1.5, marginTop: 4, maxWidth: 520,
-  },
-  ring: { position: 'relative', width: 72, height: 72, flex: 'none' },
-  ringFill: { position: 'absolute', inset: 0, borderRadius: '50%', boxShadow: '0 0 20px rgba(217, 154, 21, 0.15)' },
-  ringHole: {
-    position: 'absolute', inset: 6, borderRadius: '50%', background: 'var(--surface)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)'
-  },
-  rail: {
-    position: 'relative', display: 'flex', alignItems: 'center', gap: 6, listStyle: 'none',
-    margin: '24px 0 0', padding: '4px 0 2px',
-  },
-  railItem: { display: 'flex', alignItems: 'center', gap: 6, flex: 'none' },
-  railBtn: {
-    display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 14px',
-    borderRadius: 999, background: 'transparent', transition: 'all 0.3s',
-  },
-  railActive: { background: 'var(--surface2)', border: '1px solid var(--border)' },
-  railDot: {
-    width: 28, height: 28, borderRadius: '50%', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'all 0.3s',
-  },
-  railLine: { width: 24, height: 2, background: 'var(--border)', borderRadius: 2, flex: 'none' },
-  card: {
-    background: 'var(--surface)',
-    border: '1px solid var(--border)',
-    borderRadius: 20, padding: 24, boxShadow: 'var(--shadow)',
-  },
-  stepIcon: {
-    width: 46, height: 46, borderRadius: 12, flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'linear-gradient(135deg, rgba(217,154,21,0.1), rgba(217,154,21,0.05))',
-    border: '1px solid rgba(217,154,21,0.2)', color: 'var(--gold)'
-  },
-  stepTitle: {
-    margin: '6px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
-    fontSize: 22, letterSpacing: '-.02em', color: 'var(--text)',
-  },
-  stepSub: { margin: '6px 0 0', fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 },
-  label: { display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--text)', marginBottom: 8 },
   input: {
-    width: '100%', height: 48, borderRadius: 12, border: '1px solid var(--border)',
-    background: 'var(--surface2)', padding: '0 16px', fontSize: 15, outline: 'none', color: 'var(--text)',
-    transition: 'all 0.3s',
+    width: '100%', height: 48, borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface2)', padding: '0 16px', fontSize: 14.5, outline: 'none',
+    fontFamily: 'inherit', color: 'var(--text)',
   },
-  chip: { height: 40, padding: '0 16px', borderRadius: 12, fontSize: 13, fontWeight: 700, transition: 'all 0.3s', color: 'var(--muted)' },
-  chipOn: { background: 'var(--gold)', color: '#000', boxShadow: '0 4px 12px rgba(217,154,21,0.2)' },
-  chipOff: { background: 'var(--surface2)', border: '1px solid var(--border)' },
-  nav: {
-    display: 'flex', alignItems: 'center', gap: 12, marginTop: 24,
-    paddingTop: 20, borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+
+  infoBox: {
+    display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+    borderRadius: 14, background: 'var(--surface2)', border: '1px solid var(--border)',
   },
-  back: {
-    display: 'flex', alignItems: 'center', gap: 6, height: 48, padding: '0 16px',
-    borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface2)', 
-    fontSize: 14, fontWeight: 700, color: 'var(--text)', transition: 'background 0.2s',
+  errorBox: {
+    display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px',
+    borderRadius: 12, background: '#FFF1EC', color: 'var(--primary)',
+    fontSize: 13, fontWeight: 700, marginTop: 16,
   },
-  next: {
-    display: 'flex', alignItems: 'center', gap: 8, height: 48, padding: '0 24px',
-    borderRadius: 12, background: 'linear-gradient(135deg, var(--gold), #b37e0e)', color: '#000', fontSize: 14, fontWeight: 800,
-    boxShadow: '0 4px 16px rgba(217,154,21,0.2)', transition: 'all 0.3s', border: 'none'
+
+  wizardNav: {
+    display: 'flex', alignItems: 'center', gap: 12, marginTop: 28,
+    paddingTop: 20, borderTop: '1px solid var(--border)',
   },
-  submit: {
-    width: '100%', height: 54, borderRadius: 16, fontWeight: 800, fontSize: 15, marginTop: 20,
-    transition: 'all 0.3s', background: 'linear-gradient(135deg, var(--gold), #b37e0e)', color: '#000', border: 'none'
+  backBtn: {
+    height: 48, padding: '0 20px', borderRadius: 14, border: '1px solid var(--border)',
+    background: 'var(--surface2)', color: 'var(--text)', fontSize: 13.5, fontWeight: 700,
+    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
   },
-  docRow: {
-    display: 'flex', alignItems: 'center', gap: 14, padding: 18,
-    borderRadius: 20, border: '1px solid var(--border)', flexWrap: 'wrap',
-    background: 'var(--surface2)',
+  nextBtn: {
+    height: 48, padding: '0 24px', borderRadius: 14, border: 'none',
+    background: 'var(--primary)', color: '#fff', fontSize: 14, fontWeight: 800,
+    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+    boxShadow: '0 6px 18px rgba(255,68,31,0.3)',
   },
-  docIcon: {
-    width: 46, height: 46, borderRadius: 14, flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'var(--surface)', border: '1px solid var(--border)',
-  },
-  docState: { fontSize: 10.5, fontWeight: 800, padding: '4px 8px', borderRadius: 8 },
-  optional: {
-    fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8,
-    background: 'var(--border)', color: 'var(--muted)',
-  },
-  docBtn: {
-    height: 44, padding: '0 18px', borderRadius: 14, color: 'var(--text)',
-    border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13.5, fontWeight: 700,
-    transition: 'all 0.2s',
-  },
-  docIconBtn: {
-    width: 44, height: 44, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--surface)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s',
-  },
-  note: {
-    display: 'flex', alignItems: 'flex-start', gap: 12, marginTop: 16,
-    padding: 16, borderRadius: 16, background: 'var(--surface2)', border: '1px solid var(--border)',
-  },
-  error: {
-    display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 20, padding: '14px 18px',
-    borderRadius: 16, background: '#FFF0ED', color: 'var(--primary)', border: '1px solid rgba(255,68,31,0.2)',
-    fontSize: 13.5, fontWeight: 600, lineHeight: 1.45,
+
+  bottomCard: {
+    background: 'var(--surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 24,
+    padding: '24px 28px',
+    boxShadow: 'var(--shadowSm)',
   },
 };

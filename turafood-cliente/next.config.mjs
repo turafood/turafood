@@ -19,11 +19,10 @@ const nextConfig = {
   },
 
   // Turbopack: ancla el root al directorio de la app.
-  experimental: {
-    turbopack: {
-      root: '.',
-    },
+  turbopack: {
+    root: '.',
   },
+  allowedDevOrigins: ['172.22.96.1', 'localhost', '127.0.0.1'],
 
   // La raíz no es una pantalla, es un desvío al catálogo. Hacerlo acá
   // y no con un useEffect en `page.js` ahorra el viaje completo:
