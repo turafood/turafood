@@ -189,6 +189,11 @@ function TrackingPage() {
     // 1. Sonido
     playNotificationChime();
 
+    // 1.1 Vibración Háptica en Móvil
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate([50, 80, 50]); } catch {}
+    }
+
     // 2. Notificación nativa de navegador
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
@@ -214,6 +219,15 @@ function TrackingPage() {
     setTimeout(() => {
       setPushToast((prev) => (prev?.title === title ? null : prev));
     }, 6500);
+  };
+
+  // Compartir seguimiento en tiempo real por WhatsApp
+  const shareTrackingOnWhatsapp = () => {
+    const currentOrderId = order?.id || orderId || 'current';
+    const orderNum = order?.order_number ? `#${order.order_number}` : '';
+    const shareUrl = `https://turafood.com/tracking?order=${currentOrderId}`;
+    const text = `¡Hola! 👋 Sigue mi pedido ${orderNum} de Tura Food en tiempo real por el mapa 🛵💨:\n${shareUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   // Cargar CSS y comprobar si Leaflet ya está en window
@@ -719,6 +733,20 @@ function TrackingPage() {
 
               {/* Botones de acción */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <button
+                  onClick={shareTrackingOnWhatsapp}
+                  style={{
+                    height: 50, borderRadius: 16, border: 'none',
+                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                    color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: '0 6px 20px rgba(37,211,102,0.28)',
+                  }}
+                >
+                  <span className="ms" style={{ fontSize: 20 }}>share</span>
+                  <span>Compartir Seguimiento en WhatsApp</span>
+                </button>
+
                 <button onClick={() => router.push('/help')} style={{ ...S.helpBtn, marginTop: 0, height: 50, borderRadius: 16, cursor: 'pointer' }}>
                   <span className="ms" style={{ fontSize: 20 }}>headset_mic</span>
                   <span>Necesito ayuda con este pedido</span>
@@ -887,6 +915,20 @@ function TrackingPage() {
               ))}
             </div>
           </div>
+
+          <button
+            onClick={shareTrackingOnWhatsapp}
+            style={{
+              width: '100%', height: 50, borderRadius: 16, border: 'none',
+              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+              color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              boxShadow: '0 6px 18px rgba(37,211,102,0.25)', marginTop: 18,
+            }}
+          >
+            <span className="ms" style={{ fontSize: 20 }}>share</span>
+            <span>Compartir Seguimiento en WhatsApp</span>
+          </button>
 
           <button onClick={() => router.push('/help')} style={S.helpBtn}>
             <span className="ms" style={{ fontSize: 19 }}>headset_mic</span>

@@ -221,6 +221,11 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       anotarVarios(items.map((i) => i.productId), 'purchase');
       clearCart();
 
+      // Vibración háptica suave en móvil
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate([40, 60, 40]); } catch {}
+      }
+
       if (whatsappUrl) {
         window.open(whatsappUrl, '_blank');
       }

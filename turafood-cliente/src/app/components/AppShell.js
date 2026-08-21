@@ -36,6 +36,8 @@ const FOCUSED_FLOW = ['/auth'];
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const [clock, setClock] = useState('');
+  const [isOffline, setIsOffline] = useState(false);
+  const [onlineAlert, setOnlineAlert] = useState(false);
 
   const isDark = DARK.includes(pathname);
   const showNav = !NO_NAV.some((p) => (p === '/' ? pathname === '/' : pathname.startsWith(p)));
@@ -50,9 +52,57 @@ export default function AppShell({ children }) {
     return () => clearInterval(id);
   }, []);
 
+  // Detector de conexión offline / online para Buenaventura
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => {
+      setIsOffline(false);
+      setOnlineAlert(true);
+      setTimeout(() => setOnlineAlert(false), 3500);
+    };
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+    if (!navigator.onLine) setIsOffline(true);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
   return (
     <div className="device-wrapper">
       <RehidratarCarrito />
+      
+      {/* Banner de Estado de Conexión Offline / Online */}
+      {isOffline && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999,
+          background: 'linear-gradient(135deg, #E2360F 0%, #B91C1C 100%)',
+          color: '#fff', padding: '9px 16px', fontSize: 12.5, fontWeight: 800,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+        }}>
+          <span className="ms" style={{ fontSize: 18 }}>wifi_off</span>
+          <span>Sin conexión a internet · Modo sin conexión activo en Buenaventura</span>
+        </div>
+      )}
+
+      {onlineAlert && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999,
+          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+          color: '#fff', padding: '9px 16px', fontSize: 12.5, fontWeight: 800,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+        }}>
+          <span className="ms" style={{ fontSize: 18 }}>wifi</span>
+          <span>¡Conexión a internet restablecida!</span>
+        </div>
+      )}
+
       <div className="tablet-device" style={{ background: isDark ? '#0C0B0A' : 'var(--bg)' }}>
 
         {/* El layout principal de pantalla */}
