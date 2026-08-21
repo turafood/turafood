@@ -115,7 +115,27 @@ export default function HomePage() {
 
   const addrShort = 'Cra 3 # 4-45, Centro';
 
-  // Auto-play continuo para que el slider se mueva solo de forma suave
+  const [topSellingIndex, setTopSellingIndex] = useState(0);
+  const topSellingSliderRef = useRef(null);
+
+  // Auto-slide suave para productos destacados en móvil
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTopSellingIndex((prev) => {
+        const next = (prev + 1) % TOP_SELLING_MONTH.length;
+        if (topSellingSliderRef.current) {
+          const cardWidth = 265;
+          topSellingSliderRef.current.scrollTo({
+            left: next * (cardWidth + 16),
+            behavior: 'smooth',
+          });
+        }
+        return next;
+      });
+    }, 4200);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setBanner((prev) => {
@@ -864,8 +884,33 @@ export default function HomePage() {
           </div>
 
           <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '8px 0 108px', minHeight: 0 }}>
-            {/* 1. HERO ONBOARDING BANNER MÓVIL (ESTILO APP.TURAFOOD.COM) */}
-            <div style={{ padding: '12px 18px 8px' }}>
+            {/* 1. CATEGORÍAS EN MOBILE: 3D CARDS (PRIMERO ARRIBA DE TODO) */}
+            <div style={{ padding: '6px 0 2px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
+                <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
+                  <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                  <span style={{ fontSize: 20, fontWeight: 700, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
+                </button>
+                <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
+                  <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                  <span style={{ fontSize: 20, fontWeight: 700, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 2. CATEGORÍAS EN MOBILE: TIRA DE ICONOS */}
+            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 6px' }}>
+              {STRIP_VERTICALS.map((v) => (
+                <button key={v.id} onClick={() => (v.external ? window.open(v.external, '_blank', 'noopener,noreferrer') : router.push(`/list?v=${v.id}`))} style={S.stripVertical}>
+                  <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
+                  {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
+                  <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>{v.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* 3. HERO ONBOARDING BANNER MÓVIL (AVATAR CHICA AFRO CARTOON CON VIDEO) */}
+            <div style={{ padding: '14px 18px 10px' }}>
               <div style={{
                 borderRadius: 24,
                 background: 'linear-gradient(135deg, #0A0A0A 0%, #050505 100%)',
@@ -981,38 +1026,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 2. CATEGORÍAS EN MOBILE: 3D CARDS */}
-            <div style={{ marginTop: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
-                <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
-                  <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 500, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
-                </button>
-                <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
-                  <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 500, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 3. CATEGORÍAS EN MOBILE: TIRA DE ICONOS */}
-            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 4px' }}>
-              {STRIP_VERTICALS.map((v) => (
-                <button key={v.id} onClick={() => (v.external ? window.open(v.external, '_blank', 'noopener,noreferrer') : router.push(`/list?v=${v.id}`))} style={S.stripVertical}>
-                  <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
-                  {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
-                  <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>{v.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* 4. SLIDER DE PROMOS DESTACADAS CON FOTOS */}
-            <div style={{ padding: '16px 0 0' }}>
+            {/* 4. SLIDER DE PROMOS DESTACADAS CON FOTOS (135px) */}
+            <div style={{ padding: '14px 0 0' }}>
               <div
                 ref={sliderRef}
                 className="hs"
                 style={{
-                  display: 'flex', gap: 14, padding: '0 20px 20px',
+                  display: 'flex', gap: 14, padding: '0 20px 16px',
                   scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
                   overflowX: 'auto', scrollBehavior: 'smooth',
                 }}
@@ -1048,19 +1068,19 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -6 }}>
                 {[0, 1, 2, 3].map((i) => (
                   <button key={i} onClick={() => goToSlide(i)} aria-label={`Ir al slide ${i + 1}`} style={{ width: i === banner ? 20 : 6, height: 6, borderRadius: 99, background: i === banner ? 'var(--primary)' : 'var(--border)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all .3s cubic-bezier(.25,.8,.25,1)' }} />
                 ))}
               </div>
             </div>
 
-            {/* SECCIÓN PRO: LOS MÁS COMPRADOS / VENDIDOS DEL MES (MATERIAL DESIGN 3) */}
-            <div style={{ marginTop: 20, padding: '0 20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            {/* 5. SECCIÓN PRO: PRODUCTOS PREMIUM MÁS VENDIDOS (MÁS GRANDES + AUTO-SLIDE + AVISO ANIMADO) */}
+            <div style={{ marginTop: 22, padding: '0 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: 'var(--text)', letterSpacing: '-.02em' }}>
+                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19.5, color: 'var(--text)', letterSpacing: '-.02em' }}>
                       🔥 Los más vendidos del mes
                     </span>
                     <span style={{
@@ -1075,49 +1095,77 @@ export default function HomePage() {
                     Platos estrella de Buenaventura · Compra directa al negocio
                   </div>
                 </div>
+
+                {/* AVISO ANIMADO DE SLIDE / DESLIZAMIENTO */}
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'linear-gradient(135deg, rgba(255,68,31,0.12) 0%, rgba(255,184,0,0.14) 100%)',
+                  border: '1px solid rgba(255,68,31,0.25)',
+                  color: 'var(--primary)', padding: '4px 10px', borderRadius: 99,
+                  fontSize: 11, fontWeight: 800,
+                  animation: 'pulseGlow 2.5s infinite ease-in-out',
+                }}>
+                  <span className="ms ms-fill" style={{ fontSize: 13, animation: 'swipeHand 1.5s infinite ease-in-out' }}>
+                    swipe
+                  </span>
+                  <span>Desliza para ver más</span>
+                  <span className="ms" style={{ fontSize: 13, animation: 'pointRight 1.2s infinite ease-in-out' }}>
+                    arrow_forward
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="hs" style={{ display: 'flex', gap: 16, padding: '14px 20px 6px' }}>
+            {/* CARRUSEL DE PRODUCTOS PREMIUM CON AUTO-SLIDE */}
+            <div
+              ref={topSellingSliderRef}
+              className="hs"
+              style={{
+                display: 'flex', gap: 16, padding: '14px 20px 8px',
+                scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+                overflowX: 'auto', scrollBehavior: 'smooth',
+              }}
+            >
               {TOP_SELLING_MONTH.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => router.push(`/store/${item.businessId}`)}
                   style={{
                     flex: 'none',
-                    width: 245,
-                    borderRadius: 22,
+                    width: 260,
+                    borderRadius: 24,
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+                    boxShadow: '0 10px 28px rgba(0,0,0,0.07)',
                     overflow: 'hidden',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
+                    scrollSnapAlign: 'start',
                     transition: 'transform .2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .2s ease',
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,0.1)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 36px rgba(0,0,0,0.12)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.07)'; }}
                 >
                   {/* Foto del Producto con Badges Material 3 */}
-                  <div style={{ position: 'relative', height: 155, width: '100%' }}>
-                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="280px" style={{ width: '100%', height: '100%' }} />
+                  <div style={{ position: 'relative', height: 165, width: '100%' }}>
+                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="300px" style={{ width: '100%', height: '100%' }} />
 
                     {/* Badge PRO Top-Left */}
                     <div style={{
-                      position: 'absolute', top: 10, left: 10,
+                      position: 'absolute', top: 12, left: 12,
                       background: item.badgeBg, color: '#fff',
-                      fontSize: 10.5, fontWeight: 800, padding: '4px 9px', borderRadius: 8,
-                      letterSpacing: '.03em', boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                      fontSize: 10.5, fontWeight: 800, padding: '4px 10px', borderRadius: 8,
+                      letterSpacing: '.03em', boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
                     }}>
                       {item.badge}
                     </div>
 
                     {/* Floating 5.0 Star Badge Top-Right */}
                     <div style={{
-                      position: 'absolute', top: 10, right: 10,
+                      position: 'absolute', top: 12, right: 12,
                       background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)',
-                      color: '#fff', fontSize: 11, fontWeight: 800, padding: '3px 8px',
+                      color: '#fff', fontSize: 11.5, fontWeight: 800, padding: '4px 9px',
                       borderRadius: 8, display: 'flex', alignItems: 'center', gap: 4,
                       border: '1px solid rgba(255,255,255,0.2)',
                     }}>
@@ -1127,8 +1175,8 @@ export default function HomePage() {
                   </div>
 
                   {/* Detalle del Producto */}
-                  <div style={{ padding: '14px 16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, color: 'var(--text)', lineHeight: 1.25 }}>
+                  <div style={{ padding: '15px 16px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, color: 'var(--text)', lineHeight: 1.25 }}>
                       {item.name}
                     </div>
 
@@ -1140,9 +1188,9 @@ export default function HomePage() {
                             <span
                               key={idx}
                               style={{
-                                fontSize: 12.5, marginLeft: idx > 0 ? -5 : 0,
+                                fontSize: 13, marginLeft: idx > 0 ? -5 : 0,
                                 background: 'var(--surface2)', borderRadius: '50%',
-                                width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                                 border: '1.5px solid var(--surface)',
                               }}
                             >
@@ -1150,13 +1198,13 @@ export default function HomePage() {
                             </span>
                           ))}
                         </div>
-                        <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700 }}>
+                        <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 }}>
                           +{item.reviewsCount} reviews
                         </span>
                       </div>
 
-                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <span className="ms" style={{ fontSize: 13 }}>schedule</span>
+                      <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span className="ms" style={{ fontSize: 14 }}>schedule</span>
                         {item.prepTime}
                       </span>
                     </div>
@@ -1165,7 +1213,7 @@ export default function HomePage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
                       <div>
                         <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--muted)', display: 'block', letterSpacing: '.04em' }}>PRECIO</span>
-                        <span style={{ fontSize: 17, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
+                        <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
                           {cop(item.price)}
                         </span>
                       </div>
@@ -1199,8 +1247,8 @@ export default function HomePage() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: 5,
-                          padding: '8px 14px',
-                          borderRadius: 12,
+                          padding: '9px 15px',
+                          borderRadius: 13,
                           background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
                           color: '#fff',
                           border: 'none',
@@ -1223,7 +1271,7 @@ export default function HomePage() {
                   {/* Mini Business Footer: Enlace directo al restaurante */}
                   <div style={{
                     marginTop: 'auto',
-                    padding: '9px 14px',
+                    padding: '10px 15px',
                     background: 'var(--surface2)',
                     borderTop: '1px solid var(--border)',
                     display: 'flex',

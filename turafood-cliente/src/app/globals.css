@@ -203,6 +203,21 @@ textarea {
 .anim-fade    { animation: fade .25s ease both; }
 .anim-slideup { animation: slideup .3s cubic-bezier(.32, .72, 0, 1) both; }
 
+@keyframes swipeHand {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-5px); }
+}
+
+@keyframes pointRight {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(255,68,31,0.12); transform: scale(1); }
+  50% { box-shadow: 0 4px 16px rgba(255,68,31,0.32); transform: scale(1.02); }
+}
+
 /* ------------------------------------------------------------
    Material Symbols — el mockup los usa como font-family directa
    ------------------------------------------------------------ */

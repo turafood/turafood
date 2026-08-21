@@ -570,27 +570,28 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
               {wizardStep === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {/* Método de pago Ultra-Premium */}
-                  <div style={{ ...S.card, padding: 24 }}>
+                  {/* Método de pago Minimalista PRO */}
+                  <div style={{ ...S.card, padding: '22px 24px', borderRadius: 22 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                       <div>
-                        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20 }}>
-                          Paso 3: Método de Pago & Descuentos
+                        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: 'var(--text)' }}>
+                          Paso 3: Método de Pago
                         </div>
-                        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
-                          Selecciona cómo deseas pagar directo al restaurante
+                        <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
+                          Pagas directamente al restaurante sin intermediación de fondos
                         </div>
                       </div>
                       <span style={{
-                        background: 'rgba(37,211,102,0.12)', color: '#128C7E', fontSize: 12, fontWeight: 800,
+                        background: 'rgba(16,185,129,0.1)', color: '#059669', fontSize: 11.5, fontWeight: 800,
                         padding: '4px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 5,
+                        border: '1px solid rgba(16,185,129,0.2)',
                       }}>
-                        <span className="ms" style={{ fontSize: 16, color: '#25D366' }}>verified</span>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
                         Comanda Directa
                       </span>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {ALL_PAYMENT_METHODS.map((m) => {
                         const on = payMethod === m.id;
                         return (
@@ -598,42 +599,43 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                             key={m.id}
                             onClick={() => setPayMethod(m.id)}
                             style={{
-                              display: 'flex', alignItems: 'center', gap: 16,
-                              padding: '16px 20px', borderRadius: 18,
+                              display: 'flex', alignItems: 'center', gap: 14,
+                              padding: '14px 16px', borderRadius: 16,
                               background: on ? 'var(--surface)' : 'var(--surface2)',
-                              border: on ? '2px solid #25D366' : '1px solid var(--border)',
-                              boxShadow: on ? '0 6px 20px rgba(37,211,102,0.14)' : 'none',
-                              cursor: 'pointer', transition: 'all .18s ease', textAlign: 'left',
+                              border: on ? '2px solid #10B981' : '1px solid var(--border)',
+                              boxShadow: on ? '0 6px 20px rgba(16,185,129,0.12)' : 'none',
+                              cursor: 'pointer', transition: 'all .15s ease', textAlign: 'left',
                             }}
                           >
                             <div style={{
-                              width: 46, height: 46, borderRadius: 14,
+                              width: 42, height: 42, borderRadius: 12,
                               background: m.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
                               flex: 'none',
                             }}>
-                              <span className="ms" style={{ fontSize: 24, color: m.iconColor }}>{m.icon}</span>
+                              <span className="ms" style={{ fontSize: 22, color: m.iconColor }}>{m.icon}</span>
                             </div>
 
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontWeight: 800, fontSize: 15.5, color: 'var(--text)' }}>
+                                <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>
                                   {m.label}
                                 </span>
                                 <span style={{
                                   fontSize: 10.5, fontWeight: 800, color: m.badgeColor,
-                                  background: m.iconBg, padding: '2px 8px', borderRadius: 6,
+                                  background: m.iconBg, padding: '2px 7px', borderRadius: 6,
                                 }}>
                                   {m.badge}
                                 </span>
                               </div>
-                              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
+                              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
                                 {m.subtitle}
                               </div>
                             </div>
 
+                            {/* Minimalist Radio Indicator */}
                             <div style={{
-                              width: 24, height: 24, borderRadius: '50%',
-                              border: on ? '6px solid #25D366' : '2px solid var(--border)',
+                              width: 20, height: 20, borderRadius: '50%',
+                              border: on ? '5px solid #10B981' : '2px solid var(--border)',
                               background: on ? '#fff' : 'transparent',
                               flex: 'none', transition: 'all .15s ease',
                             }} />
@@ -642,13 +644,16 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                       })}
                     </div>
 
+                    {/* Trust minimal note */}
                     <div style={{
-                      marginTop: 16, padding: '12px 16px', borderRadius: 14,
-                      background: 'rgba(37,211,102,0.06)', border: '1px solid rgba(37,211,102,0.2)',
-                      display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, color: 'var(--text)',
+                      marginTop: 14, padding: '10px 14px', borderRadius: 12,
+                      background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)',
+                      display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text)',
                     }}>
-                      <span className="ms ms-fill" style={{ fontSize: 20, color: '#25D366', flex: 'none' }}>security</span>
-                      <span><strong>Tura Food AI es intermediario:</strong> no retenemos tu dinero. El valor va 100% directo al restaurante.</span>
+                      <span className="ms ms-fill" style={{ fontSize: 18, color: '#10B981', flex: 'none' }}>verified_user</span>
+                      <span style={{ fontWeight: 500 }}>
+                        <strong>Tura Food AI</strong> conecta tu orden directo al WhatsApp del restaurante. Cero fondos retenidos.
+                      </span>
                     </div>
                   </div>
 
