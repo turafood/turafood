@@ -22,12 +22,30 @@ import PaymentSheet from '../components/PaymentSheet';
 import ScheduleSheet from '../components/ScheduleSheet';
 import { Cover } from '../components/Media';
 
-const metodosDelNegocio = (store) => {
-  const permitidos = store?.payment_methods?.length
-    ? store.payment_methods
-    : ['cash', 'nequi', 'daviplata', 'whatsapp'];
-  return PAYMENT_METHODS.filter((m) => permitidos.includes(m.id));
-};
+const ALL_PAYMENT_METHODS = [
+  {
+    id: 'cash',
+    label: 'Efectivo al recibir',
+    subtitle: 'Pagas contraentrega en efectivo al repartidor al recibir tu pedido',
+    icon: 'payments',
+    iconColor: '#FF9800',
+    iconBg: 'rgba(255, 152, 0, 0.12)',
+    badge: 'Sin recargos',
+    badgeColor: '#FF9800',
+  },
+  {
+    id: 'nequi',
+    label: 'Nequi Directo',
+    subtitle: 'Transfiere directo al Nequi del restaurante tras su confirmación previa',
+    icon: 'account_balance_wallet',
+    iconColor: '#7D25E8',
+    iconBg: 'rgba(125, 37, 232, 0.12)',
+    badge: 'Transferencia 0%',
+    badgeColor: '#7D25E8',
+  },
+];
+
+const metodosDelNegocio = (store) => ALL_PAYMENT_METHODS;
 
 const TIPS = [
   { label: 'Sin propina', value: 0 },
@@ -50,13 +68,13 @@ export default function CheckoutPage() {
   const [wizardStep, setWizardStep] = useState(2); // 1: Canasta, 2: Entrega, 3: Pago
   const [store, setStore] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [deliveryAddressText, setDeliveryAddressText] = useState('Carrera 3 # 4-58, Centro, Buenaventura');
+  const [deliveryInstructionsText, setDeliveryInstructionsText] = useState('');
   const [addressOpen, setAddressOpen] = useState(false);
   const [coupons, setCoupons] = useState([]);
 
   const [mode, setMode] = useState('delivery');
-  // Arranca vacío y se elige cuando llega la ficha del negocio: poner
-  // 'nequi' por defecto mostraba un medio que el negocio podía no tener.
-  const [payMethod, setPayMethod] = useState(null);
+  const [payMethod, setPayMethod] = useState('cash');
   const [payOpen, setPayOpen] = useState(false);
   const [tip, setTip] = useState(2000);
   const [when, setWhen] = useState('asap');
@@ -70,8 +88,6 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState(null);
 
-  // Llegaron hasta acá con estos productos. Lo que pase después
-  // -que compren o que se vayan- lo dice el evento 'purchase'.
   useEffect(() => {
     if (items.length) anotarVarios(items.map((i) => i.productId), 'checkout');
   }, [items]);
@@ -87,6 +103,10 @@ export default function CheckoutPage() {
         if (!alive) return;
         setStore(biz);
         setAddresses(addrs);
+        if (addrs?.length && addrs[0].address) {
+          setDeliveryAddressText(addrs[0].address);
+          if (addrs[0].detail) setDeliveryInstructionsText(addrs[0].detail);
+        }
         setCoupons(cps);
       } catch (err) {
         if (alive) setError(err.message);
@@ -95,22 +115,13 @@ export default function CheckoutPage() {
     return () => { alive = false; };
   }, [businessId]);
 
-  // Los medios de este negocio, y el primero como elegido. El orden de
-  // PAYMENT_METHODS pone primero los de pago en línea, así que si el
-  // negocio los tiene, esos quedan por defecto.
-  const metodos = metodosDelNegocio(store);
+  const metodos = ALL_PAYMENT_METHODS;
 
-  useEffect(() => {
-    if (!store) return;
-    setPayMethod((actual) => {
-      const validos = metodosDelNegocio(store).map((m) => m.id);
-      return validos.includes(actual) ? actual : (validos[0] ?? 'cash');
-    });
-  }, [store]);
-
-  const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
+  const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? { id: 'default', address: deliveryAddressText, detail: deliveryInstructionsText };
 
   const setAddress = (addr) => {
+    if (addr.address) setDeliveryAddressText(addr.address);
+    if (addr.detail !== undefined) setDeliveryInstructionsText(addr.detail);
     setAddresses((prev) => {
       const existing = prev.filter((a) => a.id !== addr.id);
       return [{ ...addr, is_default: true }, ...existing.map((a) => ({ ...a, is_default: false }))];
@@ -125,78 +136,93 @@ export default function CheckoutPage() {
     coupon,
   });
 
+  const falta = items.length === 0
+    ? 'Canasta vacía'
+    : (mode === 'delivery' && !deliveryAddressText.trim())
+      ? 'Ingresa tu dirección'
+      : null;
+
+function WhatsAppIcon({ size = 20, color = '#fff' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={{ flex: 'none' }}>
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.969.54 1.861.855 2.796.855 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm0 10.428c-.838 0-1.637-.238-2.327-.67l-.167-.105-1.733.454.463-1.689-.115-.183c-.477-.759-.728-1.558-.727-2.469.001-2.568 2.09-4.657 4.607-4.657 2.518 0 4.607 2.089 4.607 4.657 0 2.568-2.09 4.657-4.607 4.657zm2.531-3.486c-.139-.069-.823-.406-.95-.452-.128-.046-.221-.069-.315.069-.093.139-.361.452-.443.545-.081.093-.163.104-.302.035-.139-.069-.587-.216-1.118-.689-.413-.368-.692-.823-.773-.962-.081-.139-.009-.214.061-.283.063-.063.139-.163.209-.244.069-.081.093-.139.139-.232.046-.093.023-.174-.012-.244-.035-.069-.315-.758-.431-1.039-.113-.273-.228-.236-.314-.24l-.268-.005c-.093 0-.244.035-.372.174-.128.139-.488.476-.488 1.16 0 .684.499 1.345.569 1.438.069.093.982 1.5 2.378 2.103.332.143.591.229.793.293.333.106.637.091.877.055.267-.04.823-.336.939-.661.116-.325.116-.603.081-.661-.035-.058-.128-.093-.267-.162z"/>
+      <path d="M12.004 2c-5.523 0-10 4.477-10 10 0 1.769.459 3.49 1.332 5.006l-1.336 4.877 5.002-1.312c1.472.803 3.134 1.229 4.824 1.229 5.522 0 10-4.477 10-10s-4.478-10-10.002-10zm0 18.25c-1.503 0-2.977-.406-4.264-1.174l-.306-.182-3.167.83.845-3.088-.199-.317c-.843-1.343-1.288-2.903-1.288-4.519 0-4.549 3.701-8.25 8.252-8.25 4.551 0 8.252 3.701 8.252 8.25s-3.701 8.25-8.252 8.25z"/>
+    </svg>
+  );
+}
+
   const applyCoupon = () => {
     const res = validateCoupon(couponInput, coupons, subtotal);
     setCoupon(res.coupon);
     setCouponMsg(res.message ? { text: res.message, ok: res.ok } : null);
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (overrideMethod) => {
+    const methodToUse = overrideMethod || payMethod || 'cash';
     setError(null);
 
-    if (mode === 'delivery' && !address) {
+    if (mode === 'delivery' && !deliveryAddressText.trim()) {
       setError('Agrega una dirección de entrega antes de continuar.');
       return;
     }
 
     setPlacing(true);
     try {
-      // 1. El servidor crea el pedido y calcula el total real
+      // 1. El servidor crea el pedido
       const order = await placeOrder({
         businessId,
         items: toOrderItems(),
         mode,
         addressId: address?.id ?? null,
+        deliveryAddress: deliveryAddressText,
+        deliveryInstructions: deliveryInstructionsText,
         tip,
         couponCode: coupon?.code ?? null,
-        paymentMethod: payMethod,
+        paymentMethod: methodToUse,
       });
 
-      // 2. El servicio decide: efectivo va directo a seguimiento;
-      //    pago en línea crea el intento y abre la pasarela.
-      //    El monto lo pone el servidor y el webhook lo revalida.
-      // Los productos con su nombre y precio, para la comanda de
-      // WhatsApp. Se toman ANTES de vaciar el carrito.
       const productos = items.map((i) => ({
         name: i.name,
         qty: i.qty,
-        unitPrice: i.unitPrice,
-        opts: i.opts,
-        notes: i.notes,
+        unitPrice: i.unitPrice || i.basePrice || i.price || 0,
+        opts: i.opts || '',
+        notes: i.notes || '',
       }));
 
-      const { redirectTo, whatsappUrl } = await payForOrder(order, {
-        method: payMethod,
-        businessName: store?.name,
-        items: productos,
-        whatsappPhone: '+573026886449', // Forzado por ahora, como solicitó el usuario
-      });
+      const targetPhone = store?.whatsapp_phone || store?.phone || '+573026886449';
+      const comandaText = comandaWhatsapp(
+        {
+          ...order,
+          subtotal: t.subtotal,
+          delivery_fee: t.delivery,
+          service_fee: t.service,
+          tip: t.tip,
+          discount: t.discount,
+          total: t.total,
+          mode,
+          delivery_address: deliveryAddressText,
+          delivery_instructions: deliveryInstructionsText,
+          payment_method: methodToUse,
+        },
+        productos,
+        {
+          negocio: store?.name,
+          cliente: 'Cliente Tura Food',
+          numeroPago: store?.nequi_phone || store?.phone || '',
+        }
+      );
 
-      // Si el usuario cancela en la pasarela, el pedido queda pendiente
-      // y lo puede retomar desde Mis pedidos.
-      // De `items`, no de `productos`: ese ya viene mapeado para la
-      // comanda de WhatsApp y no lleva el id del producto.
+      const whatsappUrl = linkWhatsapp(targetPhone, comandaText);
+
       anotarVarios(items.map((i) => i.productId), 'purchase');
       clearCart();
 
-      // WhatsApp se abre con `window.open` y no con un <a>: el navegador
-      // lo cuenta como emergente si pasa mucho tiempo desde el clic, así
-      // que va primero, apenas vuelve el pedido.
-      //
-      // `_blank` para que el seguimiento quede abierto atrás: si mandar
-      // el mensaje reemplazara la página, la persona sale de WhatsApp y
-      // no encuentra su pedido.
       if (whatsappUrl) {
-        window.open(whatsappUrl, '_blank', 'noopener');
+        window.open(whatsappUrl, '_blank');
       }
 
-      if (redirectTo) {
-        router.push(redirectTo);
-        return;
-      }
-      setPlacing(false);
+      router.push(`/tracking?order=${order?.id || 'current'}`);
     } catch (err) {
-      // Los mensajes de place_order ya vienen en español y son para el usuario
       setError(err.message);
       setPlacing(false);
     }
@@ -215,19 +241,6 @@ export default function CheckoutPage() {
       </>
     );
   }
-
-  /**
-   * Lo que impide seguir, dicho en el propio boton.
-   *
-   * Un boton apagado sin explicacion es la peor pantalla posible: la
-   * persona toca, no pasa nada, y se va. Si falta la direccion, el
-   * boton dice que falta la direccion.
-   */
-  const falta = mode === 'delivery' && !address
-    ? 'Falta tu direccion'
-    : when === 'scheduled' && !schedule
-      ? 'Elige la hora de entrega'
-      : null;
 
   return (
     <>
@@ -400,7 +413,7 @@ export default function CheckoutPage() {
                             <div>
                               <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>DIRECCIÓN DE ENTREGA EN BUENAVENTURA</div>
                               <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>
-                                {address?.address ?? 'Escribe tu dirección o elige un barrio'}
+                                {deliveryAddressText || 'Escribe tu dirección o elige un barrio'}
                               </div>
                             </div>
                           </div>
@@ -411,8 +424,8 @@ export default function CheckoutPage() {
                           <div style={{ position: 'relative', flex: 1 }}>
                             <span className="ms" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: 'var(--muted)' }}>search</span>
                             <input
-                              value={address?.address ?? ''}
-                              onChange={(e) => setAddress({ id: 'custom', address: e.target.value, detail: address?.detail ?? '' })}
+                              value={deliveryAddressText}
+                              onChange={(e) => setDeliveryAddressText(e.target.value)}
                               placeholder="Ej. Carrera 3 # 4-58, Centro, Buenaventura"
                               style={{
                                 width: '100%', height: 46, borderRadius: 12, padding: '0 14px 0 42px',
@@ -425,8 +438,8 @@ export default function CheckoutPage() {
                             onClick={() => {
                               if (navigator.geolocation) {
                                 navigator.geolocation.getCurrentPosition(
-                                  () => setAddress({ id: 'gps', address: 'Buenaventura, Valle del Cauca (Ubicación Actual)', detail: 'Ubicación GPS' }),
-                                  () => setAddress({ id: 'center', address: 'Centro, Buenaventura', detail: '' })
+                                  () => setDeliveryAddressText('Buenaventura, Valle del Cauca (Ubicación Actual)'),
+                                  () => setDeliveryAddressText('Centro, Buenaventura')
                                 );
                               }
                             }}
@@ -450,11 +463,11 @@ export default function CheckoutPage() {
                             {['Centro', 'Pueblo Nuevo', 'La Independencia', 'El Jorge', 'Juan XXIII', 'Bellavista', 'San Luis'].map((b) => (
                               <button
                                 key={b}
-                                onClick={() => setAddress({ id: b.toLowerCase(), address: `${b}, Buenaventura`, detail: '' })}
+                                onClick={() => setDeliveryAddressText(`${b}, Buenaventura`)}
                                 style={{
-                                  padding: '6px 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 700,
-                                  background: address?.address?.includes(b) ? 'var(--text)' : 'var(--surface)',
-                                  color: address?.address?.includes(b) ? '#fff' : 'var(--text)',
+                                  padding: '6px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 700,
+                                  background: deliveryAddressText.includes(b) ? 'var(--text)' : 'var(--surface)',
+                                  color: deliveryAddressText.includes(b) ? '#fff' : 'var(--text)',
                                   border: '1px solid var(--border)', cursor: 'pointer', transition: 'all .15s',
                                 }}
                               >
@@ -473,8 +486,8 @@ export default function CheckoutPage() {
                         <span style={{ fontWeight: 800, fontSize: 14 }}>Indicaciones para el repartidor (Opcional)</span>
                       </div>
                       <input
-                        value={address?.detail ?? ''}
-                        onChange={(e) => setAddress(prev => ({ ...(prev || { id: 'custom', address: 'Buenaventura' }), detail: e.target.value }))}
+                        value={deliveryInstructionsText}
+                        onChange={(e) => setDeliveryInstructionsText(e.target.value)}
                         placeholder="Ej. Casa de rejas blancas, timbre 201, dejar en recepción..."
                         style={{
                           width: '100%', height: 44, borderRadius: 12, padding: '0 14px',
@@ -557,39 +570,85 @@ export default function CheckoutPage() {
 
               {wizardStep === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {/* Método de pago */}
+                  {/* Método de pago Ultra-Premium */}
                   <div style={{ ...S.card, padding: 24 }}>
-                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, marginBottom: 16 }}>
-                      Paso 3: Método de Pago & Descuentos
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20 }}>
+                          Paso 3: Método de Pago & Descuentos
+                        </div>
+                        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
+                          Selecciona cómo deseas pagar directo al restaurante
+                        </div>
+                      </div>
+                      <span style={{
+                        background: 'rgba(37,211,102,0.12)', color: '#128C7E', fontSize: 12, fontWeight: 800,
+                        padding: '4px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 5,
+                      }}>
+                        <span className="ms" style={{ fontSize: 16, color: '#25D366' }}>verified</span>
+                        Comanda Directa
+                      </span>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {metodos.map((m) => {
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {ALL_PAYMENT_METHODS.map((m) => {
                         const on = payMethod === m.id;
                         return (
                           <button
                             key={m.id}
                             onClick={() => setPayMethod(m.id)}
                             style={{
-                              ...S.payOption,
-                              padding: '14px 18px',
-                              background: on ? '#FFF1EC' : 'var(--surface2)',
-                              border: on ? '2px solid var(--primary)' : '1px solid var(--border)',
-                              borderRadius: 16,
-                              cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', gap: 16,
+                              padding: '16px 20px', borderRadius: 18,
+                              background: on ? 'var(--surface)' : 'var(--surface2)',
+                              border: on ? '2px solid #25D366' : '1px solid var(--border)',
+                              boxShadow: on ? '0 6px 20px rgba(37,211,102,0.14)' : 'none',
+                              cursor: 'pointer', transition: 'all .18s ease', textAlign: 'left',
                             }}
                           >
-                            <span className="ms" style={{ fontSize: 24, color: on ? 'var(--primary)' : 'var(--muted)', flex: 'none' }}>{m.icon}</span>
-                            <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                              <div style={{ fontWeight: 800, fontSize: 14.5, color: on ? 'var(--primary)' : 'var(--text)' }}>{m.label}</div>
-                              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{m.hint}</div>
-                            </span>
-                            <span className="ms ms-fill" style={{ fontSize: 22, color: on ? 'var(--primary)' : 'var(--border)' }}>
-                              {on ? 'radio_button_checked' : 'radio_button_unchecked'}
-                            </span>
+                            <div style={{
+                              width: 46, height: 46, borderRadius: 14,
+                              background: m.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              flex: 'none',
+                            }}>
+                              <span className="ms" style={{ fontSize: 24, color: m.iconColor }}>{m.icon}</span>
+                            </div>
+
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ fontWeight: 800, fontSize: 15.5, color: 'var(--text)' }}>
+                                  {m.label}
+                                </span>
+                                <span style={{
+                                  fontSize: 10.5, fontWeight: 800, color: m.badgeColor,
+                                  background: m.iconBg, padding: '2px 8px', borderRadius: 6,
+                                }}>
+                                  {m.badge}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>
+                                {m.subtitle}
+                              </div>
+                            </div>
+
+                            <div style={{
+                              width: 24, height: 24, borderRadius: '50%',
+                              border: on ? '6px solid #25D366' : '2px solid var(--border)',
+                              background: on ? '#fff' : 'transparent',
+                              flex: 'none', transition: 'all .15s ease',
+                            }} />
                           </button>
                         );
                       })}
+                    </div>
+
+                    <div style={{
+                      marginTop: 16, padding: '12px 16px', borderRadius: 14,
+                      background: 'rgba(37,211,102,0.06)', border: '1px solid rgba(37,211,102,0.2)',
+                      display: 'flex', alignItems: 'center', gap: 10, fontSize: 12.5, color: 'var(--text)',
+                    }}>
+                      <span className="ms ms-fill" style={{ fontSize: 20, color: '#25D366', flex: 'none' }}>security</span>
+                      <span><strong>Tura Food AI es intermediario:</strong> no retenemos tu dinero. El valor va 100% directo al restaurante.</span>
                     </div>
                   </div>
 
@@ -652,15 +711,16 @@ export default function CheckoutPage() {
                       disabled={placing || Boolean(falta)}
                       style={{
                         flex: 1.6, height: 54, borderRadius: 16,
-                        background: 'linear-gradient(135deg, #25D366, #128C7E)',
+                        background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
                         color: '#fff', fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        boxShadow: '0 8px 24px rgba(37,211,102,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                        boxShadow: '0 8px 24px rgba(37,211,102,0.35)',
                         opacity: falta ? 0.55 : 1,
+                        border: 'none',
                       }}
                     >
-                      <span className="ms ms-fill" style={{ fontSize: 20 }}>chat</span>
-                      <span>{falta ?? `Confirmar y Enviar por WhatsApp · ${cop(t.total)}`}</span>
+                      <WhatsAppIcon size={22} />
+                      <span>{placing ? 'Enviando...' : (falta ?? `Pedir por WhatsApp · ${cop(t.total)}`)}</span>
                     </button>
                   </div>
                 </div>
@@ -754,16 +814,17 @@ export default function CheckoutPage() {
                     onClick={() => handlePlaceOrder(payMethod)}
                     disabled={placing || Boolean(falta)}
                     style={{
-                      width: '100%', height: 48, borderRadius: 14,
-                      background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                      color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      width: '100%', height: 50, borderRadius: 14,
+                      background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
+                      color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                       opacity: falta ? 0.55 : 1,
-                      boxShadow: '0 4px 16px rgba(37,211,102,0.25)',
+                      border: 'none',
+                      boxShadow: '0 6px 20px rgba(37,211,102,0.3)',
                     }}
                   >
-                    <span className="ms ms-fill" style={{ fontSize: 18 }}>chat</span>
-                    <span>{falta ?? 'Confirmar por WhatsApp'}</span>
+                    <WhatsAppIcon size={20} />
+                    <span>{placing ? 'Enviando...' : (falta ?? `Pedir por WhatsApp · ${cop(t.total)}`)}</span>
                   </button>
                 )}
               </div>

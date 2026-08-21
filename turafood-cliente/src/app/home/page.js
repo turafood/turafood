@@ -198,7 +198,148 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Verticales de escritorio: 4 Bento Cards idénticas a Screenshot */}
+        {/* ============================================================
+            1. HERO BANNER ONBOARDING HORIZONTAL (DE PRIMERO - TALL & PRO)
+            ============================================================ */}
+        <div className="desktop-only" style={{ padding: '24px 48px 0', width: '100%' }}>
+          <div style={{
+            width: '100%',
+            borderRadius: 26,
+            background: 'linear-gradient(135deg, #17140F 0%, #0D0B09 100%)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.22)',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '28px 40px',
+            position: 'relative',
+            gap: 36,
+            minHeight: 230,
+          }}>
+            {/* Fondo con brillo sutil */}
+            <div style={{
+              position: 'absolute', top: -70, left: -70, width: 260, height: 260,
+              borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.22) 0%, transparent 70%)',
+              filter: 'blur(35px)', pointerEvents: 'none',
+            }} />
+
+            {/* Columna Izquierda: Información & Badges */}
+            <div style={{ flex: 1, minWidth: 0, position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Pills superiores */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{
+                  background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 12, fontWeight: 800,
+                  padding: '5px 14px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 7,
+                  backdropFilter: 'blur(8px)',
+                }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)', animation: 'pulse 2s infinite' }} />
+                  La plataforma de IA para tu Negocio
+                </span>
+                <span style={{
+                  background: 'linear-gradient(135deg, #FF441F, #E2360F)', color: '#fff', fontSize: 11.5,
+                  fontWeight: 800, padding: '4px 10px', borderRadius: 8, letterSpacing: '.04em',
+                }}>
+                  Tura Food AI
+                </span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
+                  MKT PARA NEGOCIOS LOCALES
+                </span>
+              </div>
+
+              {/* Badges de beneficio */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 2 }}>
+                <span style={{
+                  background: 'rgba(255,184,0,0.15)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)',
+                  fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
+                }}>
+                  🔥 Más pedidos & ventas
+                </span>
+                <span style={{
+                  background: 'rgba(17,178,106,0.15)', color: 'var(--green)', border: '1px solid rgba(17,178,106,0.3)',
+                  fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
+                }}>
+                  ⚡ 0% Comisiones
+                </span>
+                <span style={{
+                  background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)',
+                  fontSize: 12, fontWeight: 800, padding: '5px 12px', borderRadius: 8,
+                }}>
+                  co Buenaventura
+                </span>
+              </div>
+
+              {/* Título Principal */}
+              <h2 style={{
+                margin: '4px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
+                fontSize: 28, letterSpacing: '-.02em', color: '#fff', lineHeight: 1.2,
+              }}>
+                Tu competencia ya está online. <span style={{ color: 'var(--amber)', fontStyle: 'italic' }}>¿Y tú?</span>
+              </h2>
+
+              <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 580 }}>
+                Crea tu cuenta gratis hoy y ten tu restaurante digital funcionando en minutos, con comanda directa a WhatsApp.
+              </p>
+
+              {/* Botón de Acción y Social Proof */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 4 }}>
+                <button
+                  onClick={() => window.open('http://localhost:4300/negocio', '_blank')}
+                  style={{
+                    height: 48, padding: '0 22px', borderRadius: 14,
+                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                    color: '#fff', fontSize: 14, fontWeight: 800, border: 'none',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
+                    boxShadow: '0 4px 18px rgba(255,68,31,0.38)',
+                    transition: 'transform .15s',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'none'}
+                >
+                  <span className="ms" style={{ fontSize: 20 }}>storefront</span>
+                  <span>Acceso para Negocios</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, background: 'rgba(0,0,0,0.25)', padding: '2px 6px', borderRadius: 6 }}>GRATIS</span>
+                  <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+                </button>
+
+                <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.65)', fontWeight: 600 }}>
+                  PA&apos; TURÍN CON AMOR ❤️ · ★★★★★ 4.9
+                </span>
+              </div>
+            </div>
+
+            {/* Columna Derecha: Video / Chica Afro Cartoon en loop (Seamlessly Blended) */}
+            <div style={{
+              position: 'relative', width: 280, height: 210, overflow: 'hidden',
+              flex: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <video
+                src="/turafood-ai-video.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  width: '100%', height: '100%', objectFit: 'cover',
+                  WebkitMaskImage: 'radial-gradient(ellipse at 50% 50%, black 55%, transparent 88%)',
+                  maskImage: 'radial-gradient(ellipse at 50% 50%, black 55%, transparent 88%)',
+                }}
+              />
+              <div style={{
+                position: 'absolute', bottom: 6, right: 14,
+                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                padding: '4px 10px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, color: '#fff',
+              }}>
+                Tura Food AI
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================================
+            2. VERTICALES DE ESCRITORIO: 4 BENTO CARDS DEBAJO DEL BANNER
+            ============================================================ */}
         <div className="desktop-only" style={{ padding: '24px 48px 0', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
           {DESK_VERTICALS.map((v) => (
             <button
