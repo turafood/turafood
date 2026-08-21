@@ -36,6 +36,8 @@ export default function RootLayout({ children }) {
             preconnect el navegador descubre el segundo solo cuando ya
             leyó el primero, y son dos apretones de manos TLS en serie
             antes de que se vea un solo icono. */}
+        <link rel="preconnect" href="https://app.turafood.com" />
+        <link rel="dns-prefetch" href="https://app.turafood.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" />

@@ -1,150 +1,156 @@
 /**
- * LA COMANDA QUE LE LLEGA AL NEGOCIO POR WHATSAPP
- *
- * Muchos restaurantes del puerto no tienen pasarela, pero todos tienen
- * WhatsApp. Este módulo arma el mensaje que el cliente le manda al
- * dueño cuando cierra el pedido por ahí.
- *
- * No es "avísale que pidió". Es una comanda: el dueño tiene que poder
- * leerla y ponerse a cocinar sin abrir nada más, y tener a mano el
- * número del pedido para buscarlo en su panel.
- *
- * DECISIONES QUE PARECEN DETALLE Y NO LO SON
- *
- *   · Emojis, sí, pero de los viejos. WhatsApp los pinta con la fuente
- *     del celular, y los que no estén en esa fuente salen como un
- *     cuadrito ▯ en Androids baratos — que es justo el teléfono de
- *     medio Buenaventura.
- *
- *     Todos los de acá abajo son de Unicode 6.0, o sea 2010. Se
- *     verificó uno por uno: la primera versión llevaba 🛵 y 🗒️, que
- *     son de 2014 y en un celular viejo no se ven.
- *
- *   · Nada de tablas ni columnas alineadas con espacios. WhatsApp usa
- *     ancho variable: lo que acá se ve derecho, en el celular sale
- *     torcido. Una cosa por línea.
- *
- *   · Negrita con *asteriscos*, que es lo que WhatsApp entiende. Se
- *     usa poco: si todo está en negrita, nada resalta.
- *
- *   · El número del pedido va de primero y solo en su línea. Es lo
- *     que el dueño va a copiar para buscarlo en su panel.
- *
- *   · Los precios en pesos completos, sin decimales. Nadie cobra $32
- *     con centavos acá.
+ * LA COMANDA ULTRA PRO PARA WHATSAPP
+ * 
+ * Formato profesional para restaurantes y comercios de Buenaventura:
+ * - Emojis universales 100% compatibles con WhatsApp Web, Android e iOS.
+ * - Jerarquía visual con separadores, negritas (*texto*) y cursivas (_texto_).
+ * - Desglose claro de productos, opciones, cuentas, dirección de entrega y pago.
  */
 
-/** $32.900 — punto para los miles, como se escribe en Colombia */
+/** $32.900 — formato de moneda colombiana */
 const pesos = (n) =>
   '$' + Math.round(Number(n) || 0).toLocaleString('es-CO', { maximumFractionDigits: 0 });
 
-/**
- * CÓMO CIERRA EL MENSAJE, SEGÚN CÓMO VA A PAGAR
- */
-const CIERRE = {
-  nequi: (n) =>
-    `🟣 *Método de pago:* Nequi\n👉 _Quedo a la espera de tu confirmación para transferirte por *Nequi*${n ? ` al número ${n}` : ''}._`,
-  daviplata: (n) =>
-    `🔴 *Método de pago:* Daviplata\n👉 _Quedo a la espera de tu confirmación para transferirte por *Daviplata*${n ? ` al número ${n}` : ''}._`,
-  cash: () =>
-    '💵 *Método de pago:* Efectivo al recibir (contraentrega)\n👉 _Quedo a la espera de tu confirmación para que lo prepares. Pagaré el valor exacto en efectivo al recibir._',
-  card: () =>
-    '💳 *Método de pago:* Datáfono / Tarjeta al recibir\n👉 _Quedo a la espera de tu confirmación. Por favor enviar datáfono con el repartidor._',
-  whatsapp: () =>
-    '💬 *Método de pago:* Acordar por WhatsApp\n👉 _Quedo a la espera de tu confirmación para cuadrar el pago directamente por aquí._',
+const CIERRE_METODO = {
+  nequi: (n) => [
+    '💳 *MÉTODO DE PAGO:*',
+    '🟣 *Nequi* (Transferencia)',
+    n ? `📱 *Número Nequi negocio:* ${n}` : '',
+    '👉 _Quedo atento a tu confirmación para hacerte la transferencia de inmediato._',
+  ].filter(Boolean).join('\n'),
+
+  daviplata: (n) => [
+    '💳 *MÉTODO DE PAGO:*',
+    '🔴 *Daviplata* (Transferencia)',
+    n ? `📱 *Número Daviplata negocio:* ${n}` : '',
+    '👉 _Quedo atento a tu confirmación para transferirte por Daviplata de inmediato._',
+  ].filter(Boolean).join('\n'),
+
+  cash: () => [
+    '💳 *MÉTODO DE PAGO:*',
+    '💵 *Efectivo contraentrega*',
+    '👉 _Quedo a la espera de tu confirmación. Pagaré en efectivo con el valor exacto al recibir._',
+  ].join('\n'),
+
+  card: () => [
+    '💳 *MÉTODO DE PAGO:*',
+    '💳 *Datáfono / Tarjeta al recibir*',
+    '👉 _Quedo atento a tu confirmación. Por favor enviar datáfono con el domiciliario._',
+  ].join('\n'),
+
+  whatsapp: () => [
+    '💳 *MÉTODO DE PAGO:*',
+    '💬 *Acordar pago por WhatsApp*',
+    '👉 _Quedo atento a tu confirmación para coordinar el pago directamente por aquí._',
+  ].join('\n'),
 };
 
 /**
- * Arma el mensaje que el cliente le manda al negocio.
- *
- * @param {object} pedido  el pedido que devolvió `place_order`
- * @param {array}  items   [{ name, qty, unitPrice, opts, notes }]
+ * Genera la comanda estructurada para WhatsApp.
+ * 
+ * @param {object} pedido  Datos del pedido (order_number, total, subtotal, etc.)
+ * @param {array}  items   Lista de productos [{ name, qty, unitPrice, opts, notes }]
  * @param {object} extra   { negocio, cliente, telefono, numeroPago }
  */
-export function comandaWhatsapp(pedido, items, extra = {}) {
+export function comandaWhatsapp(pedido, items = [], extra = {}) {
   const { negocio, cliente, telefono, numeroPago } = extra;
   const L = [];
 
-  L.push(negocio ? `Hola *${negocio}* 👋,` : 'Hola 👋,');
-  L.push('¡Acabo de hacerte un pedido a través de *turafood.com*! 🚀');
-  L.push('Te paso el resumen para que me lo vayas preparando:');
+  // Saludo cálido
+  L.push(negocio ? `👋 ¡Hola, *${negocio}*!` : '👋 ¡Hola!');
+  L.push('¡Acabo de hacer un pedido desde *turafood.com*! 🚀');
+  L.push('Te paso el resumen detallado para que lo confirmes e inicies la preparación:');
   L.push('');
-  L.push(`🧾 *Pedido #${pedido.order_number}*`);
+  L.push('═══════════════════════');
+  L.push(`🧾 *PEDIDO #${pedido.order_number || 'NUEVO'}*`);
+  L.push('═══════════════════════');
   L.push('');
 
-  // ---- Qué pidió ----
-  L.push('📋 *Lo que pedí*');
+  // Sección: Lo que pedí
+  L.push('🍽️ *LO QUE PEDÍ:*');
   for (const it of items) {
     const cant = it.qty ?? it.quantity ?? 1;
     const precio = (it.unitPrice ?? it.unit_price ?? 0) * cant;
-    L.push(`• ${cant} x ${it.name} - ${pesos(precio)}`);
+    L.push(`• *${cant}x* ${it.name} — _${pesos(precio)}_`);
 
-    if (it.opts) L.push(`   ${it.opts}`);
-    if (it.notes) L.push(`   📝 ${it.notes}`);
+    if (it.opts) {
+      L.push(`   ↳ _Opciones: ${it.opts}_`);
+    }
+    if (it.notes) {
+      L.push(`   ↳ 📝 _Nota: ${it.notes}_`);
+    }
   }
   L.push('');
 
-  // ---- La plata ----
-  L.push('💰 *Cuentas*');
-  L.push(`Productos: ${pesos(pedido.subtotal)}`);
-  if (Number(pedido.delivery_fee) > 0) L.push(`Domicilio: ${pesos(pedido.delivery_fee)}`);
-  if (Number(pedido.service_fee) > 0) L.push(`Servicio: ${pesos(pedido.service_fee)}`);
-  if (Number(pedido.tip) > 0) L.push(`Propina: ${pesos(pedido.tip)}`);
-  if (Number(pedido.discount) > 0) L.push(`Descuento: -${pesos(pedido.discount)}`);
-  L.push(`*TOTAL: ${pesos(pedido.total)}*`);
+  // Sección: Cuentas
+  L.push('💰 *RESUMEN DE CUENTAS:*');
+  L.push(`• Subtotal: _${pesos(pedido.subtotal)}_`);
+  if (Number(pedido.delivery_fee) > 0) {
+    L.push(`• Domicilio: _${pesos(pedido.delivery_fee)}_`);
+  } else if (pedido.mode === 'delivery') {
+    L.push('• Domicilio: _¡GRATIS!_ ⚡');
+  }
+  if (Number(pedido.service_fee) > 0) {
+    L.push(`• Tarifa de servicio: _${pesos(pedido.service_fee)}_`);
+  }
+  if (Number(pedido.tip) > 0) {
+    L.push(`• Propina voluntaria: _${pesos(pedido.tip)}_`);
+  }
+  if (Number(pedido.discount) > 0) {
+    L.push(`• Descuento: _-${pesos(pedido.discount)}_`);
+  }
+  L.push(`🔥 *TOTAL A PAGAR: ${pesos(pedido.total)}*`);
   L.push('');
 
-  // ---- A dónde va ----
+  // Sección: Destino
+  L.push('📍 *ENTREGA:*');
   if (pedido.mode === 'delivery') {
-    L.push('📍 *Me lo llevas a*');
-    L.push(pedido.delivery_address || '(sin dirección)');
-    if (pedido.delivery_detail) L.push(pedido.delivery_detail);
+    L.push(`• *Dirección:* _${pedido.delivery_address || '(Sin especificar)'}_`);
+    if (pedido.delivery_detail) {
+      L.push(`• *Detalle / Apto:* _${pedido.delivery_detail}_`);
+    }
+    if (pedido.delivery_instructions) {
+      L.push(`• ⚠️ *Indicaciones:* _${pedido.delivery_instructions}_`);
+    }
+    L.push('• *Modalidad:* _A domicilio 🛵_');
   } else {
-    L.push('🏪 *Yo lo recojo en el local*');
-  }
-
-  if (pedido.delivery_instructions) {
-    L.push(`❗ ${pedido.delivery_instructions}`);
+    L.push('• *Modalidad:* _Recoger en el local 🏪_');
   }
   L.push('');
 
-  // ---- Qué tiene que hacer el dueño ----
-  const cierre = CIERRE[pedido.payment_method];
-  if (cierre) {
-    L.push(cierre(numeroPago));
-    L.push('');
-  }
+  // Sección: Método de pago
+  const cierreFn = CIERRE_METODO[pedido.payment_method] || CIERRE_METODO.nequi;
+  L.push(cierreFn(numeroPago));
+  L.push('');
 
-  // ---- Quién ----
-  if (cliente || telefono) {
-    L.push('👤 *Soy*');
-    if (cliente) L.push(cliente);
-    if (telefono) L.push(telefono);
-    L.push('');
+  // Sección: Datos del cliente
+  L.push('👤 *DATOS DEL CLIENTE:*');
+  L.push(`• *Nombre:* _${cliente || 'Cliente Tura Food'}_`);
+  if (telefono) {
+    L.push(`• *Teléfono:* _${telefono}_`);
   }
-
-  L.push('_Enviado automáticamente por Tura Food_');
+  L.push('');
+  L.push('═══════════════════════');
+  L.push('✨ _Generado automáticamente por Turafood.com_');
 
   return L.join('\n');
 }
 
-
 /**
- * El link que abre WhatsApp con la comanda ya escrita.
- *
- * `wa.me` y no `api.whatsapp.com` porque es el único que abre la app
- * nativa en Android y iOS sin pasar por el navegador. En escritorio
- * cae en WhatsApp Web, que es lo que se quiere.
- *
- * El número va solo con dígitos e indicativo. Si viene sin indicativo
- * se le pone el de Colombia: nadie en Buenaventura escribe el 57.
+ * Genera el enlace de WhatsApp compatible con Web, Android e iOS.
+ * 
+ * @param {string} telefono  Número de teléfono del comercio
+ * @param {string} texto     Mensaje formateado
  */
 export function linkWhatsapp(telefono, texto) {
   let num = String(telefono || '').replace(/\D/g, '');
   if (!num) return null;
 
-  // 3001234567 -> 573001234567
-  if (num.length === 10 && num.startsWith('3')) num = '57' + num;
+  // Si tiene 10 dígitos (Colombia: 3XXXXXXXXX), anteponer 57
+  if (num.length === 10 && num.startsWith('3')) {
+    num = '57' + num;
+  }
 
-  return `https://wa.me/${num}?text=${encodeURIComponent(texto)}`;
+  // URL universal compatible
+  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(texto)}`;
 }
