@@ -810,140 +810,213 @@ export default function HomePage() {
                     key={slide.id}
                     onClick={slide.action}
                     style={{
-                      flex: 'none', width: '85vw', maxWidth: 340, height: 190,
-                      borderRadius: 24, overflow: 'hidden', position: 'relative',
+                      flex: 'none', width: '82vw', maxWidth: 320, height: 135,
+                      borderRadius: 20, overflow: 'hidden', position: 'relative',
                       scrollSnapAlign: 'center', padding: 0, textAlign: 'left',
-                      boxShadow: '0 16px 32px -10px rgba(0,0,0,0.15)', background: 'var(--surface2)', border: 'none',
+                      boxShadow: '0 10px 24px -6px rgba(0,0,0,0.18)', background: 'var(--surface2)', border: 'none',
                     }}
                   >
-                    <Cover src={slide.image} alt={slide.title} sizes="400px" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
-                    <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(20,16,10,0.85) 100%)' }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <span style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: '.08em', padding: '5px 12px', borderRadius: 99, textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.15)' }}>{slide.badge}</span>
-                      <span style={{ color: '#fff', fontSize: 24, fontWeight: 800, lineHeight: 1.1, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', marginTop: 2 }}>{slide.title}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500 }}>{slide.subtitle}</span>
+                    <Cover src={slide.image} alt={slide.title} sizes="360px" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+                    <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,12,8,0.88) 100%)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <span style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.22)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#fff', fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em', padding: '3px 9px', borderRadius: 99, textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.15)' }}>{slide.badge}</span>
+                      <span style={{ color: '#fff', fontSize: 18, fontWeight: 800, lineHeight: 1.15, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', marginTop: 2 }}>{slide.title}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11.5, fontWeight: 500 }}>{slide.subtitle}</span>
                     </div>
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -8 }}>
                 {[0, 1, 2, 3].map((i) => (
-                  <button key={i} onClick={() => goToSlide(i)} aria-label={`Ir al slide ${i + 1}`} style={{ width: i === banner ? 22 : 7, height: 7, borderRadius: 99, background: i === banner ? 'var(--primary)' : 'var(--border)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all .3s cubic-bezier(.25,.8,.25,1)' }} />
+                  <button key={i} onClick={() => goToSlide(i)} aria-label={`Ir al slide ${i + 1}`} style={{ width: i === banner ? 20 : 6, height: 6, borderRadius: 99, background: i === banner ? 'var(--primary)' : 'var(--border)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all .3s cubic-bezier(.25,.8,.25,1)' }} />
                 ))}
               </div>
             </div>
 
-            {/* SECCIÓN PRO: LOS MÁS COMPRADOS / VENDIDOS DEL MES */}
-            <div style={{ marginTop: 24, padding: '0 20px' }}>
+            {/* SECCIÓN PRO: LOS MÁS COMPRADOS / VENDIDOS DEL MES (MATERIAL DESIGN 3) */}
+            <div style={{ marginTop: 20, padding: '0 20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--text)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, color: 'var(--text)', letterSpacing: '-.02em' }}>
                       🔥 Los más vendidos del mes
                     </span>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, background: 'rgba(255,68,31,0.12)', color: 'var(--primary)', padding: '2px 7px', borderRadius: 6 }}>
-                      5.0 ⭐
+                    <span style={{
+                      fontSize: 11, fontWeight: 800, background: 'rgba(255,68,31,0.12)', color: 'var(--primary)',
+                      padding: '2px 8px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 3,
+                    }}>
+                      <span className="ms ms-fill" style={{ fontSize: 12, color: 'var(--amber)' }}>star</span>
+                      5.0
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
-                    Platos estrella de Buenaventura con 5 estrellas
+                    Platos estrella de Buenaventura · Compra directa al negocio
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="hs" style={{ display: 'flex', gap: 14, padding: '12px 20px 0' }}>
+            <div className="hs" style={{ display: 'flex', gap: 16, padding: '14px 20px 6px' }}>
               {TOP_SELLING_MONTH.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => router.push(`/store/${item.businessId}`)}
                   style={{
                     flex: 'none',
-                    width: 220,
-                    borderRadius: 20,
+                    width: 245,
+                    borderRadius: 22,
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
-                    boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
                     overflow: 'hidden',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
-                    transition: 'transform .15s ease, box-shadow .15s ease',
+                    transition: 'transform .2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .2s ease',
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 24px rgba(0,0,0,0.08)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.04)'; }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 14px 32px rgba(0,0,0,0.1)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }}
                 >
-                  {/* Foto del Producto con Badge PRO */}
-                  <div style={{ position: 'relative', height: 130, width: '100%' }}>
-                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="240px" style={{ width: '100%', height: '100%' }} />
+                  {/* Foto del Producto con Badges Material 3 */}
+                  <div style={{ position: 'relative', height: 155, width: '100%' }}>
+                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="280px" style={{ width: '100%', height: '100%' }} />
+
+                    {/* Badge PRO Top-Left */}
                     <div style={{
                       position: 'absolute', top: 10, left: 10,
                       background: item.badgeBg, color: '#fff',
-                      fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-                      letterSpacing: '.03em', boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                      fontSize: 10.5, fontWeight: 800, padding: '4px 9px', borderRadius: 8,
+                      letterSpacing: '.03em', boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
                     }}>
                       {item.badge}
+                    </div>
+
+                    {/* Floating 5.0 Star Badge Top-Right */}
+                    <div style={{
+                      position: 'absolute', top: 10, right: 10,
+                      background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)',
+                      color: '#fff', fontSize: 11, fontWeight: 800, padding: '3px 8px',
+                      borderRadius: 8, display: 'flex', alignItems: 'center', gap: 4,
+                      border: '1px solid rgba(255,255,255,0.2)',
+                    }}>
+                      <span className="ms ms-fill" style={{ fontSize: 13, color: 'var(--amber)' }}>star</span>
+                      <span>{item.rating}</span>
                     </div>
                   </div>
 
                   {/* Detalle del Producto */}
-                  <div style={{ padding: '12px 14px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>
+                  <div style={{ padding: '14px 16px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, color: 'var(--text)', lineHeight: 1.25 }}>
                       {item.name}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
-                      <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
-                        {cop(item.price)}
-                      </span>
-
-                      {/* 5 Estrellas + reviews */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(255,184,0,0.12)', padding: '2px 6px', borderRadius: 6 }}>
-                        <span className="ms ms-fill" style={{ fontSize: 13, color: 'var(--amber)' }}>star</span>
-                        <span style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--text)' }}>{item.rating}</span>
+                    {/* Fila de Reviews con Avatares y Tiempo */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {item.avatars.map((av, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                fontSize: 12.5, marginLeft: idx > 0 ? -5 : 0,
+                                background: 'var(--surface2)', borderRadius: '50%',
+                                width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                border: '1.5px solid var(--surface)',
+                              }}
+                            >
+                              {av}
+                            </span>
+                          ))}
+                        </div>
+                        <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700 }}>
+                          +{item.reviewsCount} reviews
+                        </span>
                       </div>
+
+                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span className="ms" style={{ fontSize: 13 }}>schedule</span>
+                        {item.prepTime}
+                      </span>
                     </div>
 
-                    {/* Caritas de reviews reales */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {item.avatars.map((av, idx) => (
-                          <span
-                            key={idx}
-                            style={{
-                              fontSize: 13, marginLeft: idx > 0 ? -6 : 0,
-                              background: 'var(--surface2)', borderRadius: '50%',
-                              width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                              border: '1.5px solid var(--surface)',
-                            }}
-                          >
-                            {av}
-                          </span>
-                        ))}
+                    {/* Fila de Precio y Botón Verde Sutil "Pedir / Comprar Ya" */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
+                      <div>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--muted)', display: 'block', letterSpacing: '.04em' }}>PRECIO</span>
+                        <span style={{ fontSize: 17, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
+                          {cop(item.price)}
+                        </span>
                       </div>
-                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>
-                        +{item.reviewsCount} reviews
-                      </span>
+
+                      {/* Botón Sutil Verde para Compra Rápida Directa */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addLine(
+                            {
+                              productId: item.productId,
+                              name: item.name,
+                              unitPrice: item.price,
+                              basePrice: item.price,
+                              comparePrice: null,
+                              image_url: item.image_url,
+                              extraIds: [],
+                              notes: '',
+                              opts: '',
+                              qty: 1,
+                            },
+                            {
+                              id: item.businessId,
+                              name: item.businessName,
+                              image: item.image_url,
+                            }
+                          );
+                          router.push('/cart');
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          padding: '8px 14px',
+                          borderRadius: 12,
+                          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontWeight: 800,
+                          fontSize: 13,
+                          boxShadow: '0 4px 14px rgba(16,185,129,0.32)',
+                          transition: 'all .15s ease',
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.04)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; }}
+                        title={`Pedir ${item.name} ahora`}
+                      >
+                        <span className="ms ms-fill" style={{ fontSize: 16 }}>bolt</span>
+                        <span>Pedir</span>
+                      </button>
                     </div>
                   </div>
 
                   {/* Mini Business Footer: Enlace directo al restaurante */}
                   <div style={{
                     marginTop: 'auto',
-                    padding: '8px 12px',
+                    padding: '9px 14px',
                     background: 'var(--surface2)',
                     borderTop: '1px solid var(--border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
                       <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>storefront</span>
-                      <span className="tr1" style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)' }}>
+                      <span className="tr1" style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)' }}>
                         {item.businessName}
                       </span>
                     </div>
-                    <span className="ms" style={{ fontSize: 16, color: 'var(--muted)' }}>arrow_forward</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 2 }}>
+                      Ver menú <span className="ms" style={{ fontSize: 14 }}>arrow_forward</span>
+                    </span>
                   </div>
                 </div>
               ))}
