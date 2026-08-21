@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { getBusiness, getMenu } from '@/lib/data';
@@ -11,12 +12,14 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
   const router = useRouter();
   const addLine = useCartStore((s) => s.addLine);
 
+  const [mounted, setMounted] = useState(false);
   const [store, setStore] = useState(initialStore || null);
   const [menu, setMenu] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addedItem, setAddedItem] = useState(null);
 
   useEffect(() => {
+    setMounted(true);
     let alive = true;
     (async () => {
       try {
@@ -70,13 +73,15 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
   const cartSubtotal = useCartStore((s) => s.getSubtotal());
   const cartItems = useCartStore((s) => s.items);
 
-  return (
+  if (!mounted) return null;
+
+  const modalEl = (
     <div
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, zIndex: 120,
-        background: 'rgba(12, 10, 8, 0.65)',
-        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+        position: 'fixed', inset: 0, width: '100vw', height: '100vh', zIndex: 99999,
+        background: 'rgba(10, 8, 6, 0.75)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '20px', animation: 'fadeIn .2s ease',
       }}
@@ -86,7 +91,7 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
         style={{
           width: '100%', maxWidth: 840, maxHeight: '88vh',
           background: 'var(--surface)', borderRadius: 24,
-          border: '1px solid var(--border)', boxShadow: '0 24px 70px rgba(0,0,0,0.35)',
+          border: '1px solid var(--border)', boxShadow: '0 28px 80px rgba(0,0,0,0.5)',
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
           position: 'relative', animation: 'scaleUp .22s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
@@ -97,10 +102,10 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
           style={{
             position: 'absolute', top: 16, right: 16, zIndex: 10,
             width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-            color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
+            background: 'var(--surface2)',
+            color: 'var(--text)', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
+            cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           }}
           aria-label="Cerrar"
         >
@@ -297,4 +302,6 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
       </div>
     </div>
   );
+
+  return createPortal(modalEl, document.body);
 }

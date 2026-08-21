@@ -110,6 +110,13 @@ export default function CheckoutPage() {
 
   const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
 
+  const setAddress = (addr) => {
+    setAddresses((prev) => {
+      const existing = prev.filter((a) => a.id !== addr.id);
+      return [{ ...addr, is_default: true }, ...existing.map((a) => ({ ...a, is_default: false }))];
+    });
+  };
+
   const t = quote({
     subtotal,
     deliveryFee: store?.delivery_fee ?? 0,
