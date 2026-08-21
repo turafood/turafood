@@ -155,8 +155,161 @@ function TrackingPage() {
 
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
 
-        {/* Mapa */}
-        <div style={{ position: 'relative', flex: 'none', height: 270, background: 'var(--surface2)', overflow: 'hidden' }}>
+        {/* ============================================================
+            VISTA DESKTOP: PANEL DE SEGUIMIENTO EN 2 COLUMNAS
+            ============================================================ */}
+        <div className="desktop-only" style={{ width: '100%', maxWidth: 1040, margin: '0 auto', padding: '20px 24px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button onClick={() => router.push('/home')} style={S.backBtnHeader} aria-label="Volver al inicio">
+                <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
+              </button>
+              <div>
+                <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
+                  Seguimiento de Pedido #{order?.order_number ?? '—'}
+                </span>
+                <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>
+                  {order?.business?.name ?? 'Restaurante en Buenaventura'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#E6F6EE', padding: '6px 14px', borderRadius: 99, border: '1px solid rgba(17,178,106,0.2)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--green)', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--green)', letterSpacing: '.04em' }}>EN VIVO</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="desktop-only sc" style={{ flex: 1, overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 1040, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: 24, alignItems: 'start' }}>
+            
+            {/* COLUMNA IZQUIERDA: MAPA EN VIVO + REPARTIDOR + PIN */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Contenedor del Mapa */}
+              <div style={{ position: 'relative', height: 380, borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
+                <div ref={mapEl} style={{ position: 'absolute', inset: 0 }} />
+                <div style={{ ...S.livePill, top: 16, right: 16 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--primary)', animation: 'pulse 2s infinite' }} />
+                  GPS BUENAVENTURA
+                </div>
+              </div>
+
+              {/* Repartidor */}
+              <div style={{ ...S.courierCard, marginTop: 0, padding: '18px 20px', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+                <div style={{ ...S.avatar, width: 52, height: 52 }}>
+                  <span className="ms" style={{ fontSize: 28, color: 'var(--muted)' }}>person</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, fontSize: 15.5 }}>Yeison Mosquera</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>Moto · Placa WQR-18C · Repartidor Oficial</div>
+                </div>
+                <button onClick={() => router.push(`/chat?order=${order?.id ?? ''}`)} style={S.chatBtn} aria-label="Escribir al repartidor">
+                  <span className="ms" style={{ fontSize: 20 }}>chat_bubble</span>
+                  <span style={S.unread}>2</span>
+                </button>
+                <button style={S.callBtn} aria-label="Llamar al repartidor">
+                  <span className="ms" style={{ fontSize: 20, color: '#fff' }}>call</span>
+                </button>
+              </div>
+
+              {/* Código de entrega */}
+              <div style={{ ...S.codeCard, marginTop: 0, padding: '18px 22px' }}>
+                <span className="ms" style={{ fontSize: 26, color: 'var(--amber)', flex: 'none' }}>password</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 800, letterSpacing: '.06em', color: 'rgba(255,255,255,.6)' }}>
+                    CÓDIGO DE ENTREGA
+                  </span>
+                  <span style={{ display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>
+                    Dáselo al repartidor al recibir tu pedido
+                  </span>
+                </span>
+                <span style={{ display: 'flex', gap: 8, flex: 'none' }}>
+                  {['4', '8', '2', '1'].map((d, i) => (
+                    <span key={i} style={S.codeDigit}>{d}</span>
+                  ))}
+                </span>
+              </div>
+            </div>
+
+            {/* COLUMNA DERECHA: ESTADO + TIMELINE + AYUDA */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Tarjeta de Estado Principal */}
+              <div style={{ background: 'var(--surface)', borderRadius: 24, padding: 24, border: '1px solid var(--border)', boxShadow: '0 8px 30px rgba(0,0,0,0.04)' }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                  ESTADO EN TIEMPO REAL
+                </div>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em', marginTop: 6 }}>
+                  {status.label === 'En camino' ? 'Tu pedido va en camino' : status.label}
+                </div>
+                <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>
+                  {order?.business?.name ?? 'Preparando los mejores sabores del puerto'}
+                </div>
+
+                {/* Barra de progreso */}
+                <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+                  {STEPS.map((s, i) => (
+                    <div
+                      key={s}
+                      style={{
+                        flex: 1, height: 8, borderRadius: 99,
+                        background: i < step ? 'var(--primary)' : 'var(--surface2)',
+                        transition: 'background .3s ease',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Bitácora de Pasos */}
+              <div style={{ background: 'var(--surface)', borderRadius: 24, padding: 24, border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,.03)' }}>
+                <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 18 }}>Historial de entrega</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {log.map((l, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                      <span style={{
+                        ...S.logDot,
+                        background: l.done ? 'var(--green)' : 'var(--surface2)',
+                        color: l.done ? '#fff' : 'var(--faint)',
+                      }}>
+                        <span className="ms" style={{ fontSize: 16 }}>{l.icon}</span>
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{
+                          display: 'block', fontWeight: 700, fontSize: 14,
+                          color: l.done ? 'var(--text)' : 'var(--muted)',
+                        }}>
+                          {l.title}
+                        </span>
+                        <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                          {hhmm(l.at)}
+                        </span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <button onClick={() => router.push('/help')} style={{ ...S.helpBtn, marginTop: 0, height: 50, borderRadius: 16, cursor: 'pointer' }}>
+                  <span className="ms" style={{ fontSize: 20 }}>headset_mic</span>
+                  <span>Necesito ayuda con este pedido</span>
+                </button>
+                <button onClick={() => router.push(`/rate?order=${order?.id ?? ''}`)} style={{ ...S.rateBtn, marginTop: 0, height: 50, borderRadius: 16, cursor: 'pointer' }}>
+                  <span className="ms" style={{ fontSize: 20 }}>star</span>
+                  <span>Ya lo recibí, calificar</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ============================================================
+            VISTA MÓVIL: FLUJO ORIGINAL 100% INTOCADO
+            ============================================================ */}
+        <div className="mobile-only" style={{ position: 'relative', flex: 'none', height: 270, background: 'var(--surface2)', overflow: 'hidden' }}>
           <div ref={mapEl} style={{ position: 'absolute', inset: 0 }} />
           <button onClick={() => router.push('/home')} style={S.mapBack} aria-label="Volver al inicio">
             <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
@@ -167,8 +320,8 @@ function TrackingPage() {
           </div>
         </div>
 
-        {/* Hoja */}
-        <div className="sc" style={S.sheet}>
+        {/* Hoja Móvil */}
+        <div className="mobile-only sc" style={S.sheet}>
           <div style={{ width: 42, height: 4, borderRadius: 99, background: 'var(--faint)', margin: '0 auto 16px' }} />
 
           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', letterSpacing: '.06em' }}>
@@ -273,6 +426,11 @@ function TrackingPage() {
 }
 
 const S = {
+  backBtnHeader: {
+    width: 44, height: 44, borderRadius: 14, background: 'var(--surface)',
+    border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+  },
   mapBack: {
     position: 'absolute', top: 12, left: 16, width: 42, height: 42, borderRadius: '50%',
     background: 'rgba(255,255,255,.85)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
