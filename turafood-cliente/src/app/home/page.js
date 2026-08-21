@@ -24,9 +24,79 @@ import { useSearchOverlay } from '../components/SearchOverlay';
 import { useAi } from '../components/AiOverlay';
 import { Cover, Icon3D } from '../components/Media';
 import FastViewModal from '../components/FastViewModal';
+import { useThemeStore } from '@/store/useThemeStore';
+
+const TOP_SELLING_MONTH = [
+  {
+    id: 'top-1',
+    productId: 'prod-encocado-jaiba',
+    businessId: 'b0000000-0000-4000-8000-000000000003',
+    businessName: 'Marisquería El Faro',
+    businessCover: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400&auto=format&fit=crop',
+    name: 'Encocado de Jaiba Real',
+    price: 32000,
+    rating: '5.0',
+    reviewsCount: 148,
+    image_url: '/images/food-fork.jpg',
+    badge: '🔥 #1 MÁS VENDIDO',
+    badgeBg: 'linear-gradient(135deg, #FF441F, #E2360F)',
+    prepTime: '15-25 min',
+    avatars: ['👩🏾', '👨🏽', '👱🏾‍♀️'],
+  },
+  {
+    id: 'top-2',
+    productId: 'prod-picada-puerto',
+    businessId: 'b0000000-0000-4000-8000-000000000001',
+    businessName: 'Asadero El Puerto',
+    businessCover: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400&auto=format&fit=crop',
+    name: 'Picada Especial del Puerto',
+    price: 38000,
+    rating: '5.0',
+    reviewsCount: 112,
+    image_url: '/images/steak-ribeye.jpg',
+    badge: '⭐ FAVORITO LOCAL',
+    badgeBg: 'linear-gradient(135deg, #FFB020, #D98200)',
+    prepTime: '20-30 min',
+    avatars: ['👨🏿', '👩🏽', '👨🏾'],
+  },
+  {
+    id: 'top-3',
+    productId: 'prod-burger-doble',
+    businessId: 'b0000000-0000-4000-8000-000000000002',
+    businessName: 'Burger House Tura',
+    businessCover: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&auto=format&fit=crop',
+    name: 'Burger Doble Criolla Turín',
+    price: 24500,
+    rating: '4.9',
+    reviewsCount: 96,
+    image_url: '/images/burger.jpg',
+    badge: '⚡ SÚPER PROMO',
+    badgeBg: 'linear-gradient(135deg, #11B26A, #08874E)',
+    prepTime: '15-20 min',
+    avatars: ['👱🏾', '👩🏾', '🧑🏽'],
+  },
+  {
+    id: 'top-4',
+    productId: 'prod-pargo-rojo',
+    businessId: 'b0000000-0000-4000-8000-000000000004',
+    businessName: 'El Rincón Marino',
+    businessCover: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=400&auto=format&fit=crop',
+    name: 'Pargo Rojo con Patacón',
+    price: 35000,
+    rating: '5.0',
+    reviewsCount: 84,
+    image_url: '/images/food-fork.jpg',
+    badge: '👑 PACÍFICO TOP',
+    badgeBg: 'linear-gradient(135deg, #7D25E8, #5B14B3)',
+    prepTime: '25-35 min',
+    avatars: ['👩🏿', '👨🏽', '👧🏾'],
+  },
+];
 
 export default function HomePage() {
   const router = useRouter();
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,6 +261,23 @@ export default function HomePage() {
               </div>
             )}
           </div>
+
+          <button
+            onClick={toggleTheme}
+            style={{
+              height: 42, width: 42, borderRadius: 14,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
+              boxShadow: 'var(--shadowSm)', flex: 'none',
+            }}
+            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            aria-label="Cambiar tema"
+          >
+            <span className="ms" style={{ fontSize: 20 }}>
+              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
 
           <button onClick={openAi} style={S.aiBtn}>
             <span className="ms ms-fill" style={{ fontSize: 18, color: 'var(--amber)' }}>auto_awesome</span>
@@ -451,42 +538,50 @@ export default function HomePage() {
                   onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.08)'; }}
                   onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)'; }}
                 >
-                  <Cover src={s.cover_url} alt={s.name} sizes="400px" style={{ height: 168, width: '100%', position: 'relative' }}>
-                    {s.offer_label && (
+                  <div style={{ position: 'relative', height: 160, width: '100%' }}>
+                    <Cover src={s.cover_url} alt={s.name} radius={0} sizes="400px" style={{ width: '100%', height: '100%' }} />
+                    <button
+                      onClick={(e) => handleFav(e, s.id)}
+                      style={{
+                        position: 'absolute', top: 12, right: 12, zIndex: 10,
+                        width: 36, height: 36, borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)', cursor: 'pointer',
+                      }}
+                    >
+                      <span className={`ms ${favs.has(s.id) ? 'ms-fill' : ''}`} style={{ fontSize: 20, color: favs.has(s.id) ? 'var(--primary)' : 'var(--muted)' }}>
+                        favorite
+                      </span>
+                    </button>
+                    {Number(s.delivery_fee) === 0 && (
                       <span style={{
-                        position: 'absolute', top: 12, left: 12, zIndex: 3,
-                        background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-                        color: '#fff', fontSize: 11, fontWeight: 800,
-                        padding: '4px 10px', borderRadius: 8,
-                        boxShadow: '0 4px 10px rgba(255,68,31,0.3)',
+                        position: 'absolute', bottom: 12, left: 12,
+                        background: 'var(--green)', color: '#fff', fontSize: 10.5, fontWeight: 800,
+                        padding: '4px 8px', borderRadius: 6, letterSpacing: '.04em',
                       }}>
-                        {s.offer_label}
+                        ENVÍO GRATIS
                       </span>
                     )}
-                  </Cover>
+                  </div>
 
-                  <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16, color: 'var(--text)' }}>
+                      <span className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, color: 'var(--text)' }}>
                         {s.name}
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>
-                        <span className="ms ms-fill" style={{ fontSize: 15, color: 'var(--amber)' }}>star</span>
-                        {s.rating}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,184,0,0.12)', padding: '3px 8px', borderRadius: 8 }}>
+                        <span className="ms ms-fill" style={{ fontSize: 14, color: 'var(--amber)' }}>star</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--text)' }}>{s.rating}</span>
+                      </div>
                     </div>
 
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 500 }} className="tr1">
-                      {s.category} · 1,2 km
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6, fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span className="ms" style={{ fontSize: 14 }}>schedule</span>
-                        {etaLabel(s.prep_time_min)}
-                      </span>
-                      <span style={{ color: 'var(--faint)' }}>·</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: Number(s.delivery_fee) === 0 ? 'var(--green)' : 'var(--muted)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: 'var(--muted)', fontWeight: 600 }}>
+                      <span>{s.category}</span>
+                      <span>·</span>
+                      <span>{etaLabel(s.prep_time_min)}</span>
+                      <span>·</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <span className="ms" style={{ fontSize: 14 }}>two_wheeler</span>
                         {feeLabel(s.delivery_fee)}
                       </span>
@@ -514,6 +609,16 @@ export default function HomePage() {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 'none' }}>
+                <button
+                  onClick={toggleTheme}
+                  style={S.iconBtn}
+                  aria-label="Cambiar tema claro/oscuro"
+                  title="Cambiar tema claro/oscuro"
+                >
+                  <span className="ms" style={{ fontSize: 20, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
+                    {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+                  </span>
+                </button>
                 <button onClick={() => router.push('/notifications')} style={S.iconBtn}>
                   <span className="ms" style={{ fontSize: 20 }}>notifications</span>
                 </button>
@@ -533,7 +638,7 @@ export default function HomePage() {
           </div>
 
           <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '8px 0 108px', minHeight: 0 }}>
-            {/* HERO ONBOARDING BANNER MÓVIL (ESTILO APP.TURAFOOD.COM) */}
+            {/* 1. HERO ONBOARDING BANNER MÓVIL (ESTILO APP.TURAFOOD.COM) */}
             <div style={{ padding: '12px 18px 8px' }}>
               <div style={{
                 borderRadius: 24,
@@ -650,7 +755,32 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Slider Móvil */}
+            {/* 2. CATEGORÍAS EN MOBILE: 3D CARDS */}
+            <div style={{ marginTop: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
+                <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
+                  <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                  <span style={{ fontSize: 20, fontWeight: 500, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
+                </button>
+                <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
+                  <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
+                  <span style={{ fontSize: 20, fontWeight: 500, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 3. CATEGORÍAS EN MOBILE: TIRA DE ICONOS */}
+            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 4px' }}>
+              {STRIP_VERTICALS.map((v) => (
+                <button key={v.id} onClick={() => (v.external ? window.open(v.external, '_blank', 'noopener,noreferrer') : router.push(`/list?v=${v.id}`))} style={S.stripVertical}>
+                  <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
+                  {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
+                  <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>{v.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* 4. SLIDER DE PROMOS DESTACADAS CON FOTOS */}
             <div style={{ padding: '16px 0 0' }}>
               <div
                 ref={sliderRef}
@@ -699,33 +829,124 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 3D Cards Móvil */}
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
-                <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
-                  <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 500, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
-                </button>
-                <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
-                  <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 500, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
-                </button>
+            {/* SECCIÓN PRO: LOS MÁS COMPRADOS / VENDIDOS DEL MES */}
+            <div style={{ marginTop: 24, padding: '0 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--text)' }}>
+                      🔥 Los más vendidos del mes
+                    </span>
+                    <span style={{ fontSize: 10.5, fontWeight: 800, background: 'rgba(255,68,31,0.12)', color: 'var(--primary)', padding: '2px 7px', borderRadius: 6 }}>
+                      5.0 ⭐
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
+                    Platos estrella de Buenaventura con 5 estrellas
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Tira Móvil */}
-            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 4px' }}>
-              {STRIP_VERTICALS.map((v) => (
-                <button key={v.id} onClick={() => (v.external ? window.open(v.external, '_blank', 'noopener,noreferrer') : router.push(`/list?v=${v.id}`))} style={S.stripVertical}>
-                  <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
-                  {v.badge && <span style={S.stripBadge}>{v.badge}</span>}
-                  <span style={{ fontSize: 13.5, color: 'var(--text)', position: 'relative', textAlign: 'center', lineHeight: 1.15 }}>{v.label}</span>
-                </button>
+            <div className="hs" style={{ display: 'flex', gap: 14, padding: '12px 20px 0' }}>
+              {TOP_SELLING_MONTH.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => router.push(`/store/${item.businessId}`)}
+                  style={{
+                    flex: 'none',
+                    width: 220,
+                    borderRadius: 20,
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.04)',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform .15s ease, box-shadow .15s ease',
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 10px 24px rgba(0,0,0,0.08)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.04)'; }}
+                >
+                  {/* Foto del Producto con Badge PRO */}
+                  <div style={{ position: 'relative', height: 130, width: '100%' }}>
+                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="240px" style={{ width: '100%', height: '100%' }} />
+                    <div style={{
+                      position: 'absolute', top: 10, left: 10,
+                      background: item.badgeBg, color: '#fff',
+                      fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+                      letterSpacing: '.03em', boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+                    }}>
+                      {item.badge}
+                    </div>
+                  </div>
+
+                  {/* Detalle del Producto */}
+                  <div style={{ padding: '12px 14px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>
+                      {item.name}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+                      <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
+                        {cop(item.price)}
+                      </span>
+
+                      {/* 5 Estrellas + reviews */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'rgba(255,184,0,0.12)', padding: '2px 6px', borderRadius: 6 }}>
+                        <span className="ms ms-fill" style={{ fontSize: 13, color: 'var(--amber)' }}>star</span>
+                        <span style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--text)' }}>{item.rating}</span>
+                      </div>
+                    </div>
+
+                    {/* Caritas de reviews reales */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {item.avatars.map((av, idx) => (
+                          <span
+                            key={idx}
+                            style={{
+                              fontSize: 13, marginLeft: idx > 0 ? -6 : 0,
+                              background: 'var(--surface2)', borderRadius: '50%',
+                              width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              border: '1.5px solid var(--surface)',
+                            }}
+                          >
+                            {av}
+                          </span>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>
+                        +{item.reviewsCount} reviews
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Mini Business Footer: Enlace directo al restaurante */}
+                  <div style={{
+                    marginTop: 'auto',
+                    padding: '8px 12px',
+                    background: 'var(--surface2)',
+                    borderTop: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                      <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>storefront</span>
+                      <span className="tr1" style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)' }}>
+                        {item.businessName}
+                      </span>
+                    </div>
+                    <span className="ms" style={{ fontSize: 16, color: 'var(--muted)' }}>arrow_forward</span>
+                  </div>
+                </div>
               ))}
             </div>
 
-            {/* Pide de nuevo Móvil */}
-            <div style={{ marginTop: 14, padding: '0 20px' }}>
+            {/* 5. Pide de nuevo Móvil */}
+            <div style={{ marginTop: 24, padding: '0 20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={S.h2}>Pide de nuevo</span>
                 <button onClick={() => router.push('/account/orders')} style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--primary)' }}>Ver todos</button>

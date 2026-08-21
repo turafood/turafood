@@ -40,15 +40,16 @@ export default function OrdersPage() {
   return (
     <>
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
+        <div style={{ width: '100%', maxWidth: 740, margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '16px 0 0' }}>
 
-        <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
-          <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
-            <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
-          </button>
-          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>Mis pedidos</span>
-        </div>
+          <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
+            <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
+              <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
+            </button>
+            <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>Mis pedidos</span>
+          </div>
 
-        <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 108px', minHeight: 0 }}>
+          <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 108px', minHeight: 0 }}>
 
           {error && (
             <div style={S.errorBox}>
@@ -142,14 +143,13 @@ export default function OrdersPage() {
                         </button>
                       )}
                     </div>
-                  )}
                 </article>
               );
             })}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

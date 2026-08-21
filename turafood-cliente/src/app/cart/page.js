@@ -121,80 +121,8 @@ export default function CartPage() {
           </div>
         </div>
 
-        <div className="desktop-only sc" style={{ flex: 1, overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 960, margin: '0 auto' }}>
-          
-          {/* BANNER PROMO TURA FOOD AI - ESTILO ONBOARDING APP.TURAFOOD.COM */}
-          <div style={{
-            marginBottom: 20, borderRadius: 24,
-            background: 'linear-gradient(135deg, #17140F 0%, #0F0D0A 100%)',
-            border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 36px rgba(0,0,0,0.18)',
-            overflow: 'hidden', display: 'flex', alignItems: 'center', position: 'relative',
-            padding: '16px 22px', gap: 20,
-          }}>
-            {/* Video en loop estilo app.turafood.com */}
-            <div style={{
-              position: 'relative', width: 130, height: 100, borderRadius: 16, overflow: 'hidden',
-              flex: 'none', background: '#000', border: '1px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
-            }}>
-              <video
-                src="/turafood-ai-video.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-
-            {/* Contenido */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{
-                  background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 11, fontWeight: 800,
-                  padding: '3px 10px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 5,
-                }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
-                  La plataforma de IA para tu Negocio
-                </span>
-                <span style={{
-                  background: 'linear-gradient(135deg, #FF441F, #E2360F)', color: '#fff', fontSize: 10.5,
-                  fontWeight: 800, padding: '3px 9px', borderRadius: 6, letterSpacing: '.04em',
-                }}>
-                  Tura Food AI
-                </span>
-              </div>
-
-              <div style={{
-                fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18,
-                color: '#fff', letterSpacing: '-.02em', marginTop: 5,
-              }}>
-                Pide directo y apoya al comercio local de Buenaventura
-              </div>
-
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
-                Sin intermediarios con retención de dinero · Tu comanda va directo al WhatsApp del negocio
-              </div>
-            </div>
-
-            {/* Badges */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 'none' }}>
-              <span style={{
-                background: 'rgba(255,184,0,0.15)', color: '#FFB800', border: '1px solid rgba(255,184,0,0.3)',
-                fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 8, textAlign: 'center',
-              }}>
-                ⚡ 0% Comisiones
-              </span>
-              <span style={{
-                background: 'rgba(17,178,106,0.15)', color: 'var(--green)', border: '1px solid rgba(17,178,106,0.3)',
-                fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 8, textAlign: 'center',
-              }}>
-                co Buenaventura
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 24, alignItems: 'start' }}>
+        <div className="desktop-only sc" style={{ flex: 1, flexDirection: 'column', overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 960, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 24, alignItems: 'start', width: '100%' }}>
             
             {/* COLUMNA IZQUIERDA: PRODUCTOS Y MEJORAS */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

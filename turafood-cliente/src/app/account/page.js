@@ -120,14 +120,15 @@ export default function AccountPage() {
   return (
     <>
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
+        <div style={{ width: '100%', maxWidth: 740, margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '16px 0 0' }}>
 
-        <div style={{ flex: 'none', padding: '0 20px 10px' }}>
-          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
-            Cuenta
-          </span>
-        </div>
+          <div style={{ flex: 'none', padding: '0 20px 10px' }}>
+            <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
+              Cuenta
+            </span>
+          </div>
 
-        <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 0 108px', minHeight: 0 }}>
+          <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 0 108px', minHeight: 0 }}>
 
           {/* Perfil */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 20px 0' }}>
@@ -250,7 +251,7 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
