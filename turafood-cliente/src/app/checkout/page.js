@@ -23,7 +23,9 @@ import ScheduleSheet from '../components/ScheduleSheet';
 import { Cover } from '../components/Media';
 
 const metodosDelNegocio = (store) => {
-  const permitidos = store?.payment_methods?.length ? store.payment_methods : ['cash'];
+  const permitidos = store?.payment_methods?.length
+    ? store.payment_methods
+    : ['cash', 'nequi', 'daviplata', 'whatsapp'];
   return PAYMENT_METHODS.filter((m) => permitidos.includes(m.id));
 };
 

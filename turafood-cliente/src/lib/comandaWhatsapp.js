@@ -43,15 +43,15 @@ const pesos = (n) =>
  */
 const CIERRE = {
   nequi: (n) =>
-    `Una vez me confirmes el pedido, te transfiero por *Nequi*${n ? ` al número ${n}` : ''}.`,
+    `🟣 *Método de pago:* Nequi\n👉 _Quedo a la espera de tu confirmación para transferirte por *Nequi*${n ? ` al número ${n}` : ''}._`,
   daviplata: (n) =>
-    `Una vez me confirmes el pedido, te transfiero por *Daviplata*${n ? ` al número ${n}` : ''}.`,
+    `🔴 *Método de pago:* Daviplata\n👉 _Quedo a la espera de tu confirmación para transferirte por *Daviplata*${n ? ` al número ${n}` : ''}._`,
   cash: () =>
-    'Una vez me confirmes el pedido, preparo el *Efectivo* para cuando llegue. 💵',
+    '💵 *Método de pago:* Efectivo al recibir (contraentrega)\n👉 _Quedo a la espera de tu confirmación para que lo prepares. Pagaré el valor exacto en efectivo al recibir._',
   card: () =>
-    'Una vez me confirmes el pedido, espero tu *Datáfono en físico* al recibir. 💳',
+    '💳 *Método de pago:* Datáfono / Tarjeta al recibir\n👉 _Quedo a la espera de tu confirmación. Por favor enviar datáfono con el repartidor._',
   whatsapp: () =>
-    'Una vez me confirmes el pedido, cuadramos el pago por acá. 💬',
+    '💬 *Método de pago:* Acordar por WhatsApp\n👉 _Quedo a la espera de tu confirmación para cuadrar el pago directamente por aquí._',
 };
 
 /**

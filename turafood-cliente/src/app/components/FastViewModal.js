@@ -67,24 +67,26 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
       setAddedItem(null);
     }, 1200);
   };
+  const cartSubtotal = useCartStore((s) => s.getSubtotal());
+  const cartItems = useCartStore((s) => s.items);
 
   return (
     <div
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 120,
-        background: 'rgba(12, 10, 8, 0.72)',
-        backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+        background: 'rgba(12, 10, 8, 0.65)',
+        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 20, animation: 'fadeIn .2s ease',
+        padding: '20px', animation: 'fadeIn .2s ease',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%', maxWidth: 580, maxHeight: '90vh',
-          background: 'var(--surface)', borderRadius: 28,
-          border: '1px solid var(--border)', boxShadow: '0 28px 80px rgba(0,0,0,0.45)',
+          width: '100%', maxWidth: 840, maxHeight: '88vh',
+          background: 'var(--surface)', borderRadius: 24,
+          border: '1px solid var(--border)', boxShadow: '0 24px 70px rgba(0,0,0,0.35)',
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
           position: 'relative', animation: 'scaleUp .22s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
@@ -95,7 +97,7 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
           style={{
             position: 'absolute', top: 16, right: 16, zIndex: 10,
             width: 36, height: 36, borderRadius: '50%',
-            background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
             color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer',
@@ -105,108 +107,116 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
           <span className="ms" style={{ fontSize: 20 }}>close</span>
         </button>
 
-        {/* Scrollable Body */}
-        <div className="sc" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {/* Header Banner */}
-          <div style={{ position: 'relative', width: '100%', height: 180, background: 'var(--surface2)' }}>
+        {/* CONTENEDOR 2 COLUMNAS EN DESKTOP */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          minHeight: 460, flex: 1, overflow: 'hidden',
+        }}>
+          {/* COLUMNA IZQUIERDA: HERO DEL RESTAURANTE */}
+          <div style={{
+            position: 'relative', minHeight: 240, background: 'var(--surface2)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            padding: 24, overflow: 'hidden',
+          }}>
             {store?.cover_url && (
-              <Cover src={store.cover_url} alt={store.name} sizes="580px" style={{ width: '100%', height: '100%' }} />
+              <Cover src={store.cover_url} alt={store.name} sizes="420px" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
             )}
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15,12,9,0.85) 100%)',
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(15,12,9,0.88) 100%)',
             }} />
-            <div style={{
-              position: 'absolute', bottom: 16, left: 22, right: 22, zIndex: 2,
-              display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-            }}>
-              <div>
-                <span style={{
-                  background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
-                  color: '#fff', fontSize: 10.5, fontWeight: 800, letterSpacing: '.06em',
-                  padding: '4px 10px', borderRadius: 99, textTransform: 'uppercase',
-                }}>
-                  ⚡ VISTA RÁPIDA · FAST VIEW
-                </span>
+
+            {/* Tag Superior */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{
+                background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)',
+                color: '#fff', fontSize: 11, fontWeight: 800, letterSpacing: '.06em',
+                padding: '5px 12px', borderRadius: 99, textTransform: 'uppercase',
+              }}>
+                ⚡ VISTA RÁPIDA
+              </span>
+            </div>
+
+            {/* Info Inferior */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h2 style={{
-                  margin: '6px 0 0', fontFamily: 'var(--font-bricolage)',
-                  fontWeight: 800, fontSize: 24, color: '#fff', letterSpacing: '-.02em',
+                  margin: 0, fontFamily: 'var(--font-bricolage)',
+                  fontWeight: 800, fontSize: 26, color: '#fff', letterSpacing: '-.02em',
                 }}>
                   {store?.name}
                 </h2>
-                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                  {store?.category} · Buenaventura
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  background: 'rgba(255,255,255,0.95)', padding: '4px 10px',
+                  borderRadius: 12, fontWeight: 800, fontSize: 13, color: '#17140F',
+                }}>
+                  <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--amber)' }}>star</span>
+                  {store?.rating ?? '4.8'}
                 </div>
               </div>
 
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                background: 'rgba(255,255,255,0.95)', padding: '4px 10px',
-                borderRadius: 12, fontWeight: 800, fontSize: 13, color: '#17140F',
-              }}>
-                <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--amber)' }}>star</span>
-                {store?.rating ?? '4.8'}
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
+                {store?.category} · Buenaventura
               </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="ms" style={{ fontSize: 16 }}>schedule</span>
+                  {etaLabel(store?.prep_time_min)}
+                </span>
+                <span>·</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="ms" style={{ fontSize: 16 }}>two_wheeler</span>
+                  {feeLabel(store?.delivery_fee)}
+                </span>
+              </div>
+
+              <button
+                onClick={() => { onClose(); router.push(`/store/${store.id}`); }}
+                style={{
+                  marginTop: 6, width: '100%', height: 42, borderRadius: 12,
+                  background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)',
+                  color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                  border: '1px solid rgba(255,255,255,0.25)', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}
+              >
+                <span>Ver Menú Completo</span>
+                <span className="ms" style={{ fontSize: 16 }}>arrow_forward</span>
+              </button>
             </div>
           </div>
 
-          {/* Fila de Métricas Rápidas & Promo */}
-          <div style={{ padding: '16px 22px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 12.5, fontWeight: 700, color: 'var(--muted)' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span className="ms" style={{ fontSize: 16 }}>schedule</span>
-                {etaLabel(store?.prep_time_min)}
-              </span>
-              <span>·</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: Number(store?.delivery_fee) === 0 ? 'var(--green)' : 'var(--text)' }}>
-                <span className="ms" style={{ fontSize: 16 }}>two_wheeler</span>
-                {feeLabel(store?.delivery_fee)}
-              </span>
-            </div>
-
-            <span style={{
-              background: '#FFF4D6', color: '#8F5E00', fontSize: 11.5, fontWeight: 800,
-              padding: '4px 10px', borderRadius: 8, border: '1px solid #F5DE9C',
-            }}>
-              15% OFF con TURA15
-            </span>
-          </div>
-
-          {/* Lista de Platos para Pedido Rápido */}
-          <div style={{ padding: '18px 22px 24px' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              marginBottom: 14,
-            }}>
-              <span style={{
-                fontSize: 13, fontWeight: 800, color: 'var(--text)',
-                textTransform: 'uppercase', letterSpacing: '.05em',
-              }}>
-                Platos más pedidos
-              </span>
+          {/* COLUMNA DERECHA: PLATOS MÁS PEDIDOS + COMPRA RÁPIDA */}
+          <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '88vh', background: 'var(--surface)' }}>
+            <div style={{ padding: '20px 22px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+                  PEDIDO RÁPIDO
+                </span>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, marginTop: 2 }}>
+                  Platos más pedidos
+                </div>
+              </div>
               <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
                 Agrega con 1 clic
               </span>
             </div>
 
-            {loading ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[0, 1, 2].map((i) => (
+            <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {loading ? (
+                [0, 1, 2].map((i) => (
                   <div key={i} style={{ height: 76, borderRadius: 16, background: 'var(--surface2)' }} />
-                ))}
-              </div>
-            ) : featuredProducts.length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
-                Explora el menú completo para ver todos los productos.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {featuredProducts.map((p) => {
-                  const off = p.compare_price
-                    ? `-${Math.round(((p.compare_price - p.price) / p.compare_price) * 100)}%`
-                    : null;
+                ))
+              ) : featuredProducts.length === 0 ? (
+                <div style={{ padding: 24, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>
+                  Explora el menú completo para ver todos los productos.
+                </div>
+              ) : (
+                featuredProducts.map((p) => {
                   const isJustAdded = addedItem === p.id;
-
                   return (
                     <div
                       key={p.id}
@@ -218,90 +228,71 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
                       }}
                     >
                       {p.image_url && (
-                        <Cover src={p.image_url} alt={p.name} radius={12} sizes="64px" style={{ width: 64, height: 64, flex: 'none' }} />
+                        <Cover src={p.image_url} alt={p.name} radius={12} sizes="54px" style={{ width: 54, height: 54, flex: 'none' }} />
                       )}
-
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }} className="tr1">
-                          {p.name}
-                        </div>
+                        <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)' }} className="tr1">{p.name}</div>
                         {p.description && (
-                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }} className="tr1">
-                            {p.description}
-                          </div>
+                          <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }} className="tr1">{p.description}</div>
                         )}
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-                          <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)' }}>
-                            {cop(p.price)}
-                          </span>
-                          {off && (
-                            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--primary)' }}>
-                              {off}
-                            </span>
-                          )}
+                        <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', marginTop: 4 }}>
+                          {cop(p.price)}
                         </div>
                       </div>
 
                       <button
                         onClick={(e) => handleQuickAdd(p, e)}
                         style={{
-                          height: 38, padding: '0 16px', borderRadius: 999,
+                          height: 38, padding: '0 14px', borderRadius: 12,
                           background: isJustAdded ? 'var(--green)' : 'linear-gradient(135deg, #FF441F, #E2360F)',
-                          color: '#fff', fontSize: 12.5, fontWeight: 800,
-                          border: 'none', cursor: 'pointer', flex: 'none',
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          boxShadow: '0 4px 12px rgba(255,68,31,0.25)',
+                          color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 6, flex: 'none',
+                          boxShadow: isJustAdded ? '0 4px 12px rgba(17,178,106,0.3)' : '0 4px 12px rgba(255,68,31,0.25)',
                           transition: 'all .2s ease',
                         }}
                       >
                         <span className="ms" style={{ fontSize: 16 }}>{isJustAdded ? 'check' : 'add'}</span>
-                        <span>{isJustAdded ? '¡Agregado!' : 'Agregar'}</span>
+                        <span>{isJustAdded ? 'Listo' : 'Agregar'}</span>
                       </button>
                     </div>
                   );
-                })}
-              </div>
-            )}
+                })
+              )}
+            </div>
+
+            {/* Barra Inferior */}
+            <div style={{ padding: '16px 22px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', gap: 12, alignItems: 'center' }}>
+              <button
+                onClick={() => { onClose(); router.push('/cart'); }}
+                style={{
+                  flex: 1, height: 48, borderRadius: 14,
+                  background: cartItems.length > 0 ? 'linear-gradient(135deg, #17140F, #221E18)' : 'var(--surface2)',
+                  color: cartItems.length > 0 ? '#fff' : 'var(--text)',
+                  fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}
+              >
+                <span className="ms" style={{ fontSize: 18 }}>shopping_bag</span>
+                <span>{cartItems.length > 0 ? `Ver Canasta (${cop(cartSubtotal)})` : 'Ver Canasta'}</span>
+              </button>
+
+              <button
+                onClick={() => { onClose(); router.push('/checkout'); }}
+                disabled={cartItems.length === 0}
+                style={{
+                  flex: 1.2, height: 48, borderRadius: 14,
+                  background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                  color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  opacity: cartItems.length === 0 ? 0.5 : 1,
+                  boxShadow: '0 4px 16px rgba(255,68,31,0.25)',
+                }}
+              >
+                <span>Ir a Pagar</span>
+                <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div style={{
-          padding: '16px 22px', borderTop: '1px solid var(--border)',
-          background: 'var(--bg)', display: 'flex', alignItems: 'center', gap: 12,
-        }}>
-          <button
-            onClick={() => {
-              onClose();
-              router.push(`/store/${store?.id || storeId}`);
-            }}
-            style={{
-              flex: 1, height: 46, borderRadius: 14,
-              background: 'var(--surface2)', color: 'var(--text)',
-              border: '1px solid var(--border)', fontSize: 13.5, fontWeight: 700,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            }}
-          >
-            <span>Ver menú completo</span>
-            <span className="ms" style={{ fontSize: 17 }}>arrow_forward</span>
-          </button>
-
-          <button
-            onClick={() => {
-              onClose();
-              router.push('/checkout');
-            }}
-            style={{
-              flex: 1, height: 46, borderRadius: 14,
-              background: 'linear-gradient(135deg, #1C1917, #12100E)', color: '#fff',
-              border: '1px solid rgba(255,255,255,0.15)', fontSize: 13.5, fontWeight: 800,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-            }}
-          >
-            <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--amber)' }}>shopping_bag</span>
-            <span>Ir a Pagar</span>
-          </button>
         </div>
       </div>
     </div>
