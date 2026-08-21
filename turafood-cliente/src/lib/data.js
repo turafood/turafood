@@ -938,7 +938,8 @@ export async function submitReview(payload) {
     return true;
   }
   const supabase = createClient();
-  const user = await requireUser();
+  const user = await asegurarSesion();
+  const customerId = user?.id || null;
   
   // payload: { order_id, business_id, courier_id, stars, tags, courierUp, comment, tip }
   let fullComment = payload.comment || '';
@@ -948,7 +949,7 @@ export async function submitReview(payload) {
 
   const { error } = await supabase.from('reviews').insert({
     order_id: payload.order_id,
-    customer_id: user.id,
+    customer_id: customerId,
     business_id: payload.business_id,
     courier_id: payload.courier_id || null,
     business_rating: payload.stars,

@@ -8,6 +8,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useThemeStore } from '@/store/useThemeStore';
+
 const TOPICS = [
   {
     id: 'late',
@@ -55,19 +57,39 @@ const CHANNELS = [
 export default function HelpPage() {
   const router = useRouter();
   const [open, setOpen] = useState(null);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   return (
-    <>
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
+    <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: '100vh', overflowY: 'auto' }}>
+      
+      {/* Contenedor Centrado Elegante */}
+      <div style={{ width: '100%', maxWidth: 680, margin: '0 auto', padding: '16px 20px 48px', display: 'flex', flexDirection: 'column', flex: 1 }}>
 
-        <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
-          <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
-            <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
+        <div style={{ flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
+              <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
+            </button>
+            <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22 }}>Centro de Ayuda</span>
+          </div>
+
+          <button
+            onClick={toggleTheme}
+            style={S.backBtn}
+            title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+            aria-label="Cambiar tema"
+          >
+            <span className="ms" style={{ fontSize: 19, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
+              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+            </span>
           </button>
-          <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>Ayuda</span>
         </div>
 
-        <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 40px', minHeight: 0 }}>
+        <div style={{
+          background: 'var(--surface)', borderRadius: 28, border: '1px solid var(--border)',
+          padding: '28px 24px', boxShadow: '0 12px 36px rgba(0,0,0,0.04)',
+        }}>
 
           <div style={S.hero}>
             <span className="ms" style={{ fontSize: 30, color: 'var(--primary)' }}>support_agent</span>
@@ -133,7 +155,7 @@ export default function HelpPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

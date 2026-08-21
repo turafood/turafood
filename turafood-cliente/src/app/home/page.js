@@ -884,22 +884,61 @@ export default function HomePage() {
           </div>
 
           <div className="sc" style={{ flex: 1, overflowY: 'auto', padding: '8px 0 108px', minHeight: 0 }}>
-            {/* 1. CATEGORÍAS EN MOBILE: 3D CARDS (PRIMERO ARRIBA DE TODO) */}
-            <div style={{ padding: '6px 0 2px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 20px' }}>
-                <button onClick={() => router.push('/list?v=restaurant')} style={{ ...S.bigVertical, background: '#FDF0EA' }}>
+            {/* 1. CATEGORÍAS EN MOBILE: 3D CARDS (ADAPTADAS A DARK / LIGHT) */}
+            <div style={{ padding: '8px 0 4px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, padding: '0 20px' }}>
+                <button
+                  onClick={() => router.push('/list?v=restaurant')}
+                  style={{
+                    ...S.bigVertical,
+                    background: theme === 'dark'
+                      ? 'linear-gradient(145deg, rgba(255,107,0,0.16) 0%, rgba(255,68,31,0.06) 100%)'
+                      : 'linear-gradient(145deg, #FFF4EE 0%, #FEEFE8 100%)',
+                    border: theme === 'dark'
+                      ? '1px solid rgba(255,107,0,0.28)'
+                      : '1px solid rgba(255,107,0,0.12)',
+                    boxShadow: theme === 'dark'
+                      ? '0 8px 24px rgba(255,68,31,0.12)'
+                      : '0 6px 20px rgba(255,68,31,0.06)',
+                  }}
+                >
                   <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 700, color: '#A8412A', letterSpacing: '-.01em', position: 'relative' }}>Restaurantes</span>
+                  <span style={{
+                    fontSize: 20, fontWeight: 800, letterSpacing: '-.01em', position: 'relative',
+                    color: theme === 'dark' ? '#FF8A50' : '#A8412A',
+                  }}>
+                    Restaurantes
+                  </span>
                 </button>
-                <button onClick={() => router.push('/list?v=market')} style={{ ...S.bigVertical, background: '#DCF2EA' }}>
+
+                <button
+                  onClick={() => router.push('/list?v=market')}
+                  style={{
+                    ...S.bigVertical,
+                    background: theme === 'dark'
+                      ? 'linear-gradient(145deg, rgba(16,185,129,0.16) 0%, rgba(5,150,105,0.06) 100%)'
+                      : 'linear-gradient(145deg, #EEFBF4 0%, #E6F6EE 100%)',
+                    border: theme === 'dark'
+                      ? '1px solid rgba(16,185,129,0.28)'
+                      : '1px solid rgba(16,185,129,0.12)',
+                    boxShadow: theme === 'dark'
+                      ? '0 8px 24px rgba(16,185,129,0.12)'
+                      : '0 6px 20px rgba(16,185,129,0.06)',
+                  }}
+                >
                   <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
-                  <span style={{ fontSize: 20, fontWeight: 700, color: '#0E7A52', letterSpacing: '-.01em', position: 'relative' }}>Mercado</span>
+                  <span style={{
+                    fontSize: 20, fontWeight: 800, letterSpacing: '-.01em', position: 'relative',
+                    color: theme === 'dark' ? '#34D399' : '#0E7A52',
+                  }}>
+                    Mercado
+                  </span>
                 </button>
               </div>
             </div>
 
             {/* 2. CATEGORÍAS EN MOBILE: TIRA DE ICONOS */}
-            <div className="hs" style={{ display: 'flex', gap: 10, padding: '12px 20px 6px' }}>
+            <div className="hs" style={{ display: 'flex', gap: 11, padding: '16px 20px 8px' }}>
               {STRIP_VERTICALS.map((v) => (
                 <button key={v.id} onClick={() => (v.external ? window.open(v.external, '_blank', 'noopener,noreferrer') : router.push(`/list?v=${v.id}`))} style={S.stripVertical}>
                   <Icon3D src={v.img} alt="" sizes="104px" style={S.stripVerticalImg} />
@@ -910,7 +949,7 @@ export default function HomePage() {
             </div>
 
             {/* 3. HERO ONBOARDING BANNER MÓVIL (AVATAR CHICA AFRO CARTOON CON VIDEO) */}
-            <div style={{ padding: '14px 18px 10px' }}>
+            <div style={{ padding: '20px 18px 14px' }}>
               <div style={{
                 borderRadius: 24,
                 background: 'linear-gradient(135deg, #0A0A0A 0%, #050505 100%)',
@@ -1026,55 +1065,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 4. SLIDER DE PROMOS DESTACADAS CON FOTOS (135px) */}
-            <div style={{ padding: '14px 0 0' }}>
-              <div
-                ref={sliderRef}
-                className="hs"
-                style={{
-                  display: 'flex', gap: 14, padding: '0 20px 16px',
-                  scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
-                  overflowX: 'auto', scrollBehavior: 'smooth',
-                }}
-                onScroll={(e) => {
-                  const el = e.currentTarget;
-                  const index = Math.round(el.scrollLeft / (el.clientWidth * 0.85));
-                  setBanner(index);
-                }}
-              >
-                {[
-                  { id: 'f1', image: '/images/food-fork.jpg', badge: '⭐ 4.9 · TOP RESTAURANTE', title: 'Marisquería El Faro', subtitle: 'Pescados y mariscos del Pacífico', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
-                  { id: 'f2', image: '/images/steak-ribeye.jpg', badge: '⭐ 4.8 · TOP ASADOS', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas y carnes', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
-                  { id: 'f3', image: '/images/burger.jpg', badge: '🔥 40% OFF · TOP BURGERS', title: 'Burger House Bahia', subtitle: 'Hamburguesas artesanales premium', action: () => router.push('/store/b0000000-0000-4000-8000-000000000002') },
-                  { id: 'f4', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop', badge: '⚡ TURBO · LICORES', title: 'Licores la 15', subtitle: 'Bebidas frías directo a tu puerta', action: () => router.push('/store/b0000000-0000-4000-8000-000000000004') },
-                ].map((slide) => (
-                  <button
-                    key={slide.id}
-                    onClick={slide.action}
-                    style={{
-                      flex: 'none', width: '82vw', maxWidth: 320, height: 135,
-                      borderRadius: 20, overflow: 'hidden', position: 'relative',
-                      scrollSnapAlign: 'center', padding: 0, textAlign: 'left',
-                      boxShadow: '0 10px 24px -6px rgba(0,0,0,0.18)', background: 'var(--surface2)', border: 'none',
-                    }}
-                  >
-                    <Cover src={slide.image} alt={slide.title} sizes="360px" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
-                    <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,12,8,0.88) 100%)' }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-                      <span style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.22)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#fff', fontSize: 9.5, fontWeight: 800, letterSpacing: '.06em', padding: '3px 9px', borderRadius: 99, textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.15)' }}>{slide.badge}</span>
-                      <span style={{ color: '#fff', fontSize: 18, fontWeight: 800, lineHeight: 1.15, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', marginTop: 2 }}>{slide.title}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11.5, fontWeight: 500 }}>{slide.subtitle}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -6 }}>
-                {[0, 1, 2, 3].map((i) => (
-                  <button key={i} onClick={() => goToSlide(i)} aria-label={`Ir al slide ${i + 1}`} style={{ width: i === banner ? 20 : 6, height: 6, borderRadius: 99, background: i === banner ? 'var(--primary)' : 'var(--border)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all .3s cubic-bezier(.25,.8,.25,1)' }} />
-                ))}
-              </div>
-            </div>
-
             {/* 5. SECCIÓN PRO: PRODUCTOS PREMIUM MÁS VENDIDOS (MÁS GRANDES + AUTO-SLIDE + AVISO ANIMADO) */}
             <div style={{ marginTop: 22, padding: '0 20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
@@ -1148,26 +1138,33 @@ export default function HomePage() {
                   onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.07)'; }}
                 >
                   {/* Foto del Producto con Badges Material 3 */}
-                  <div style={{ position: 'relative', height: 165, width: '100%' }}>
-                    <Cover src={item.image_url} alt={item.name} radius={0} sizes="300px" style={{ width: '100%', height: '100%' }} />
+                  <div style={{ position: 'relative', height: 165, width: '100%', overflow: 'hidden' }}>
+                    <Cover
+                      src={item.image_url}
+                      alt={item.name}
+                      radius={0}
+                      sizes="280px"
+                      style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                    />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 100%)' }} />
 
-                    {/* Badge PRO Top-Left */}
-                    <div style={{
-                      position: 'absolute', top: 12, left: 12,
-                      background: item.badgeBg, color: '#fff',
-                      fontSize: 10.5, fontWeight: 800, padding: '4px 10px', borderRadius: 8,
-                      letterSpacing: '.03em', boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-                    }}>
-                      {item.badge}
+                    {/* Tag Top Pacífico o Promo */}
+                    <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6, zIndex: 2 }}>
+                      <span style={{
+                        background: item.badgeBg, color: '#fff', fontSize: 10.5, fontWeight: 800,
+                        padding: '4px 10px', borderRadius: 99, letterSpacing: '.04em',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                      }}>
+                        {item.badge}
+                      </span>
                     </div>
 
-                    {/* Floating 5.0 Star Badge Top-Right */}
+                    {/* Rating 5.0 */}
                     <div style={{
-                      position: 'absolute', top: 12, right: 12,
-                      background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)',
-                      color: '#fff', fontSize: 11.5, fontWeight: 800, padding: '4px 9px',
-                      borderRadius: 8, display: 'flex', alignItems: 'center', gap: 4,
-                      border: '1px solid rgba(255,255,255,0.2)',
+                      position: 'absolute', top: 12, right: 12, zIndex: 2,
+                      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+                      color: '#fff', fontSize: 11.5, fontWeight: 800,
+                      padding: '3px 8px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 3,
                     }}>
                       <span className="ms ms-fill" style={{ fontSize: 13, color: 'var(--amber)' }}>star</span>
                       <span>{item.rating}</span>
@@ -1175,8 +1172,11 @@ export default function HomePage() {
                   </div>
 
                   {/* Detalle del Producto */}
-                  <div style={{ padding: '15px 16px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-                    <div className="tr1" style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, color: 'var(--text)', lineHeight: 1.25 }}>
+                  <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                    <div className="tr2" style={{
+                      fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16,
+                      color: 'var(--text)', lineHeight: 1.25,
+                    }}>
                       {item.name}
                     </div>
 
@@ -1289,11 +1289,60 @@ export default function HomePage() {
               ))}
             </div>
 
+            {/* 4. SLIDER DE TOP RESTAURANTES Y PROMOS DESTACADAS (MÁS ALTO + ESPACIADO FRESCO) */}
+            <div style={{ padding: '32px 0 4px' }}>
+              <div
+                ref={sliderRef}
+                className="hs"
+                style={{
+                  display: 'flex', gap: 16, padding: '0 20px 18px',
+                  scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
+                  overflowX: 'auto', scrollBehavior: 'smooth',
+                }}
+                onScroll={(e) => {
+                  const el = e.currentTarget;
+                  const index = Math.round(el.scrollLeft / (el.clientWidth * 0.85));
+                  setBanner(index);
+                }}
+              >
+                {[
+                  { id: 'f1', image: '/images/food-fork.jpg', badge: '⭐ 4.9 · TOP RESTAURANTE', title: 'Marisquería El Faro', subtitle: 'Pescados y mariscos del Pacífico', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
+                  { id: 'f2', image: '/images/steak-ribeye.jpg', badge: '⭐ 4.8 · TOP ASADOS', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas y carnes', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
+                  { id: 'f3', image: '/images/burger.jpg', badge: '🔥 40% OFF · TOP BURGERS', title: 'Burger House Bahia', subtitle: 'Hamburguesas artesanales premium', action: () => router.push('/store/b0000000-0000-4000-8000-000000000002') },
+                  { id: 'f4', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop', badge: '⚡ TURBO · LICORES', title: 'Licores la 15', subtitle: 'Bebidas frías directo a tu puerta', action: () => router.push('/store/b0000000-0000-4000-8000-000000000004') },
+                ].map((slide) => (
+                  <button
+                    key={slide.id}
+                    onClick={slide.action}
+                    style={{
+                      flex: 'none', width: '84vw', maxWidth: 330, height: 172,
+                      borderRadius: 24, overflow: 'hidden', position: 'relative',
+                      scrollSnapAlign: 'center', padding: 0, textAlign: 'left',
+                      boxShadow: '0 12px 28px -6px rgba(0,0,0,0.22)', background: 'var(--surface2)', border: 'none',
+                    }}
+                  >
+                    <Cover src={slide.image} alt={slide.title} sizes="380px" style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+                    <div style={{ position: 'absolute', inset: 0, zIndex: 2, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,12,8,0.92) 100%)' }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <span style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.24)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: '.06em', padding: '4px 10px', borderRadius: 99, textTransform: 'uppercase', border: '1px solid rgba(255,255,255,0.18)' }}>{slide.badge}</span>
+                      <span style={{ color: '#fff', fontSize: 20, fontWeight: 800, lineHeight: 1.15, fontFamily: 'var(--font-bricolage)', letterSpacing: '-.02em', marginTop: 2 }}>{slide.title}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.88)', fontSize: 12.5, fontWeight: 500 }}>{slide.subtitle}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -4 }}>
+                {[0, 1, 2, 3].map((i) => (
+                  <button key={i} onClick={() => goToSlide(i)} aria-label={`Ir al slide ${i + 1}`} style={{ width: i === banner ? 22 : 6, height: 6, borderRadius: 99, background: i === banner ? 'var(--primary)' : 'var(--border)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all .3s cubic-bezier(.25,.8,.25,1)' }} />
+                ))}
+              </div>
+            </div>
+
             {/* Promos irresistibles Móvil */}
-            <div style={{ marginTop: 24, padding: '0 20px' }}>
+            <div style={{ marginTop: 34, padding: '0 20px' }}>
               <span style={S.h2}>Promos irresistibles</span>
             </div>
-            <div className="hs" style={{ display: 'flex', gap: 13, padding: '12px 20px 0' }}>
+            <div className="hs" style={{ display: 'flex', gap: 14, padding: '14px 20px 0' }}>
               {HOME_PROMOS.map((p) => (
                 <div key={p.id} style={{ flex: 'none', width: 158 }}>
                   <Cover src={p.image_url} alt={p.name} radius={18} sizes="160px" style={{ height: 158 }}>

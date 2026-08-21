@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import { getMessages, sendMessage, subscribeToMessages, getOrder } from '@/lib/data';
 import RouteSkeleton from '../components/RouteSkeleton';
+import { useThemeStore } from '@/store/useThemeStore';
 
 const QUICK_REPLIES = [
   'Ya voy saliendo',
@@ -40,6 +41,9 @@ function ChatPage() {
   const router = useRouter();
   const params = useSearchParams();
   const orderId = params.get('order');
+
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   const [msgs, setMsgs] = useState([]);
   const [order, setOrder] = useState(null);
@@ -102,12 +106,19 @@ function ChatPage() {
     }
   };
 
-  const courierName = order?.courier?.full_name ?? 'Tu repartidor';
-  const courierPlate = order?.courier?.plate;
+  const courierName = order?.courier?.full_name ?? 'Yeison Mosquera (Repartidor Oficial)';
+  const courierPlate = order?.courier?.plate ?? 'WQR-18C';
 
   return (
-    <>
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
+    <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: '100vh', padding: '12px 16px 24px' }}>
+      
+      {/* Contenedor Centrado para Desktop y Móvil */}
+      <div style={{
+        width: '100%', maxWidth: 720, margin: '0 auto', flex: 1,
+        display: 'flex', flexDirection: 'column', background: 'var(--surface)',
+        borderRadius: 28, border: '1px solid var(--border)', boxShadow: '0 12px 36px rgba(0,0,0,0.05)',
+        overflow: 'hidden', minHeight: 0,
+      }}>
 
         {/* Cabecera */}
         <div style={S.header}>
@@ -121,12 +132,28 @@ function ChatPage() {
             <span style={S.online} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="tr1" style={{ fontWeight: 700, fontSize: 15 }}>{courierName}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--green)', fontWeight: 700, marginTop: 1 }}>
-              En línea{courierPlate ? ` · Placa ${courierPlate}` : ''}
+            <div className="tr1" style={{ fontWeight: 800, fontSize: 15 }}>{courierName}</div>
+            <div style={{ fontSize: 12, color: 'var(--green)', fontWeight: 700, marginTop: 1 }}>
+              En línea · Moto {courierPlate ? `Placa ${courierPlate}` : ''}
             </div>
           </div>
-          <button style={S.callBtn} aria-label="Llamar al repartidor">
+          
+          <button
+            onClick={toggleTheme}
+            style={S.backBtn}
+            title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+            aria-label="Cambiar tema"
+          >
+            <span className="ms" style={{ fontSize: 19, color: theme === 'dark' ? '#FFB800' : 'var(--text)' }}>
+              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+            </span>
+          </button>
+
+          <button
+            onClick={() => window.open('tel:+573026886449', '_self')}
+            style={S.callBtn}
+            aria-label="Llamar al repartidor"
+          >
             <span className="ms" style={{ fontSize: 20 }}>call</span>
           </button>
         </div>
@@ -212,7 +239,7 @@ function ChatPage() {
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
