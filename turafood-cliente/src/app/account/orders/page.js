@@ -38,9 +38,8 @@ export default function OrdersPage() {
   }, []);
 
   return (
-    <>
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
-        <div style={{ width: '100%', maxWidth: 740, margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '16px 0 0' }}>
+    <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
+      <div style={{ width: '100%', maxWidth: 740, margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '16px 0 0' }}>
 
           <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
             <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
@@ -143,6 +142,7 @@ export default function OrdersPage() {
                         </button>
                       )}
                     </div>
+                  )}
                 </article>
               );
             })}
