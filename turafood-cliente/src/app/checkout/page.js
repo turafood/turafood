@@ -620,54 +620,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 )}
               </div>
 
-              {/* 5. MÉTODO DE PAGO */}
-              <div style={{ ...S.card, padding: 20 }}>
-                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, marginBottom: 12, color: 'var(--text)' }}>
-                  Método de Pago
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    { id: 'cash', label: 'Efectivo contraentrega', icon: 'payments', iconColor: '#FF9800', badge: 'Pagas al recibir' },
-                    { id: 'nequi', label: 'Nequi Directo', icon: 'account_balance_wallet', iconColor: '#7D25E8', badge: 'Transferencia 0%' },
-                  ].map((m) => {
-                    const on = payMethod === m.id;
-                    return (
-                      <button
-                        key={m.id}
-                        onClick={() => setPayMethod(m.id)}
-                        style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          height: 48, padding: '0 14px', borderRadius: 12,
-                          background: on ? 'var(--surface)' : 'var(--surface2)',
-                          border: on ? '2px solid var(--green)' : '1px solid var(--border)',
-                          cursor: 'pointer', transition: 'all .15s ease', width: '100%',
-                          boxShadow: on ? '0 4px 14px rgba(16,185,129,0.12)' : 'none',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span className="ms" style={{ fontSize: 20, color: m.iconColor }}>{m.icon}</span>
-                          <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)' }}>{m.label}</span>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', background: 'var(--surface2)', padding: '3px 7px', borderRadius: 6 }}>
-                            {m.badge}
-                          </span>
-                          <div style={{
-                            width: 18, height: 18, borderRadius: '50%',
-                            border: on ? '5px solid var(--green)' : '2px solid var(--border)',
-                            background: on ? '#fff' : 'transparent',
-                            flex: 'none',
-                          }} />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 6. PROPINA & CUPÓN */}
+              {/* 5. PROPINA & CUPÓN (COMPACTOS LADO A LADO) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 14 }}>
                 <div style={{ ...S.card, padding: 16 }}>
                   <div style={{ fontWeight: 800, fontSize: 13, color: 'var(--text)' }}>Propina Repartidor</div>
@@ -709,21 +662,21 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
             </div>
 
-            {/* COLUMNA DERECHA: RESUMEN DE COMPRA & BOTÓN WHATSAPP OFICIAL (STICKY) */}
+            {/* COLUMNA DERECHA: RESUMEN DE COMPRA + MÉTODO DE PAGO INTEGRADO + BOTÓN WHATSAPP (STICKY) */}
             <div style={{ position: 'sticky', top: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ ...S.card, padding: 24, boxShadow: '0 12px 36px rgba(0,0,0,0.06)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingBottom: 14, borderBottom: '1px solid var(--border)' }}>
+              <div style={{ ...S.card, padding: 22, boxShadow: '0 12px 36px rgba(0,0,0,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
                   {store?.cover_url && (
                     <Cover src={store.cover_url} alt={store.name} radius={12} sizes="48px" style={{ width: 48, height: 48, flex: 'none' }} />
                   )}
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>RESUMEN DE COMPRA</div>
-                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, marginTop: 2 }}>{store?.name || businessName}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>RESUMEN DE COMPRA</div>
+                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, marginTop: 1 }}>{store?.name || businessName}</div>
                   </div>
                 </div>
 
                 {/* Desglose Financiero */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 14 }}>
                   <Row label="Subtotal productos" value={cop(t.subtotal)} />
                   {mode === 'delivery' && (
                     <Row label="Envío estimado" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0} />
@@ -732,25 +685,71 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                   {turbo && <Row label="Prioridad Turbo (⚡)" value={cop(2500)} />}
                   {t.tip > 0 && <Row label="Propina repartidor" value={cop(t.tip)} />}
                   {t.discount > 0 && <Row label="Descuento cupón" value={`− ${cop(t.discount)}`} green />}
-                  
-                  {/* Total Destacado en Grande */}
-                  <div style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    marginTop: 10, padding: '14px 16px', borderRadius: 14,
-                    background: 'linear-gradient(135deg, rgba(37,211,102,0.08), rgba(37,211,102,0.02))',
-                    border: '1px solid rgba(37,211,102,0.2)',
-                  }}>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>Total</span>
-                    <span style={{ fontSize: 26, fontWeight: 900, fontFamily: 'var(--font-bricolage)', color: 'var(--green)' }}>
-                      {cop(turaTotal)}
+                </div>
+
+                {/* MÉTODO DE PAGO INTEGRADO Y MINIMALISTA */}
+                <div style={{
+                  padding: '12px 14px', borderRadius: 14,
+                  background: 'var(--surface2)', border: '1px solid var(--border)',
+                  marginBottom: 14,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.04em', textTransform: 'uppercase' }}>
+                      Método de Pago
                     </span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)' }}>
+                      {payMethod === 'cash' ? '💵 Efectivo' : '🟣 Nequi'}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {[
+                      { id: 'cash', label: 'Efectivo', icon: 'payments', iconColor: '#FF9800', badge: 'Al recibir' },
+                      { id: 'nequi', label: 'Nequi', icon: 'account_balance_wallet', iconColor: '#7D25E8', badge: 'Directo' },
+                    ].map((m) => {
+                      const on = payMethod === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          onClick={() => setPayMethod(m.id)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 10px', borderRadius: 10,
+                            background: on ? 'var(--surface)' : 'transparent',
+                            border: on ? '2px solid var(--green)' : '1px solid var(--border)',
+                            cursor: 'pointer', transition: 'all .15s ease',
+                            boxShadow: on ? '0 2px 8px rgba(16,185,129,0.14)' : 'none',
+                          }}
+                        >
+                          <span className="ms" style={{ fontSize: 18, color: m.iconColor, flex: 'none' }}>{m.icon}</span>
+                          <div style={{ textAlign: 'left', minWidth: 0, flex: 1 }}>
+                            <div style={{ fontWeight: 800, fontSize: 12.5, color: 'var(--text)', lineHeight: 1.2 }}>{m.label}</div>
+                            <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{m.badge}</div>
+                          </div>
+                          {on && <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)', flex: 'none' }}>check_circle</span>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
+                {/* Total Destacado en Grande */}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '12px 16px', borderRadius: 14, marginBottom: 12,
+                  background: 'linear-gradient(135deg, rgba(37,211,102,0.08), rgba(37,211,102,0.02))',
+                  border: '1px solid rgba(37,211,102,0.22)',
+                }}>
+                  <span style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--text)' }}>Total</span>
+                  <span style={{ fontSize: 24, fontWeight: 900, fontFamily: 'var(--font-bricolage)', color: 'var(--green)' }}>
+                    {cop(turaTotal)}
+                  </span>
+                </div>
+
                 {/* Badge de Compra Mínima */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, marginBottom: 16, border: '1px solid rgba(16,185,129,0.15)' }}>
-                  <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--green)' }}>check_circle</span>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--green)' }}>Completaste el mínimo de compra</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 11px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, marginBottom: 14, border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)' }}>check_circle</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)' }}>Completaste el mínimo de compra</span>
                 </div>
 
                 {/* Botón Principal VERDE WhatsApp */}
@@ -758,9 +757,9 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                   onClick={() => handlePlaceOrder(payMethod)}
                   disabled={placing || Boolean(falta)}
                   style={{
-                    width: '100%', height: 54, borderRadius: 16,
+                    width: '100%', height: 52, borderRadius: 16,
                     background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
-                    color: '#fff', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+                    color: '#fff', fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                     opacity: falta ? 0.55 : 1,
                     border: 'none',
@@ -768,7 +767,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                     transition: 'all .15s ease',
                   }}
                 >
-                  <WhatsAppIcon size={22} />
+                  <WhatsAppIcon size={21} />
                   <span>{placing ? 'Enviando Pedido...' : (falta ?? `Pedir por WhatsApp · ${cop(turaTotal)}`)}</span>
                 </button>
               </div>
