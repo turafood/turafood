@@ -498,13 +498,15 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 </div>
               </div>
 
-              {/* 4. DIRECCIÓN DE ENTREGA Y DETALLE */}
+              {/* 4. DIRECCIÓN DE ENTREGA O PUNTO DE RECOGIDA */}
               <div style={{ ...S.card, padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>location_on</span>
+                    <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>
+                      {mode === 'delivery' ? 'location_on' : 'storefront'}
+                    </span>
                     <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5 }}>
-                      Dirección de Entrega
+                      {mode === 'delivery' ? 'Dirección de Entrega' : 'Punto de Recogida en Tienda'}
                     </span>
                   </div>
                   <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 10, padding: 3, gap: 4 }}>
@@ -533,7 +535,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                   </div>
                 </div>
 
-                {mode === 'delivery' && (
+                {mode === 'delivery' ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <div style={{ position: 'relative', flex: 1 }}>
@@ -646,6 +648,90 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                       </div>
                     </div>
 
+                  </div>
+                ) : (
+                  /* VISTA RECOGER EN TIENDA */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {/* Tarjeta del Local Comercial */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '12px 14px', borderRadius: 12,
+                      background: 'var(--surface2)', border: '1px solid var(--border)',
+                      gap: 12,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {store?.cover_url && (
+                          <Cover src={store.cover_url} alt={store.name} radius={10} sizes="44px" style={{ width: 44, height: 44, flex: 'none' }} />
+                        )}
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>
+                            {store?.name || businessName || 'Restaurante TuraFood'}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span className="ms" style={{ fontSize: 15, color: 'var(--primary)' }}>location_on</span>
+                            <span>{store?.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((store?.name || '') + ' ' + (store?.address || 'Buenaventura'))}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          padding: '6px 12px', borderRadius: 99, background: 'var(--surface)',
+                          border: '1px solid var(--border)', fontSize: 11.5, fontWeight: 800,
+                          color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, flex: 'none',
+                        }}
+                      >
+                        <span className="ms" style={{ fontSize: 15 }}>map</span>
+                        <span>Ver mapa</span>
+                      </a>
+                    </div>
+
+                    {/* Horarios y Tiempo de Preparación */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <div style={{ padding: '9px 12px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)' }}>Tiempo de preparación</div>
+                        <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--green)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span className="ms" style={{ fontSize: 16 }}>timer</span>
+                          <span>Listo en ~{store?.prep_time_min ?? 20} min</span>
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '9px 12px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)' }}>Horario del local</div>
+                        <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>store</span>
+                          <span>Abierto hasta 10:00 p.m.</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pasos / Instrucciones para Recoger */}
+                    <div style={{
+                      padding: '12px 14px', borderRadius: 12,
+                      background: 'linear-gradient(135deg, rgba(255,107,0,0.06) 0%, rgba(255,107,0,0.01) 100%)',
+                      border: '1px solid rgba(255,107,0,0.2)',
+                    }}>
+                      <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <span className="ms" style={{ fontSize: 16 }}>info</span>
+                        <span>INSTRUCCIONES PARA RECOGER EN TIENDA</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 11.5, color: 'var(--text)', lineHeight: 1.35 }}>
+                        <div><b>1.</b> Envía tu pedido por WhatsApp para que la cocina empiece a preparar tu orden.</div>
+                        <div><b>2.</b> Acércate al restaurante en la dirección indicada y menciona tu nombre.</div>
+                        <div><b>3.</b> ¡Pagas en caja (o con tu transferencia Nequi) y te entregan tu comida sin filas!</div>
+                      </div>
+                    </div>
+
+                    {/* Badge de Beneficio */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 11px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, border: '1px solid rgba(16,185,129,0.15)' }}>
+                      <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)' }}>savings</span>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--green)' }}>
+                        ¡Ahorras el 100% del costo de domicilio al recoger directamente en la tienda!
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -859,7 +945,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
           {/* Dirección / pago / entrega */}
           <div style={S.card}>
-            {mode === 'delivery' && (
+            {mode === 'delivery' ? (
               <button onClick={() => setAddressOpen(true)} style={S.cardRow}>
                 <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>location_on</span>
                 <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -869,6 +955,23 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 </span>
                 <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>chevron_right</span>
               </button>
+            ) : (
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>storefront</span>
+                  <div>
+                    <span style={S.rowLabel}>RECOGER EN RESTAURANTE</span>
+                    <span style={{ ...S.rowValue, fontSize: 14 }}>{store?.name || businessName}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12.5, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+                  <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>location_on</span>
+                  <span>{store?.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura'}</span>
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--text)', background: 'var(--surface2)', padding: '8px 10px', borderRadius: 8, lineHeight: 1.35 }}>
+                  💬 <b>Instrucciones:</b> Muestra tu pedido de WhatsApp en caja o barra para retirarlo caliente y sin filas.
+                </div>
+              </div>
             )}
 
             <button onClick={() => setPayOpen((v) => !v)} style={S.cardRow} aria-expanded={payOpen}>
