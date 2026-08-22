@@ -50,10 +50,11 @@ const ALL_PAYMENT_METHODS = [
 const metodosDelNegocio = (store) => ALL_PAYMENT_METHODS;
 
 const TIPS = [
-  { label: 'Sin propina', value: 0 },
-  { label: '$2.000', value: 2000 },
-  { label: '$3.000', value: 3000 },
-  { label: '$5.000', value: 5000 },
+  { label: '0', value: 0 },
+  { label: '1k', value: 1000 },
+  { label: '2k', value: 2000 },
+  { label: '3k', value: 3000 },
+  { label: '5k', value: 5000 },
 ];
 
 export default function CheckoutPage() {
@@ -616,13 +617,42 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                         {when === 'asap' ? 'Programar hora' : 'Lo antes posible'}
                       </button>
                     </div>
+
+                    {/* Propina para el Repartidor Minimalista */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, color: 'var(--text)' }}>
+                        <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>volunteer_activism</span>
+                        <span>Propina repartidor</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 3, background: 'var(--surface2)', padding: 3, borderRadius: 10, border: '1px solid var(--border)' }}>
+                        {TIPS.map((tp) => {
+                          const active = tip === tp.value;
+                          return (
+                            <button
+                              key={tp.label}
+                              onClick={() => setTip(tp.value)}
+                              style={{
+                                padding: '4px 10px', borderRadius: 7, fontSize: 11.5, fontWeight: 800,
+                                background: active ? 'var(--primary)' : 'transparent',
+                                color: active ? '#fff' : 'var(--muted)',
+                                border: 'none',
+                                cursor: 'pointer', transition: 'all .12s ease',
+                              }}
+                            >
+                              {tp.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                   </div>
                 )}
               </div>
 
             </div>
 
-            {/* COLUMNA DERECHA: RESUMEN DE COMPRA + PROPINA + CUPÓN + MÉTODO DE PAGO + BOTÓN WHATSAPP (STICKY) */}
+            {/* COLUMNA DERECHA: RESUMEN DE COMPRA + CUPÓN + MÉTODO DE PAGO + BOTÓN WHATSAPP (STICKY) */}
             <div style={{ position: 'sticky', top: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ ...S.card, padding: 22, boxShadow: '0 12px 36px rgba(0,0,0,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
@@ -636,7 +666,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 </div>
 
                 {/* Desglose Financiero */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 14 }}>
                   <Row label="Subtotal productos" value={cop(t.subtotal)} />
                   {mode === 'delivery' && (
                     <Row label="Envío estimado" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0} />
@@ -647,65 +677,33 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                   {t.discount > 0 && <Row label="Descuento cupón" value={`− ${cop(t.discount)}`} green />}
                 </div>
 
-                {/* PROPINA Y CUPÓN SUTILES INTEGRADOS */}
-                <div style={{
-                  padding: '10px 12px', borderRadius: 12,
-                  background: 'var(--surface2)', border: '1px solid var(--border)',
-                  marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8,
-                }}>
-                  {/* Selector de propina sutil */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-                    <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)', flex: 'none' }}>Propina repartidor:</span>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {TIPS.map((tp) => {
-                        const active = tip === tp.value;
-                        return (
-                          <button
-                            key={tp.label}
-                            onClick={() => setTip(tp.value)}
-                            style={{
-                              padding: '3px 7px', borderRadius: 6, fontSize: 11, fontWeight: 800,
-                              background: active ? 'var(--primary)' : 'var(--surface)',
-                              color: active ? '#fff' : 'var(--text)',
-                              border: active ? 'none' : '1px solid var(--border)',
-                              cursor: 'pointer', transition: 'all .12s ease',
-                            }}
-                          >
-                            {tp.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Input de cupón sutil */}
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <input
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      placeholder="Código de cupón o descuento..."
-                      style={{
-                        ...S.couponInput, height: 32, fontSize: 11.5, padding: '0 10px',
-                        borderRadius: 8, background: 'var(--surface)',
-                      }}
-                    />
-                    <button
-                      onClick={applyCoupon}
-                      style={{
-                        ...S.couponBtn, height: 32, fontSize: 11.5, padding: '0 12px',
-                        borderRadius: 8,
-                      }}
-                    >
-                      Aplicar
-                    </button>
-                  </div>
+                {/* Cupón Promocional Minimalista */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+                  <input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder="Código de cupón o descuento..."
+                    style={{
+                      ...S.couponInput, height: 34, fontSize: 12, padding: '0 10px',
+                      borderRadius: 10, background: 'var(--surface2)', flex: 1,
+                    }}
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    style={{
+                      ...S.couponBtn, height: 34, fontSize: 12, padding: '0 14px',
+                      borderRadius: 10, flex: 'none',
+                    }}
+                  >
+                    Aplicar
+                  </button>
                 </div>
 
                 {/* MÉTODO DE PAGO INTEGRADO Y MINIMALISTA */}
                 <div style={{
                   padding: '12px 14px', borderRadius: 14,
                   background: 'var(--surface2)', border: '1px solid var(--border)',
-                  marginBottom: 12,
+                  marginBottom: 14,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.04em', textTransform: 'uppercase' }}>
