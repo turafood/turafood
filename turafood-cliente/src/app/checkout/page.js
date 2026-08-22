@@ -63,6 +63,8 @@ export default function CheckoutPage() {
 
   const items = useCartStore((s) => s.items);
   const businessId = useCartStore((s) => s.businessId);
+  const businessName = useCartStore((s) => s.businessName);
+  const businessImage = useCartStore((s) => s.businessImage);
   const subtotal = useCartStore((s) => s.getSubtotal());
   const toOrderItems = useCartStore((s) => s.toOrderItems);
   const clearCart = useCartStore((s) => s.clearCart);
