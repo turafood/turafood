@@ -396,43 +396,46 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {items.map((it) => (
-                    <div key={it.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, paddingBottom: 14, borderBottom: '1px solid var(--border)' }}>
-                      <Cover
-                        src={it.image_url || it.image}
-                        alt={it.name}
-                        radius={14}
-                        sizes="58px"
-                        style={{ width: 56, height: 56, flex: 'none' }}
-                      />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>{it.name}</div>
-                        {it.opts && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{it.opts}</div>}
-                        <div style={{ fontSize: 14.5, fontWeight: 900, color: 'var(--text)', marginTop: 4, fontFamily: 'var(--font-bricolage)' }}>
-                          {cop((it.unitPrice || it.basePrice || it.price || 0) * it.qty)}
+                  {items.map((it, idx) => {
+                    const lId = it.lineId || it.productId || it.id || `item-${idx}`;
+                    return (
+                      <div key={lId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, paddingBottom: 14, borderBottom: '1px solid var(--border)' }}>
+                        <Cover
+                          src={it.image_url || it.image}
+                          alt={it.name}
+                          radius={14}
+                          sizes="58px"
+                          style={{ width: 56, height: 56, flex: 'none' }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>{it.name}</div>
+                          {it.opts && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{it.opts}</div>}
+                          <div style={{ fontSize: 14.5, fontWeight: 900, color: 'var(--text)', marginTop: 4, fontFamily: 'var(--font-bricolage)' }}>
+                            {cop((it.unitPrice || it.basePrice || it.price || 0) * it.qty)}
+                          </div>
+                        </div>
+
+                        {/* Selector de cantidad interactivo estilo Canasta */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--surface2)', borderRadius: 99, padding: '3px 6px', border: '1px solid var(--border)' }}>
+                          <button
+                            onClick={() => (it.qty === 1 ? removeLine(lId) : updateQty(lId, it.qty - 1))}
+                            style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: it.qty === 1 ? '#EF4444' : 'var(--text)' }}
+                            aria-label={it.qty === 1 ? 'Eliminar' : 'Restar'}
+                          >
+                            <span className="ms" style={{ fontSize: 17 }}>{it.qty === 1 ? 'delete' : 'remove'}</span>
+                          </button>
+                          <span style={{ fontSize: 13.5, fontWeight: 800, minWidth: 20, textAlign: 'center', color: 'var(--text)' }}>{it.qty}</span>
+                          <button
+                            onClick={() => updateQty(lId, it.qty + 1)}
+                            style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--primary)' }}
+                            aria-label="Sumar"
+                          >
+                            <span className="ms" style={{ fontSize: 17 }}>add</span>
+                          </button>
                         </div>
                       </div>
-
-                      {/* Selector de cantidad interactivo estilo Canasta */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--surface2)', borderRadius: 99, padding: '3px 6px', border: '1px solid var(--border)' }}>
-                        <button
-                          onClick={() => (it.qty === 1 ? removeLine(it.id) : updateQty(it.id, it.qty - 1))}
-                          style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: it.qty === 1 ? '#EF4444' : 'var(--text)' }}
-                          aria-label={it.qty === 1 ? 'Eliminar' : 'Restar'}
-                        >
-                          <span className="ms" style={{ fontSize: 17 }}>{it.qty === 1 ? 'delete' : 'remove'}</span>
-                        </button>
-                        <span style={{ fontSize: 13.5, fontWeight: 800, minWidth: 20, textAlign: 'center', color: 'var(--text)' }}>{it.qty}</span>
-                        <button
-                          onClick={() => updateQty(it.id, it.qty + 1)}
-                          style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--primary)' }}
-                          aria-label="Sumar"
-                        >
-                          <span className="ms" style={{ fontSize: 17 }}>add</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

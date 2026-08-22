@@ -75,7 +75,7 @@ export default function ComandaTicket({
   return (
     <div className={`comanda-ticket-wrapper ${className}`} style={S.wrapper}>
       
-      {/* Recibo Digital de Alta Gama */}
+      {/* Recibo Digital Ultra Minimalista & PRO */}
       <div style={S.ticketBody}>
 
         {/* Header de la Comanda */}
@@ -87,8 +87,8 @@ export default function ComandaTicket({
                   src={business.cover_url}
                   alt={business.name || 'Restaurante'}
                   radius={10}
-                  sizes="44px"
-                  style={{ width: 44, height: 44 }}
+                  sizes="40px"
+                  style={{ width: 40, height: 40 }}
                 />
               </div>
               <div>
@@ -108,17 +108,17 @@ export default function ComandaTicket({
           </div>
         </div>
 
-        {/* Separador punteado */}
+        {/* Separador sutil */}
         <div style={S.dashedLine} />
 
-        {/* Detalle de Productos / Platos */}
+        {/* Detalle de Productos */}
         <div style={S.section}>
           <div style={S.sectionHeader}>
             <span style={S.sectionTitle}>🍽️ DETALLE DEL PEDIDO ({items.length || 1})</span>
             <span style={S.sectionSub}>Precio</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {(items.length > 0 ? items : [
               { name: 'Combo Especial Tura Food', quantity: 1, unit_price: order.total || 25000, notes: '' }
             ]).map((item, idx) => {
@@ -129,13 +129,11 @@ export default function ComandaTicket({
 
               return (
                 <div key={idx} style={S.itemRow}>
-                  <div style={{ display: 'flex', gap: 10, flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: 8, flex: 1, minWidth: 0 }}>
                     <span style={S.qtyBadge}>{qty}x</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={S.itemName}>{name}</div>
-                      {item.opts && (
-                        <div style={S.itemOpts}>↳ {item.opts}</div>
-                      )}
+                      {item.opts && <div style={S.itemOpts}>↳ {item.opts}</div>}
                       {item.notes && (
                         <div style={S.itemNotes}>
                           <span className="ms" style={{ fontSize: 13, color: 'var(--amber)' }}>edit_note</span>
@@ -151,58 +149,28 @@ export default function ComandaTicket({
           </div>
         </div>
 
-        {/* Separador punteado */}
-        <div style={S.dashedLine} />
-
-        {/* Dirección de Entrega y GPS */}
-        <div style={S.section}>
-          <div style={S.sectionTitle}>
-            {order.mode === 'pickup' ? '🏪 PUNTO DE RECOGIDA' : '📍 DESTINO DE ENTREGA'}
-          </div>
-          <div style={S.deliveryCard}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-              <div style={S.locationIconBox}>
-                <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--primary)' }}>
-                  {order.mode === 'pickup' ? 'storefront' : 'location_on'}
-                </span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={S.addressTitle}>
-                  {order.mode === 'pickup'
-                    ? (business.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura')
-                    : (order.delivery_address || 'Carrera 3 # 4-58, Centro, Buenaventura')}
-                </div>
-                {order.delivery_instructions && order.mode !== 'pickup' && (
-                  <div style={S.instructionsText}>
-                    ⚠️ Indicación: {order.delivery_instructions}
-                  </div>
-                )}
-                <div style={S.deliveryModePill}>
-                  <span className="ms" style={{ fontSize: 13, color: 'var(--green)' }}>
-                    {order.mode === 'pickup' ? 'store' : 'two_wheeler'}
-                  </span>
-                  <span>
-                    Modalidad: {order.mode === 'pickup' ? 'Recoger en el restaurante (Sin costo de envío)' : 'Entrega a domicilio en Buenaventura'}
-                  </span>
-                </div>
-              </div>
+        {/* Destino de Entrega Minimalista */}
+        <div style={{ padding: '8px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface2)', margin: '0 16px 10px', borderRadius: 12, border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
+            <span className="ms" style={{ fontSize: 18, color: 'var(--primary)', flex: 'none' }}>
+              {order.mode === 'pickup' ? 'storefront' : 'location_on'}
+            </span>
+            <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {order.mode === 'pickup'
+                ? `Recoger en: ${business.address || 'Local del restaurante'}`
+                : `Entregar en: ${order.delivery_address || 'Buenaventura'}`}
             </div>
-
-            {onCenterMap && order.mode !== 'pickup' && (
-              <button onClick={onCenterMap} style={S.mapGpsBtn}>
-                <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>my_location</span>
-                <span>Ver en mapa GPS</span>
-              </button>
-            )}
           </div>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)', flex: 'none', marginLeft: 8 }}>
+            {order.mode === 'pickup' ? 'En tienda' : 'Domicilio'}
+          </span>
         </div>
 
-        {/* Separador punteado */}
+        {/* Separador sutil */}
         <div style={S.dashedLine} />
 
-        {/* Resumen Financiero de la Cuenta */}
+        {/* Resumen Financiero & Total */}
         <div style={S.section}>
-          <div style={S.sectionTitle}>💰 RESUMEN DE CUENTA</div>
           <div style={S.totalsList}>
             <div style={S.totalRow}>
               <span>Subtotal productos</span>
@@ -217,20 +185,20 @@ export default function ComandaTicket({
             ) : (
               <div style={S.totalRow}>
                 <span>Domicilio</span>
-                <span style={{ color: 'var(--green)', fontWeight: 700 }}>¡GRATIS! ⚡</span>
+                <span style={{ color: 'var(--green)', fontWeight: 700 }}>Gratis ⚡</span>
               </div>
             )}
 
             {Number(order.service_fee) > 0 && (
               <div style={S.totalRow}>
-                <span>Tarifa de servicio y plataforma</span>
+                <span>Tarifa de servicio</span>
                 <span>{cop(order.service_fee)}</span>
               </div>
             )}
 
             {Number(order.tip) > 0 && (
               <div style={S.totalRow}>
-                <span>Propina voluntaria repartidor</span>
+                <span>Propina repartidor</span>
                 <span>{cop(order.tip)}</span>
               </div>
             )}
@@ -242,11 +210,16 @@ export default function ComandaTicket({
               </div>
             )}
 
-            {/* Total Destacado */}
+            {/* Total Destacado en Grande */}
             <div style={S.grandTotalRow}>
               <div>
                 <div style={S.grandTotalLabel}>TOTAL A PAGAR</div>
-                <div style={S.taxIncluded}>IVA y cargos incluidos</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="ms" style={{ fontSize: 14, color: order.payment_method === 'nequi' ? '#7D25E8' : '#FF9800' }}>
+                    {order.payment_method === 'nequi' ? 'account_balance_wallet' : 'payments'}
+                  </span>
+                  <span>{order.payment_method === 'nequi' ? 'Nequi Directo' : 'Efectivo contraentrega'}</span>
+                </div>
               </div>
               <div style={S.grandTotalAmount}>
                 {cop(order.total || 0)}
@@ -255,109 +228,57 @@ export default function ComandaTicket({
           </div>
         </div>
 
-        {/* Separador punteado */}
-        <div style={S.dashedLine} />
-
-        {/* Método de Pago y Nequi Directo */}
-        <div style={S.section}>
-          <div style={S.sectionTitle}>💳 MÉTODO DE PAGO</div>
-          <div style={S.paymentCard}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  ...S.payIconCircle,
-                  background: order.payment_method === 'nequi' ? 'rgba(125, 37, 232, 0.12)' : 'rgba(255, 152, 0, 0.12)',
-                  color: order.payment_method === 'nequi' ? '#7D25E8' : '#FF9800',
-                }}>
-                  <span className="ms ms-fill" style={{ fontSize: 20 }}>
-                    {order.payment_method === 'nequi' ? 'account_balance_wallet' : 'payments'}
-                  </span>
-                </div>
-                <div>
-                  <div style={S.payMethodName}>
-                    {order.payment_method === 'nequi' ? 'Nequi Directo (Transferencia 0%)' : 'Efectivo contra entrega'}
-                  </div>
-                  <div style={S.payMethodSub}>
-                    {order.payment_method === 'nequi'
-                      ? 'Transfiere al número del restaurante tras confirmación'
-                      : 'Pagas en efectivo al recibir tu pedido'}
-                  </div>
-                </div>
-              </div>
-
-              <span style={S.payBadge}>
-                {order.payment_status === 'paid' ? 'PAGADO' : 'PENDIENTE'}
-              </span>
+        {/* Nequi Copiado si aplica */}
+        {order.payment_method === 'nequi' && (
+          <div style={{ margin: '0 16px 12px', padding: '10px 14px', background: 'rgba(125,37,232,0.06)', borderRadius: 12, border: '1px solid rgba(125,37,232,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#7D25E8' }}>
+              Nequi del local: <b>{nequiNumber}</b>
             </div>
-
-            {/* Botón rápido de copiar número Nequi */}
-            {order.payment_method === 'nequi' && (
-              <div style={S.nequiCopyBox}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={S.nequiDot} />
-                  <span style={{ fontSize: 13, fontWeight: 700 }}>Nequi: {nequiNumber}</span>
-                </div>
-                <button
-                  onClick={() => copyToClipboard(nequiNumber, 'nequi')}
-                  style={{
-                    ...S.copyBtn,
-                    background: copiedKey === 'nequi' ? 'var(--green)' : '#7D25E8',
-                  }}
-                >
-                  <span className="ms" style={{ fontSize: 15, color: '#fff' }}>
-                    {copiedKey === 'nequi' ? 'check' : 'content_copy'}
-                  </span>
-                  <span>{copiedKey === 'nequi' ? '¡Copiado!' : 'Copiar número'}</span>
-                </button>
-              </div>
-            )}
+            <button
+              onClick={() => copyToClipboard(nequiNumber, 'nequi')}
+              style={{
+                background: copiedKey === 'nequi' ? 'var(--green)' : '#7D25E8',
+                color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer',
+              }}
+            >
+              {copiedKey === 'nequi' ? '¡Copiado!' : 'Copiar'}
+            </button>
           </div>
-        </div>
+        )}
 
-        {/* Separador punteado */}
-        <div style={S.dashedLine} />
-
-        {/* Código de Entrega & QR de Verificación */}
-        <div style={S.section}>
-          <div style={S.codeWrapper}>
-            <div style={{ flex: 1 }}>
-              <div style={S.codeHeading}>CÓDIGO DE SEGURIDAD PARA ENTREGA</div>
-              <div style={S.codeSub}>Díctalo a tu repartidor para recibir el paquete</div>
-              <div style={S.digitsRow}>
-                {['4', '8', '2', '1'].map((digit, i) => (
-                  <span key={i} style={S.digitBox}>{digit}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Mini QR decorativo y funcional */}
-            <div style={S.qrBox} title="Código QR del Pedido">
-              <svg width="52" height="52" viewBox="0 0 24 24" fill="var(--text)">
-                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm-2 10h8v8H2v-8zm2 2v4h4v-4H4zm10-14h8v8h-8V2zm2 2v4h4V4h-4zm3 7h2v2h-2v-2zm-3 2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2zm-2 2h2v2h-2v-2zm6 0h2v2h-2v-2zM5 5h2v2H5V5zm0 12h2v2H5v-2zm12-12h2v2h-2V5z"/>
-              </svg>
-              <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--muted)', marginTop: 2 }}>VALIDAR</span>
-            </div>
+        {/* Código PIN de Seguridad Minimalista */}
+        <div style={{ margin: '0 16px 16px', padding: '10px 14px', background: 'linear-gradient(135deg, #18181B 0%, #27272A 100%)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff' }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '.06em' }}>PIN DE SEGURIDAD PARA ENTREGA</div>
+            <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.85)', marginTop: 1 }}>Díctalo a tu repartidor</div>
+          </div>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {['4', '8', '2', '1'].map((d, i) => (
+              <span key={i} style={{ width: 24, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, fontFamily: 'monospace' }}>
+                {d}
+              </span>
+            ))}
           </div>
         </div>
 
       </div>
 
-      {/* Barra de Acciones de Comanda PRO */}
+      {/* Barra de Acciones PRO & Minimalista */}
       <div style={S.actionToolbar}>
         {onOpenWhatsapp && (
           <button onClick={onOpenWhatsapp} style={S.primaryWhatsappBtn}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="#fff">
               <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.969.54 1.861.855 2.796.855 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm0 10.428c-.838 0-1.637-.238-2.327-.67l-.167-.105-1.733.454.463-1.689-.115-.183c-.477-.759-.728-1.558-.727-2.469.001-2.568 2.09-4.657 4.607-4.657 2.518 0 4.607 2.089 4.607 4.607 4.657 0 2.568-2.09 4.657-4.607 4.657zm2.531-3.486c-.139-.069-.823-.406-.95-.452-.128-.046-.221-.069-.315.069-.093.139-.361.452-.443.545-.081.093-.163.104-.302.035-.139-.069-.587-.216-1.118-.689-.413-.368-.692-.823-.773-.962-.081-.139-.009-.214.061-.283.063-.063.139-.163.209-.244.069-.081.093-.139.139-.232.046-.093.023-.174-.012-.244-.035-.069-.315-.758-.431-1.039-.113-.273-.228-.236-.314-.24l-.268-.005c-.093 0-.244.035-.372.174-.128.139-.488.476-.488 1.16 0 .684.499 1.345.569 1.438.069.093.982 1.5 2.378 2.103.332.143.591.229.793.293.333.106.637.091.877.055.267-.04.823-.336.939-.661.116-.325.116-.603.081-.661-.035-.058-.128-.093-.267-.162z"/>
               <path d="M12.004 2c-5.523 0-10 4.477-10 10 0 1.769.459 3.49 1.332 5.006l-1.336 4.877 5.002-1.312c1.472.803 3.134 1.229 4.824 1.229 5.522 0 10-4.477 10-10s-4.478-10-10.002-10zm0 18.25c-1.503 0-2.977-.406-4.264-1.174l-.306-.182-3.167.83.845-3.088-.199-.317c-.843-1.343-1.288-2.903-1.288-4.519 0-4.549 3.701-8.25 8.252-8.25 4.551 0 8.252 3.701 8.252 8.25s-3.701 8.25-8.252 8.25z"/>
             </svg>
-            <span>💬 Abrir / Reenviar Pedido a WhatsApp</span>
+            <span>Abrir / Reenviar Pedido a WhatsApp</span>
           </button>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {onShareWhatsapp && (
             <button onClick={onShareWhatsapp} style={S.secondaryBtn}>
-              <span className="ms" style={{ fontSize: 18, color: '#25D366' }}>share</span>
+              <span className="ms" style={{ fontSize: 17, color: '#25D366' }}>share</span>
               <span>Compartir Pedido</span>
             </button>
           )}
@@ -369,7 +290,7 @@ export default function ComandaTicket({
             }}
             style={S.secondaryBtn}
           >
-            <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>
+            <span className="ms" style={{ fontSize: 17, color: 'var(--primary)' }}>
               {copiedKey === 'summary' ? 'check' : 'content_copy'}
             </span>
             <span>{copiedKey === 'summary' ? '¡Copiado!' : 'Copiar Resumen'}</span>
