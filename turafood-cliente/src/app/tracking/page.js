@@ -137,6 +137,119 @@ function playNotificationChime() {
   }
 }
 
+/** Micro-animación dinámica de preparación de comida y estados (Tipo Rappi) */
+function PreparationAnimation({ status }) {
+  if (status === 'preparing') {
+    return (
+      <div style={{ position: 'relative', width: 62, height: 62, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+        <style>{`
+          @keyframes steamFloat {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            50% { opacity: 0.9; }
+            100% { transform: translateY(-14px) scale(1.15); opacity: 0; }
+          }
+          @keyframes panWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-4deg); }
+            75% { transform: rotate(4deg); }
+          }
+          @keyframes flamePulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+          }
+        `}</style>
+        
+        {/* Resplandor cálido de cocción */}
+        <div style={{ position: 'absolute', width: 38, height: 38, borderRadius: '50%', background: 'rgba(255, 107, 0, 0.2)', filter: 'blur(7px)', animation: 'flamePulse 1.6s infinite ease-in-out' }} />
+
+        {/* Columnas de vapor caliente animadas (Rappi Steam) */}
+        <div style={{ position: 'absolute', top: 4, display: 'flex', gap: 5, zIndex: 2 }}>
+          <span style={{ width: 3.5, height: 9, borderRadius: 99, background: 'rgba(255,107,0,0.7)', animation: 'steamFloat 1.6s infinite ease-out' }} />
+          <span style={{ width: 4.5, height: 11, borderRadius: 99, background: 'rgba(255,152,0,0.85)', animation: 'steamFloat 1.6s infinite ease-out 0.35s' }} />
+          <span style={{ width: 3.5, height: 8, borderRadius: 99, background: 'rgba(255,107,0,0.7)', animation: 'steamFloat 1.6s infinite ease-out 0.7s' }} />
+        </div>
+
+        {/* Olla / Sartén con balanceo de salteado */}
+        <div style={{ animation: 'panWiggle 1.3s infinite ease-in-out', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8, zIndex: 3 }}>
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+            <path d="M4 11h16c0 4.418-3.582 8-8 8s-8-3.582-8-8z" fill="url(#skilletGrad)" />
+            <rect x="3" y="9.5" width="18" height="2" rx="1" fill="#E2E8F0" />
+            <path d="M20 12h3a1 1 0 011 1v0a1 1 0 01-1 1h-3v-2z" fill="#71717A" />
+            <circle cx="8" cy="14" r="1.1" fill="#fff" opacity="0.85" />
+            <circle cx="12" cy="15" r="1.4" fill="#fff" opacity="0.95" />
+            <circle cx="15" cy="13.5" r="1.1" fill="#fff" opacity="0.85" />
+            <defs>
+              <linearGradient id="skilletGrad" x1="4" y1="11" x2="20" y2="19" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FF6B00" />
+                <stop offset="1" stopColor="#E11D48" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'picked_up' || status === 'delivering') {
+    return (
+      <div style={{ position: 'relative', width: 62, height: 62, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+        <style>{`
+          @keyframes motoDrive {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+          }
+          @keyframes windBlow {
+            0% { transform: translateX(0); opacity: 0.8; }
+            100% { transform: translateX(-12px); opacity: 0; }
+          }
+        `}</style>
+        <div style={{ position: 'absolute', left: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <span style={{ width: 9, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.5)', animation: 'windBlow 0.7s infinite linear' }} />
+          <span style={{ width: 13, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.7)', animation: 'windBlow 0.7s infinite linear 0.2s' }} />
+          <span style={{ width: 7, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.5)', animation: 'windBlow 0.7s infinite linear 0.4s' }} />
+        </div>
+        <div style={{ animation: 'motoDrive 0.55s infinite ease-in-out', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span className="ms ms-fill" style={{ fontSize: 34, color: 'var(--primary)' }}>two_wheeler</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'delivered') {
+    return (
+      <div style={{ position: 'relative', width: 62, height: 62, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+        <style>{`
+          @keyframes checkPop {
+            0% { transform: scale(0.7); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+          }
+        `}</style>
+        <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'checkPop 0.5s ease-out' }}>
+          <span className="ms ms-fill" style={{ fontSize: 26, color: '#10B981' }}>check_circle</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative', width: 62, height: 62, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+      <style>{`
+        @keyframes pulseRing {
+          0% { transform: scale(0.92); opacity: 0.8; }
+          50% { transform: scale(1.08); opacity: 1; }
+          100% { transform: scale(0.92); opacity: 0.8; }
+        }
+      `}</style>
+      <div style={{ width: 42, height: 42, borderRadius: '50%', background: status === 'accepted' ? 'rgba(46,107,255,0.12)' : 'rgba(255,152,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulseRing 1.8s infinite ease-in-out' }}>
+        <span className="ms ms-fill" style={{ fontSize: 24, color: status === 'accepted' ? '#2E6BFF' : '#FF9800' }}>
+          {status === 'accepted' ? 'restaurant' : 'hourglass_top'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function TrackingPageWrapper() {
   return (
     <Suspense fallback={<RouteSkeleton rows={3} height={140} />}>
@@ -722,11 +835,17 @@ function TrackingPage() {
                   </span>
                 </div>
 
-                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', marginTop: 6 }}>
-                  {statusDetails.title}
-                </div>
-                <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
-                  {statusDetails.desc}
+                {/* Título + Micro-animación de Preparación Tipo Rappi */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, letterSpacing: '-.01em' }}>
+                      {statusDetails.title}
+                    </div>
+                    <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.35 }}>
+                      {statusDetails.desc}
+                    </div>
+                  </div>
+                  <PreparationAnimation status={currentStatus} />
                 </div>
 
                 {/* Milestone Stepper Visual */}
@@ -845,11 +964,17 @@ function TrackingPage() {
             </button>
           </div>
 
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 23, letterSpacing: '-.02em', marginTop: 5 }}>
-            {statusDetails.title}
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
-            {statusDetails.desc}
+          {/* Título + Micro-animación Tipo Rappi (Mobile) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 21, letterSpacing: '-.02em' }}>
+                {statusDetails.title}
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.35 }}>
+                {statusDetails.desc}
+              </div>
+            </div>
+            <PreparationAnimation status={currentStatus} />
           </div>
 
           {/* Progreso */}

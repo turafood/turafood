@@ -47,6 +47,7 @@ const CIERRE_METODO = {
 
 /**
  * Genera la comanda estructurada para WhatsApp.
+ * Formato corto, preciso, persuasivo y amigable para WhatsApp.
  * 
  * @param {object} pedido  Datos del pedido (order_number, total, subtotal, etc.)
  * @param {array}  items   Lista de productos [{ name, qty, unitPrice, opts, notes }]
@@ -56,88 +57,66 @@ export function comandaWhatsapp(pedido, items = [], extra = {}) {
   const { negocio, cliente, telefono, numeroPago } = extra;
   const L = [];
 
-  // Saludo cálido
-  L.push(negocio ? `👋 ¡Hola, *${negocio}*!` : '👋 ¡Hola!');
-  L.push('¡Acabo de hacer un pedido desde *turafood.com*! 🚀');
-  L.push('Te paso el resumen detallado para que lo confirmes e inicies la preparación:');
-  L.push('');
-  L.push('═══════════════════════');
-  L.push(`🧾 *PEDIDO #${pedido.order_number || 'NUEVO'}*`);
-  L.push('═══════════════════════');
+  const nombreLocal = negocio || 'Equipo Turafood';
+  const orderNum = pedido.order_number || (typeof pedido.id === 'string' && pedido.id.startsWith('local-') ? pedido.id.replace('local-', 'TS-') : 'TS-8189');
+  const orderTrackingId = pedido.id || pedido.order_number || 'current';
+
+  // 1. Saludo cálido y persuasivo
+  L.push(`¡Hola, *${nombreLocal}*! 👋✨`);
+  L.push('Quisiera confirmar mi pedido realizado desde *TuraFood* 🚀:');
   L.push('');
 
-  // Sección: Lo que pedí
-  L.push('🍽️ *LO QUE PEDÍ:*');
-  for (const it of items) {
+  // 2. Encabezado del pedido
+  L.push(`🧾 *Pedido #${orderNum}*`);
+
+  // 3. Detalle exacto de lo que pidió
+  const itemsList = Array.isArray(items) && items.length > 0 ? items : (
+    Array.isArray(pedido.items) && pedido.items.length > 0 ? pedido.items : [
+      { name: 'Combo Especial Tura Food', qty: 1, unitPrice: pedido.total || 25000 }
+    ]
+  );
+
+  for (const it of itemsList) {
     const cant = it.qty ?? it.quantity ?? 1;
-    const precio = (it.unitPrice ?? it.unit_price ?? 0) * cant;
-    L.push(`• *${cant}x* ${it.name} — _${pesos(precio)}_`);
+    const unitPrice = it.unitPrice ?? it.unit_price ?? it.basePrice ?? it.price ?? 0;
+    const precio = unitPrice * cant;
+    const priceStr = precio > 0 ? ` — _${pesos(precio)}_` : '';
+    L.push(`• *${cant}x* ${it.name}${priceStr}`);
 
     if (it.opts) {
-      L.push(`   ↳ _Opciones: ${it.opts}_`);
+      L.push(`   ↳ _${it.opts}_`);
     }
     if (it.notes) {
-      L.push(`   ↳ 📝 _Nota: ${it.notes}_`);
+      L.push(`   ↳ 📝 _Nota: "${it.notes}"_`);
     }
   }
   L.push('');
 
-  // Sección: Cuentas
-  L.push('💰 *RESUMEN DE CUENTAS:*');
-  L.push(`• Subtotal: _${pesos(pedido.subtotal)}_`);
-  if (Number(pedido.delivery_fee) > 0) {
-    L.push(`• Domicilio: _${pesos(pedido.delivery_fee)}_`);
-  } else if (pedido.mode === 'delivery') {
-    L.push('• Domicilio: _¡GRATIS!_ ⚡');
-  }
-  if (Number(pedido.service_fee) > 0) {
-    L.push(`• Tarifa de servicio: _${pesos(pedido.service_fee)}_`);
-  }
-  if (Number(pedido.tip) > 0) {
-    L.push(`• Propina voluntaria: _${pesos(pedido.tip)}_`);
-  }
-  if (Number(pedido.discount) > 0) {
-    L.push(`• Descuento: _-${pesos(pedido.discount)}_`);
-  }
-  L.push(`🔥 *TOTAL A PAGAR: ${pesos(pedido.total)}*`);
-  L.push('');
-
-  // Sección: Destino
-  L.push('📍 *ENTREGA:*');
-  if (pedido.mode === 'delivery') {
-    L.push(`• *Dirección:* _${pedido.delivery_address || '(Sin especificar)'}_`);
-    if (pedido.delivery_detail) {
-      L.push(`• *Detalle / Apto:* _${pedido.delivery_detail}_`);
-    }
-    if (pedido.delivery_instructions) {
-      L.push(`• ⚠️ *Indicaciones:* _${pedido.delivery_instructions}_`);
-    }
-    L.push('• *Modalidad:* _A domicilio 🛵_');
+  // 4. Modalidad y Destino
+  if (pedido.mode === 'pickup') {
+    L.push('🏪 *Modalidad:* _Recoger en el restaurante (Sin costo de envío)_');
   } else {
-    L.push('• *Modalidad:* _Recoger en el local 🏪_');
+    L.push(`📍 *Entrega:* _${pedido.delivery_address || 'Buenaventura'}_`);
+    if (pedido.delivery_instructions) {
+      L.push(`   ↳ 🔔 _Indicación: ${pedido.delivery_instructions}_`);
+    }
   }
+
+  // 5. Método de Pago y Total
+  const pagoTexto = pedido.payment_method === 'nequi'
+    ? (numeroPago ? `Nequi (${numeroPago})` : 'Nequi Directo (Transferencia)')
+    : 'Efectivo contra entrega (al recibir)';
+
+  L.push(`💳 *Pago:* _${pagoTexto}_`);
+  L.push(`💰 *Total a pagar: ${pesos(pedido.total)}*`);
   L.push('');
 
-  // Sección: Método de pago
-  const cierreFn = CIERRE_METODO[pedido.payment_method] || CIERRE_METODO.nequi;
-  L.push(cierreFn(numeroPago));
+  // 6. Seguimiento en vivo
+  L.push(`🗺️ *Seguimiento GPS:* https://turafood.com/tracking?order=${orderTrackingId}`);
   L.push('');
 
-  // Sección: Datos del cliente
-  L.push('👤 *DATOS DEL CLIENTE:*');
-  L.push(`• *Nombre:* _${cliente || 'Cliente Tura Food'}_`);
-  if (telefono) {
-    L.push(`• *Teléfono:* _${telefono}_`);
-  }
-  L.push('');
-
-  // Sección: Seguimiento en vivo GPS
-  const orderTrackingId = pedido.id || pedido.order_number || 'current';
-  L.push('🛵 *SEGUIMIENTO EN VIVO & MAPA GPS:*');
-  L.push(`https://turafood.com/tracking?order=${orderTrackingId}`);
-  L.push('');
-  L.push('═══════════════════════');
-  L.push('✨ _Generado automáticamente por Turafood.com_');
+  // 7. Cierre amigable y agradecimiento local <3
+  L.push('Quedo súper atento a su confirmación para iniciar la preparación. ¡Muchas gracias por apoyar los negocios locales! ❤️');
 
   return L.join('\n');
 }
