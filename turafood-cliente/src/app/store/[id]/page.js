@@ -306,7 +306,7 @@ export default function StorePage() {
             <button onClick={() => router.push('/cart')} style={S.cartBar}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 9, fontWeight: 800, fontSize: 15 }}>
                 <span style={S.cartCount}>{cartCount}</span>
-                Ir a comprar
+                Ver canasta de compra
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: 16 }}>
                 {cop(cartSubtotal)}
@@ -345,13 +345,56 @@ const S = {
     position: 'absolute', top: 52, left: 16, right: 16,
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   },
-  roundBtn: {
-    width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,.92)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  actionBtn: {
+    width: 42, height: 42, borderRadius: '50%', background: 'rgba(255,255,255,.92)',
+    backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 14px rgba(0,0,0,.15)', border: 'none', cursor: 'pointer',
   },
   sheet: {
-    background: 'var(--bg)', borderRadius: '28px 28px 0 0', marginTop: -24,
-    position: 'relative', padding: '18px 20px 0',
+    position: 'relative', marginTop: -24, borderRadius: '28px 28px 0 0',
+    background: 'var(--bg)', padding: '22px 20px 100px',
+  },
+  deskWrap: {
+    maxWidth: 960, margin: '0 auto', padding: '28px 24px 80px',
+  },
+  deskGrid: {
+    display: 'grid', gridTemplateColumns: '1fr', gap: 28,
+  },
+  pill: {
+    padding: '12px 14px', borderRadius: 16, background: 'var(--surface)',
+    border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10,
+  },
+  pillIcon: {
+    width: 36, height: 36, borderRadius: 10, background: 'rgba(255,68,31,.1)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+  },
+  couponBar: {
+    display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
+    borderRadius: 14, background: 'var(--amberSoft)', border: '1px solid rgba(255,176,32,.25)',
+    color: '#A8730B', fontSize: 13, fontWeight: 700,
+  },
+  catBar: {
+    display: 'flex', gap: 8, overflowX: 'auto', padding: '12px 0',
+    position: 'sticky', top: 0, zIndex: 10, background: 'var(--bg)',
+  },
+  catChip: {
+    flex: 'none', padding: '7px 16px', borderRadius: 999, fontSize: 13,
+    fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all .15s',
+  },
+  dishCard: {
+    display: 'flex', alignItems: 'center', gap: 14, padding: 14,
+    borderRadius: 18, background: 'var(--surface)', border: '1px solid var(--border)',
+    textAlign: 'left', cursor: 'pointer', transition: 'all .15s ease',
+  },
+  dishCover: {
+    width: 88, height: 88, borderRadius: 14, backgroundSize: 'cover',
+    backgroundPosition: 'center', flex: 'none', position: 'relative',
+    backgroundColor: 'var(--surface2)',
+  },
+  addMini: {
+    position: 'absolute', right: -6, bottom: -6, width: 30, height: 30, borderRadius: '50%',
+    background: 'var(--surface)', border: '1px solid var(--border)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadowSm)',
   },
   statCard: {
     flex: 1, background: 'var(--surface)', border: '1px solid var(--border)',
@@ -360,38 +403,16 @@ const S = {
   statLabel: {
     fontSize: 10.5, color: 'var(--muted)', fontWeight: 600, marginTop: 2,
   },
-  couponNotice: {
-    display: 'flex', alignItems: 'center', gap: 10, marginTop: 12,
-    background: '#FFF7E6', borderRadius: 14, padding: '11px 13px',
-  },
-  catBar: {
-    position: 'sticky', top: 0, zIndex: 5, display: 'flex', gap: 8,
-    background: 'var(--bg)', padding: '16px 20px 12px',
-    borderBottom: '1px solid var(--border)',
-  },
-  menuRow: {
-    display: 'flex', gap: 13, alignItems: 'center', textAlign: 'left',
-    padding: '14px 0', borderBottom: '1px solid var(--border)', width: '100%',
-  },
-  offTag: {
-    background: '#FFE9A3', fontSize: 10.5, fontWeight: 800, padding: '2px 5px', borderRadius: 5,
-  },
-  addChip: {
-    position: 'absolute', right: -6, bottom: -6, width: 30, height: 30, borderRadius: '50%',
-    background: 'var(--surface)', border: '1px solid var(--border)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadowSm)',
-  },
   cartBarWrap: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, padding: '12px 20px 20px',
-    background: 'linear-gradient(180deg,rgba(246,245,242,0),var(--bg) 40%)',
+    position: 'fixed', left: 0, right: 0, bottom: 0, padding: '12px 20px calc(14px + env(safe-area-inset-bottom, 0px))',
+    maxWidth: 540, margin: '0 auto', zIndex: 40,
+    background: 'linear-gradient(180deg, transparent 0%, var(--bg) 35%)',
   },
   cartBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
-    // Verde, distinto del naranja de "agregar": esta barra no agrega
-    // nada, te saca de la tienda para pagar.
-    height: 58, borderRadius: 999, color: '#fff',
+    height: 56, borderRadius: 999, color: '#fff',
     background: 'linear-gradient(96deg, #12B972 0%, #0E9E5F 100%)',
-    padding: '0 20px',
+    padding: '0 20px', border: 'none', cursor: 'pointer',
     boxShadow: '0 12px 30px rgba(14,158,95,.4), inset 0 1px 0 rgba(255,255,255,.22)',
   },
   cartCount: {

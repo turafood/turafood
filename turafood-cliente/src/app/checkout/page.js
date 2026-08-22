@@ -172,7 +172,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
     setPlacing(true);
     try {
-      // 1. El servidor crea el pedido
+      // 1. El servidor o la base de datos crea y persiste el pedido real
       const order = await placeOrder({
         businessId,
         items: toOrderItems(),
@@ -180,9 +180,14 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         addressId: address?.id ?? null,
         deliveryAddress: deliveryAddressText,
         deliveryInstructions: deliveryInstructionsText,
-        tip,
+        tip: t.tip,
         couponCode: coupon?.code ?? null,
         paymentMethod: methodToUse,
+        subtotal: t.subtotal,
+        deliveryFee: t.delivery,
+        serviceFee: t.service,
+        discount: t.discount,
+        total: t.total,
       });
 
       const productos = items.map((i) => ({
@@ -197,6 +202,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       const comandaText = comandaWhatsapp(
         {
           ...order,
+          order_number: order?.order_number || `TS-${String(order?.id || '').slice(0, 5)}`,
           subtotal: t.subtotal,
           delivery_fee: t.delivery,
           service_fee: t.service,
@@ -218,6 +224,18 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
       const whatsappUrl = linkWhatsapp(targetPhone, comandaText);
 
+      // Guardar comanda, orden activa y enlace de WhatsApp para que en /tracking siempre esté disponible
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('turafood_last_whatsapp_url', whatsappUrl);
+          localStorage.setItem('turafood_last_comanda_text', comandaText);
+          localStorage.setItem('turafood_active_order', JSON.stringify(order));
+          localStorage.setItem('turafood_last_order', JSON.stringify(order));
+          window.dispatchEvent(new CustomEvent('turafood:active-order', { detail: order }));
+          window.dispatchEvent(new CustomEvent('turafood:order-status', { detail: order }));
+        } catch {}
+      }
+
       anotarVarios(items.map((i) => i.productId), 'purchase');
       clearCart();
 
@@ -226,11 +244,15 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         try { navigator.vibrate([40, 60, 40]); } catch {}
       }
 
-      if (whatsappUrl) {
-        window.open(whatsappUrl, '_blank');
-      }
-
+      // 2. Navegar de inmediato a la pantalla de tracking con el ticket generado
       router.push(`/tracking?order=${order?.id || 'current'}`);
+
+      // 3. Abrir WhatsApp por defecto en nueva ventana
+      if (whatsappUrl && typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.open(whatsappUrl, '_blank');
+        }, 200);
+      }
     } catch (err) {
       setError(err.message);
       setPlacing(false);
@@ -238,14 +260,43 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
   };
 
   if (items.length === 0) {
+    let lastOrder = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('turafood_active_order') || localStorage.getItem('turafood_last_order');
+        if (cached) lastOrder = JSON.parse(cached);
+      } catch {}
+    }
+
     return (
       <>
         <div style={S.empty}>
-          <span className="ms" style={{ fontSize: 44, color: 'var(--faint)' }}>receipt_long</span>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, marginTop: 14 }}>
-            No hay nada que confirmar
+          <span className="ms ms-fill" style={{ fontSize: 48, color: 'var(--primary)' }}>
+            {lastOrder ? 'receipt_long' : 'shopping_basket'}
+          </span>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, marginTop: 14 }}>
+            {lastOrder ? '¡Pedido en curso!' : 'No hay productos en la canasta'}
           </div>
-          <button onClick={() => router.push('/home')} style={S.emptyBtn}>Ver restaurantes</button>
+          <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6, maxWidth: 300, textAlign: 'center' }}>
+            {lastOrder
+              ? `Tu pedido #${lastOrder.order_number || ''} está registrado. Puedes ver tu pedido y mapa GPS en tiempo real.`
+              : 'Explora nuestros restaurantes en Buenaventura y agrega deliciosos platos.'}
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {lastOrder && (
+              <button
+                onClick={() => router.push(`/tracking?order=${lastOrder.id || 'current'}`)}
+                style={{ ...S.emptyBtn, background: 'var(--primary)', color: '#fff', border: 'none' }}
+              >
+                <span className="ms ms-fill" style={{ fontSize: 18 }}>near_me</span>
+                <span>Ver Pedido y GPS</span>
+              </button>
+            )}
+            <button onClick={() => router.push('/home')} style={S.emptyBtn}>
+              Ver restaurantes
+            </button>
+          </div>
         </div>
       </>
     );
@@ -289,12 +340,11 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 </span>
               </button>
 
-              {/* Wizard Steps Header */}
+              {/* Wizard Steps Header - 2 Pasos PRO */}
               <div style={{ ...S.steps, margin: 0, padding: '8px 18px', background: 'var(--surface)', borderRadius: 16, border: '1px solid var(--border)' }}>
                 {[
-                  { id: 1, label: 'Canasta' },
-                  { id: 2, label: 'Confirmar' },
-                  { id: 3, label: 'Pagar' },
+                  { id: 1, label: 'Pedido y Entrega' },
+                  { id: 2, label: 'Método de Pago' },
                 ].map((st, i) => {
                   const done = wizardStep > st.id;
                   const now = wizardStep === st.id;
@@ -307,7 +357,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                         <span
                           style={{
                             ...S.stepDot,
-                            background: done ? 'var(--green)' : now ? 'var(--text)' : 'var(--surface2)',
+                            background: done ? 'var(--green)' : now ? 'var(--primary)' : 'var(--surface2)',
                             color: done || now ? '#fff' : 'var(--faint)',
                           }}
                         >
@@ -325,7 +375,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                           {st.label}
                         </span>
                       </button>
-                      {i < 2 && <span style={S.stepLine} />}
+                      {i < 1 && <span style={S.stepLine} />}
                     </span>
                   );
                 })}
@@ -335,7 +385,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         </div>
 
         {/* ============================================================
-            VISTA DESKTOP EXPANDIDA: WIZARD 2 COLUMNAS
+            VISTA DESKTOP EXPANDIDA: WIZARD 2 COLUMNAS (2 PASOS PRO)
             ============================================================ */}
         <div className="desktop-only sc" style={{ flex: 1, overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 960, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 24, alignItems: 'start' }}>
@@ -344,10 +394,11 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
             <div>
               {wizardStep === 1 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  {/* Card 1: Revisa tu Canasta */}
                   <div style={{ ...S.card, padding: 24 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                       <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19 }}>
-                        Paso 1: Revisa tu Canasta
+                        1. Revisa tu Canasta
                       </div>
                       <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)', background: 'var(--surface2)', padding: '4px 10px', borderRadius: 8 }}>
                         {items.length} {items.length === 1 ? 'ítem' : 'ítems'}
@@ -381,84 +432,54 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setWizardStep(2)}
-                    style={{
-                      width: '100%', height: 54, borderRadius: 16,
-                      background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-                      color: '#fff', fontSize: 16, fontWeight: 800, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                      boxShadow: '0 8px 24px rgba(255,68,31,0.25)',
-                    }}
-                  >
-                    <span>Continuar a Dirección y Entrega</span>
-                    <span className="ms" style={{ fontSize: 20 }}>arrow_forward</span>
-                  </button>
-                </div>
-              )}
-
-              {wizardStep === 2 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  <div style={{ ...S.card, padding: 24 }}>
-                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, marginBottom: 18 }}>
-                      Paso 2: Entrega y Dirección
+                  {/* Card 2: Entrega y Dirección Minimalista */}
+                  <div style={{ ...S.card, padding: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17 }}>
+                        2. Entrega y Dirección
+                      </div>
+                      <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 10, padding: 3, gap: 4 }}>
+                        {[
+                          { id: 'delivery', label: 'Domicilio', icon: 'electric_moped' },
+                          { id: 'pickup', label: 'Recoger', icon: 'storefront' },
+                        ].map((m) => {
+                          const active = mode === m.id;
+                          return (
+                            <button
+                              key={m.id}
+                              onClick={() => setMode(m.id)}
+                              style={{
+                                height: 30, padding: '0 10px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                                display: 'flex', alignItems: 'center', gap: 5,
+                                background: active ? 'var(--primary)' : 'transparent',
+                                color: active ? '#fff' : 'var(--muted)',
+                                cursor: 'pointer', transition: 'all .15s',
+                                border: 'none',
+                              }}
+                            >
+                              <span className="ms" style={{ fontSize: 15 }}>{m.icon}</span>
+                              {m.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {/* Domicilio / Recoger */}
-                    <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 14, padding: 5, gap: 6, marginBottom: 20 }}>
-                      {[
-                        { id: 'delivery', label: 'Domicilio en Buenaventura', icon: 'electric_moped' },
-                        { id: 'pickup', label: 'Recoger en Tienda', icon: 'storefront' },
-                      ].map((m) => {
-                        const active = mode === m.id;
-                        return (
-                          <button
-                            key={m.id}
-                            onClick={() => setMode(m.id)}
-                            style={{
-                              flex: 1, height: 46, borderRadius: 11, fontSize: 14, fontWeight: 700,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                              background: active ? 'var(--text)' : 'transparent',
-                              color: active ? '#fff' : 'var(--muted)',
-                              cursor: 'pointer', transition: 'all .15s',
-                            }}
-                          >
-                            <span className="ms" style={{ fontSize: 20 }}>{m.icon}</span>
-                            {m.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Dirección de Entrega Inline sin Overlays */}
+                    {/* Dirección de Entrega Inline */}
                     {mode === 'delivery' && (
-                      <div style={{ background: 'var(--surface2)', borderRadius: 16, padding: 20, border: '1px solid var(--border)', marginBottom: 20 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(255,68,31,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>location_on</span>
-                            </div>
-                            <div>
-                              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>DIRECCIÓN DE ENTREGA EN BUENAVENTURA</div>
-                              <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>
-                                {deliveryAddressText || 'Escribe tu dirección o elige un barrio'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Input de dirección directa */}
-                        <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {/* Buscador directo con GPS */}
+                        <div style={{ display: 'flex', gap: 8 }}>
                           <div style={{ position: 'relative', flex: 1 }}>
-                            <span className="ms" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: 'var(--muted)' }}>search</span>
+                            <span className="ms" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: 'var(--muted)' }}>location_on</span>
                             <input
                               value={deliveryAddressText}
                               onChange={(e) => setDeliveryAddressText(e.target.value)}
-                              placeholder="Ej. Carrera 3 # 4-58, Centro, Buenaventura"
+                              placeholder="Dirección en Buenaventura (Ej. Carrera 3 # 4-58)"
                               style={{
-                                width: '100%', height: 46, borderRadius: 12, padding: '0 14px 0 42px',
-                                border: '1px solid var(--border)', background: 'var(--surface)',
-                                fontSize: 14, color: 'var(--text)', outline: 'none', fontWeight: 600,
+                                width: '100%', height: 42, borderRadius: 12, padding: '0 12px 0 38px',
+                                border: '1px solid var(--border)', background: 'var(--surface2)',
+                                fontSize: 13.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
                               }}
                             />
                           </div>
@@ -472,285 +493,173 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                               }
                             }}
                             style={{
-                              padding: '0 16px', height: 46, borderRadius: 12, background: 'var(--surface)',
-                              border: '1px solid var(--border)', fontSize: 13, fontWeight: 800, color: 'var(--primary)',
-                              display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', flex: 'none',
+                              padding: '0 14px', height: 42, borderRadius: 12, background: 'var(--surface2)',
+                              border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 800, color: 'var(--primary)',
+                              display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', flex: 'none',
                             }}
                           >
-                            <span className="ms" style={{ fontSize: 18 }}>my_location</span>
-                            <span>Mi ubicación</span>
+                            <span className="ms" style={{ fontSize: 16 }}>my_location</span>
+                            <span>GPS</span>
                           </button>
                         </div>
 
-                        {/* Chips de Barrios Populares de Buenaventura - 1 sola fila limpia */}
+                        {/* Chips de Barrios Rápidos */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', flex: 'none' }}>Sugeridos:</span>
-                          {['Centro', 'Pueblo Nuevo', 'La Independencia', 'Bellavista'].map((b) => (
-                            <button
-                              key={b}
-                              onClick={() => setDeliveryAddressText(`${b}, Buenaventura`)}
-                              style={{
-                                padding: '4px 10px', borderRadius: 99, fontSize: 11.5, fontWeight: 700,
-                                background: deliveryAddressText.includes(b) ? 'var(--text)' : 'var(--surface)',
-                                color: deliveryAddressText.includes(b) ? '#fff' : 'var(--text)',
-                                border: '1px solid var(--border)', cursor: 'pointer', transition: 'all .15s',
-                                flex: 'none',
-                              }}
-                            >
-                              📍 {b}
-                            </button>
-                          ))}
+                          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', flex: 'none' }}>Barrios:</span>
+                          {['Centro', 'Pueblo Nuevo', 'La Independencia', 'Bellavista'].map((b) => {
+                            const active = deliveryAddressText.includes(b);
+                            return (
+                              <button
+                                key={b}
+                                onClick={() => setDeliveryAddressText(`${b}, Buenaventura`)}
+                                style={{
+                                  padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700,
+                                  background: active ? 'var(--primary)' : 'var(--surface2)',
+                                  color: active ? '#fff' : 'var(--text)',
+                                  border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
+                                  cursor: 'pointer', transition: 'all .15s',
+                                  flex: 'none',
+                                }}
+                              >
+                                📍 {b}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Indicaciones para el repartidor */}
+                        <input
+                          value={deliveryInstructionsText}
+                          onChange={(e) => setDeliveryInstructionsText(e.target.value)}
+                          placeholder="Indicaciones para el repartidor (opcional, ej. casa blanca timbre 201)"
+                          style={{
+                            width: '100%', height: 38, borderRadius: 10, padding: '0 12px',
+                            border: '1px solid var(--border)', background: 'var(--surface2)',
+                            fontSize: 12.5, color: 'var(--text)', outline: 'none',
+                          }}
+                        />
+
+                        {/* Hora estimada compacta */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid var(--border)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700 }}>
+                            <span className="ms" style={{ fontSize: 17, color: 'var(--primary)' }}>schedule</span>
+                            <span>{when === 'asap' ? `Hoy, ${deliveryWindow(store?.prep_time_min ?? 20)}` : schedule?.label ?? 'Programado'}</span>
+                            <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--green)', background: 'var(--greenSoft)', padding: '2px 6px', borderRadius: 999 }}>En vivo</span>
+                          </div>
+                          <button
+                            onClick={() => (when === 'asap' ? setScheduleOpen(true) : setWhen('asap'))}
+                            style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                          >
+                            {when === 'asap' ? 'Programar' : 'Lo antes posible'}
+                          </button>
                         </div>
                       </div>
                     )}
-
-                    {/* Instrucciones de entrega */}
-                    <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '14px 16px', border: '1px solid var(--border)', marginBottom: 14 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>edit_note</span>
-                        <span style={{ fontWeight: 800, fontSize: 13.5 }}>Indicaciones para el repartidor (Opcional)</span>
-                      </div>
-                      <input
-                        value={deliveryInstructionsText}
-                        onChange={(e) => setDeliveryInstructionsText(e.target.value)}
-                        placeholder="Ej. Casa de rejas blancas, timbre 201, dejar en recepción..."
-                        style={{
-                          width: '100%', height: 40, borderRadius: 10, padding: '0 12px',
-                          border: '1px solid var(--border)', background: 'var(--surface)',
-                          fontSize: 13, color: 'var(--text)', outline: 'none',
-                        }}
-                      />
-                    </div>
-
-                    {/* Hora de entrega */}
-                    <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '14px 16px', border: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>schedule</span>
-                          <span style={{ fontWeight: 800, fontSize: 14.5 }}>
-                            {when === 'asap' ? `Entrega Estimada: Hoy, ${deliveryWindow(store?.prep_time_min ?? 20)}` : schedule?.label ?? 'Programado'}
-                          </span>
-                        </div>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 800, color: 'var(--green)', background: '#E6F6EE', padding: '3px 8px', borderRadius: 999 }}>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--green)' }} />
-                          En vivo
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                        {[
-                          { id: 'asap', label: 'Lo antes posible' },
-                          { id: 'scheduled', label: 'Programar para más tarde' },
-                        ].map((w) => {
-                          const active = when === w.id;
-                          return (
-                            <button
-                              key={w.id}
-                              onClick={() => (w.id === 'scheduled' ? setScheduleOpen(true) : setWhen('asap'))}
-                              style={{
-                                flex: 1, height: 38, borderRadius: 10, fontSize: 13, fontWeight: 700,
-                                border: active ? '1.5px solid var(--text)' : '1px solid var(--border)',
-                                background: active ? 'var(--text)' : 'var(--surface)',
-                                color: active ? '#fff' : 'var(--muted)',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              {w.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 14 }}>
-                    <button
-                      onClick={() => setWizardStep(1)}
-                      style={{
-                        flex: 1, height: 48, borderRadius: 14,
-                        background: 'var(--surface)', color: 'var(--text)',
-                        border: '1px solid var(--border)', fontSize: 14.5, fontWeight: 700,
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                      }}
-                    >
-                      <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
-                      <span>Volver a Canasta</span>
-                    </button>
-                    <button
-                      onClick={() => setWizardStep(3)}
-                      style={{
-                        flex: 1.4, height: 48, borderRadius: 14,
-                        background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-                        color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        boxShadow: '0 8px 24px rgba(255,68,31,0.25)',
-                      }}
-                    >
-                      <span>Continuar al Pago</span>
-                      <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
-                    </button>
                   </div>
                 </div>
               )}
 
-              {wizardStep === 3 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {/* Método de pago Minimalista PRO */}
-                  <div style={{ ...S.card, padding: '22px 24px', borderRadius: 22 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                      <div>
-                        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: 'var(--text)' }}>
-                          Paso 3: Método de Pago
-                        </div>
-                        <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
-                          Pagas directamente al restaurante sin intermediación de fondos
-                        </div>
-                      </div>
-                      <span style={{
-                        background: 'rgba(16,185,129,0.1)', color: '#059669', fontSize: 11.5, fontWeight: 800,
-                        padding: '4px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 5,
-                        border: '1px solid rgba(16,185,129,0.2)',
-                      }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
-                        Comanda Directa
-                      </span>
+              {wizardStep === 2 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Método de pago Minimalista - 2 Líneas Máximo */}
+                  <div style={{ ...S.card, padding: 20 }}>
+                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 17, marginBottom: 14, color: 'var(--text)' }}>
+                      Método de Pago
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {ALL_PAYMENT_METHODS.map((m) => {
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {[
+                        { id: 'cash', label: 'Efectivo contraentrega', icon: 'payments', iconColor: '#FF9800', badge: 'Sin recargo' },
+                        { id: 'nequi', label: 'Nequi Directo', icon: 'account_balance_wallet', iconColor: '#7D25E8', badge: 'Transferencia' },
+                      ].map((m) => {
                         const on = payMethod === m.id;
                         return (
                           <button
                             key={m.id}
                             onClick={() => setPayMethod(m.id)}
                             style={{
-                              display: 'flex', alignItems: 'center', gap: 14,
-                              padding: '14px 16px', borderRadius: 16,
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              height: 48, padding: '0 14px', borderRadius: 12,
                               background: on ? 'var(--surface)' : 'var(--surface2)',
-                              border: on ? '2px solid #10B981' : '1px solid var(--border)',
-                              boxShadow: on ? '0 6px 20px rgba(16,185,129,0.12)' : 'none',
-                              cursor: 'pointer', transition: 'all .15s ease', textAlign: 'left',
+                              border: on ? '2px solid var(--green)' : '1px solid var(--border)',
+                              cursor: 'pointer', transition: 'all .15s ease', width: '100%',
+                              boxShadow: on ? '0 4px 14px rgba(16,185,129,0.12)' : 'none',
                             }}
                           >
-                            <div style={{
-                              width: 42, height: 42, borderRadius: 12,
-                              background: m.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              flex: 'none',
-                            }}>
-                              <span className="ms" style={{ fontSize: 22, color: m.iconColor }}>{m.icon}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span className="ms" style={{ fontSize: 20, color: m.iconColor }}>{m.icon}</span>
+                              <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)' }}>{m.label}</span>
                             </div>
 
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>
-                                  {m.label}
-                                </span>
-                                <span style={{
-                                  fontSize: 10.5, fontWeight: 800, color: m.badgeColor,
-                                  background: m.iconBg, padding: '2px 7px', borderRadius: 6,
-                                }}>
-                                  {m.badge}
-                                </span>
-                              </div>
-                              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
-                                {m.subtitle}
-                              </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', background: 'var(--surface2)', padding: '3px 7px', borderRadius: 6 }}>
+                                {m.badge}
+                              </span>
+                              <div style={{
+                                width: 18, height: 18, borderRadius: '50%',
+                                border: on ? '5px solid var(--green)' : '2px solid var(--border)',
+                                background: on ? '#fff' : 'transparent',
+                                flex: 'none',
+                              }} />
                             </div>
-
-                            {/* Minimalist Radio Indicator */}
-                            <div style={{
-                              width: 20, height: 20, borderRadius: '50%',
-                              border: on ? '5px solid #10B981' : '2px solid var(--border)',
-                              background: on ? '#fff' : 'transparent',
-                              flex: 'none', transition: 'all .15s ease',
-                            }} />
                           </button>
                         );
                       })}
                     </div>
-
-                    {/* Trust minimal note */}
-                    <div style={{
-                      marginTop: 14, padding: '10px 14px', borderRadius: 12,
-                      background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)',
-                      display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text)',
-                    }}>
-                      <span className="ms ms-fill" style={{ fontSize: 18, color: '#10B981', flex: 'none' }}>verified_user</span>
-                      <span style={{ fontWeight: 500 }}>
-                        <strong>Tura Food AI</strong> conecta tu orden directo al WhatsApp del restaurante. Cero fondos retenidos.
-                      </span>
-                    </div>
                   </div>
 
                   {/* Propina */}
-                  <div style={{ ...S.card, padding: 22 }}>
-                    <div style={{ fontWeight: 800, fontSize: 15 }}>Propina para el repartidor</div>
-                    <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-                      {TIPS.map((tp) => (
-                        <button
-                          key={tp.label}
-                          onClick={() => setTip(tp.value)}
-                          style={{
-                            flex: 1, height: 46, borderRadius: 14, fontSize: 14, fontWeight: 800,
-                            background: tip === tp.value ? 'var(--text)' : 'var(--surface2)',
-                            color: tip === tp.value ? '#fff' : 'var(--text)',
-                            border: tip === tp.value ? 'none' : '1px solid var(--border)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {tp.label}
-                        </button>
-                      ))}
+                  <div style={{ ...S.card, padding: 18 }}>
+                    <div style={{ fontWeight: 800, fontSize: 14 }}>Propina para el repartidor</div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                      {TIPS.map((tp) => {
+                        const active = tip === tp.value;
+                        return (
+                          <button
+                            key={tp.label}
+                            onClick={() => setTip(tp.value)}
+                            style={{
+                              flex: 1, height: 40, borderRadius: 10, fontSize: 13, fontWeight: 800,
+                              background: active ? 'var(--primary)' : 'var(--surface2)',
+                              color: active ? '#fff' : 'var(--text)',
+                              border: active ? 'none' : '1px solid var(--border)',
+                              cursor: 'pointer',
+                              boxShadow: active ? '0 4px 12px rgba(255,68,31,0.25)' : 'none',
+                              transition: 'all .15s',
+                            }}
+                          >
+                            {tp.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Cupón */}
-                  <div style={{ ...S.card, padding: 22 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                      <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>local_activity</span>
-                      <span style={{ fontWeight: 800, fontSize: 15 }}>Cupón o código de descuento</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 10 }}>
+                  <div style={{ ...S.card, padding: 18 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
                       <input
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value)}
-                        placeholder="Ej. TURA15"
-                        style={S.couponInput}
+                        placeholder="Cupón o código de descuento"
+                        style={{ ...S.couponInput, height: 42, fontSize: 13 }}
                       />
-                      <button onClick={applyCoupon} style={S.couponBtn}>Aplicar</button>
+                      <button onClick={applyCoupon} style={{ ...S.couponBtn, height: 42, fontSize: 13, padding: '0 16px' }}>Aplicar</button>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 16 }}>
+                  <div>
                     <button
-                      onClick={() => setWizardStep(2)}
+                      onClick={() => setWizardStep(1)}
                       style={{
-                        flex: 1, height: 54, borderRadius: 16,
-                        background: 'var(--surface)', color: 'var(--text)',
-                        border: '1px solid var(--border)', fontSize: 15, fontWeight: 700,
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                        padding: '8px 16px', borderRadius: 10,
+                        background: 'var(--surface)', color: 'var(--muted)',
+                        border: '1px solid var(--border)', fontSize: 13, fontWeight: 700,
+                        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
                       }}
                     >
-                      <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
-                      <span>Volver a Entrega</span>
-                    </button>
-
-                    <button
-                      onClick={() => handlePlaceOrder(payMethod)}
-                      disabled={placing || Boolean(falta)}
-                      style={{
-                        flex: 1.6, height: 54, borderRadius: 16,
-                        background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
-                        color: '#fff', fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                        boxShadow: '0 8px 24px rgba(37,211,102,0.35)',
-                        opacity: falta ? 0.55 : 1,
-                        border: 'none',
-                      }}
-                    >
-                      <WhatsAppIcon size={22} />
-                      <span>{placing ? 'Enviando...' : (falta ?? `Pedir por WhatsApp · ${cop(t.total)}`)}</span>
+                      <span className="ms" style={{ fontSize: 16 }}>arrow_back</span>
+                      <span>Volver a Modificar Pedido</span>
                     </button>
                   </div>
                 </div>
@@ -819,27 +728,12 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}
                   >
-                    <span>Continuar a Dirección</span>
+                    <span>Continuar a Pagar</span>
                     <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
                   </button>
                 )}
 
                 {wizardStep === 2 && (
-                  <button
-                    onClick={() => setWizardStep(3)}
-                    style={{
-                      width: '100%', height: 48, borderRadius: 14,
-                      background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-                      color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    }}
-                  >
-                    <span>Continuar al Pago</span>
-                    <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
-                  </button>
-                )}
-
-                {wizardStep === 3 && (
                   <button
                     onClick={() => handlePlaceOrder(payMethod)}
                     disabled={placing || Boolean(falta)}
@@ -1019,8 +913,8 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                       onClick={() => (w.id === 'scheduled' ? setScheduleOpen(true) : setWhen('asap'))}
                       style={{
                         flex: 1, height: 38, borderRadius: 9, fontSize: 12.5, fontWeight: 700,
-                        border: active ? '1.5px solid var(--text)' : '1px solid var(--border)',
-                        background: active ? 'var(--text)' : 'transparent',
+                        border: active ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                        background: active ? 'var(--primary)' : 'transparent',
                         color: active ? '#fff' : 'var(--muted)',
                         padding: '0 10px',
                       }}
@@ -1045,9 +939,10 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                     onClick={() => setTip(tp.value)}
                     style={{
                       flex: 1, height: 48, borderRadius: 14, fontSize: 13.5, fontWeight: 800,
-                      background: active ? 'var(--text)' : 'var(--surface)',
+                      background: active ? 'var(--primary)' : 'var(--surface)',
                       color: active ? '#fff' : 'var(--text)',
                       border: active ? 'none' : '1px solid var(--border)',
+                      boxShadow: active ? '0 4px 12px rgba(255,68,31,0.25)' : 'none',
                     }}
                   >
                     {tp.label}
@@ -1153,17 +1048,26 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
         <div className="mobile-only" style={S.bottom}>
           <div style={{ flex: 'none' }}>
-            <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Total a pagar</div>
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600 }}>Total a pagar</div>
+            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>
               {cop(t.total)}
             </div>
           </div>
           <button
-            onClick={() => setPaySheetOpen(true)}
+            onClick={() => handlePlaceOrder(payMethod)}
             disabled={placing || Boolean(falta)}
-            style={{ ...S.placeBtn, opacity: falta ? 0.55 : 1 }}
+            style={{
+              flex: 1, height: 50, borderRadius: 999,
+              background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
+              color: '#fff', fontWeight: 800, fontSize: 14.5,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(37,211,102,0.32)',
+              opacity: falta ? 0.55 : 1,
+            }}
           >
-            {falta ?? 'Hacer pedido'}
+            <WhatsAppIcon size={19} />
+            <span>{placing ? 'Enviando...' : (falta ?? 'Pedir por WhatsApp')}</span>
           </button>
         </div>
 
@@ -1309,13 +1213,15 @@ const S = {
   couponChip: {
     flex: 'none', display: 'flex', alignItems: 'center', gap: 6, height: 34,
     padding: '0 12px', borderRadius: 999, border: '1px dashed var(--primary)',
-    background: '#FFF6F2', fontSize: 12, fontWeight: 800,
+    background: 'var(--primarySoft)', fontSize: 12, fontWeight: 800,
     color: 'var(--primary)', whiteSpace: 'nowrap',
   },
   bottom: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
-    borderTop: '1px solid rgba(0,0,0,0.05)', padding: '14px 20px 20px',
-    display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 -4px 24px rgba(0,0,0,0.02)',
+    position: 'fixed', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
+    borderTop: '1px solid var(--border)', padding: '12px 20px calc(14px + env(safe-area-inset-bottom, 0px))',
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+    maxWidth: 540, margin: '0 auto', zIndex: 40,
+    boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
   },
   placeBtn: {
     flex: 1, height: 56, borderRadius: 999, background: 'var(--primary)', color: '#fff',
@@ -1323,7 +1229,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginTop: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   empty: {
@@ -1335,3 +1241,11 @@ const S = {
     background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: 15,
   },
 };
+
+function WhatsAppIcon({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 18.15c-1.49 0-2.94-.4-4.22-1.16l-.3-.18-3.13.82.84-3.05-.2-.32a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.188 8.188 0 012.42 5.83c0 4.55-3.7 8.26-8.23 8.26zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.06 0 1.21.89 2.39 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z" />
+    </svg>
+  );
+}

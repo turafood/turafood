@@ -309,19 +309,19 @@ const bg = (url) => ({
 const S = {
   closeBtn: {
     position: 'absolute', top: 52, left: 16, width: 38, height: 38, borderRadius: '50%',
-    background: 'rgba(255,255,255,.92)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center',
+    background: 'var(--surface)', color: 'var(--text)', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
   },
   sheet: {
     background: 'var(--bg)', borderRadius: '28px 28px 0 0', marginTop: -24,
     position: 'relative', padding: 20,
   },
   offTagBig: {
-    background: '#FFE9A3', fontSize: 11.5, fontWeight: 800, padding: '3px 6px', borderRadius: 6,
+    background: 'var(--amberSoft)', color: 'var(--amber)', fontSize: 11.5, fontWeight: 800, padding: '3px 6px', borderRadius: 6,
   },
   requiredTag: {
     fontSize: 11, fontWeight: 800, color: 'var(--primary)',
-    background: '#FFF1EC', padding: '4px 8px', borderRadius: 7,
+    background: 'var(--primarySoft)', padding: '4px 8px', borderRadius: 7,
   },
   optionRow: {
     display: 'flex', alignItems: 'center', gap: 12, background: 'var(--surface)',

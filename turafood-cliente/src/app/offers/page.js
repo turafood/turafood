@@ -173,7 +173,7 @@ const S = {
   },
   copyBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 14,
-    background: '#fff', color: 'var(--text)', fontWeight: 800, fontSize: 12,
+    background: 'var(--surface)', color: 'var(--text)', fontWeight: 800, fontSize: 12,
     padding: '9px 14px', borderRadius: 999, letterSpacing: '.04em',
   },
   storeRow: {
@@ -188,7 +188,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

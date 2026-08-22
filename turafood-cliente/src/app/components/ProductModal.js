@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { cop } from '@/lib/format';
 import { Cover } from './Media';
@@ -8,6 +9,7 @@ import { Cover } from './Media';
 const MAX_EXTRAS = 3;
 
 export default function ProductModal({ product, store, onClose }) {
+  const router = useRouter();
   const addLine = useCartStore((s) => s.addLine);
 
   const [sizeId, setSizeId] = useState(null);
@@ -83,7 +85,8 @@ export default function ProductModal({ product, store, onClose }) {
     setAdded(true);
     setTimeout(() => {
       onClose();
-    }, 400);
+      router.push('/cart');
+    }, 300);
   };
 
   if (!product) return null;

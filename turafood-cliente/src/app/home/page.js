@@ -289,219 +289,33 @@ export default function HomePage() {
             <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>expand_more</span>
           </button>
 
-          {/* BUSCADOR AJAX MATERIAL DESIGN 3 PRO */}
-          <div ref={searchBoxRef} style={{ flex: 1, position: 'relative', minWidth: 0, maxWidth: 640 }}>
-            <div style={{
-              ...S.deskSearch,
-              borderColor: deskFocused ? 'var(--primary)' : 'var(--border)',
-              boxShadow: deskFocused ? '0 0 0 3px rgba(255,68,31,0.15), var(--shadowSm)' : 'var(--shadowSm)',
-              transition: 'all .2s ease',
-            }}>
-              {deskSearching ? (
-                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', animation: 'spin 1s linear infinite' }}>sync</span>
-              ) : (
-                <span className="ms" style={{ fontSize: 20, color: deskFocused ? 'var(--primary)' : 'var(--muted)' }}>search</span>
-              )}
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setDeskFocused(true)}
-                placeholder="Busca cualquier plato, producto o restaurante..."
-                style={{ flex: 1, border: 'none', outline: 'none', background: 'none', fontSize: 14.5, minWidth: 0, color: 'var(--text)', fontWeight: 500 }}
-              />
-              {hasSearchQuery && (
-                <button
-                  onClick={() => { setQuery(''); setDeskSearchRes({ businesses: [], products: [] }); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 2 }}
-                  aria-label="Limpiar búsqueda"
-                >
-                  <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>cancel</span>
-                </button>
-              )}
-            </div>
-
-            {/* DROPDOWN AJAX FLOTANTE MATERIAL DESIGN 3 */}
-            {showSearchDropdown && (
-              <div style={S.deskResults}>
-                {/* Sugerencias rápidas cuando el input está vacío */}
-                {!hasSearchQuery && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span className="ms" style={{ fontSize: 14, color: 'var(--primary)' }}>trending_up</span>
-                      BÚSQUEDAS POPULARES EN BUENAVENTURA
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {['Encocado de jaiba', 'Picada del puerto', 'Hamburguesa criolla', 'Pargo rojo frito', 'Ceviche de camarón', 'Licores'].map((item) => (
-                        <button
-                          key={item}
-                          onClick={() => { setQuery(item); setDeskFocused(true); }}
-                          style={{
-                            padding: '6px 12px', borderRadius: 99, background: 'var(--surface2)',
-                            border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 600,
-                            color: 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
-                            transition: 'all .15s ease',
-                          }}
-                          onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.color = 'var(--primary)'; }}
-                          onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)'; }}
-                        >
-                          <span className="ms" style={{ fontSize: 14, color: 'var(--muted)' }}>search</span>
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 1. SECCIÓN DE PLATOS Y PRODUCTOS ENCONTRADOS */}
-                {deskSearchRes.products.length > 0 && (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', padding: '0 4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>PLATOS Y PRODUCTOS ({deskSearchRes.products.length})</span>
-                      <span style={{ fontSize: 10.5, color: 'var(--primary)', fontWeight: 700 }}>Clic para abrir en la tienda</span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {deskSearchRes.products.map((p) => {
-                        const targetBizId = p.business_id ?? p.business?.id;
-                        return (
-                          <div
-                            key={p.id}
-                            onClick={() => {
-                              setDeskFocused(false);
-                              if (targetBizId) {
-                                router.push(`/store/${targetBizId}?product=${p.id}`);
-                              }
-                            }}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
-                              borderRadius: 14, background: 'var(--surface2)', cursor: 'pointer',
-                              border: '1px solid transparent', transition: 'all .15s ease',
-                            }}
-                            onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.background = 'var(--surface)'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'var(--surface2)'; }}
-                          >
-                            <Cover src={p.image_url} alt={p.name} radius={12} sizes="60px" style={{ width: 56, height: 56, flex: 'none' }} />
-                            <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span className="tr1" style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>
-                                  {p.name}
-                                </span>
-                                <span style={{
-                                  fontSize: 10, fontWeight: 800, background: 'rgba(16,185,129,0.12)',
-                                  color: '#059669', padding: '2px 6px', borderRadius: 6, flex: 'none',
-                                }}>
-                                  Disponible
-                                </span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
-                                <span style={{ fontSize: 14, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
-                                  {cop(p.price)}
-                                </span>
-                                {p.business?.name && (
-                                  <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <span>·</span>
-                                    <span className="ms" style={{ fontSize: 13 }}>storefront</span>
-                                    <span className="tr1">{p.business.name}</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Botón rápido para comprar / pedir en la tienda */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDeskFocused(false);
-                                addLine(
-                                  {
-                                    productId: p.id,
-                                    name: p.name,
-                                    unitPrice: p.price,
-                                    basePrice: p.price,
-                                    comparePrice: null,
-                                    image_url: p.image_url,
-                                    extraIds: [],
-                                    notes: '',
-                                    opts: '',
-                                    qty: 1,
-                                  },
-                                  {
-                                    id: targetBizId,
-                                    name: p.business?.name ?? 'Restaurante',
-                                    image: p.image_url,
-                                  }
-                                );
-                                router.push('/cart');
-                              }}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: 4,
-                                padding: '6px 12px', borderRadius: 10,
-                                background: 'linear-gradient(135deg, #10B981, #059669)',
-                                color: '#fff', border: 'none', cursor: 'pointer',
-                                fontWeight: 800, fontSize: 12, flex: 'none',
-                                boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
-                              }}
-                              title="Pedir y agregar al carrito"
-                            >
-                              <span className="ms ms-fill" style={{ fontSize: 14 }}>bolt</span>
-                              <span>Pedir</span>
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* 2. SECCIÓN DE RESTAURANTES Y TIENDAS */}
-                {deskSearchRes.businesses.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', padding: '0 4px 8px' }}>
-                      RESTAURANTES Y TIENDAS ({deskSearchRes.businesses.length})
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {deskSearchRes.businesses.map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => {
-                            setDeskFocused(false);
-                            router.push(`/store/${s.id}`);
-                          }}
-                          style={S.deskResultRow}
-                        >
-                          <Cover src={s.cover_url} alt={s.name} radius={12} sizes="48px" style={{ width: 48, height: 48, flex: 'none' }} />
-                          <span style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span className="tr1" style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)' }}>{s.name}</span>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, background: 'rgba(255,184,0,0.12)', padding: '1px 5px', borderRadius: 5, fontSize: 11, fontWeight: 800, color: 'var(--text)' }}>
-                                <span className="ms ms-fill" style={{ fontSize: 11, color: 'var(--amber)' }}>star</span>
-                                {s.rating}
-                              </span>
-                            </div>
-                            <span className="tr1" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                              {s.category} · {etaLabel(s.prep_time_min)} · {feeLabel(s.delivery_fee)}
-                            </span>
-                          </span>
-                          <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>chevron_right</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Sin resultados */}
-                {searchIsEmpty && (
-                  <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--muted)' }}>
-                    <span className="ms" style={{ fontSize: 32, color: 'var(--faint)' }}>search_off</span>
-                    <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)', marginTop: 8 }}>
-                      No se encontraron resultados para &quot;{query}&quot;
-                    </div>
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 4 }}>
-                      Intenta buscar por ingrediente (jaiba, carne, pollo, arroz) o tipo de comida.
-                    </div>
-                  </div>
-                )}
+          {/* BUSCADOR FLOTANTE SPOTLIGHT PRO */}
+          <div style={{ flex: 1, position: 'relative', minWidth: 0, maxWidth: 640 }}>
+            <div
+              onClick={openSearch}
+              style={{
+                ...S.deskSearch,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all .2s ease',
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
+                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>search</span>
+                <span style={{ fontSize: 14.5, color: 'var(--muted)', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Busca cualquier plato, producto o restaurante en Buenaventura...
+                </span>
               </div>
-            )}
+              <kbd style={{
+                background: 'var(--surface2)', border: '1px solid var(--border)',
+                borderRadius: 6, padding: '2px 8px', fontSize: 11.5, fontWeight: 700,
+                color: 'var(--muted)', fontFamily: 'inherit',
+              }}>/</kbd>
+            </div>
           </div>
 
           <button
@@ -607,7 +421,7 @@ export default function HomePage() {
               </h2>
 
               <p style={{ margin: 0, fontSize: 14.5, color: 'rgba(255,255,255,0.72)', lineHeight: 1.5, maxWidth: 560 }}>
-                Crea tu cuenta gratis hoy y ten tu negocio digital funcionando en minutos, con comanda directa a WhatsApp.
+                Crea tu cuenta gratis hoy y ten tu negocio digital funcionando en minutos, con pedidos directos a WhatsApp.
               </p>
 
               {/* Plazas y Urgencia */}

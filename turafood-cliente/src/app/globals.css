@@ -19,10 +19,19 @@
   --primary: #FF441F;
   --primaryDark: #E2360F;
   --onPrimary: #FFFFFF;
+  --primarySoft: #FFF0ED;
+  --primarySoftBorder: rgba(255, 68, 31, 0.20);
 
   --green: #11B26A;
+  --greenSoft: #E6F6EE;
+  --greenSoftBorder: rgba(17, 178, 106, 0.22);
+
   --amber: #FFB020;
+  --amberSoft: #FFF7E6;
+  --amberSoftBorder: rgba(255, 176, 32, 0.25);
+
   --blue: #2E6BFF;
+  --blueSoft: #EDF3FF;
 
   --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
   --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
@@ -42,17 +51,26 @@ html.dark,
   --text: #F7F5F2;
   --muted: #A39B91;
   --faint: #635D55;
-  --border: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.10);
 
   --primary: #FF5533;
   --primaryDark: #FF441F;
   --onPrimary: #FFFFFF;
+  --primarySoft: rgba(255, 85, 51, 0.15);
+  --primarySoftBorder: rgba(255, 85, 51, 0.30);
 
   --green: #15D880;
-  --amber: #FFC043;
-  --blue: #4D84FF;
+  --greenSoft: rgba(21, 216, 128, 0.15);
+  --greenSoftBorder: rgba(21, 216, 128, 0.30);
 
-  --shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  --amber: #FFC043;
+  --amberSoft: rgba(255, 192, 67, 0.15);
+  --amberSoftBorder: rgba(255, 192, 67, 0.30);
+
+  --blue: #4D84FF;
+  --blueSoft: rgba(77, 132, 255, 0.15);
+
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
   --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.35);
 }
 

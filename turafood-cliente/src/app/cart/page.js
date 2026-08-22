@@ -34,6 +34,7 @@ export default function CartPage() {
 
   const [store, setStore] = useState(null);
   const [turbo, setTurbo] = useState(false);
+  const [suggested, setSuggested] = useState([]);
 
   useEffect(() => {
     if (!businessId) return;
@@ -274,12 +275,14 @@ export default function CartPage() {
                 {/* Banner de mínimo de compra */}
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 12,
-                  background: meetsMin ? '#E6F6EE' : '#FFF7E6', marginBottom: 16,
+                  background: meetsMin ? 'var(--greenSoft)' : 'var(--amberSoft)',
+                  border: `1px solid ${meetsMin ? 'var(--greenSoftBorder)' : 'var(--amberSoftBorder)'}`,
+                  marginBottom: 16,
                 }}>
-                  <span className="ms" style={{ fontSize: 18, color: meetsMin ? 'var(--green)' : '#A8730B' }}>
+                  <span className="ms" style={{ fontSize: 18, color: meetsMin ? 'var(--green)' : 'var(--amber)' }}>
                     {meetsMin ? 'check_circle' : 'info'}
                   </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: meetsMin ? '#0B7A48' : '#7A5405' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: meetsMin ? 'var(--green)' : 'var(--amber)' }}>
                     {meetsMin
                       ? 'Completaste el mínimo de compra'
                       : `Te faltan ${cop(minOrder - subtotal)} para el mínimo`}
@@ -463,19 +466,28 @@ export default function CartPage() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, paddingTop: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, paddingTop: 12 }}>
             <div style={{ flex: 'none' }}>
-              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Total</div>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22 }}>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600 }}>Total</div>
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>
                 {cop(turaTotal)}
               </div>
             </div>
             <button
               onClick={() => router.push('/checkout')}
               disabled={!meetsMin}
-              style={{ ...S.continueBtn, opacity: meetsMin ? 1 : 0.5 }}
+              style={{
+                flex: 1, height: 50, borderRadius: 999,
+                background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                color: '#fff', fontWeight: 800, fontSize: 14.5,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                border: 'none', cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(255,68,31,0.32)',
+                opacity: meetsMin ? 1 : 0.5,
+              }}
             >
-              Continuar
+              <span>Ir al Checkout</span>
+              <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
             </button>
           </div>
         </div>
@@ -571,8 +583,10 @@ const S = {
     borderRadius: 20, padding: '20px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
   },
   bottom: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
-    borderTop: '1px solid var(--border)', padding: '0 20px 20px',
+    position: 'fixed', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
+    borderTop: '1px solid var(--border)', padding: '0 20px calc(14px + env(safe-area-inset-bottom, 0px))',
+    maxWidth: 540, margin: '0 auto', zIndex: 40,
+    boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
   },
   continueBtn: {
     flex: 1, height: 56, borderRadius: 999, background: 'var(--primary)', color: '#fff',

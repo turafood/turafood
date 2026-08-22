@@ -106,15 +106,24 @@ export async function getLiveOrders(businessId) {
   }
 
   const supabase = createClient();
-  const { data, error } = await supabase
+  let res = await supabase
     .from('orders')
-    .select('*, items:order_items(*), customer:profiles!orders_customer_id_fkey(full_name, phone)')
+    .select('*, items:order_items(*), customer:profiles(full_name, phone)')
     .eq('business_id', businessId)
     .in('status', LIVE_STATUSES)
     .order('created_at', { ascending: true });
 
-  if (error) throw new Error(`No se pudieron cargar los pedidos: ${error.message}`);
-  return data ?? [];
+  if (res.error) {
+    res = await supabase
+      .from('orders')
+      .select('*, items:order_items(*)')
+      .eq('business_id', businessId)
+      .in('status', LIVE_STATUSES)
+      .order('created_at', { ascending: true });
+  }
+
+  if (res.error) throw new Error(`No se pudieron cargar los pedidos: ${res.error.message}`);
+  return res.data ?? [];
 }
 
 /**

@@ -23,6 +23,7 @@ import SearchOverlay from './SearchOverlay';
 import LiveOrders from './LiveOrders';
 import AiOverlay, { useAi } from './AiOverlay';
 import RehidratarCarrito from './RehidratarCarrito';
+import ActiveOrderCapsule from './ActiveOrderCapsule';
 
 /** Rutas a pantalla completa: sin barra inferior */
 const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate'];
@@ -131,6 +132,7 @@ export default function AppShell({ children }) {
             {/* Botón flotante de Tura IA */}
             {showNav && <AiFab />}
 
+            <ActiveOrderCapsule />
             <LiveOrders />
             <SearchOverlay />
             <AiOverlay />

@@ -32,7 +32,7 @@ import { useDialogOpen } from '@/lib/useDialogOpen';
  *     (pasa al entrar por "Solo estoy mirando" y volver a la
  *     pantalla de acceso con el carrito ya lleno).
  */
-const HIDDEN_ON = ['/cart', '/checkout', '/product', '/tracking', '/rate', '/auth'];
+const HIDDEN_ON = ['/cart', '/checkout', '/product', '/tracking', '/rate', '/auth', '/chat', '/help', '/payment'];
 
 export default function FloatingCart() {
   const router = useRouter();
@@ -55,12 +55,12 @@ export default function FloatingCart() {
     <button
       onClick={() => router.push('/cart')}
       style={styles.pill}
-      aria-label={`Ir a comprar, ${count} ${count === 1 ? 'producto' : 'productos'}, total ${cop(subtotal)}`}
+      aria-label={`Ver canasta de compra, ${count} ${count === 1 ? 'producto' : 'productos'}, total ${cop(subtotal)}`}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span style={styles.badge}>{count}</span>
-        <span style={{ fontSize: 16, fontWeight: 800 }}>
-          Ir a comprar
+        <span style={{ fontSize: 15.5, fontWeight: 800 }}>
+          Ver canasta de compra
         </span>
       </div>
 
@@ -73,15 +73,17 @@ export default function FloatingCart() {
 
 const styles = {
   pill: {
-    position: 'absolute',
+    position: 'fixed',
     left: 20,
     right: 20,
+    maxWidth: 460,
+    margin: '0 auto',
     bottom: 84,
     zIndex: 70,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 56,
+    height: 54,
     padding: '0 18px 0 12px',
     borderRadius: 999,
     background: 'linear-gradient(96deg, #12B972 0%, #0E9E5F 100%)',
@@ -89,6 +91,7 @@ const styles = {
     boxShadow: '0 12px 30px rgba(14,158,95,.42), inset 0 1px 0 rgba(255,255,255,.22)',
     animation: 'up .22s ease both',
     border: 'none',
+    cursor: 'pointer',
   },
   badge: {
     flex: 'none',

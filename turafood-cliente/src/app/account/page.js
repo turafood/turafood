@@ -19,45 +19,46 @@ import { Cover } from '../components/Media';
 
 const QUICK_TILES = [
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos', href: '/account/orders' },
-  { id: 'help', icon: 'headset_mic', label: 'Ayuda', href: '/help' },
-  { id: 'pay', icon: 'credit_card', label: 'Métodos de pago', href: '/account/wallet' },
+  { id: 'help', icon: 'verified_user', label: 'Garantía & Ayuda', href: '/help' },
+  { id: 'pay', icon: 'credit_card', label: 'Billetera & Pagos', href: '/account/wallet' },
 ];
 
 const SECTIONS = [
   {
     id: 'benefits',
-    title: 'Beneficios',
+    title: 'Beneficios y Saldo',
     rows: [
-      { icon: 'account_balance_wallet', label: 'Créditos Tura', href: '/account/wallet', valueKey: 'credits' },
-      { icon: 'local_activity', label: 'Cupones', href: '/offers', value: '3 activos' },
-      { icon: 'group_add', label: 'Afiliados', href: '/account/referrals', value: 'Gana 10%' },
+      { icon: 'account_balance_wallet', label: 'Billetera & Créditos Tura', href: '/account/wallet', valueKey: 'credits' },
+      { icon: 'local_activity', label: 'Cupones y Promociones', href: '/offers', value: '3 activos' },
+      { icon: 'group_add', label: 'Programa de Afiliados', href: '/account/referrals', value: 'Gana 10%' },
     ],
   },
   {
     id: 'mine',
-    title: 'Mi cuenta',
+    title: 'Mi cuenta & Seguridad',
     rows: [
-      { icon: 'workspace_premium', label: 'Tura Plus', href: '/plus' },
-      { icon: 'location_on', label: 'Direcciones', href: '/account/addresses' },
-      { icon: 'credit_card', label: 'Métodos de pago', href: '/account/wallet' },
-      { icon: 'receipt_long', label: 'Mis pedidos', href: '/account/orders' },
+      { icon: 'verified_user', label: 'Garantía TuraFood y Reclamaciones', href: '/help', value: '100% Protegido' },
+      { icon: 'workspace_premium', label: 'Tura Plus (Envíos Gratis)', href: '/plus' },
+      { icon: 'location_on', label: 'Direcciones guardadas', href: '/account/addresses' },
+      { icon: 'credit_card', label: 'Métodos de pago y Nequi', href: '/account/wallet' },
+      { icon: 'receipt_long', label: 'Historial de pedidos', href: '/account/orders' },
     ],
   },
   {
     id: 'settings',
     title: 'Ajustes',
     rows: [
-      { icon: 'notifications', label: 'Notificaciones', href: '/notifications' },
+      { icon: 'notifications', label: 'Notificaciones Push', href: '/notifications' },
     ],
   },
   {
     id: 'more',
-    title: 'Más información',
+    title: 'Más información y Negocios',
     rows: [
-      { icon: 'storefront', label: 'Registra tu negocio', href: '/help' },
-      { icon: 'two_wheeler', label: 'Sé repartidor Tura', href: '/help' },
-      { icon: 'headset_mic', label: 'Ayuda y soporte', href: '/help' },
-      { icon: 'info', label: 'Términos y condiciones', href: '/help' },
+      { icon: 'storefront', label: 'Registra tu negocio en app.turafood.com', href: 'https://app.turafood.com' },
+      { icon: 'two_wheeler', label: 'Sé repartidor oficial Tura', href: '/help' },
+      { icon: 'headset_mic', label: 'Centro de Ayuda y Soporte Oficial', href: '/help' },
+      { icon: 'info', label: 'Términos de servicio y Garantía', href: '/help' },
       { icon: 'shield', label: 'Política de privacidad', href: '/help' },
     ],
   },
@@ -267,7 +268,7 @@ const S = {
   },
   plusCard: {
     display: 'block', width: 'calc(100% - 40px)', margin: '18px 20px 0',
-    textAlign: 'left', border: '1px solid #F0C97A', background: '#FFFBF2',
+    textAlign: 'left', border: '1px solid var(--amberSoftBorder)', background: 'var(--amberSoft)',
     borderRadius: 18, padding: 16,
   },
   tile: {

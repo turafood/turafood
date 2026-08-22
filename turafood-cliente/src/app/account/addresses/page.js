@@ -217,7 +217,7 @@ const S = {
   addBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
     width: '100%', height: 52, borderRadius: 16, marginTop: 14,
-    border: '1.5px dashed var(--primary)', background: '#FFF6F2',
+    border: '1.5px dashed var(--primary)', background: 'var(--primarySoft)',
     color: 'var(--primary)', fontWeight: 800, fontSize: 14.5,
   },
   icon: {
@@ -226,7 +226,7 @@ const S = {
   },
   defaultTag: {
     fontSize: 9, fontWeight: 800, letterSpacing: '.04em',
-    background: '#FFF1EC', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '3px 6px', borderRadius: 5,
   },
   radio: {
@@ -252,7 +252,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

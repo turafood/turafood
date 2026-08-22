@@ -14,12 +14,12 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 
 /** Mensaje por estado. Solo avisamos de los que le importan al cliente. */
 const MESSAGES = {
-  pending: { icon: 'hourglass_top', tone: '#FF441F', title: 'Comanda en vivo enviada', body: 'Pendiente de confirmación por el restaurante' },
+  pending: { icon: 'hourglass_top', tone: '#FF441F', title: 'Pedido enviado en vivo', body: 'Pendiente de confirmación por el restaurante' },
   accepted: { icon: 'restaurant', tone: '#2E6BFF', title: 'Pedido aceptado', body: 'El negocio ya está preparando tu pedido' },
   preparing: { icon: 'skillet', tone: '#A8730B', title: 'En preparación', body: 'Tu comida se está preparando' },
   ready: { icon: 'takeout_dining', tone: '#11B26A', title: 'Pedido listo', body: 'Buscando repartidor' },
@@ -32,9 +32,10 @@ const MESSAGES = {
 
 export default function LiveOrders() {
   const router = useRouter();
+  const pathname = usePathname();
   const [toast, setToast] = useState(null);
 
-  // Escuchar eventos locales de creación de comanda
+  // Escuchar eventos locales de creación de pedido
   useEffect(() => {
     let timer;
     const handleOrderEvent = (e) => {
@@ -100,7 +101,8 @@ export default function LiveOrders() {
     };
   }, []);
 
-  if (!toast) return null;
+  // Si no hay toast o ya estamos en la página de tracking, no mostramos el banner flotante
+  if (!toast || pathname?.startsWith('/tracking')) return null;
 
   const openOrder = () => {
     const href = toast.title === 'Pedido entregado'
@@ -116,7 +118,7 @@ export default function LiveOrders() {
         <span className="ms" style={{ fontSize: 21, color: toast.tone }}>{toast.icon}</span>
       </span>
       <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-        <span style={{ display: 'block', fontWeight: 800, fontSize: 13.5 }}>{toast.title}</span>
+        <span style={{ display: 'block', fontWeight: 800, fontSize: 13.5, color: 'var(--text)' }}>{toast.title}</span>
         <span className="tr1" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>
           #{toast.orderNumber} · {toast.body}
         </span>
@@ -128,15 +130,16 @@ export default function LiveOrders() {
 
 const S = {
   toast: {
-    position: 'absolute', top: 52, left: 14, right: 14, zIndex: 400,
+    position: 'fixed', top: 16, left: 16, right: 16, zIndex: 9999,
     display: 'flex', alignItems: 'center', gap: 11,
     background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: 18, padding: 12,
-    boxShadow: '0 14px 40px rgba(20,16,10,.18)',
+    borderRadius: 18, padding: '10px 14px',
+    boxShadow: '0 12px 36px rgba(0,0,0,0.18)',
     animation: 'banner .3s cubic-bezier(.32,.72,0,1) both',
+    maxWidth: 440, margin: '0 auto', cursor: 'pointer',
   },
   icon: {
-    width: 40, height: 40, borderRadius: 13, flex: 'none',
+    width: 38, height: 38, borderRadius: 12, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
 };

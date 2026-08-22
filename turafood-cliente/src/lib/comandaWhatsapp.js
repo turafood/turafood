@@ -130,6 +130,12 @@ export function comandaWhatsapp(pedido, items = [], extra = {}) {
     L.push(`• *Teléfono:* _${telefono}_`);
   }
   L.push('');
+
+  // Sección: Seguimiento en vivo GPS
+  const orderTrackingId = pedido.id || pedido.order_number || 'current';
+  L.push('🛵 *SEGUIMIENTO EN VIVO & MAPA GPS:*');
+  L.push(`https://turafood.com/tracking?order=${orderTrackingId}`);
+  L.push('');
   L.push('═══════════════════════');
   L.push('✨ _Generado automáticamente por Turafood.com_');
 
@@ -154,3 +160,4 @@ export function linkWhatsapp(telefono, texto) {
   // URL universal compatible
   return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(texto)}`;
 }
+

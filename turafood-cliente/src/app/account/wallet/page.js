@@ -289,7 +289,7 @@ const S = {
   addBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
     width: '100%', height: 52, borderRadius: 16, marginTop: 14,
-    border: '1.5px dashed var(--primary)', background: '#FFF6F2',
+    border: '1.5px dashed var(--primary)', background: 'var(--primarySoft)',
     color: 'var(--primary)', fontWeight: 800, fontSize: 14.5,
   },
   methodRow: {
@@ -314,7 +314,7 @@ const S = {
     padding: '14px 0', borderBottom: '1px solid var(--border)',
   },
   txIcon: {
-    width: 36, height: 36, borderRadius: '50%', background: '#E6F6EE',
+    width: 36, height: 36, borderRadius: '50%', background: 'var(--greenSoft)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
   empty: {
@@ -323,7 +323,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

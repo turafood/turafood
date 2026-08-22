@@ -17,11 +17,14 @@ import Script from 'next/script';
 import { getOrder, subscribeToOrder } from '@/lib/data';
 import { BUENAVENTURA } from '@/lib/seed';
 import { ORDER_STATUS, cop } from '@/lib/format';
+import { comandaWhatsapp, linkWhatsapp } from '@/lib/comandaWhatsapp';
 import RouteSkeleton from '../components/RouteSkeleton';
 import { cargarLeafletCss } from '@/lib/leafletCss';
 import { useThemeStore } from '@/store/useThemeStore';
+import ComandaTicket from '../components/ComandaTicket';
 
 /** Pasos del flujo de entrega */
+
 const STEPS = ['pending', 'accepted', 'preparing', 'picked_up', 'delivering', 'delivered'];
 
 const STEP_INDEX = {
@@ -38,12 +41,12 @@ const STEP_INDEX = {
 const STEP_DETAILS = {
   pending: {
     label: 'Pendiente de Confirmación',
-    title: 'Comanda en Vivo Enviada',
+    title: 'Pedido Registrado y Enviado',
     desc: 'El restaurante está revisando tu orden para confirmarla.',
-    pushBody: 'Tu comanda fue recibida por el restaurante y está pendiente de confirmación.',
+    pushBody: 'Tu pedido fue recibido por el restaurante y está pendiente de confirmación.',
     icon: 'hourglass_top',
     color: '#FF9800',
-    progress: 10,
+    progress: 15,
     routeIndex: 0,
   },
   accepted: {
@@ -230,6 +233,54 @@ function TrackingPage() {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
+  // Abrir o reenviar comanda directa en WhatsApp del restaurante
+  const openRestaurantWhatsapp = () => {
+    if (typeof window !== 'undefined') {
+      const cachedUrl = localStorage.getItem('turafood_last_whatsapp_url');
+      if (cachedUrl) {
+        window.open(cachedUrl, '_blank');
+        return;
+      }
+    }
+
+    if (order) {
+      const targetPhone = order.business?.whatsapp_phone || order.business?.phone || '+573026886449';
+      const itemsList = (order.items || []).map((i) => ({
+        name: i.name,
+        qty: i.quantity || 1,
+        unitPrice: i.unit_price || 0,
+        opts: i.notes || '',
+        notes: i.notes || '',
+      }));
+
+      const comandaText = comandaWhatsapp(
+        {
+          ...order,
+          order_number: order.order_number || `TS-${String(order.id || '').slice(0, 5)}`,
+          subtotal: order.subtotal || order.total || 0,
+          delivery_fee: order.delivery_fee || 0,
+          service_fee: order.service_fee || 0,
+          tip: order.tip || 0,
+          discount: order.discount || 0,
+          total: order.total || 0,
+          mode: order.mode || 'delivery',
+          delivery_address: order.delivery_address || '',
+          delivery_instructions: order.delivery_instructions || '',
+          payment_method: order.payment_method || 'cash',
+        },
+        itemsList,
+        {
+          negocio: order.business?.name || 'Restaurante',
+          cliente: 'Cliente Tura Food',
+          numeroPago: order.business?.nequi_phone || order.business?.phone || '',
+        }
+      );
+
+      const url = linkWhatsapp(targetPhone, comandaText);
+      if (url) window.open(url, '_blank');
+    }
+  };
+
   // Cargar CSS y comprobar si Leaflet ya está en window
   useEffect(() => {
     cargarLeafletCss();
@@ -267,8 +318,27 @@ function TrackingPage() {
         const initStatus = data.status || 'pending';
         setCurrentStatus(initStatus);
 
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('turafood_active_order', JSON.stringify(data));
+            localStorage.setItem('turafood_last_order', JSON.stringify(data));
+            window.dispatchEvent(new CustomEvent('turafood:active-order', { detail: data }));
+            window.dispatchEvent(new CustomEvent('turafood:order-status', { detail: data }));
+          } catch {}
+        }
+
         unsubscribe = subscribeToOrder(data.id, (updated) => {
-          setOrder((prev) => ({ ...prev, ...updated }));
+          setOrder((prev) => {
+            const merged = { ...prev, ...updated };
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem('turafood_active_order', JSON.stringify(merged));
+                localStorage.setItem('turafood_last_order', JSON.stringify(merged));
+                window.dispatchEvent(new CustomEvent('turafood:active-order', { detail: merged }));
+              } catch {}
+            }
+            return merged;
+          });
           if (updated.status && updated.status !== currentStatus) {
             setCurrentStatus(updated.status);
             triggerPushNotification(updated.status);
@@ -556,23 +626,23 @@ function TrackingPage() {
         </div>
 
         <div className="desktop-only sc" style={{ flex: 1, overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 1040, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.35fr 1fr', gap: 24, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: 24, alignItems: 'start' }}>
             
-            {/* COLUMNA IZQUIERDA: MAPA INTERACTIVO + CONTROLES + REPARTIDOR */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* COLUMNA IZQUIERDA: MAPA INTERACTIVO + REPARTIDOR + ACCIONES */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               
               {/* Contenedor del Mapa Leaflet Interactivo */}
-              <div style={{ position: 'relative', height: 420, borderRadius: 26, overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 10px 36px rgba(0,0,0,0.08)' }}>
+              <div style={{ position: 'relative', height: 380, borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
                 <div ref={mapDesktopEl} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
                 
                 {/* Badge Flotante GPS */}
-                <div style={{ ...S.livePill, top: 16, left: 16, zIndex: 500 }}>
+                <div style={{ ...S.livePill, top: 14, left: 14, zIndex: 500 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--primary)', animation: 'pulse 2s infinite' }} />
                   GPS BUENAVENTURA · EN TIEMPO REAL
                 </div>
 
                 {/* Controles Flotantes del Mapa */}
-                <div style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 500, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ position: 'absolute', bottom: 14, right: 14, zIndex: 500, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <button
                     onClick={centerOnCourier}
                     style={S.mapCtrlBtn}
@@ -601,16 +671,16 @@ function TrackingPage() {
               </div>
 
               {/* Repartidor Oficial */}
-              <div style={{ ...S.courierCard, marginTop: 0, padding: '18px 20px', background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
-                <div style={{ ...S.avatar, width: 52, height: 52 }}>
-                  <span className="ms" style={{ fontSize: 28, color: 'var(--muted)' }}>person</span>
+              <div style={{ ...S.courierCard, marginTop: 0, padding: '16px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
+                <div style={{ ...S.avatar, width: 46, height: 46 }}>
+                  <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15.5 }}>Yeison Mosquera</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>Moto · Placa WQR-18C · Repartidor Oficial</div>
+                  <div style={{ fontWeight: 800, fontSize: 15 }}>Yeison Mosquera</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Moto · Placa WQR-18C · Repartidor Oficial</div>
                 </div>
                 <button onClick={() => router.push(`/chat?order=${order?.id ?? ''}`)} style={S.chatBtn} aria-label="Escribir al repartidor">
-                  <span className="ms" style={{ fontSize: 20 }}>chat_bubble</span>
+                  <span className="ms" style={{ fontSize: 19 }}>chat_bubble</span>
                   <span style={S.unread}>2</span>
                 </button>
                 <button
@@ -618,55 +688,49 @@ function TrackingPage() {
                   style={S.callBtn}
                   aria-label="Llamar al repartidor"
                 >
-                  <span className="ms" style={{ fontSize: 20, color: '#fff' }}>call</span>
+                  <span className="ms" style={{ fontSize: 19, color: '#fff' }}>call</span>
                 </button>
               </div>
 
-              {/* Código de entrega */}
-              <div style={{ ...S.codeCard, marginTop: 0, padding: '18px 22px' }}>
-                <span className="ms" style={{ fontSize: 26, color: 'var(--amber)', flex: 'none' }}>password</span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 800, letterSpacing: '.06em', color: 'rgba(255,255,255,.6)' }}>
-                    CÓDIGO DE ENTREGA
-                  </span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>
-                    Dáselo al repartidor al recibir tu pedido
-                  </span>
-                </span>
-                <span style={{ display: 'flex', gap: 8, flex: 'none' }}>
-                  {['4', '8', '2', '1'].map((d, i) => (
-                    <span key={i} style={S.codeDigit}>{d}</span>
-                  ))}
-                </span>
+              {/* Botones de acción complementarios en 1 fila */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <button onClick={() => router.push(`/help?order=${order?.id ?? ''}`)} style={{ ...S.helpBtn, marginTop: 0, height: 44, borderRadius: 14, fontSize: 13, cursor: 'pointer' }}>
+                  <span className="ms" style={{ fontSize: 18 }}>headset_mic</span>
+                  <span>Ayuda con el pedido</span>
+                </button>
+                <button onClick={() => router.push(`/rate?order=${order?.id ?? ''}`)} style={{ ...S.rateBtn, marginTop: 0, height: 44, borderRadius: 14, fontSize: 13, cursor: 'pointer' }}>
+                  <span className="ms" style={{ fontSize: 18 }}>star</span>
+                  <span>Calificar entrega</span>
+                </button>
               </div>
             </div>
 
-            {/* COLUMNA DERECHA: ESTADO EN VIVO + INTERACCIÓN + TIMELINE */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* COLUMNA DERECHA: ESTADO EN VIVO + TICKET COMANDA PRO */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               
-              {/* Tarjeta de Estado Principal */}
-              <div style={{ background: 'var(--surface)', borderRadius: 24, padding: 24, border: '1px solid var(--border)', boxShadow: '0 8px 30px rgba(0,0,0,0.04)' }}>
+              {/* Tarjeta de Estado Compacta */}
+              <div style={{ background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', border: '1px solid var(--border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: statusDetails.color, letterSpacing: '.06em', textTransform: 'uppercase' }}>
-                    ESTADO EN TIEMPO REAL
-                  </span>
-                  <span style={{
-                    fontSize: 11.5, fontWeight: 800, padding: '3px 9px', borderRadius: 8,
-                    background: `${statusDetails.color}15`, color: statusDetails.color,
-                  }}>
-                    {statusDetails.label}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusDetails.color, animation: 'pulse 2s infinite' }} />
+                    <span style={{ fontSize: 11, fontWeight: 800, color: statusDetails.color, letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                      {statusDetails.label}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)' }}>
+                    {hhmm(order?.created_at)}
                   </span>
                 </div>
 
-                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', marginTop: 8 }}>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, letterSpacing: '-.01em', marginTop: 6 }}>
                   {statusDetails.title}
                 </div>
-                <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>
+                <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
                   {statusDetails.desc}
                 </div>
 
-                {/* Barra de progreso animada */}
-                <div style={{ width: '100%', height: 8, borderRadius: 99, background: 'var(--surface2)', marginTop: 18, overflow: 'hidden' }}>
+                {/* Barra de progreso */}
+                <div style={{ width: '100%', height: 6, borderRadius: 99, background: 'var(--surface2)', marginTop: 12, overflow: 'hidden' }}>
                   <div style={{
                     width: `${statusDetails.progress}%`, height: '100%',
                     background: 'linear-gradient(90deg, #FF441F 0%, #10B981 100%)',
@@ -674,88 +738,36 @@ function TrackingPage() {
                   }} />
                 </div>
 
-                {/* Selector interactivo rápido de estados (Para probar la interacción) */}
-                <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--muted)', marginBottom: 8 }}>
-                    Simular cambio de estado (Prueba en vivo):
-                  </div>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {STEPS.map((stKey) => {
-                      const active = currentStatus === stKey;
-                      return (
-                        <button
-                          key={stKey}
-                          onClick={() => handleSetStatus(stKey)}
-                          style={{
-                            padding: '4px 9px', borderRadius: 8, fontSize: 11, fontWeight: 700,
-                            border: active ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                            background: active ? 'rgba(255,68,31,0.1)' : 'var(--surface2)',
-                            color: active ? 'var(--primary)' : 'var(--text)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {STEP_DETAILS[stKey]?.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* Simulador rápido de estados (Prueba interactiva) */}
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                  {STEPS.map((stKey) => {
+                    const active = currentStatus === stKey;
+                    return (
+                      <button
+                        key={stKey}
+                        onClick={() => handleSetStatus(stKey)}
+                        style={{
+                          padding: '3px 8px', borderRadius: 7, fontSize: 10.5, fontWeight: 700,
+                          border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
+                          background: active ? 'rgba(255,68,31,0.1)' : 'var(--surface2)',
+                          color: active ? 'var(--primary)' : 'var(--muted)',
+                          cursor: 'pointer', transition: 'all .12s ease',
+                        }}
+                      >
+                        {STEP_DETAILS[stKey]?.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Bitácora de Pasos / Historial */}
-              <div style={{ background: 'var(--surface)', borderRadius: 24, padding: 24, border: '1px solid var(--border)', boxShadow: '0 4px 16px rgba(0,0,0,.03)' }}>
-                <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 18 }}>Historial de entrega</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {log.map((l, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                      <span style={{
-                        ...S.logDot,
-                        background: l.done ? 'var(--green)' : 'var(--surface2)',
-                        color: l.done ? '#fff' : 'var(--faint)',
-                      }}>
-                        <span className="ms" style={{ fontSize: 16 }}>{l.icon}</span>
-                      </span>
-                      <span style={{ flex: 1 }}>
-                        <span style={{
-                          display: 'block', fontWeight: 700, fontSize: 13.5,
-                          color: l.done ? 'var(--text)' : 'var(--muted)',
-                        }}>
-                          {l.title}
-                        </span>
-                        <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                          {hhmm(l.at)}
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Botones de acción */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <button
-                  onClick={shareTrackingOnWhatsapp}
-                  style={{
-                    height: 50, borderRadius: 16, border: 'none',
-                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                    color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: '0 6px 20px rgba(37,211,102,0.28)',
-                  }}
-                >
-                  <span className="ms" style={{ fontSize: 20 }}>share</span>
-                  <span>Compartir Seguimiento en WhatsApp</span>
-                </button>
-
-                <button onClick={() => router.push('/help')} style={{ ...S.helpBtn, marginTop: 0, height: 50, borderRadius: 16, cursor: 'pointer' }}>
-                  <span className="ms" style={{ fontSize: 20 }}>headset_mic</span>
-                  <span>Necesito ayuda con este pedido</span>
-                </button>
-                <button onClick={() => router.push(`/rate?order=${order?.id ?? ''}`)} style={{ ...S.rateBtn, marginTop: 0, height: 50, borderRadius: 16, cursor: 'pointer' }}>
-                  <span className="ms" style={{ fontSize: 20 }}>star</span>
-                  <span>Ya lo recibí, calificar</span>
-                </button>
-              </div>
+              {/* TICKET DIGITAL DE COMPRA & COMANDA PRO (DESKTOP) */}
+              <ComandaTicket
+                order={order}
+                onOpenWhatsapp={openRestaurantWhatsapp}
+                onShareWhatsapp={shareTrackingOnWhatsapp}
+                onCenterMap={centerOnCourier}
+              />
             </div>
 
           </div>
@@ -888,6 +900,16 @@ function TrackingPage() {
             </span>
           </div>
 
+          {/* TICKET DIGITAL DE COMPRA & COMANDA PRO (MÓVIL) */}
+          <div style={{ marginTop: 20 }}>
+            <ComandaTicket
+              order={order}
+              onOpenWhatsapp={openRestaurantWhatsapp}
+              onShareWhatsapp={shareTrackingOnWhatsapp}
+              onCenterMap={centerOnCourier}
+            />
+          </div>
+
           {/* Bitácora */}
           <div style={{ marginTop: 20, background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -916,28 +938,16 @@ function TrackingPage() {
             </div>
           </div>
 
-          <button
-            onClick={shareTrackingOnWhatsapp}
-            style={{
-              width: '100%', height: 50, borderRadius: 16, border: 'none',
-              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-              color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: '0 6px 18px rgba(37,211,102,0.25)', marginTop: 18,
-            }}
-          >
-            <span className="ms" style={{ fontSize: 20 }}>share</span>
-            <span>Compartir Seguimiento en WhatsApp</span>
-          </button>
-
-          <button onClick={() => router.push('/help')} style={S.helpBtn}>
-            <span className="ms" style={{ fontSize: 19 }}>headset_mic</span>
-            Necesito ayuda con este pedido
-          </button>
-          <button onClick={() => router.push(`/rate?order=${order?.id ?? ''}`)} style={S.rateBtn}>
-            <span className="ms" style={{ fontSize: 19 }}>star</span>
-            Ya lo recibí, calificar
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18 }}>
+            <button onClick={() => router.push(`/help?order=${order?.id ?? ''}`)} style={{ ...S.helpBtn, marginTop: 0 }}>
+              <span className="ms" style={{ fontSize: 19 }}>headset_mic</span>
+              <span>Necesito ayuda con este pedido</span>
+            </button>
+            <button onClick={() => router.push(`/rate?order=${order?.id ?? ''}`)} style={{ ...S.rateBtn, marginTop: 0 }}>
+              <span className="ms" style={{ fontSize: 19 }}>star</span>
+              <span>Ya lo recibí, calificar</span>
+            </button>
+          </div>
         </div>
       </div>
     </>
