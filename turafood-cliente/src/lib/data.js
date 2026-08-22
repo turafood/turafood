@@ -951,13 +951,17 @@ export async function placeOrder({
     payment_method: paymentMethod,
     coupon_code: calcDiscount > 0 ? couponCode : null,
     created_at: new Date().toISOString(),
-    items: items.map((i, idx) => ({
-      id: `local-item-${idx}`,
-      name: i.name,
-      quantity: i.quantity || i.qty || 1,
-      unit_price: i.unit_price || i.unitPrice || 0,
-      notes: i.notes || '',
-    })),
+    items: items.map((i, idx) => {
+      const prod = PRODUCTS.find((p) => p.id === (i.product_id || i.productId));
+      return {
+        id: `local-item-${idx}`,
+        name: i.name || prod?.name || 'Plato Especial TuraFood',
+        quantity: i.quantity || i.qty || 1,
+        unit_price: i.unit_price || i.unitPrice || prod?.price || 0,
+        opts: i.opts || '',
+        notes: i.notes || '',
+      };
+    }),
   };
 
   LOCAL_ORDERS.unshift(localOrder);

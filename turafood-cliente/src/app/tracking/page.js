@@ -708,8 +708,8 @@ function TrackingPage() {
             {/* COLUMNA DERECHA: ESTADO EN VIVO + TICKET COMANDA PRO */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               
-              {/* Tarjeta de Estado Compacta */}
-              <div style={{ background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', border: '1px solid var(--border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              {/* Tarjeta de Estado Pro & Minimalista */}
+              <div style={{ background: 'var(--surface)', borderRadius: 20, padding: '18px 20px', border: '1px solid var(--border)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusDetails.color, animation: 'pulse 2s infinite' }} />
@@ -729,17 +729,40 @@ function TrackingPage() {
                   {statusDetails.desc}
                 </div>
 
-                {/* Barra de progreso */}
-                <div style={{ width: '100%', height: 6, borderRadius: 99, background: 'var(--surface2)', marginTop: 12, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${statusDetails.progress}%`, height: '100%',
-                    background: 'linear-gradient(90deg, #FF441F 0%, #10B981 100%)',
-                    borderRadius: 99, transition: 'width .4s ease',
-                  }} />
+                {/* Milestone Stepper Visual */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginTop: 14, alignItems: 'center' }}>
+                  {[
+                    { id: 'pending', label: 'Enviado', icon: 'hourglass_top' },
+                    { id: 'accepted', label: 'Aceptado', icon: 'restaurant' },
+                    { id: 'preparing', label: 'Cocina', icon: 'skillet' },
+                    { id: 'picked_up', label: 'En ruta', icon: 'two_wheeler' },
+                    { id: 'delivered', label: 'Entregado', icon: 'check_circle' },
+                  ].map((st, i) => {
+                    const stIdx = STEP_INDEX[st.id] ?? i;
+                    const done = step >= stIdx;
+                    const active = currentStatus === st.id;
+                    return (
+                      <div key={st.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <div style={{
+                          width: '100%', height: 4, borderRadius: 99,
+                          background: done ? 'var(--green)' : 'var(--surface2)',
+                          transition: 'background .3s ease',
+                        }} />
+                        <span style={{
+                          fontSize: 10, fontWeight: done ? 800 : 600,
+                          color: active ? 'var(--primary)' : done ? 'var(--green)' : 'var(--muted)',
+                          textAlign: 'center', whiteSpace: 'nowrap',
+                        }}>
+                          {st.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
-                {/* Simulador rápido de estados (Prueba interactiva) */}
-                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                {/* Simulador rápido de estados (Prueba interactiva PRO) */}
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)', alignSelf: 'center', marginRight: 4 }}>Simular:</span>
                   {STEPS.map((stKey) => {
                     const active = currentStatus === stKey;
                     return (
@@ -747,10 +770,10 @@ function TrackingPage() {
                         key={stKey}
                         onClick={() => handleSetStatus(stKey)}
                         style={{
-                          padding: '3px 8px', borderRadius: 7, fontSize: 10.5, fontWeight: 700,
+                          padding: '3px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 700,
                           border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
-                          background: active ? 'rgba(255,68,31,0.1)' : 'var(--surface2)',
-                          color: active ? 'var(--primary)' : 'var(--muted)',
+                          background: active ? 'var(--primary)' : 'var(--surface2)',
+                          color: active ? '#fff' : 'var(--muted)',
                           cursor: 'pointer', transition: 'all .12s ease',
                         }}
                       >

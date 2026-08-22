@@ -75,11 +75,8 @@ export default function ComandaTicket({
   return (
     <div className={`comanda-ticket-wrapper ${className}`} style={S.wrapper}>
       
-      {/* Recibo con Efecto Físico */}
+      {/* Recibo Digital de Alta Gama */}
       <div style={S.ticketBody}>
-
-        {/* Borde Superior Troquelado / Serrado */}
-        <div style={S.sawtoothTop} />
 
         {/* Header de la Comanda */}
         <div style={S.header}>
@@ -121,22 +118,23 @@ export default function ComandaTicket({
             <span style={S.sectionSub}>Precio</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {(items.length > 0 ? items : [
-              { name: 'Combo Especial Tura Food', quantity: 1, unit_price: order.total || 25000, notes: 'Preparación estándar' }
+              { name: 'Combo Especial Tura Food', quantity: 1, unit_price: order.total || 25000, notes: '' }
             ]).map((item, idx) => {
               const qty = item.quantity || item.qty || 1;
-              const unitPrice = item.unit_price || item.unitPrice || 0;
+              const unitPrice = item.unit_price || item.unitPrice || item.price || 0;
               const itemTotal = unitPrice * qty;
+              const name = item.name || item.product_name || 'Plato TuraFood';
 
               return (
                 <div key={idx} style={S.itemRow}>
                   <div style={{ display: 'flex', gap: 10, flex: 1, minWidth: 0 }}>
                     <span style={S.qtyBadge}>{qty}x</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={S.itemName}>{item.name}</div>
+                      <div style={S.itemName}>{name}</div>
                       {item.opts && (
-                        <div style={S.itemOpts}>↳ Opciones: {item.opts}</div>
+                        <div style={S.itemOpts}>↳ {item.opts}</div>
                       )}
                       {item.notes && (
                         <div style={S.itemNotes}>
@@ -158,29 +156,39 @@ export default function ComandaTicket({
 
         {/* Dirección de Entrega y GPS */}
         <div style={S.section}>
-          <div style={S.sectionTitle}>📍 DESTINO DE ENTREGA</div>
+          <div style={S.sectionTitle}>
+            {order.mode === 'pickup' ? '🏪 PUNTO DE RECOGIDA' : '📍 DESTINO DE ENTREGA'}
+          </div>
           <div style={S.deliveryCard}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <div style={S.locationIconBox}>
-                <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--primary)' }}>location_on</span>
+                <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--primary)' }}>
+                  {order.mode === 'pickup' ? 'storefront' : 'location_on'}
+                </span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={S.addressTitle}>
-                  {order.delivery_address || 'Carrera 3 # 4-58, Centro, Buenaventura'}
+                  {order.mode === 'pickup'
+                    ? (business.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura')
+                    : (order.delivery_address || 'Carrera 3 # 4-58, Centro, Buenaventura')}
                 </div>
-                {order.delivery_instructions && (
+                {order.delivery_instructions && order.mode !== 'pickup' && (
                   <div style={S.instructionsText}>
                     ⚠️ Indicación: {order.delivery_instructions}
                   </div>
                 )}
                 <div style={S.deliveryModePill}>
-                  <span className="ms" style={{ fontSize: 13, color: 'var(--green)' }}>two_wheeler</span>
-                  <span>Modalidad: {order.mode === 'pickup' ? 'Recoger en el local' : 'Entrega a domicilio en Buenaventura'}</span>
+                  <span className="ms" style={{ fontSize: 13, color: 'var(--green)' }}>
+                    {order.mode === 'pickup' ? 'store' : 'two_wheeler'}
+                  </span>
+                  <span>
+                    Modalidad: {order.mode === 'pickup' ? 'Recoger en el restaurante (Sin costo de envío)' : 'Entrega a domicilio en Buenaventura'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {onCenterMap && (
+            {onCenterMap && order.mode !== 'pickup' && (
               <button onClick={onCenterMap} style={S.mapGpsBtn}>
                 <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>my_location</span>
                 <span>Ver en mapa GPS</span>
@@ -206,12 +214,12 @@ export default function ComandaTicket({
                 <span>Domicilio</span>
                 <span>{cop(order.delivery_fee)}</span>
               </div>
-            ) : order.mode === 'delivery' ? (
+            ) : (
               <div style={S.totalRow}>
                 <span>Domicilio</span>
                 <span style={{ color: 'var(--green)', fontWeight: 700 }}>¡GRATIS! ⚡</span>
               </div>
-            ) : null}
+            )}
 
             {Number(order.service_fee) > 0 && (
               <div style={S.totalRow}>
@@ -324,7 +332,7 @@ export default function ComandaTicket({
 
             {/* Mini QR decorativo y funcional */}
             <div style={S.qrBox} title="Código QR del Pedido">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="var(--text)">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="var(--text)">
                 <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm-2 10h8v8H2v-8zm2 2v4h4v-4H4zm10-14h8v8h-8V2zm2 2v4h4V4h-4zm3 7h2v2h-2v-2zm-3 2h2v2h-2v-2zm2 2h2v2h-2v-2zm2-2h2v2h-2v-2zm0 4h2v2h-2v-2zm-4 0h2v2h-2v-2zm-2 2h2v2h-2v-2zm6 0h2v2h-2v-2zM5 5h2v2H5V5zm0 12h2v2H5v-2zm12-12h2v2h-2V5z"/>
               </svg>
               <span style={{ fontSize: 9, fontWeight: 800, color: 'var(--muted)', marginTop: 2 }}>VALIDAR</span>
@@ -332,8 +340,6 @@ export default function ComandaTicket({
           </div>
         </div>
 
-        {/* Borde Inferior Troquelado */}
-        <div style={S.sawtoothBottom} />
       </div>
 
       {/* Barra de Acciones de Comanda PRO */}

@@ -186,7 +186,18 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       // 1. El servidor o la base de datos crea y persiste el pedido real
       const order = await placeOrder({
         businessId,
-        items: toOrderItems(),
+        items: items.map((i) => ({
+          product_id: i.productId,
+          productId: i.productId,
+          name: i.name,
+          quantity: i.qty,
+          qty: i.qty,
+          unit_price: i.unitPrice || i.basePrice || i.price || 0,
+          unitPrice: i.unitPrice || i.basePrice || i.price || 0,
+          extra_ids: i.extraIds ?? [],
+          opts: i.opts || '',
+          notes: i.notes || null,
+        })),
         mode,
         addressId: address?.id ?? null,
         deliveryAddress: deliveryAddressText,
