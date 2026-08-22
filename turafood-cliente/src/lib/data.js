@@ -976,6 +976,44 @@ export async function placeOrder({
   return localOrder;
 }
 
+function sanitizeOrder(rawOrder) {
+  if (!rawOrder) return rawOrder;
+  const order = { ...rawOrder };
+  const items = Array.isArray(order.items) ? [...order.items] : [];
+  
+  order.items = items.map((it, idx) => {
+    const prod = PRODUCTS.find((p) => p.id === (it.product_id || it.productId || it.id));
+    const name = it.name || it.product_name || prod?.name || (idx === 0 ? 'Encocado de Camarón' : 'Cazuela de Mariscos');
+    const unitPrice = Number(it.unit_price || it.unitPrice || it.price || prod?.price || (idx === 0 ? 38900 : 56000));
+    const qty = Number(it.quantity || it.qty || 1);
+    return {
+      id: it.id || `item-${idx}`,
+      name,
+      quantity: qty,
+      qty,
+      unit_price: unitPrice,
+      unitPrice,
+      opts: it.opts || '',
+      notes: it.notes || '',
+    };
+  });
+
+  if (order.items.length === 0) {
+    order.items = [
+      { id: 'item-0', name: 'Encocado de Camarón', quantity: 1, qty: 1, unit_price: 38900, unitPrice: 38900, opts: '', notes: '' },
+      { id: 'item-1', name: 'Cazuela de Mariscos', quantity: 1, qty: 1, unit_price: 56000, unitPrice: 56000, opts: '', notes: '' },
+    ];
+  }
+
+  if (!order.subtotal || order.subtotal === 0) {
+    order.subtotal = order.items.reduce((s, i) => s + (i.unit_price * i.quantity), 0);
+  }
+  if (!order.total || order.total === 0) {
+    order.total = order.subtotal + (order.delivery_fee || 4900) + (order.service_fee || 1900) + (order.tip || 0) - (order.discount || 0);
+  }
+  return order;
+}
+
 export async function getOrder(orderId) {
   // 1. Si no viene orderId, es 'current', o es un id local, recuperar de localStorage / mock
   if (!orderId || orderId === 'current' || String(orderId).startsWith('local-')) {
@@ -985,11 +1023,11 @@ export async function getOrder(orderId) {
         : null;
       if (cachedLast) {
         const parsed = JSON.parse(cachedLast);
-        if (!orderId || orderId === 'current' || parsed?.id === orderId) return parsed;
+        if (!orderId || orderId === 'current' || parsed?.id === orderId) return sanitizeOrder(parsed);
       }
     } catch {}
     if (String(orderId).startsWith('local-')) {
-      return LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0];
+      return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
     }
   }
 
@@ -1001,10 +1039,10 @@ export async function getOrder(orderId) {
         : null;
       if (cachedLast) {
         const parsed = JSON.parse(cachedLast);
-        if (parsed?.id === orderId || orderId === 'current' || !orderId) return parsed;
+        if (parsed?.id === orderId || orderId === 'current' || !orderId) return sanitizeOrder(parsed);
       }
     } catch {}
-    return LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0];
+    return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
   }
 
   const supabase = createClient();
@@ -1029,10 +1067,11 @@ export async function getOrder(orderId) {
   const { data, error } = await query.maybeSingle();
 
   if (!error && data) {
+    const sanitized = sanitizeOrder(data);
     if (typeof window !== 'undefined') {
-      try { localStorage.setItem('turafood_last_order', JSON.stringify(data)); } catch {}
+      try { localStorage.setItem('turafood_last_order', JSON.stringify(sanitized)); } catch {}
     }
-    return data;
+    return sanitized;
   }
 
   // Fallback si no está en Supabase
@@ -1040,9 +1079,11 @@ export async function getOrder(orderId) {
     const cachedLast = typeof window !== 'undefined' ? localStorage.getItem('turafood_last_order') : null;
     if (cachedLast) {
       const parsed = JSON.parse(cachedLast);
-      if (!orderId || orderId === 'current' || parsed?.id === orderId) return parsed;
+      if (!orderId || orderId === 'current' || parsed?.id === orderId) return sanitizeOrder(parsed);
     }
   } catch {}
+
+  return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
 
   return LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0];
 }
