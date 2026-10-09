@@ -1,0 +1,108 @@
+name: Deploy TuraFood Ecosystem to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy-cliente:
+    name: Deploy turafood-cliente (turafood.com)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: turafood-cliente
+        run: npm install
+
+      - name: Build Next.js with OpenNext
+        working-directory: turafood-cliente
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+          NEXT_PUBLIC_BASE_URL: https://turafood.com
+          NEXT_PUBLIC_VAPI_PUBLIC_KEY: 097ab7c5-8b24-4464-bf4d-d83f15a6b808
+        run: npx @opennextjs/cloudflare build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'turafood-cliente'
+          directory: 'turafood-cliente/.open-next/assets'
+          branch: 'master'
+
+  deploy-app:
+    name: Deploy turafood-app (app.turafood.com)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: turafood-app
+        run: npm install
+
+      - name: Build Next.js with OpenNext
+        working-directory: turafood-app
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+          NEXT_PUBLIC_BASE_URL: https://app.turafood.com
+        run: npx @opennextjs/cloudflare build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'turafood-app'
+          directory: 'turafood-app/.open-next/assets'
+          branch: 'master'
+
+  deploy-admin:
+    name: Deploy turafood-admin (admin.turafood.com)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: turafood-admin
+        run: npm install
+
+      - name: Build Next.js with OpenNext
+        working-directory: turafood-admin
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+          NEXT_PUBLIC_BASE_URL: https://admin.turafood.com
+        run: npx @opennextjs/cloudflare build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'turafood-admin'
+          directory: 'turafood-admin/.open-next/assets'
+          branch: 'master'

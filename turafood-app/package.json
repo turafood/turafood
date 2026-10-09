@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -17,10 +18,12 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.14.7",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "wrangler": "^4.149.0"
   },
   "engines": {
     "node": ">=22.0.0"
