@@ -95,7 +95,7 @@ const NAV_GROUPS = [
   {
     label: 'MI NEGOCIO',
     items: [
-      { label: 'Diseño & Skin PWA', icon: 'palette', href: '/negocio/personalizacion', badge: 'NUEVO' },
+      { label: 'Skins & Demos PWA', icon: 'devices', href: '/negocio/personalizacion', badge: 'DEMOS' },
       { label: 'Métodos de Pago', icon: 'payments', href: '/negocio/pagos' },
       { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
       { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
