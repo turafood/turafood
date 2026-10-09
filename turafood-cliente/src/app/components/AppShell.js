@@ -73,6 +73,17 @@ export default function AppShell({ children }) {
     };
   }, []);
 
+  // En la landing page comercial (raíz), renderizamos pantalla completa
+  // sin chasis móvil ni barras de delivery del cliente
+  if (pathname === '/') {
+    return (
+      <div style={{ minHeight: '100dvh', width: '100%', position: 'relative' }}>
+        <RehidratarCarrito />
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="device-wrapper">
       <RehidratarCarrito />

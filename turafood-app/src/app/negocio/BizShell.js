@@ -42,6 +42,7 @@ const PAGES = {
   '/negocio/turbo': ['Tura Turbo ⚡', 'Entregas ultra-rápidas en menos de 15 minutos con promesa garantizada'],
   '/negocio/repartidores/ajustes': ['Motor de Despacho', 'Reglas de auto-asignación y rastreo'],
   '/negocio/repartidores/liquidacion': ['Finanzas y Pagos', 'Métricas y pagos a tus domiciliarios'],
+  '/negocio/personalizacion': ['Diseño & Skin PWA', 'Elige el aspecto visual (Skin) y colores de tu tienda ante el público'],
   '/negocio/pagos': ['Métodos de Pago', 'Los medios que aceptas y que ven tus clientes'],
   '/negocio/horarios': ['Horarios', 'Cuándo puede pedirte un cliente'],
   '/negocio/promociones': ['Promociones', 'Lo que ven tus clientes en la app'],
@@ -94,6 +95,7 @@ const NAV_GROUPS = [
   {
     label: 'MI NEGOCIO',
     items: [
+      { label: 'Diseño & Skin PWA', icon: 'palette', href: '/negocio/personalizacion', badge: 'NUEVO' },
       { label: 'Métodos de Pago', icon: 'payments', href: '/negocio/pagos' },
       { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
       { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
