@@ -30,14 +30,16 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
           NEXT_PUBLIC_BASE_URL: https://turafood.com
           NEXT_PUBLIC_VAPI_PUBLIC_KEY: 097ab7c5-8b24-4464-bf4d-d83f15a6b808
-        run: npx @opennextjs/cloudflare build
+        run: |
+          npx @opennextjs/cloudflare build
+          cp .open-next/worker.js .open-next/assets/_worker.js
 
       - name: Deploy to Cloudflare Pages
         working-directory: turafood-cliente
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler pages deploy .open-next/assets --project-name turafood-cliente --branch master
+        run: npx wrangler pages deploy .open-next/assets --project-name turafood-cliente --branch master --commit-dirty=true
 
   deploy-app:
     name: Deploy turafood-app (app.turafood.com)
@@ -61,14 +63,16 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
           NEXT_PUBLIC_BASE_URL: https://app.turafood.com
-        run: npx @opennextjs/cloudflare build
+        run: |
+          npx @opennextjs/cloudflare build
+          cp .open-next/worker.js .open-next/assets/_worker.js
 
       - name: Deploy to Cloudflare Pages
         working-directory: turafood-app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler pages deploy .open-next/assets --project-name turafood-app --branch master
+        run: npx wrangler pages deploy .open-next/assets --project-name turafood-app --branch master --commit-dirty=true
 
   deploy-admin:
     name: Deploy turafood-admin (admin.turafood.com)
@@ -92,11 +96,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
           NEXT_PUBLIC_BASE_URL: https://admin.turafood.com
-        run: npx @opennextjs/cloudflare build
+        run: |
+          npx @opennextjs/cloudflare build
+          cp .open-next/worker.js .open-next/assets/_worker.js
 
       - name: Deploy to Cloudflare Pages
         working-directory: turafood-admin
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler pages deploy .open-next/assets --project-name turafood-admin --branch master
+        run: npx wrangler pages deploy .open-next/assets --project-name turafood-admin --branch master --commit-dirty=true
