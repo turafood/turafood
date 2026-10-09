@@ -24,13 +24,7 @@ const nextConfig = {
   },
   allowedDevOrigins: ['172.22.96.1', 'localhost', '127.0.0.1'],
 
-  // La raíz no es una pantalla, es un desvío al catálogo. Hacerlo acá
-  // y no con un useEffect en `page.js` ahorra el viaje completo:
-  // antes el navegador bajaba todo el JS de la raíz, hidrataba React
-  // y recién entonces pedía /home. Ahora recibe un 308 y va derecho.
-  async redirects() {
-    return [{ source: '/', destination: '/home', permanent: false }];
-  },
+  // La raíz ('/') ahora aloja la Landing Page comercial de Tura Food AI
 };
 
 export default nextConfig;
