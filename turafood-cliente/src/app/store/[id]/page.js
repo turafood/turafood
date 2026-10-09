@@ -34,6 +34,15 @@ export default function StorePage() {
   const { id } = useParams();
   const searchParams = useSearchParams();
   const productIdFromUrl = searchParams.get('product');
+  const skinFromUrl = searchParams.get('skin');
+  const accentFromUrl = searchParams.get('accent');
+
+  useEffect(() => {
+    if (skinFromUrl === 'editorial' || skinFromUrl === 'vibrant') {
+      const accent = accentFromUrl ? `#${accentFromUrl.replace('#', '')}` : undefined;
+      setSkin(skinFromUrl, accent);
+    }
+  }, [skinFromUrl, accentFromUrl, setSkin]);
 
   const [store, setStore] = useState(null);
   const [menu, setMenu] = useState([]);
