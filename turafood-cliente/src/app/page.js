@@ -255,8 +255,11 @@ export default function LandingPage() {
             <button onClick={() => scrollTo('tf-features')} style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)' }}>
               {es ? 'Producto' : 'Product'}
             </button>
-            <button onClick={() => scrollTo('tf-mockup')} style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)' }}>
-              {es ? 'Cómo se ve' : 'Preview'}
+            <button onClick={() => scrollTo('tf-demo-restaurante')} style={{ fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>
+              🍔 {es ? 'App Restaurante' : 'Restaurant App'}
+            </button>
+            <button onClick={() => scrollTo('tf-demo-turamuebles')} style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+              🛋️ {es ? 'App Tura Muebles' : 'Luxury Retail App'}
             </button>
             <button onClick={() => scrollTo('tf-pricing')} style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)' }}>
               {es ? 'Planes' : 'Plans'}
@@ -626,34 +629,45 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ============ MOCKUPS SHOWCASE ============ */}
-      <div id="tf-mockup" className="tf-wrap" style={{ paddingTop: 64, paddingBottom: 10 }}>
-        <div style={{ position: 'relative', borderRadius: 30, overflow: 'hidden', background: 'linear-gradient(135deg,#FFE7DF 0%,#FFD7CB 52%,#FFEFE9 100%)', border: '1px solid rgba(255,68,31,.16)' }}>
-          <div style={{ position: 'absolute', left: -70, bottom: -90, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,68,31,.12)' }}></div>
-          <div style={{ position: 'absolute', right: -60, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,176,32,.18)' }}></div>
+      {/* ========================================================================= */}
+      {/* SESIÓN 1: E-COMMERCE APP PARA RESTAURANTES & DELIVERY (ESTILO RAPPI)     */}
+      {/* ========================================================================= */}
+      <div id="tf-demo-restaurante" className="tf-wrap" style={{ paddingTop: 74, paddingBottom: 24 }}>
+        <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: 'linear-gradient(135deg,#FFE7DF 0%,#FFD7CB 52%,#FFEFE9 100%)', border: '1.5px solid rgba(255,68,31,.22)', boxShadow: '0 24px 60px rgba(255,68,31,0.12)' }}>
+          <div style={{ position: 'absolute', left: -70, bottom: -90, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,68,31,.14)' }}></div>
+          <div style={{ position: 'absolute', right: -60, top: -80, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,176,32,.2)' }}></div>
           
-          <div className="tf-mock tf-cardpad" style={{ position: 'relative', padding: '50px 46px' }}>
+          <div className="tf-mock tf-cardpad" style={{ position: 'relative', padding: '54px 48px' }}>
             <div>
-              <span style={{ fontSize: 13, fontWeight: 800, color: '#E2360F', textTransform: 'uppercase', letterSpacing: '.1em' }}>
-                {es ? 'Cómo se ve' : 'How it looks'}
-              </span>
-              <h2 className="tf-disp" style={{ margin: '12px 0 0', fontWeight: 800, fontSize: 38, lineHeight: 1.06, letterSpacing: '-.03em', color: '#1a120e', textWrap: 'balance' }}>
-                {es ? 'Tu restaurante, listo para tus ' : 'Your restaurant, ready for your '}
+              {/* Pill & Subdomain */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#E2360F', textTransform: 'uppercase', letterSpacing: '.08em', padding: '5px 12px', borderRadius: 999, background: 'rgba(255,68,31,0.12)' }}>
+                  🍔 {es ? 'Demo 1 · E-Commerce para Restaurantes' : 'Demo 1 · Restaurant E-Commerce'}
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#6b524a', background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: 999, border: '1px solid rgba(0,0,0,0.06)' }}>
+                  🌐 restaurante.turafood.com
+                </span>
+              </div>
+
+              <h2 className="tf-disp" style={{ margin: '10px 0 0', fontWeight: 900, fontSize: 38, lineHeight: 1.08, letterSpacing: '-.03em', color: '#1a120e', textWrap: 'balance' }}>
+                {es ? 'Tu propia app de delivery, sin pagar el ' : 'Your own delivery app, without paying '}
                 <span className="tf-serif" style={{ color: '#E2360F', fontWeight: 400 }}>
-                  {es ? 'clientes.' : 'customers.'}
+                  {es ? '30% de comisión.' : '30% commission.'}
                 </span>
               </h2>
-              <p style={{ margin: '14px 0 0', fontSize: 16, lineHeight: 1.55, color: '#6b524a', maxWidth: 400 }}>
+              <p style={{ margin: '14px 0 0', fontSize: 16, lineHeight: 1.55, color: '#6b524a', maxWidth: 440 }}>
                 {es
-                  ? 'Así viven tus clientes tu marca: una PWA tipo Rappi, menú con fotos y pagos por Nequi. Todo con tu identidad, sin que descarguen otra app.'
-                  : 'This is how customers experience your brand: a Rappi-style PWA, photo menu and Nequi payments. All in your identity, no extra app to download.'}
+                  ? 'Una experiencia tipo Rappi de conversión inmediata para comida rápida, asaderos y bistrós. Menú con fotos apetitosas, pedidos directos por WhatsApp, pagos por Nequi y rastreo en 15 minutos.'
+                  : 'A high-converting Rappi-style food experience for fast food, grills and bistros. Photos, direct WhatsApp orders, Nequi payments and 15-minute tracking.'}
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginTop: 22 }}>
+              {/* Lista de features */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
                 {[
-                  { icon: 'smartphone', label: es ? 'PWA tipo Rappi con tu marca' : 'Rappi-style PWA, your brand' },
-                  { icon: 'event_available', label: es ? 'Reservas y Voice AI integrados' : 'Reservations & Voice AI built in' },
-                  { icon: 'payments', label: es ? 'Pagos por Nequi y todos los métodos' : 'Nequi & all payment methods' }
+                  { icon: 'bolt', label: es ? 'Tura Turbo 15 min · Despacho y rastreo en vivo' : 'Tura Turbo 15 min · Live dispatch & tracking' },
+                  { icon: 'shopping_basket', label: es ? 'Canasta flotante interactiva y combos 2x1' : 'Interactive floating cart & 2x1 combos' },
+                  { icon: 'payments', label: es ? 'Pagos directos con Nequi, Bancolombia y PSE' : 'Direct payments with Nequi & cards' },
+                  { icon: 'qr_code_2', label: es ? 'Cero descargas · Abre al instante por QR o link' : 'Zero downloads · Instant PWA via QR or link' }
                 ].map((c, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(226,54,15,.14)', flex: 'none' }}>
@@ -664,30 +678,57 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div style={{ marginTop: 28 }}>
-                <Link
-                  href="/home"
+              {/* Botones de acción */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginTop: 32 }}>
+                <a
+                  href="/demo/restaurante"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '14px 24px',
+                    borderRadius: 14,
+                    background: '#FF441F',
+                    color: '#fff',
+                    fontSize: 15,
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                    boxShadow: '0 10px 24px rgba(255,68,31,0.36)'
+                  }}
+                >
+                  <span className="tf-ms" style={{ fontSize: 20 }}>launch</span>
+                  <span>{es ? 'Ver Demo Restaurante en Vivo (restaurante.turafood.com) ↗' : 'View Live Restaurant Demo ↗'}</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => openOnb('turafood')}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
-                    padding: '13px 22px',
+                    padding: '14px 20px',
                     borderRadius: 14,
-                    background: '#FF441F',
-                    color: '#fff',
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    boxShadow: '0 8px 20px rgba(255,68,31,0.35)'
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(226,54,15,0.25)',
+                    color: '#1a120e',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: 'var(--shadowSm)'
                   }}
                 >
-                  <span className="tf-ms" style={{ fontSize: 20 }}>launch</span>
-                  <span>{es ? 'Probar catálogo PWA en vivo' : 'Test live PWA catalog'}</span>
-                </Link>
+                  <span className="tf-ms" style={{ fontSize: 19, color: '#FF441F' }}>storefront</span>
+                  <span>{es ? 'Activar esta App para mi Negocio' : 'Launch for my business'}</span>
+                </button>
               </div>
             </div>
 
+            {/* Teléfonos del Restaurante */}
             <div className="tf-phones">
-              {/* PHONE 1 — Customer PWA */}
+              {/* Teléfono 1: Menú & Comida */}
               <div style={{ width: 262, flex: 'none', borderRadius: 42, background: '#0C0B0A', padding: 8, boxShadow: '0 38px 70px rgba(20,16,10,.34)', transform: 'rotate(-2deg)' }}>
                 <div style={{ position: 'relative', borderRadius: 35, overflow: 'hidden', background: '#F6F5F2', height: 540 }}>
                   <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 118, height: 24, background: '#0C0B0A', borderRadius: '0 0 15px 15px', zIndex: 6 }}></div>
@@ -698,7 +739,7 @@ export default function LandingPage() {
                           <div style={{ fontSize: 9.5, fontWeight: 700, color: '#8C857B', textTransform: 'uppercase', letterSpacing: '.05em' }}>{es ? 'Pedir a domicilio' : 'Order delivery'}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 13, fontWeight: 800, color: '#17140F' }}>
                             <span className="tf-ms" style={{ fontSize: 15, color: '#FF441F' }}>location_on</span>
-                            El Sazón del Puerto
+                            Asadero El Puerto
                           </div>
                         </div>
                         <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#F0EEE9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -760,7 +801,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* PHONE 2 — Checkout / Nequi */}
+              {/* Teléfono 2: Checkout & Nequi */}
               <div className="tf-phone2" style={{ width: 262, flex: 'none', borderRadius: 42, background: '#0C0B0A', padding: 8, boxShadow: '0 38px 70px rgba(20,16,10,.34)', transform: 'rotate(2deg)' }}>
                 <div style={{ position: 'relative', borderRadius: 35, overflow: 'hidden', background: '#F6F5F2', height: 540 }}>
                   <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 118, height: 24, background: '#0C0B0A', borderRadius: '0 0 15px 15px', zIndex: 6 }}></div>
@@ -809,6 +850,248 @@ export default function LandingPage() {
                         <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{es ? 'Pagar con Nequi' : 'Pay with Nequi'}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* SESIÓN 2: E-COMMERCE APP EDITORIAL LUXURY & RETAIL (TURA MUEBLES)        */}
+      {/* ========================================================================= */}
+      <div id="tf-demo-turamuebles" className="tf-wrap" style={{ paddingTop: 30, paddingBottom: 64 }}>
+        <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: 'linear-gradient(135deg,#0C0B0A 0%,#1A1715 60%,#111111 100%)', border: '1.5px solid rgba(255,255,255,0.12)', boxShadow: '0 30px 70px rgba(0,0,0,0.5)', color: '#FFFFFF' }}>
+          <div style={{ position: 'absolute', right: -70, top: -70, width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(circle,rgba(232,199,102,.12),transparent 70%)', pointerEvents: 'none' }}></div>
+          <div style={{ position: 'absolute', left: -80, bottom: -90, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,68,31,.1),transparent 70%)', pointerEvents: 'none' }}></div>
+          
+          <div className="tf-mock tf-cardpad" style={{ position: 'relative', padding: '54px 48px' }}>
+            <div>
+              {/* Pill & Subdomain */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#E8C766', textTransform: 'uppercase', letterSpacing: '.08em', padding: '5px 12px', borderRadius: 999, background: 'rgba(232,199,102,0.14)', border: '1px solid rgba(232,199,102,0.25)' }}>
+                  🛋️ {es ? 'Demo 2 · E-Commerce Editorial Luxury' : 'Demo 2 · Luxury Editorial E-Commerce'}
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.08)', padding: '5px 12px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.12)' }}>
+                  🌐 demo.turafood.com
+                </span>
+              </div>
+
+              <h2 className="tf-disp" style={{ margin: '10px 0 0', fontWeight: 900, fontSize: 38, lineHeight: 1.08, letterSpacing: '-.03em', color: '#FFFFFF', textWrap: 'balance' }}>
+                {es ? 'Experiencia Editorial de Alta Gama: ' : 'High-End Editorial Experience: '}
+                <span className="tf-serif" style={{ color: '#E8C766', fontWeight: 400 }}>
+                  {es ? 'Inspirada en Tura Muebles.' : 'Inspired by Tura Muebles.'}
+                </span>
+              </h2>
+              <p style={{ margin: '14px 0 0', fontSize: 16, lineHeight: 1.55, color: 'rgba(255,255,255,0.75)', maxWidth: 440 }}>
+                {es
+                  ? 'Diseñada con la identidad de Tura Muebles entregada por Claude Code: tipografía cursiva Instrument Serif, estética minimalista en Blanco y Negro, 18 muebles listos para armar, navegación por espacios arquitectónicos y asesor de compra con Inteligencia Artificial.'
+                  : 'Designed with Tura Muebles identity from Claude Code: Instrument Serif cursive typography, Black & White minimalism, 18 assemble-ready furniture items and AI shopping advisor.'}
+              </p>
+
+              {/* Lista de features */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
+                {[
+                  { icon: 'chair', label: es ? '18 muebles listos para armar con medidas y ensamble' : '18 assemble-ready furniture with specs & local build' },
+                  { icon: 'psychology', label: es ? 'Tura IA Asistente · Asesor que calcula espacios del hogar' : 'Tura AI Assistant · Recommends by room size' },
+                  { icon: 'shield', label: es ? 'Pacífico Protect · Protección contra humedad y salitre marino' : 'Pacifico Protect · Anti-humidity marine guarantee' },
+                  { icon: 'dark_mode', label: es ? 'Modo Oscuro Luxury & selector de idioma ES / EN' : 'Luxury Dark Mode & bilingual ES / EN support' }
+                ].map((c, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+                      <span className="tf-ms" style={{ fontSize: 19, color: '#E8C766' }}>{c.icon}</span>
+                    </div>
+                    <span style={{ fontSize: 14.5, fontWeight: 700, color: 'rgba(255,255,255,0.92)' }}>{c.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Botones de acción */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginTop: 32 }}>
+                <a
+                  href="https://turamuebles.pages.dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '14px 24px',
+                    borderRadius: 14,
+                    background: '#FFFFFF',
+                    color: '#0C0B0A',
+                    fontSize: 15,
+                    fontWeight: 900,
+                    textDecoration: 'none',
+                    boxShadow: '0 10px 24px rgba(255,255,255,0.15)'
+                  }}
+                >
+                  <span className="tf-ms" style={{ fontSize: 20, color: '#0C0B0A' }}>open_in_new</span>
+                  <span>{es ? 'Ver Demo Tura Muebles en Vivo (demo.turafood.com) ↗' : 'View Live Tura Muebles Demo ↗'}</span>
+                </a>
+
+                <Link
+                  href="/demo/turamuebles"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    borderRadius: 14,
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1.5px solid rgba(255,255,255,0.2)',
+                    color: '#FFFFFF',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    textDecoration: 'none'
+                  }}
+                >
+                  <span className="tf-ms" style={{ fontSize: 19, color: '#E8C766' }}>fullscreen</span>
+                  <span>{es ? 'Probar App PWA Local' : 'Test Local PWA'}</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Teléfonos de Tura Muebles */}
+            <div className="tf-phones">
+              {/* Teléfono 1: Home Editorial Tura Muebles */}
+              <div style={{ width: 262, flex: 'none', borderRadius: 42, background: '#1E1B18', padding: 8, boxShadow: '0 38px 70px rgba(0,0,0,0.6)', transform: 'rotate(-2deg)', border: '1px solid rgba(255,255,255,0.14)' }}>
+                <div style={{ position: 'relative', borderRadius: 35, overflow: 'hidden', background: '#FFFFFF', height: 540 }}>
+                  <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 118, height: 24, background: '#0C0B0A', borderRadius: '0 0 15px 15px', zIndex: 6 }}></div>
+                  <div style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', color: '#111' }}>
+                    
+                    {/* Header Minimalista Tura Muebles */}
+                    <div style={{ padding: '30px 16px 12px', background: '#FFFFFF', borderBottom: '1px solid #EFEFEF' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ width: 20, height: 20, background: '#000', color: '#fff', fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4 }}>
+                            tm
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: '-0.02em', color: '#000' }}>turamuebles</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 800, color: '#888' }}>
+                          <span>CO</span>
+                          <span>ES</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contenido Editorial con Instrument Serif */}
+                    <div className="tf-sc" style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }}>
+                      <div style={{ borderRadius: 16, background: '#000000', color: '#FFFFFF', padding: '20px 16px', marginBottom: 14 }}>
+                        <div style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.12em', color: '#888888', marginBottom: 4 }}>
+                          COLECCIÓN 2026
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-instrument), "Instrument Serif", Georgia, serif', fontStyle: 'italic', fontSize: 24, lineHeight: 1.15, color: '#FFFFFF' }}>
+                          Tu cocina de autor, mañana.
+                        </div>
+                        <div style={{ marginTop: 12 }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, background: '#FFFFFF', color: '#000', padding: '5px 12px', borderRadius: 999 }}>
+                            Ver catálogo →
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Selector de Espacios */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflowX: 'auto', paddingBottom: 6 }}>
+                        {['Todo', 'Salas', 'Comedores', 'Cocinas', 'Alcobas'].map((cat, i) => (
+                          <span key={cat} style={{
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 999,
+                            background: i === 0 ? '#000' : '#F4F4F4',
+                            color: i === 0 ? '#fff' : '#444',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Lista de Muebles de Autor */}
+                      <div style={{ fontSize: 12, fontWeight: 900, color: '#000', margin: '14px 0 8px', letterSpacing: '-0.01em' }}>
+                        Diseños Listos para Armar
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {[
+                          { name: 'Pargo Dorado al Horno', cat: 'CHEF AUTOR', price: '$38.500', icon: 'room_service' },
+                          { name: 'Mueble Cocina Roble', cat: 'MADERO LUXURY', price: '$380.000', icon: 'countertops' },
+                          { name: 'Sofá Modular Pacífico', cat: 'SALA & CONFORT', price: '$850.000', icon: 'chair' }
+                        ].map((prod, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 12, border: '1px solid #ECECEC', background: '#FAFAFA' }}>
+                            <div>
+                              <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: '.08em', color: '#888', textTransform: 'uppercase' }}>
+                                {prod.cat}
+                              </span>
+                              <div style={{ fontSize: 12, fontWeight: 800, color: '#000', marginTop: 1 }}>
+                                {prod.name}
+                              </div>
+                              <div style={{ fontSize: 11.5, fontWeight: 900, color: '#000', marginTop: 2 }}>
+                                {prod.price}
+                              </div>
+                            </div>
+                            <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#000', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                              +
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Barra inferior Minimalista */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '10px 0 12px', background: '#FFFFFF', borderTop: '1px solid #ECECEC' }}>
+                      <span className="tf-ms" style={{ fontSize: 20, color: '#000' }}>grid_view</span>
+                      <span className="tf-ms" style={{ fontSize: 20, color: '#999' }}>search</span>
+                      <span className="tf-ms" style={{ fontSize: 20, color: '#999' }}>shopping_bag</span>
+                      <span className="tf-ms" style={{ fontSize: 20, color: '#999' }}>account_circle</span>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              {/* Teléfono 2: Tura IA & Pacífico Protect */}
+              <div className="tf-phone2" style={{ width: 262, flex: 'none', borderRadius: 42, background: '#1E1B18', padding: 8, boxShadow: '0 38px 70px rgba(0,0,0,0.6)', transform: 'rotate(2deg)', border: '1px solid rgba(255,255,255,0.14)' }}>
+                <div style={{ position: 'relative', borderRadius: 35, overflow: 'hidden', background: '#0C0B0A', color: '#FFFFFF', height: 540 }}>
+                  <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 118, height: 24, background: '#0C0B0A', borderRadius: '0 0 15px 15px', zIndex: 6 }}></div>
+                  <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ padding: '32px 16px 13px', background: '#161412', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 9 }}>
+                      <span className="tf-ms" style={{ fontSize: 20, color: '#E8C766' }}>psychology</span>
+                      <span style={{ fontSize: 13.5, fontWeight: 900, color: '#FFFFFF' }}>Tura IA · Asistente Experto</span>
+                    </div>
+
+                    <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {/* Burbuja del asistente */}
+                      <div style={{ padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: '#E8C766', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 4 }}>
+                          ASESOR INTELIGENTE
+                        </div>
+                        <div style={{ fontSize: 12, lineHeight: 1.45, color: 'rgba(255,255,255,0.85)' }}>
+                          "Hola, soy tu asesor de Tura Muebles. ¿Qué medidas tiene tu espacio y qué acabado prefieres para Buenaventura?"
+                        </div>
+                      </div>
+
+                      {/* Garantía Pacífico Protect */}
+                      <div style={{ padding: 12, borderRadius: 14, background: 'linear-gradient(135deg,rgba(232,199,102,0.12),rgba(232,199,102,0.04))', border: '1px solid rgba(232,199,102,0.25)', marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#E8C766', fontWeight: 800, fontSize: 12 }}>
+                          <span className="tf-ms" style={{ fontSize: 16 }}>shield</span>
+                          <span>Pacífico Protect Activo</span>
+                        </div>
+                        <p style={{ margin: '4px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>
+                          Herrajes anticorrosión y sellado especial para humedad marina de Buenaventura.
+                        </p>
+                      </div>
+
+                      {/* Botón de ensamble */}
+                      <div style={{ padding: '12px 14px', borderRadius: 12, background: '#FFFFFF', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontWeight: 900, fontSize: 12.5 }}>
+                        <span className="tf-ms" style={{ fontSize: 16 }}>handyman</span>
+                        <span>Incluir Ensamble Profesional</span>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               </div>
