@@ -12,8 +12,13 @@ export async function middleware(request) {
     }
   }
 
-  // Subdominio restaurante.turafood.com -> App E-commerce Restaurante
-  if (host.startsWith('restaurante.turafood.com') || host.startsWith('restaurante.localhost')) {
+  // Subdominio rest.turafood.com o restaurante.turafood.com -> App E-commerce Restaurante
+  if (
+    host.startsWith('rest.turafood.com') ||
+    host.startsWith('restaurante.turafood.com') ||
+    host.startsWith('rest.localhost') ||
+    host.startsWith('restaurante.localhost')
+  ) {
     if (pathname === '/' || pathname === '') {
       return NextResponse.redirect(new URL('/store/asadero-el-puerto?skin=vibrant', request.url));
     }
@@ -24,7 +29,7 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/demo-turamuebles.html', request.url));
   }
 
-  if (pathname === '/demo/restaurante') {
+  if (pathname === '/demo/rest' || pathname === '/demo/restaurante') {
     return NextResponse.redirect(new URL('/store/asadero-el-puerto?skin=vibrant', request.url));
   }
 

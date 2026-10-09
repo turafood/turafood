@@ -645,7 +645,7 @@ export default function LandingPage() {
                   🍔 {es ? 'Demo 1 · E-Commerce para Restaurantes' : 'Demo 1 · Restaurant E-Commerce'}
                 </span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#6b524a', background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: 999, border: '1px solid rgba(0,0,0,0.06)' }}>
-                  🌐 restaurante.turafood.com
+                  🌐 rest.turafood.com
                 </span>
               </div>
 
@@ -699,7 +699,7 @@ export default function LandingPage() {
                   }}
                 >
                   <span className="tf-ms" style={{ fontSize: 20 }}>launch</span>
-                  <span>{es ? 'Ver Demo Restaurante en Vivo (restaurante.turafood.com) ↗' : 'View Live Restaurant Demo ↗'}</span>
+                  <span>{es ? 'Ver Demo Restaurante en Vivo (rest.turafood.com) ↗' : 'View Live Restaurant Demo (rest.turafood.com) ↗'}</span>
                 </a>
 
                 <button
@@ -723,6 +723,40 @@ export default function LandingPage() {
                   <span className="tf-ms" style={{ fontSize: 19, color: '#FF441F' }}>storefront</span>
                   <span>{es ? 'Activar esta App para mi Negocio' : 'Launch for my business'}</span>
                 </button>
+              </div>
+
+              {/* QR Scanner Card */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 16,
+                marginTop: 24,
+                padding: '12px 18px',
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.88)',
+                border: '1.5px solid rgba(255,68,31,0.25)',
+                boxShadow: '0 8px 20px rgba(255,68,31,0.08)',
+                backdropFilter: 'blur(8px)'
+              }}>
+                <div style={{ padding: 4, background: '#fff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', flex: 'none' }}>
+                  <img
+                    src="/img/qr-restaurante.png"
+                    alt="QR Demo Restaurante"
+                    style={{ width: 68, height: 68, display: 'block', borderRadius: 8 }}
+                  />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 900, color: '#17140F' }}>
+                    <span className="tf-ms" style={{ fontSize: 17, color: '#FF441F' }}>qr_code_scanner</span>
+                    <span>{es ? 'Prueba en tu celular' : 'Test on your phone'}</span>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#6b524a', marginTop: 2, lineHeight: 1.35 }}>
+                    {es ? 'Escanea para abrir la app interactiva' : 'Scan to open interactive app'}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#FF441F', marginTop: 3 }}>
+                    rest.turafood.com
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -928,7 +962,7 @@ export default function LandingPage() {
                   }}
                 >
                   <span className="tf-ms" style={{ fontSize: 20, color: '#0C0B0A' }}>open_in_new</span>
-                  <span>{es ? 'Ver Demo Tura Muebles en Vivo (demo.turafood.com) ↗' : 'View Live Tura Muebles Demo ↗'}</span>
+                  <span>{es ? 'Ver Demo Tura Muebles en Vivo (demo.turafood.com) ↗' : 'View Live Tura Muebles Demo (demo.turafood.com) ↗'}</span>
                 </a>
 
                 <Link
@@ -950,6 +984,40 @@ export default function LandingPage() {
                   <span className="tf-ms" style={{ fontSize: 19, color: '#E8C766' }}>fullscreen</span>
                   <span>{es ? 'Probar App PWA Local' : 'Test Local PWA'}</span>
                 </Link>
+              </div>
+
+              {/* QR Scanner Card */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 16,
+                marginTop: 24,
+                padding: '12px 18px',
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.07)',
+                border: '1.5px solid rgba(232,199,102,0.28)',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+                backdropFilter: 'blur(8px)'
+              }}>
+                <div style={{ padding: 4, background: '#fff', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', flex: 'none' }}>
+                  <img
+                    src="/img/qr-turamuebles.png"
+                    alt="QR Demo Tura Muebles"
+                    style={{ width: 68, height: 68, display: 'block', borderRadius: 8 }}
+                  />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 900, color: '#FFFFFF' }}>
+                    <span className="tf-ms" style={{ fontSize: 17, color: '#E8C766' }}>qr_code_scanner</span>
+                    <span>{es ? 'Prueba en tu celular' : 'Test on your phone'}</span>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', marginTop: 2, lineHeight: 1.35 }}>
+                    {es ? 'Escanea para abrir el catálogo editorial' : 'Scan to open editorial catalog'}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#E8C766', marginTop: 3 }}>
+                    demo.turafood.com
+                  </div>
+                </div>
               </div>
             </div>
 

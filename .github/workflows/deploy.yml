@@ -37,10 +37,11 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        run: npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
 
   deploy-app:
     name: Deploy turafood-app (app.turafood.com)
+    needs: deploy-cliente
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -68,10 +69,13 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        run: |
+          sleep 10
+          npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
 
   deploy-admin:
     name: Deploy turafood-admin (admin.turafood.com)
+    needs: deploy-app
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -99,4 +103,6 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+        run: |
+          sleep 10
+          npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
