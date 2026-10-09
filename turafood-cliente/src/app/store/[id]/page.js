@@ -19,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { useThemeStore } from '@/store/useThemeStore';
+import { useSkinStore } from '@/store/useSkinStore';
 import { getBusiness, getMenu } from '@/lib/data';
 import { cop, feeLabel, etaLabel, kmLabel } from '@/lib/format';
 import ProductModal from '../../components/ProductModal';
@@ -27,6 +28,9 @@ export default function StorePage() {
   const router = useRouter();
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const skin = useSkinStore((s) => s.skin);
+  const toggleSkin = useSkinStore((s) => s.toggleSkin);
+  const setSkin = useSkinStore((s) => s.setSkin);
   const { id } = useParams();
   const searchParams = useSearchParams();
   const productIdFromUrl = searchParams.get('product');
@@ -80,6 +84,9 @@ export default function StorePage() {
           return;
         }
         setStore(biz);
+        if (biz.pwa_skin) {
+          setSkin(biz.pwa_skin, biz.brand_color);
+        }
         setMenu(groups);
         setActiveCat(groups[0]?.id ?? null);
       } catch (err) {
@@ -118,7 +125,11 @@ export default function StorePage() {
 
   return (
     <>
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0, position: 'relative' }}>
+      <div
+        data-skin={skin}
+        className={`store-skin-wrapper ${skin === 'editorial' ? 'skin-editorial' : 'skin-vibrant'}`}
+        style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0, position: 'relative' }}
+      >
 
         <div className="sc" style={{ flex: 1, overflowY: 'auto', paddingBottom: 112, marginTop: -44, minHeight: 0 }}>
 
@@ -136,6 +147,23 @@ export default function StorePage() {
                   <span className="ms" style={{ fontSize: 21 }}>arrow_back_ios_new</span>
                 </button>
                 <div style={{ display: 'flex', gap: 9 }}>
+                  {/* Selector interactivo de Skin: TuraFood Vibrante vs Tura Muebles Editorial */}
+                  <button
+                    onClick={toggleSkin}
+                    style={{
+                      ...S.roundBtn,
+                      background: skin === 'editorial' ? '#111111' : 'rgba(255,255,255,0.92)',
+                      color: skin === 'editorial' ? '#FFFFFF' : '#111111',
+                      border: skin === 'editorial' ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(0,0,0,0.08)',
+                    }}
+                    aria-label="Cambiar estilo PWA (TuraFood vs Tura Muebles)"
+                    title={skin === 'editorial' ? 'Estilo activo: Tura Muebles (Editorial Luxury)' : 'Estilo activo: TuraFood (Vibrante Delivery)'}
+                  >
+                    <span className="ms" style={{ fontSize: 19 }}>
+                      {skin === 'editorial' ? 'auto_awesome' : 'palette'}
+                    </span>
+                  </button>
+
                   <button
                     onClick={toggleTheme}
                     style={S.roundBtn}
@@ -175,8 +203,13 @@ export default function StorePage() {
               marginTop: -20,
               padding: '24px 24px 18px',
             }}>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em' }}>
-                {loading ? 'Cargando…' : store?.name}
+              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 26, letterSpacing: '-.02em', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                <span>{loading ? 'Cargando…' : store?.name}</span>
+                {skin === 'editorial' && (
+                  <span className="ac" style={{ color: 'var(--muted)', fontSize: '0.85em', fontWeight: 400 }}>
+                    · Colección de Autor
+                  </span>
+                )}
               </div>
               <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 4 }}>
                 {store?.category}

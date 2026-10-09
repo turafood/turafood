@@ -71,3 +71,4 @@ _git-backup-turafood-cliente/
 # Se conservan localmente por si hay que regenerar a otra resolución.
 _assets-originales/
 *.tmp
+referencia-turamuebles/

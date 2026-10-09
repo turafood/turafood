@@ -1,8 +1,8 @@
+@import './editorial-skin.css';
+
 /* ============================================================
-   TURAFOOD — SISTEMA DE DISEÑO
-   Tokens, animaciones y helpers copiados literalmente del mockup
-   "TuraFood PWA - V2 - 13-08-2026". No cambiar valores sin
-   actualizar también el mockup: son la referencia visual.
+   TURAFOOD — SISTEMA DE DISEÑO DUAL (VIBRANTE + EDITORIAL)
+   Tokens, animaciones y helpers combinados con Tura Muebles
    ============================================================ */
 
 :root {
