@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: turafood-cliente
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Next.js with OpenNext
         working-directory: turafood-cliente
@@ -53,7 +53,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: turafood-app
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Next.js with OpenNext
         working-directory: turafood-app
@@ -84,7 +84,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: turafood-admin
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build Next.js with OpenNext
         working-directory: turafood-admin
