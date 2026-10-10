@@ -14,10 +14,14 @@
 
 import { useEffect } from 'react';
 import { useCartStore } from '@/store/useCartStore';
+import { asegurarSesion } from '@/lib/sesion';
 
 export default function RehidratarCarrito() {
   useEffect(() => {
     useCartStore.persist.rehydrate();
+    // Sesión anónima transparente: crea la cuenta por defecto en segundo plano
+    // para que el cliente pueda navegar y pedir sin pantallas de registro.
+    asegurarSesion().catch(() => {});
   }, []);
 
   return null;

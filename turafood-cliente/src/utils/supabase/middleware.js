@@ -55,24 +55,7 @@ export async function updateSession(request) {
     user = null;
   }
 
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
-  const isProtectedRoute = 
-    request.nextUrl.pathname.startsWith('/account') || 
-    request.nextUrl.pathname.startsWith('/plus');
-
-  // Si no está autenticado y la ruta es protegida, redirigir a auth
-  if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/auth';
-    return NextResponse.redirect(url);
-  }
-
-  // Si ya está autenticado y trata de entrar a auth, redirigir a cuenta/inicio
-  if (user && isAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/account';
-    return NextResponse.redirect(url);
-  }
-
+  // Navegación libre para invitados: no bloqueamos ninguna pantalla con login forzoso.
+  // El usuario puede navegar, ver tiendas, llenar carrito y pedir sin registrarse.
   return supabaseResponse;
 }

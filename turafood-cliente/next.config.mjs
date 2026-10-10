@@ -24,7 +24,10 @@ const nextConfig = {
   },
   allowedDevOrigins: ['172.22.96.1', 'localhost', '127.0.0.1'],
 
-  // La raíz ('/') ahora aloja la Landing Page comercial de Tura Food AI
+  // La raíz redirige directamente a la app de clientes (/home)
+  async redirects() {
+    return [{ source: '/', destination: '/home', permanent: false }];
+  },
 };
 
 export default nextConfig;

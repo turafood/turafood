@@ -847,8 +847,20 @@ export async function placeOrder({
   tip = 0, couponCode = null, instructions = null, paymentMethod = 'cash',
   subtotal: paramSubtotal, deliveryFee: paramDeliveryFee,
   serviceFee: paramServiceFee, discount: paramDiscount, total: paramTotal,
+  customerName = null, customerPhone = null,
 }) {
   const user = await asegurarSesion();
+  if (user?.id && (customerName || customerPhone)) {
+    try {
+      const supabase = createClient();
+      await supabase.from('profiles').update({
+        ...(customerName ? { full_name: customerName } : {}),
+        ...(customerPhone ? { phone: customerPhone } : {}),
+      }).eq('id', user.id);
+    } catch (e) {
+      console.warn('No se pudo actualizar perfil por defecto:', e);
+    }
+  }
   invalidate('pedidos');
 
   const business = BUSINESSES.find((b) => b.id === businessId) || { id: businessId, name: 'Restaurante Turafood' };

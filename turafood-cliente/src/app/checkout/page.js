@@ -77,8 +77,21 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState([]);
   const [deliveryAddressText, setDeliveryAddressText] = useState('Carrera 3 # 4-58, Centro, Buenaventura');
   const [deliveryInstructionsText, setDeliveryInstructionsText] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [addressOpen, setAddressOpen] = useState(false);
   const [coupons, setCoupons] = useState([]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const n = localStorage.getItem('turafood_customer_name');
+        const p = localStorage.getItem('turafood_customer_phone');
+        if (n) setCustomerName(n);
+        if (p) setCustomerPhone(p);
+      } catch {}
+    }
+  }, []);
 
   const [mode, setMode] = useState('delivery');
   const [payMethod, setPayMethod] = useState('cash');
@@ -183,6 +196,10 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
     setPlacing(true);
     try {
+      const finalCustomerName = customerName.trim() || 'Cliente Tura Food';
+      const finalCustomerPhone = customerPhone.trim();
+      const clienteLabel = finalCustomerPhone ? `${finalCustomerName} (${finalCustomerPhone})` : finalCustomerName;
+
       // 1. El servidor o la base de datos crea y persiste el pedido real
       const order = await placeOrder({
         businessId,
@@ -210,6 +227,8 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         serviceFee: t.service,
         discount: t.discount,
         total: t.total,
+        customerName: finalCustomerName,
+        customerPhone: finalCustomerPhone,
       });
 
       const productos = items.map((i) => ({
@@ -239,7 +258,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         productos,
         {
           negocio: store?.name,
-          cliente: 'Cliente Tura Food',
+          cliente: clienteLabel,
           numeroPago: store?.nequi_phone || store?.phone || '',
         }
       );
@@ -249,6 +268,8 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       // Guardar comanda, orden activa y enlace de WhatsApp para que en /tracking siempre esté disponible
       if (typeof window !== 'undefined') {
         try {
+          if (customerName.trim()) localStorage.setItem('turafood_customer_name', customerName.trim());
+          if (customerPhone.trim()) localStorage.setItem('turafood_customer_phone', customerPhone.trim());
           localStorage.setItem('turafood_last_whatsapp_url', whatsappUrl);
           localStorage.setItem('turafood_last_comanda_text', comandaText);
           localStorage.setItem('turafood_active_order', JSON.stringify(order));
@@ -618,6 +639,36 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                         fontSize: 12.5, color: 'var(--text)', outline: 'none',
                       }}
                     />
+
+                    {/* Datos de contacto / Cuenta por defecto */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <div style={{ position: 'relative' }}>
+                        <span className="ms" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--muted)' }}>person</span>
+                        <input
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          placeholder="Tu nombre (opcional)"
+                          style={{
+                            width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
+                            border: '1px solid var(--border)', background: 'var(--surface2)',
+                            fontSize: 12.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
+                          }}
+                        />
+                      </div>
+                      <div style={{ position: 'relative' }}>
+                        <span className="ms" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--muted)' }}>call</span>
+                        <input
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                          placeholder="Celular (opcional)"
+                          style={{
+                            width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
+                            border: '1px solid var(--border)', background: 'var(--surface2)',
+                            fontSize: 12.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
+                          }}
+                        />
+                      </div>
+                    </div>
 
                     {/* Hora estimada */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
