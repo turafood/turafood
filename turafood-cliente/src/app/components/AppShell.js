@@ -26,10 +26,10 @@ import RehidratarCarrito from './RehidratarCarrito';
 import ActiveOrderCapsule from './ActiveOrderCapsule';
 
 /** Rutas a pantalla completa: sin barra inferior */
-const NO_NAV = ['/auth', '/', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate'];
+const NO_NAV = ['/auth', '/checkout', '/cart', '/product', '/tracking', '/chat', '/rate', '/landing'];
 
 /** Rutas con fondo oscuro (el onboarding y el login) */
-const DARK = ['/auth', '/'];
+const DARK = ['/auth', '/landing'];
 
 /** Rutas del flujo que se centran en desktop como un popup enfocado */
 const FOCUSED_FLOW = ['/auth'];
@@ -53,6 +53,15 @@ export default function AppShell({ children }) {
     return () => clearInterval(id);
   }, []);
 
+  // Registro automático de Service Worker para PWA ultra-rápida y offline
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .catch(() => {});
+    }
+  }, []);
+
   // Detector de conexión offline / online para Buenaventura
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -73,9 +82,19 @@ export default function AppShell({ children }) {
     };
   }, []);
 
-  // En la landing page comercial (raíz), renderizamos pantalla completa
+  // Transición suave: restaurar scroll a la parte superior al navegar sin saltos
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const scrollContainers = document.querySelectorAll('.sc, .route-fade, main');
+    scrollContainers.forEach((el) => {
+      el.scrollTop = 0;
+    });
+  }, [pathname]);
+
+  // En la landing page comercial (/landing), renderizamos pantalla completa
   // sin chasis móvil ni barras de delivery del cliente
-  if (pathname === '/') {
+  if (pathname === '/landing') {
     return (
       <div style={{ minHeight: '100dvh', width: '100%', position: 'relative' }}>
         <RehidratarCarrito />
@@ -130,7 +149,6 @@ export default function AppShell({ children }) {
           }}>
             {/* Solo esto cambia al navegar */}
             <div
-              key={pathname}
               className={`route-fade ${isFocused ? 'focused-flow-card' : ''}`}
               style={{
                 ...S.route,

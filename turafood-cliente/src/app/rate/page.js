@@ -107,7 +107,7 @@ function RatePage() {
         <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 8, lineHeight: 1.5, maxWidth: 320 }}>
           Tu opinión ayuda a premiar a los mejores restaurantes y repartidores de Buenaventura.
         </div>
-        <button onClick={() => router.push('/home')} style={S.doneBtn}>Volver al inicio</button>
+        <button onClick={() => router.push('/')} style={S.doneBtn}>Volver al inicio</button>
       </div>
     );
   }
@@ -121,7 +121,7 @@ function RatePage() {
         {/* Barra Superior con Botón Volver y Theme Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <button
-            onClick={() => router.push('/home')}
+            onClick={() => router.push('/')}
             style={S.topBtn}
             aria-label="Cerrar"
             title="Volver al inicio"
@@ -297,7 +297,7 @@ function RatePage() {
             {submitting ? 'Enviando...' : (stars ? `Enviar calificación${tip ? ` y propina de ${cop(tip)}` : ''}` : 'Elige una calificación')}
           </button>
 
-          <button onClick={() => router.push('/home')} style={S.laterBtn}>Ahora no</button>
+          <button onClick={() => router.push('/')} style={S.laterBtn}>Ahora no</button>
         </div>
       </div>
     </div>

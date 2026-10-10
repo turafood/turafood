@@ -69,7 +69,7 @@ function AuthPage() {
   };
 
   const enter = () => {
-    router.replace('/home');
+    router.replace('/');
     router.refresh();
   };
 
@@ -81,7 +81,7 @@ function AuthPage() {
     try {
       const { error: oauthError } = await createClient().auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/home` },
+        options: { redirectTo: `${window.location.origin}/` },
       });
       if (oauthError) throw new Error(oauthError.message);
     } catch (err) {
@@ -181,7 +181,7 @@ function AuthPage() {
                 {/* Siempre visible, y con forma de botón. Antes era un
                     texto tenue al final: quien no quería dar sus datos
                     todavía no lo veía y cerraba la app. */}
-                <button onClick={() => router.push('/home')} style={S.guestBtn}>
+                <button onClick={() => router.push('/')} style={S.guestBtn}>
                   <span className="ms" style={{ fontSize: 19 }}>visibility</span>
                   Solo estoy mirando
                 </button>

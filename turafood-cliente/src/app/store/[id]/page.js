@@ -126,7 +126,7 @@ export default function StorePage() {
             No pudimos abrir el negocio
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{error}</div>
-          <button onClick={() => router.push('/home')} style={S.errorBtn}>Volver al inicio</button>
+          <button onClick={() => router.push('/')} style={S.errorBtn}>Volver al inicio</button>
         </div>
       </>
     );

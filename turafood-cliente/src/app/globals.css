@@ -312,18 +312,20 @@ button:disabled {
    `display` en su style inline — el inline gana sobre la clase y
    ambas variantes terminan visibles a la vez.
    ------------------------------------------------------------ */
-.mobile-only { display: none !important; }
-.desktop-only { display: flex !important; }
-
-@container device (max-width: 900px) {
-  .mobile-only { display: block !important; }
+@media (max-width: 899px) {
   .desktop-only { display: none !important; }
 }
 
-/* Fuera del marco (páginas sin chasis) decide el viewport */
-@media (max-width: 900px) {
-  .mobile-only { display: block !important; }
+@media (min-width: 900px) {
+  .mobile-only { display: none !important; }
+}
+
+@container device (max-width: 899px) {
   .desktop-only { display: none !important; }
+}
+
+@container device (min-width: 900px) {
+  .mobile-only { display: none !important; }
 }
 
 /* Truncado de una línea, muy usado en las tarjetas del diseño */
@@ -419,31 +421,56 @@ button:disabled {
   }
 }
 
-/* Grillas Responsivas para el Desktop Layout */
-.resp-grid {
-  display: flex;
-  flex-direction: column;
+/* Contenedor centralizado para Laptop y Desktop con márgenes equilibrados */
+.desk-container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Grilla Bento Adaptativa: 2 col en tablet / laptop compacta, 4 col en pantallas anchas */
+.desk-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 14px;
+  width: 100%;
 }
 
 @media (min-width: 1100px) {
-  .resp-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+  .desk-bento-grid {
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
 }
 
-/* Responsive visibility utilities */
-@media (max-width: 899px) {
-  .desktop-only {
-    display: none !important;
+/* Grilla de Restaurantes Adaptativa: 1 col (móvil), 2 col (tablet/iPad 768-1099px), 3 col (desktop >= 1100px) */
+.desk-stores-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .desk-stores-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-@media (min-width: 900px) {
-  .mobile-only {
-    display: none !important;
+@media (min-width: 1100px) {
+  .desk-stores-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Adaptación suave en tablets para flujos mobile-first */
+@media (min-width: 640px) and (max-width: 899px) {
+  .mobile-adaptive-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
   }
 }
 

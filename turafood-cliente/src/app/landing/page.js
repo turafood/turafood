@@ -275,7 +275,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 'none', marginLeft: 'auto' }}>
             {/* Direct link to customer delivery catalog */}
             <Link
-              href="/home"
+              href="/"
               style={{
                 height: 38,
                 padding: '0 13px',
@@ -367,7 +367,7 @@ export default function LandingPage() {
               </button>
 
               <Link
-                href="/home"
+                href="/"
                 style={{ height: 54, padding: '0 24px', borderRadius: 15, background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 9, boxShadow: 'var(--shadowSm)' }}
               >
                 <span className="tf-ms" style={{ fontSize: 21, color: 'var(--primary)' }}>restaurant</span>
@@ -1252,7 +1252,7 @@ export default function LandingPage() {
               {es ? 'Empezar gratis' : 'Start free'}
             </button>
             <Link
-              href="/home"
+              href="/"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42, borderRadius: 12, marginTop: 9, fontSize: 13, fontWeight: 700, border: '1px solid var(--border)', color: 'var(--text)' }}
             >
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#25D366', boxShadow: '0 0 0 3px rgba(37,211,102,.22)' }}></span>
@@ -1314,7 +1314,7 @@ export default function LandingPage() {
               {es ? 'Elegir plan' : 'Choose plan'}
             </button>
             <Link
-              href="/home"
+              href="/"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42, borderRadius: 12, marginTop: 9, fontSize: 13, fontWeight: 700, border: '1px solid var(--border)', color: 'var(--text)' }}
             >
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#25D366', boxShadow: '0 0 0 3px rgba(37,211,102,.22)' }}></span>
@@ -1378,7 +1378,7 @@ export default function LandingPage() {
               {es ? 'Elegir Tura Growth' : 'Choose Tura Growth'}
             </button>
             <Link
-              href="/home"
+              href="/"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42, borderRadius: 12, marginTop: 9, fontSize: 13, fontWeight: 700, background: 'rgba(255,255,255,.06)', border: '1px solid var(--nightBorder)', color: 'var(--gold)' }}
             >
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#25D366', boxShadow: '0 0 0 3px rgba(37,211,102,.22)' }}></span>
@@ -1538,7 +1538,7 @@ export default function LandingPage() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
             <a href="https://app.turafood.com" target="_blank" rel="noopener" style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>app.turafood.com</a>
-            <Link href="/home" style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>{es ? 'Ir al Menú PWA' : 'Go to PWA Menu'}</Link>
+            <Link href="/" style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>{es ? 'Ir al Menú PWA' : 'Go to PWA Menu'}</Link>
             <span style={{ fontSize: 12.5, color: 'var(--faint)' }}>© 2026 Tura Food AI</span>
           </div>
         </div>

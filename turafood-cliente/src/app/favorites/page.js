@@ -128,7 +128,7 @@ export default function FavoritesPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
-              onClick={() => router.push('/home')}
+              onClick={() => router.push('/')}
               style={S.backBtn}
               aria-label="Volver al inicio"
             >
@@ -305,7 +305,7 @@ export default function FavoritesPage() {
             </div>
 
             <button
-              onClick={() => router.push('/home')}
+              onClick={() => router.push('/')}
               style={S.exploreBtn}
             >
               <span className="ms" style={{ fontSize: 20 }}>restaurant</span>

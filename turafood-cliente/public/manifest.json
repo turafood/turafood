@@ -1,0 +1,72 @@
+{
+  "name": "TuraFood | Todo el puerto a un tap",
+  "short_name": "TuraFood",
+  "description": "Pide a domicilio de los mejores restaurantes y tiendas de Buenaventura con seguimiento en tiempo real.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0C0B0A",
+  "theme_color": "#FF441F",
+  "orientation": "portrait-primary",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "categories": [
+    "food",
+    "delivery",
+    "shopping",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Ofertas",
+      "short_name": "Ofertas",
+      "description": "Promociones y descuentos del día en Buenaventura",
+      "url": "/offers",
+      "icons": [
+        {
+          "src": "/icons/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Mis Favoritos",
+      "short_name": "Favoritos",
+      "description": "Restaurantes guardados en Buenaventura",
+      "url": "/favorites",
+      "icons": [
+        {
+          "src": "/icons/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    }
+  ]
+}

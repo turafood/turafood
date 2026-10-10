@@ -336,7 +336,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 <span>Ver Pedido y GPS</span>
               </button>
             )}
-            <button onClick={() => router.push('/home')} style={S.emptyBtn}>
+            <button onClick={() => router.push('/')} style={S.emptyBtn}>
               Ver restaurantes
             </button>
           </div>

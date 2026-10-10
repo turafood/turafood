@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Sin Conexión | TuraFood Buenaventura</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      background: #0C0B0A; color: #F7F5F2;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; text-align: center; padding: 24px; box-sizing: border-box;
+    }
+    .card {
+      max-width: 380px; width: 100%;
+      background: #171513; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 28px; padding: 32px 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .icon { font-size: 54px; margin-bottom: 12px; }
+    h1 { font-size: 22px; font-weight: 800; margin: 0 0 8px; color: #FFF; }
+    p { font-size: 14px; color: #A39B91; line-height: 1.5; margin: 0 0 24px; }
+    button {
+      background: linear-gradient(135deg, #FF441F 0%, #E2360F 100%);
+      color: #fff; border: none; border-radius: 99px;
+      padding: 14px 28px; font-size: 14px; font-weight: 800;
+      cursor: pointer; width: 100%; box-shadow: 0 8px 24px rgba(255,68,31,0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📡</div>
+    <h1>Sin conexión a internet</h1>
+    <p>Parece que se perdió la señal en Buenaventura. Tus pedidos y canasta guardada se mantendrán listos cuando regrese la red.</p>
+    <button onclick="window.location.reload()">Reintentar conexión</button>
+  </div>
+</body>
+</html>

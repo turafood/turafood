@@ -21,7 +21,7 @@ import { useDialogOpen } from '@/lib/useDialogOpen';
 import { useSearchOverlay } from './SearchOverlay';
 
 const ITEMS = [
-  { id: 'home', label: 'Inicio', icon: 'home', href: '/home' },
+  { id: 'home', label: 'Inicio', icon: 'home', href: '/' },
   { id: 'offers', label: 'Ofertas', icon: 'local_activity', href: '/offers' },
   { id: 'search', label: 'Buscar', icon: 'search', action: 'search' },
   { id: 'favorites', label: 'Favoritos', icon: 'favorite', href: '/favorites' },
@@ -45,7 +45,9 @@ export default function BottomNav() {
       {ITEMS.map((item) => {
         const active = item.action === 'search'
           ? searchOpen
-          : pathname.startsWith(item.href);
+          : item.href === '/'
+            ? pathname === '/'
+            : pathname.startsWith(item.href);
 
         const badge = item.id === 'account' && cartCount > 0 ? cartCount : null;
 

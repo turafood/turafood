@@ -76,7 +76,7 @@ export default function OrdersPage() {
               <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 6, lineHeight: 1.5 }}>
                 Cuando hagas tu primer pedido, aquí lo vas a ver.
               </div>
-              <button onClick={() => router.push('/home')} style={S.cta}>Ver sitios abiertos</button>
+              <button onClick={() => router.push('/')} style={S.cta}>Ver sitios abiertos</button>
             </div>
           )}
 

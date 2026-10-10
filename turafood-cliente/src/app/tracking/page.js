@@ -627,7 +627,7 @@ function TrackingPage() {
           No pudimos abrir el seguimiento
         </div>
         <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 6 }}>{error}</div>
-        <button onClick={() => router.push('/home')} style={S.errorBtn}>Volver al Inicio</button>
+        <button onClick={() => router.push('/')} style={S.errorBtn}>Volver al Inicio</button>
       </div>
     );
   }
@@ -686,7 +686,7 @@ function TrackingPage() {
         <div className="desktop-only" style={{ width: '100%', maxWidth: 1040, margin: '0 auto', padding: '20px 24px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button onClick={() => router.push('/home')} style={S.backBtnHeader} aria-label="Volver al inicio">
+              <button onClick={() => router.push('/')} style={S.backBtnHeader} aria-label="Volver al inicio">
                 <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
               </button>
               <div>
@@ -921,7 +921,7 @@ function TrackingPage() {
         <div className="mobile-only" style={{ position: 'relative', flex: 'none', height: 310, background: 'var(--surface2)', overflow: 'hidden' }}>
           <div ref={mapMobileEl} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
           
-          <button onClick={() => router.push('/home')} style={S.mapBack} aria-label="Volver al inicio">
+          <button onClick={() => router.push('/')} style={S.mapBack} aria-label="Volver al inicio">
             <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
           </button>
 

@@ -276,7 +276,7 @@ function HelpPage() {
       <div style={{ width: '100%', maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={() => router.push('/home')} style={S.backBtn} aria-label="Volver">
+            <button onClick={() => router.push('/')} style={S.backBtn} aria-label="Volver">
               <span className="ms" style={{ fontSize: 20 }}>arrow_back_ios_new</span>
             </button>
             <div>
