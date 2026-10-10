@@ -168,7 +168,9 @@ export default function CheckoutPage() {
     ? 'Canasta vacía'
     : (mode === 'delivery' && !deliveryAddressText.trim())
       ? 'Ingresa tu dirección'
-      : null;
+      : (!customerName.trim() || !customerPhone.trim())
+        ? 'Completa nombre y celular'
+        : null;
 
 function WhatsAppIcon({ size = 20, color = '#fff' }) {
   return (
@@ -983,8 +985,107 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         </div>
 
         <div className="mobile-only sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 140px', minHeight: 0 }}>
+          {/* Stepper Inspirado en Tura Muebles: 1. Contacto · 2. Entrega · 3. Pago */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 4px 14px', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+              <span style={{
+                width: 22, height: 22, borderRadius: '50%',
+                background: customerName.trim() && customerPhone.trim() ? 'var(--green)' : 'var(--primary)',
+                color: '#fff', fontSize: 11, fontWeight: 800,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+              }}>
+                {customerName.trim() && customerPhone.trim() ? <span className="ms" style={{ fontSize: 14 }}>check</span> : 1}
+              </span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)' }}>Contacto</span>
+            </div>
+
+            <span style={{ width: 14, height: 1, background: 'var(--border)' }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+              <span style={{
+                width: 22, height: 22, borderRadius: '50%',
+                background: (mode === 'pickup' || deliveryAddressText.trim()) ? 'var(--green)' : 'var(--surface2)',
+                color: (mode === 'pickup' || deliveryAddressText.trim()) ? '#fff' : 'var(--muted)', fontSize: 11, fontWeight: 800,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+                border: (mode === 'pickup' || deliveryAddressText.trim()) ? 'none' : '1px solid var(--border)',
+              }}>
+                {(mode === 'pickup' || deliveryAddressText.trim()) ? <span className="ms" style={{ fontSize: 14 }}>check</span> : 2}
+              </span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: (mode === 'pickup' || deliveryAddressText.trim()) ? 'var(--text)' : 'var(--muted)' }}>Entrega</span>
+            </div>
+
+            <span style={{ width: 14, height: 1, background: 'var(--border)' }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+              <span style={{
+                width: 22, height: 22, borderRadius: '50%',
+                background: 'var(--surface2)', color: 'var(--muted)', fontSize: 11, fontWeight: 800,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+                border: '1px solid var(--border)',
+              }}>
+                3
+              </span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)' }}>Pago</span>
+            </div>
+          </div>
+
+          {/* 1. Paso: Datos de Contacto (Nombre + Celular WhatsApp) */}
+          <div style={{ ...S.card, padding: '14px 16px', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>person</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)', letterSpacing: '.04em', textTransform: 'uppercase' }}>
+                  1. Tus Datos de Contacto
+                </span>
+              </div>
+              {customerName.trim() && customerPhone.trim() && (
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span className="ms ms-fill" style={{ fontSize: 14 }}>check_circle</span> Listo
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface2)', borderRadius: 12, padding: '0 12px', border: '1px solid var(--border)' }}>
+                <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>badge</span>
+                <input
+                  type="text"
+                  placeholder="Tu nombre completo"
+                  value={customerName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomerName(val);
+                    try { localStorage.setItem('turafood_customer_name', val); } catch {}
+                  }}
+                  style={{
+                    flex: 1, height: 42, background: 'none', border: 'none',
+                    fontSize: 13.5, color: 'var(--text)', outline: 'none',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface2)', borderRadius: 12, padding: '0 12px', border: '1px solid var(--border)' }}>
+                <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>call</span>
+                <input
+                  type="tel"
+                  placeholder="Tu celular (WhatsApp)"
+                  value={customerPhone}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomerPhone(val);
+                    try { localStorage.setItem('turafood_customer_phone', val); } catch {}
+                  }}
+                  style={{
+                    flex: 1, height: 42, background: 'none', border: 'none',
+                    fontSize: 13.5, color: 'var(--text)', outline: 'none',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Domicilio / Recoger */}
-          <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 14, padding: 4, gap: 4 }}>
+          <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 14, padding: 4, gap: 4, marginBottom: 12 }}>
             {[
               { id: 'delivery', label: 'Domicilio', icon: 'electric_moped' },
               { id: 'pickup', label: 'Recoger', icon: 'storefront' },
