@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
  * —negocio o repartidor— que abren una sesión anónima y lo dejan
  * adentro. No es una pantalla de registro, es la puerta abierta.
  */
-const PUBLIC = ['/auth', '/registro', '/entrar', '/terminos', '/privacidad', '/actualizar-clave'];
+const PUBLIC = ['/auth', '/registro', '/entrar', '/unirse', '/terminos', '/privacidad', '/actualizar-clave'];
 
 /**
  * Prefijo que le corresponde a cada rol. Es lo que convierte

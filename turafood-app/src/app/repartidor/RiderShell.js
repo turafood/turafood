@@ -162,7 +162,15 @@ export default function RiderShell({ children }) {
     ? 100
     : Math.min(100, Math.round(((entregas - nivel.piso) / (nivel.tope - nivel.piso)) * 100));
 
-  const ctx = { courier, loading, error, active, online, setOnline, reloadActive, toast, demoMode, setDemoMode };
+  const reloadCourier = useCallback(async () => {
+    try {
+      setCourier(await getMyCourier());
+    } catch (err) {
+      setError(err.message);
+    }
+  }, []);
+
+  const ctx = { courier, loading, error, active, online, setOnline, reloadActive, reloadCourier, toast, demoMode, setDemoMode };
 
   return (
     <RiderContext.Provider value={ctx}>

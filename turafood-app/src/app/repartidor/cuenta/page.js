@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useRider } from '../RiderContext';
+import { unirseAFlota } from '@/lib/repartidor';
 import Videollamada from '../../components/Videollamada';
 
 const APPROVAL = {
@@ -78,6 +79,82 @@ function docState(doc, courier) {
 
 const initials = (name) =>
   String(name || '?').split(' ').filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+
+/**
+ * El negocio para el que reparte. Si todavía no está en una flota, aquí
+ * escribe el código que le dio su negocio.
+ */
+function TarjetaFlota() {
+  const { courier, reloadCourier, toast } = useRider();
+  const [codigo, setCodigo] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [mensaje, setMensaje] = useState(null);
+
+  const unirse = async (e) => {
+    e.preventDefault();
+    if (!codigo.trim()) return;
+    setBusy(true);
+    setMensaje(null);
+    try {
+      const r = await unirseAFlota(codigo);
+      if (r?.ok) {
+        toast(`Ya estás en la flota de ${r.negocio}`);
+        setCodigo('');
+        await reloadCourier();
+      } else {
+        setMensaje(r?.mensaje ?? 'No se pudo unir a la flota.');
+      }
+    } catch (err) {
+      setMensaje(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (courier?.business_id) {
+    return (
+      <div style={S.card}>
+        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 }}>Tu negocio</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginTop: 13 }}>
+          <span style={{ ...S.dot, background: 'var(--green)' }}>
+            <span className="ms" style={{ fontSize: 16, color: '#fff' }}>storefront</span>
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span className="tr1" style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
+              {courier.negocio?.name ?? 'Tu negocio'}
+            </span>
+            <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+              Repartes los pedidos de este negocio.
+            </span>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={S.card}>
+      <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 16.5 }}>¿Reparte para un negocio?</div>
+      <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.45 }}>
+        Escribe el código que te dio tu negocio y quedas en su flota, sin más trámites.
+      </p>
+      <form onSubmit={unirse} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <input
+          value={codigo}
+          onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+          placeholder="CÓDIGO"
+          autoCapitalize="characters" autoComplete="off" maxLength={12}
+          aria-label="Código de tu negocio"
+          style={{ flex: 1, minWidth: 0, height: 46, borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', padding: '0 14px', fontSize: 16, fontWeight: 800, letterSpacing: '.14em' }}
+        />
+        <button type="submit" disabled={busy || !codigo.trim()} style={{ height: 46, padding: '0 18px', borderRadius: 12, border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer', opacity: busy || !codigo.trim() ? 0.6 : 1 }}>
+          {busy ? 'Uniendo…' : 'Unirme'}
+        </button>
+      </form>
+      {mensaje && <div role="alert" style={{ marginTop: 10, fontSize: 12.5, color: 'var(--primary)', fontWeight: 700 }}>{mensaje}</div>}
+    </div>
+  );
+}
 
 export default function CuentaPage() {
   const router = useRouter();
@@ -161,6 +238,8 @@ export default function CuentaPage() {
             </div>
           ))}
         </div>
+
+        <TarjetaFlota />
 
         {/* Estado de la cuenta */}
         <div style={S.card}>

@@ -56,11 +56,24 @@ export async function getMyCourier() {
 
   const { data, error } = await supabase
     .from('courier_profiles')
-    .select('*, profile:profiles!courier_profiles_id_fkey(full_name, phone, rating)')
+    .select('*, profile:profiles!courier_profiles_id_fkey(full_name, phone, rating), negocio:business_profiles(name)')
     .eq('id', user.id)
     .maybeSingle();
 
   if (error) throw new Error(`No se pudo cargar tu perfil: ${error.message}`);
+  return data;
+}
+
+/**
+ * Unirse a la flota de un negocio con el código que él te dio.
+ * La base devuelve { ok, negocio } o { ok: false, mensaje }: los fallos
+ * "normales" (código malo, ya estás en otra flota) no son excepciones.
+ */
+export async function unirseAFlota(codigo) {
+  if (!isLive()) { await delay(); return { ok: false, mensaje: 'Sin conexión con la base.' }; }
+
+  const { data, error } = await createClient().rpc('unirse_a_flota', { p_codigo: codigo });
+  if (error) throw new Error(error.message);
   return data;
 }
 
