@@ -1,108 +1,109 @@
-name: Deploy TuraFood Ecosystem to Cloudflare
+name: Deploy TuraFood a Cloudflare
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   workflow_dispatch:
 
+# Un solo despliegue a la vez: si llega otro push, el anterior se cancela.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+# Claves PUBLICAS (van dentro del JavaScript del navegador por diseño).
+# Nunca poner aquí la service_role ni secretos: esos van en GitHub Secrets.
+env:
+  NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+  NEXT_PUBLIC_VAPI_PUBLIC_KEY: 097ab7c5-8b24-4464-bf4d-d83f15a6b808
+
 jobs:
-  deploy-cliente:
-    name: Deploy turafood-cliente (turafood.com)
+  # Compila las tres apps a la vez. Si una falla, las otras siguen:
+  # el build de app y admin ya no depende del deploy de cliente.
+  build:
+    name: Build ${{ matrix.app }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: turafood-cliente
+            base_url: https://turafood.com
+          - app: turafood-app
+            base_url: https://app.turafood.com
+          - app: turafood-admin
+            base_url: https://admin.turafood.com
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - name: Install dependencies
-        working-directory: turafood-cliente
-        run: npm install --legacy-peer-deps
+      - name: Instalar dependencias
+        working-directory: ${{ matrix.app }}
+        run: npm ci --legacy-peer-deps
 
-      - name: Build Next.js with OpenNext
-        working-directory: turafood-cliente
+      - name: Build (OpenNext para Cloudflare)
+        working-directory: ${{ matrix.app }}
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
-          NEXT_PUBLIC_BASE_URL: https://turafood.com
-          NEXT_PUBLIC_VAPI_PUBLIC_KEY: 097ab7c5-8b24-4464-bf4d-d83f15a6b808
+          NEXT_PUBLIC_BASE_URL: ${{ matrix.base_url }}
         run: npx @opennextjs/cloudflare build
 
-      - name: Deploy to Cloudflare
-        working-directory: turafood-cliente
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
+      - name: Guardar el build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.app }}
+          path: |
+            ${{ matrix.app }}/.open-next
+            ${{ matrix.app }}/wrangler.jsonc
+            ${{ matrix.app }}/package.json
+          include-hidden-files: true
+          retention-days: 3
 
-  deploy-app:
-    name: Deploy turafood-app (app.turafood.com)
-    needs: deploy-cliente
+  # Despliega en serie (una app tras otra, con pausa) para no chocar con
+  # el limite de la API de Cloudflare (error 10429).
+  deploy:
+    name: Deploy ${{ matrix.app }}
+    needs: build
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        app: [turafood-cliente, turafood-app, turafood-admin]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
 
-      - name: Install dependencies
-        working-directory: turafood-app
-        run: npm install --legacy-peer-deps
-
-      - name: Build Next.js with OpenNext
-        working-directory: turafood-app
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
-          NEXT_PUBLIC_BASE_URL: https://app.turafood.com
-        run: npx @opennextjs/cloudflare build
-
-      - name: Deploy to Cloudflare
-        working-directory: turafood-app
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          sleep 10
-          npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
-
-  deploy-admin:
-    name: Deploy turafood-admin (admin.turafood.com)
-    needs: deploy-app
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: 22
+          name: build-${{ matrix.app }}
+          path: ${{ matrix.app }}
 
-      - name: Install dependencies
-        working-directory: turafood-admin
-        run: npm install --legacy-peer-deps
+      - name: Instalar wrangler
+        working-directory: ${{ matrix.app }}
+        run: npm ci --legacy-peer-deps
 
-      - name: Build Next.js with OpenNext
-        working-directory: turafood-admin
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
-          NEXT_PUBLIC_BASE_URL: https://admin.turafood.com
-        run: npx @opennextjs/cloudflare build
-
-      - name: Deploy to Cloudflare
-        working-directory: turafood-admin
+      - name: Desplegar a Cloudflare (con reintentos)
+        working-directory: ${{ matrix.app }}
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          sleep 10
-          npx wrangler deploy || (echo "Rate limit detected, retrying in 25s..." && sleep 25 && npx wrangler deploy)
+          for intento in 1 2 3 4; do
+            if npx wrangler deploy; then exit 0; fi
+            espera=$((intento * 45))
+            echo "Intento $intento fallo. Reintento en ${espera}s..."
+            sleep "$espera"
+          done
+          echo "::error::No se pudo desplegar ${{ matrix.app }} tras 4 intentos"
+          exit 1
