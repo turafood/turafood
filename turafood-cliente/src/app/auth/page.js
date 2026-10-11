@@ -250,7 +250,8 @@ function AuthPage() {
           </div>
 
           <p style={S.legal}>
-            Al continuar aceptas los Términos y la Política de privacidad de TuraFood.
+            Al continuar aceptas los <a href="/terminos" style={{ color: 'inherit', fontWeight: 700 }}>Términos</a> y
+            la <a href="/privacidad" style={{ color: 'inherit', fontWeight: 700 }}>Política de privacidad</a> de TuraFood.
           </p>
         </div>
       </div>

@@ -58,8 +58,8 @@ const SECTIONS = [
       { icon: 'storefront', label: 'Registra tu negocio en app.turafood.com', href: 'https://app.turafood.com' },
       { icon: 'two_wheeler', label: 'Sé repartidor oficial Tura', href: '/help' },
       { icon: 'headset_mic', label: 'Centro de Ayuda y Soporte Oficial', href: '/help' },
-      { icon: 'info', label: 'Términos de servicio y Garantía', href: '/help' },
-      { icon: 'shield', label: 'Política de privacidad', href: '/help' },
+      { icon: 'info', label: 'Términos de servicio', href: '/terminos' },
+      { icon: 'shield', label: 'Política de privacidad', href: '/privacidad' },
     ],
   },
 ];
