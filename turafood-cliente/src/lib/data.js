@@ -1283,8 +1283,11 @@ export async function submitReview({ orderId, businessId, rating, comment = '', 
         order_id: orderId || null,
         business_id: businessId,
         customer_id: user?.id || null,
-        rating,
+        // La columna se llama business_rating. Con `rating` el insert fallaba
+        // siempre y, como el error se tragaba, la reseña nunca se guardaba.
+        business_rating: rating,
         comment,
+        tags: Array.isArray(tags) ? tags : [],
       })
       .select()
       .single();
