@@ -20,6 +20,7 @@ import { RiderContext } from './RiderContext';
 import { TEMA_INFO, useTheme } from '@/lib/prefs';
 import TuraIARider from './TuraIARider';
 import ProgresoCuenta from '../components/ProgresoCuenta';
+import AvisosPush from '../components/AvisosPush';
 import Recorrido from '../components/Recorrido';
 import { PASOS_REPARTIDOR } from '../components/recorridos';
 
@@ -282,6 +283,12 @@ export default function RiderShell({ children }) {
         )}
 
         <Recorrido id="repartidor" pasos={PASOS_REPARTIDOR} />
+
+        {!fullscreen && (
+          <div style={{ padding: '0 20px' }}>
+            <AvisosPush app="repartidor" />
+          </div>
+        )}
 
         {children}
 

@@ -20,6 +20,7 @@ import { ORDER_STATUS, cop } from '@/lib/format';
 import { comandaWhatsapp, linkWhatsapp } from '@/lib/comandaWhatsapp';
 import RouteSkeleton from '../components/RouteSkeleton';
 import { cargarLeafletCss } from '@/lib/leafletCss';
+import { pushSupported, activarPush, renovarPush } from '@/lib/push';
 import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
 
@@ -281,18 +282,27 @@ function TrackingPage() {
   const bikeMarkerDeskRef = useRef(null);
   const bikeMarkerMobRef = useRef(null);
 
-  // Solicitar permiso de notificaciones push
+  // Activar los avisos: push real (llegan con la app cerrada). Si el
+  // navegador no soporta push o no está configurado, queda el permiso local
+  // de siempre, que solo avisa con esta página abierta.
   const requestPushPermission = async () => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      try {
-        const perm = await Notification.requestPermission();
-        setNotificationsAllowed(perm === 'granted');
-        if (perm === 'granted') {
-          triggerPushNotification('pending', '¡Notificaciones Push activadas!', 'Te avisaremos en tiempo real de cada movimiento de tu pedido.');
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    try {
+      if (pushSupported()) {
+        const r = await activarPush('cliente');
+        setNotificationsAllowed(r.ok);
+        if (r.ok) {
+          triggerPushNotification('pending', '¡Avisos activados!', 'Te avisaremos de cada movimiento de tu pedido, aunque cierres la app.');
         }
-      } catch (err) {
-        console.warn('Push notification error:', err);
+        return;
       }
+      const perm = await Notification.requestPermission();
+      setNotificationsAllowed(perm === 'granted');
+      if (perm === 'granted') {
+        triggerPushNotification('pending', '¡Avisos activados!', 'Te avisaremos mientras tengas esta pantalla abierta.');
+      }
+    } catch (err) {
+      console.warn('Push notification error:', err);
     }
   };
 
@@ -310,8 +320,9 @@ function TrackingPage() {
       try { navigator.vibrate([50, 80, 50]); } catch {}
     }
 
-    // 2. Notificación nativa de navegador
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+    // 2. Notificación nativa de navegador. Con push real activo la manda el
+    // servidor (y se vería doble), así que esta solo queda de respaldo.
+    if (!pushSupported() && typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
         new Notification(`Tura Food AI · ${title}`, {
           body,
@@ -410,6 +421,7 @@ function TrackingPage() {
 
       if ('Notification' in window && Notification.permission === 'granted') {
         setNotificationsAllowed(true);
+        renovarPush('cliente'); // liga este dispositivo a la sesión actual
       }
     }
   }, []);

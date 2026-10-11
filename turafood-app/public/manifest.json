@@ -1,0 +1,25 @@
+{
+  "name": "TuraFood Negocios y Repartidores",
+  "short_name": "TuraFood Pro",
+  "description": "Pedidos en vivo, catálogo, entregas y liquidaciones de TuraFood en Buenaventura.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0C0B0A",
+  "theme_color": "#FF441F",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "categories": ["business", "food", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Pedidos en vivo", "short_name": "Pedidos", "url": "/negocio/pedidos", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mis entregas", "short_name": "Entregas", "url": "/repartidor", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

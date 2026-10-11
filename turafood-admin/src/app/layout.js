@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+import PwaRegister from './components/PwaRegister';
 
 const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
@@ -19,6 +20,15 @@ export const metadata = {
     'Consola de TuraFood en Buenaventura: aprobaciones, operación en vivo, flota, soporte y finanzas.',
   // Que no se indexe: es una puerta interna, no una página de la marca.
   robots: { index: false, follow: false },
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/icons/icon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/icons/icon-192.png',
+  },
+  appleWebApp: { capable: true, title: 'TuraFood Admin', statusBarStyle: 'black-translucent' },
 };
 
 export const viewport = {
@@ -35,7 +45,10 @@ export default function RootLayout({ children }) {
             Google en una hoja de estilos que bloqueaba el primer pintado. */}
         <link rel="preload" href="/fonts/material-symbols-rounded.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }

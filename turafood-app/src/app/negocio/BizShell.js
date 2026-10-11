@@ -23,6 +23,7 @@ import { BizContext } from './BizContext';
 import TuraIA from './TuraIA';
 import { useDialogOpen } from '@/lib/useDialogOpen';
 import ProgresoCuenta from '../components/ProgresoCuenta';
+import AvisosPush from '../components/AvisosPush';
 import Recorrido from '../components/Recorrido';
 import { PASOS_NEGOCIO } from '../components/recorridos';
 import LocalMini from '../components/LocalMini';
@@ -668,6 +669,7 @@ export default function BizShell({ children }) {
                 <span>{error}</span>
               </div>
             )}
+            <AvisosPush app="negocio" />
             {children}
           </main>
         </div>
