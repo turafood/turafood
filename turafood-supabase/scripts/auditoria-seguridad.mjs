@@ -84,7 +84,8 @@ console.log('1) Visitante SIN sesión: ¿qué tablas y vistas devuelven filas?')
 //      and relname not in ('spatial_ref_sys','geography_columns','geometry_columns');
 const objetos = [
   'addresses', 'ai_agent_calls', 'business_documents', 'business_hours', 'business_profiles', 'business_team_members',
-  'conocimiento_docs', 'coupons', 'courier_locations', 'courier_profiles', 'delivery_zones', 'favorites', 'internal_config',
+  'conocimiento_docs', 'coupons', 'courier_locations', 'courier_profiles', 'delivery_zones', 'favorites', 'flota_codigos',
+  'flota_intentos', 'internal_config',
   'marketing_contacts', 'marketing_events', 'marketing_queue', 'messages', 'negocios_recien_llegados', 'notifications',
   'order_items', 'order_offers', 'orders', 'payment_events', 'payment_methods', 'payments', 'payout_requests',
   'product_categories', 'product_events', 'product_extras', 'product_performance', 'products', 'profiles',
@@ -159,6 +160,40 @@ const cali = await http('/rest/v1/rpc/guardar_direccion', { metodo: 'POST', ...h
 chequear('rechaza una dirección en Cali', cali.status >= 400, cali.data?.message ?? `HTTP ${cali.status}`);
 const sinPunto = await http('/rest/v1/rpc/guardar_direccion', { metodo: 'POST', ...hA, cuerpo: { p_label: 'Casa', p_address: 'Carrera 3 # 4-58' } });
 chequear('rechaza una dirección sin ubicación', sinPunto.status >= 400, sinPunto.data?.message ?? `HTTP ${sinPunto.status}`);
+
+// ---------------------------------------------------------------- 4b. registro y flota propia
+console.log('\n4b) Registro con rol falso y repartidores');
+// Los metadatos del registro los escribe quien se registra: `role: admin` no debe dar admin
+const falsoAdmin = await http('/auth/v1/signup', { metodo: 'POST', cuerpo: { data: { role: 'admin' } } });
+const rolFalso = falsoAdmin.data?.access_token
+  ? await http(`/rest/v1/profiles?select=role&id=eq.${falsoAdmin.data.user.id}`, { token: falsoAdmin.data.access_token })
+  : null;
+chequear('registrarse con role=admin NO da rol admin', rolFalso?.data?.[0]?.role === 'customer', `rol=${rolFalso?.data?.[0]?.role}`);
+const falsoOps = await http('/auth/v1/signup', { metodo: 'POST', cuerpo: { data: { role: 'ops' } } });
+const rolOps = falsoOps.data?.access_token
+  ? await http(`/rest/v1/profiles?select=role&id=eq.${falsoOps.data.user.id}`, { token: falsoOps.data.access_token })
+  : null;
+chequear('registrarse con role=ops NO da rol ops', rolOps?.data?.[0]?.role === 'customer', `rol=${rolOps?.data?.[0]?.role}`);
+
+// Un repartidor nuevo que intenta crearse ya aprobado
+const rep = await http('/auth/v1/signup', { metodo: 'POST', cuerpo: { data: { role: 'courier' } } });
+const hR = { token: rep.data?.access_token };
+await http('/rest/v1/courier_profiles', { metodo: 'POST', ...hR, cuerpo: { id: rep.data?.user?.id, status: 'online', approval_status: 'active', total_earnings: 999999 }, prefer: 'return=minimal' });
+const miFicha = await http(`/rest/v1/courier_profiles?select=approval_status,total_earnings,business_id&id=eq.${rep.data?.user?.id}`, hR);
+chequear('un repartidor NO puede crearse ya aprobado', miFicha.data?.[0]?.approval_status === 'pending_review' && Number(miFicha.data?.[0]?.total_earnings) === 0, `approval=${miFicha.data?.[0]?.approval_status}`);
+const alNegocio = await http(`/rest/v1/courier_profiles?id=eq.${rep.data?.user?.id}`, { metodo: 'PATCH', ...hR, cuerpo: { business_id: '00000000-0000-4000-8000-000000000002', approval_status: 'active' }, prefer: 'return=representation' });
+const trasPatch = await http(`/rest/v1/courier_profiles?select=approval_status,business_id&id=eq.${rep.data?.user?.id}`, hR);
+chequear('un repartidor NO puede asignarse un negocio ni aprobarse', trasPatch.data?.[0]?.approval_status === 'pending_review' && !trasPatch.data?.[0]?.business_id, `HTTP ${alNegocio.status}`);
+const ventana = await http('/rest/v1/orders?select=id&limit=5', hR);
+chequear('un repartidor pendiente NO ve pedidos de nadie', filas(ventana) === 0, `${filas(ventana)} filas`);
+const cod = await http('/rest/v1/rpc/flota_codigo', { metodo: 'POST', ...hR, cuerpo: {} });
+chequear('un repartidor NO puede pedir el código de una flota', cod.status >= 400, cod.data?.message ?? `HTTP ${cod.status}`);
+const malo = await http('/rest/v1/rpc/unirse_a_flota', { metodo: 'POST', ...hR, cuerpo: { p_codigo: 'AAAAAA' } });
+chequear('un código inventado no sirve', malo.data?.ok === false, JSON.stringify(malo.data));
+for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores', 'unirse_a_flota']) {
+  const r = await http(`/rest/v1/rpc/${f}`, { metodo: 'POST', cuerpo: { p_codigo: 'AAAAAA' } });
+  chequear(`un visitante sin sesión NO puede llamar ${f}()`, bloqueadaRpc(r), `HTTP ${r.status}`);
+}
 
 // ---------------------------------------------------------------- 5. catálogo sigue público
 console.log('\n5) Lo público sigue público');
