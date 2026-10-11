@@ -68,6 +68,7 @@ jobs:
           path: |
             ${{ matrix.app }}/.open-next
             ${{ matrix.app }}/wrangler.jsonc
+            ${{ matrix.app }}/worker.js
             ${{ matrix.app }}/package.json
           include-hidden-files: true
           retention-days: 3

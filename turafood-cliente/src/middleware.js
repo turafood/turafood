@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { updateSession } from '@/utils/supabase/middleware';
 
 export async function middleware(request) {
   const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.hostname || '';
@@ -33,7 +32,10 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/store/asadero-el-puerto?skin=vibrant', request.url));
   }
 
-  return await updateSession(request);
+  // Antes aquí se validaba la sesión de Supabase en CADA navegación (un viaje de ida y vuelta a la
+  // base) y el resultado no se usaba: el cliente no bloquea ninguna pantalla ni lee la sesión en el
+  // servidor. La sesión la renueva supabase-js en el navegador, así que se deja pasar.
+  return NextResponse.next();
 }
 
 export const config = {
