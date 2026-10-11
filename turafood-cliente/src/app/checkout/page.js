@@ -243,7 +243,9 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         notes: i.notes || '',
       }));
 
-      const targetPhone = store?.whatsapp_phone || store?.phone || '+573026886449';
+      // Sin teléfono del negocio no se abre WhatsApp (el pedido igual llegó por la app). Antes
+      // el respaldo era el número de otro negocio, y la comanda terminaba en un tercero.
+      const targetPhone = store?.whatsapp_phone || store?.phone || '';
       const comandaText = comandaWhatsapp(
         {
           ...order,

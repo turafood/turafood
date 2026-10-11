@@ -372,7 +372,8 @@ function TrackingPage() {
     }
 
     if (order) {
-      const targetPhone = order.business?.whatsapp_phone || order.business?.phone || '+573026886449';
+      // Sin teléfono del negocio no se manda a ningún lado (antes caía en un número ajeno).
+      const targetPhone = order.business?.whatsapp_phone || order.business?.phone || '';
       const itemsList = (order.items || []).map((i) => ({
         name: i.name,
         qty: i.quantity || 1,

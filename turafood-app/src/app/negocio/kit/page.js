@@ -350,7 +350,7 @@ export default function KitTurafoodPage() {
         </div>
 
         <a
-          href="https://wa.me/573026886449?text=Hola%2C%20quiero%20soporte%20VIP%20para%20configurar%20mi%20Kit%20Turafood%20Ultra"
+          href="https://wa.me/573137594713?text=Hola%2C%20quiero%20soporte%20VIP%20para%20configurar%20mi%20Kit%20Turafood%20Ultra"
           target="_blank"
           rel="noopener noreferrer"
           style={S.whatsappVipBtn}

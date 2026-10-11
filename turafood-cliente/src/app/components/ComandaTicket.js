@@ -45,7 +45,10 @@ export default function ComandaTicket({
   const items = order.items || [];
   const business = order.business || {};
   const orderNum = order.order_number || `TS-${String(order.id || '').slice(0, 5)}`;
-  const nequiNumber = business.nequi_phone || business.whatsapp_phone || business.phone || '3026886449';
+  // El Nequi del LOCAL. Si no lo configuró, se usa el celular del propio negocio, y si tampoco
+  // lo hay no se inventa uno: antes caía en un número ajeno (el de otro negocio) y el cliente
+  // habría pagado a un tercero.
+  const nequiNumber = business.nequi_phone || business.whatsapp_phone || business.phone || '';
 
   const copyToClipboard = (text, key) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -232,17 +235,21 @@ export default function ComandaTicket({
         {order.payment_method === 'nequi' && (
           <div style={{ margin: '0 16px 12px', padding: '10px 14px', background: 'rgba(125,37,232,0.06)', borderRadius: 12, border: '1px solid rgba(125,37,232,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#7D25E8' }}>
-              Nequi del local: <b>{nequiNumber}</b>
+              {nequiNumber
+                ? <>Nequi del local: <b>{nequiNumber}</b></>
+                : 'Pregúntale al local por su número de Nequi'}
             </div>
-            <button
-              onClick={() => copyToClipboard(nequiNumber, 'nequi')}
-              style={{
-                background: copiedKey === 'nequi' ? 'var(--green)' : '#7D25E8',
-                color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer',
-              }}
-            >
-              {copiedKey === 'nequi' ? '¡Copiado!' : 'Copiar'}
-            </button>
+            {nequiNumber && (
+              <button
+                onClick={() => copyToClipboard(nequiNumber, 'nequi')}
+                style={{
+                  background: copiedKey === 'nequi' ? 'var(--green)' : '#7D25E8',
+                  color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                }}
+              >
+                {copiedKey === 'nequi' ? '¡Copiado!' : 'Copiar'}
+              </button>
+            )}
           </div>
         )}
 

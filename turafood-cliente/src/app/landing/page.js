@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import '../landing.css';
+import { SOPORTE_WA } from '@/lib/contacto';
 
 export default function LandingPage() {
   const [lang, setLang] = useState('es');
@@ -225,7 +226,7 @@ export default function LandingPage() {
     }
   ];
 
-  const waNumber = '573026886449';
+  const waNumber = SOPORTE_WA;
   const waText = encodeURIComponent(
     es ? 'Hola 👋 Quiero saber más sobre Tura Food AI para mi restaurante.' : 'Hi 👋 I want to know more about Tura Food AI for my restaurant.'
   );

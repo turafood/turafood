@@ -1,6 +1,7 @@
 import { Bricolage_Grotesque, Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AppShell from "./components/AppShell";
+import { SOPORTE_TEL } from "@/lib/contacto";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -121,7 +122,7 @@ const jsonLd = {
   image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop',
   '@id': 'https://turafood.com',
   url: 'https://turafood.com',
-  telephone: '+573026886449',
+  telephone: SOPORTE_TEL,
   priceRange: '$$',
   address: {
     '@type': 'PostalAddress',

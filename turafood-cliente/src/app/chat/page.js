@@ -149,13 +149,16 @@ function ChatPage() {
             </span>
           </button>
 
-          <button
-            onClick={() => window.open('tel:+573026886449', '_self')}
-            style={S.callBtn}
-            aria-label="Llamar al repartidor"
-          >
-            <span className="ms" style={{ fontSize: 20 }}>call</span>
-          </button>
+          {/* Solo si hay un repartidor con teléfono (antes marcaba un número fijo ajeno) */}
+          {order?.courier?.profile?.phone && (
+            <button
+              onClick={() => window.open(`tel:${order.courier.profile.phone}`, '_self')}
+              style={S.callBtn}
+              aria-label="Llamar al repartidor"
+            >
+              <span className="ms" style={{ fontSize: 20 }}>call</span>
+            </button>
+          )}
         </div>
 
         {/* Mensajes */}

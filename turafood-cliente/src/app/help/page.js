@@ -15,6 +15,7 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useThemeStore } from '@/store/useThemeStore';
+import { linkSoporte } from '@/lib/contacto';
 import { getOrders, getOrder } from '@/lib/data';
 import { cop, feeLabel } from '@/lib/format';
 import RouteSkeleton from '../components/RouteSkeleton';
@@ -264,7 +265,7 @@ function HelpPage() {
 
   const handleOpenWhatsappSupport = () => {
     const msg = `Hola Soporte TuraFood 👋\nNecesito ayuda con mi Pedido *#${selectedOrder?.order_number || 'TS-8069'}* de *${selectedOrder?.business_name || 'Restaurante'}*.\n\n*Motivo:* ${selectedIssue?.title || 'Incidencia'}\n*Detalle:* ${notes || 'Revisión del pedido'}`;
-    window.open(`https://wa.me/573026886449?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(linkSoporte(msg), '_blank');
   };
 
   return (
@@ -801,13 +802,13 @@ function HelpPage() {
             <div style={S.cardSurface}>
               <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 12 }}>Canales Directos con Soporte</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <a href="https://wa.me/573026886449" target="_blank" rel="noopener noreferrer" style={S.contactRow}>
+                <a href={linkSoporte()} target="_blank" rel="noopener noreferrer" style={S.contactRow}>
                   <span style={S.whatsappIconBadge}>
                     <span className="ms" style={{ fontSize: 22, color: '#fff' }}>chat</span>
                   </span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 800, fontSize: 14.5 }}>Línea Oficial WhatsApp</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>+57 302 688 6449 · Respuesta en menos de 3 min</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>+57 313 759 4713 · Equipo TuraFood</div>
                   </div>
                   <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>arrow_forward</span>
                 </a>
