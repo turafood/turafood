@@ -265,7 +265,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         {
           negocio: store?.name,
           cliente: clienteLabel,
-          numeroPago: store?.nequi_phone || store?.phone || '',
+          numeroPago: store?.payment_details?.nequi || store?.phone || '',
         }
       );
 

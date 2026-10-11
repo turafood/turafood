@@ -108,39 +108,24 @@ export function seedBusinesses(rows) {
 const UUID_REGEX =/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function _getBusiness(id, { from = BUENAVENTURA.home } = {}) {
-  // Primero buscar en datos locales de prueba si es un slug de demo/preview
-  if (id === 'demo' || id === 'preview' || id === 'asadero-el-puerto') {
-    return withDistance(BUSINESSES[0], from);
-  }
-
+  // Modo demostración (sin Supabase): negocios de ejemplo
   if (!isLive()) {
     await delay();
+    if (id === 'demo' || id === 'preview') return withDistance(BUSINESSES[0], from);
     const b = BUSINESSES.find((x) => x.id === id || x.slug === id) ?? BUSINESSES[0];
     return b ? withDistance(b, from) : null;
   }
 
-  try {
-    const supabase = createClient();
-    let query = supabase.from('business_profiles').select('*');
+  // Modo real: SOLO la base de datos. Antes, "asadero-el-puerto" y cualquier negocio que no se
+  // encontrara devolvían un negocio de ejemplo con otro id y productos que no existen en la base:
+  // se podía llenar el carrito y el pedido fallaba al final. Si no existe, devuelve null.
+  const supabase = createClient();
+  let query = supabase.from('business_profiles').select('*');
+  query = UUID_REGEX.test(id) ? query.or(`id.eq.${id},slug.eq.${id}`) : query.eq('slug', id);
 
-    if (UUID_REGEX.test(id)) {
-      query = query.or(`id.eq.${id},slug.eq.${id}`);
-    } else {
-      query = query.eq('slug', id);
-    }
-
-    const { data, error } = await query.maybeSingle();
-
-    if (!error && data) {
-      return withDistance(data, from);
-    }
-  } catch (err) {
-    console.warn('Fallo al consultar negocio en Supabase, usando seed:', err);
-  }
-
-  // Respaldo de seguridad con datos locales para que nunca falle una demo
-  const localMatch = BUSINESSES.find((x) => x.id === id || x.slug === id) ?? BUSINESSES[0];
-  return localMatch ? withDistance(localMatch, from) : null;
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error('No pudimos cargar este negocio. Revisa tu conexión e inténtalo de nuevo.');
+  return data ? withDistance(data, from) : null;
 }
 
 
@@ -165,41 +150,26 @@ async function _getMenu(businessId) {
   let categories = [];
   let products = [];
 
-  const useSeed = !isLive() || !UUID_REGEX.test(businessId) || businessId === 'demo' || businessId === 'preview';
+  const demo = !isLive() || businessId === 'demo' || businessId === 'preview';
 
-  if (!useSeed) {
-    try {
-      const supabase = createClient();
-      const [catRes, prodRes] = await Promise.all([
-        supabase
-          .from('product_categories')
-          .select('*')
-          .eq('business_id', businessId)
-          .eq('is_active', true)
-          .order('sort_order'),
-        supabase
-          .from('products')
-          .select('*')
-          .eq('business_id', businessId)
-          .eq('is_available', true)
-          .order('sort_order'),
-      ]);
-
-      if (!catRes.error && !prodRes.error && catRes.data?.length > 0) {
-        categories = catRes.data ?? [];
-        products = prodRes.data ?? [];
-      }
-    } catch (err) {
-      console.warn('Error cargando menú de Supabase, usando datos locales:', err);
-    }
-  }
-
-  // Fallback si no hay productos cargados de Supabase
-  if (categories.length === 0 || products.length === 0) {
+  if (!demo) {
+    // Modo real: SOLO lo que hay en la base. Antes, si el negocio no tenía categorías (o la
+    // consulta fallaba) se mostraba el menú de ejemplo: productos que no existen en la base,
+    // que se podían agregar al carrito y hacían fallar el pedido.
+    if (!UUID_REGEX.test(String(businessId))) return [];
+    const supabase = createClient();
+    const [catRes, prodRes] = await Promise.all([
+      supabase.from('product_categories').select('*').eq('business_id', businessId).eq('is_active', true).order('sort_order'),
+      supabase.from('products').select('*').eq('business_id', businessId).eq('is_available', true).order('sort_order'),
+    ]);
+    if (catRes.error || prodRes.error) throw new Error('No pudimos cargar el menú. Revisa tu conexión e inténtalo de nuevo.');
+    categories = catRes.data ?? [];
+    products = prodRes.data ?? [];
+  } else {
+    // Modo demostración: menú de ejemplo
     const seedBizId = BUSINESSES.find((b) => b.id === businessId || b.slug === businessId)?.id ?? BUSINESSES[0].id;
     categories = CATEGORIES.filter((c) => c.business_id === seedBizId);
     products = PRODUCTS.filter((p) => p.business_id === seedBizId && p.is_available);
-
     if (categories.length === 0) {
       categories = CATEGORIES.filter((c) => c.business_id === BUSINESSES[0].id);
       products = PRODUCTS.filter((p) => p.business_id === BUSINESSES[0].id && p.is_available);
@@ -930,7 +900,8 @@ export async function placeOrder({
     try {
       const { data } = await supabase
         .from('business_profiles')
-        .select('id, name, cover_url, address, phone, whatsapp_phone, nequi_phone')
+        // nequi_phone NO existe: el Nequi del negocio vive en payment_details.nequi
+        .select('id, name, cover_url, address, phone, whatsapp_phone, payment_details')
         .eq('id', businessId)
         .maybeSingle();
       negocio = data;
@@ -1042,24 +1013,38 @@ function sanitizeOrder(rawOrder) {
   return order;
 }
 
-export async function getOrder(orderId) {
-  // 1. Si no viene orderId, es 'current', o es un id local, recuperar de localStorage / mock
-  if (!orderId || orderId === 'current' || String(orderId).startsWith('local-')) {
-    try {
-      const cachedLast = typeof window !== 'undefined'
-        ? (localStorage.getItem('turafood_active_order') || localStorage.getItem('turafood_last_order'))
-        : null;
-      if (cachedLast) {
-        const parsed = JSON.parse(cachedLast);
-        if (!orderId || orderId === 'current' || parsed?.id === orderId) return sanitizeOrder(parsed);
-      }
-    } catch {}
-    if (String(orderId).startsWith('local-')) {
-      return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
-    }
-  }
+/**
+ * Pedido tal como está en la base, con sus renglones normalizados.
+ * NO inventa nada: si faltan ítems o montos, se queda como llegó. (Antes
+ * `sanitizeOrder` rellenaba con "Encocado de Camarón" y "Cazuela de Mariscos" y
+ * recalculaba totales con tarifas supuestas: se veían datos que no eran reales.)
+ */
+function normalizarPedido(raw) {
+  if (!raw) return raw;
+  const items = (Array.isArray(raw.items) ? raw.items : []).map((it, idx) => {
+    const qty = Number(it.quantity ?? it.qty ?? 1);
+    const unit = Number(it.unit_price ?? it.unitPrice ?? it.price ?? 0);
+    return {
+      id: it.id ?? `item-${idx}`,
+      name: it.name ?? it.product_name ?? 'Producto',
+      quantity: qty, qty,
+      unit_price: unit, unitPrice: unit,
+      opts: it.opts ?? '',
+      notes: it.notes ?? '',
+    };
+  });
+  return { ...raw, items };
+}
 
+/**
+ * Un pedido. En modo real SOLO sale de la base de datos:
+ *   · si no existe (o no es del usuario) devuelve null y la pantalla dice "no encontramos este pedido";
+ *   · si no hay red, se usa la copia guardada SOLO si es del mismo pedido, marcada `desactualizado`;
+ *   · nunca se cae a un pedido de demostración.
+ */
+export async function getOrder(orderId) {
   if (!isLive()) {
+    // Modo demostración (sin Supabase): se conservan los pedidos de ejemplo
     await delay();
     try {
       const cachedLast = typeof window !== 'undefined'
@@ -1069,51 +1054,97 @@ export async function getOrder(orderId) {
         const parsed = JSON.parse(cachedLast);
         if (parsed?.id === orderId || orderId === 'current' || !orderId) return sanitizeOrder(parsed);
       }
-    } catch {}
+    } catch { /* sin copia */ }
     return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
   }
+
+  const actual = !orderId || orderId === 'current';
+  if (!actual && !UUID_REGEX.test(String(orderId))) return null;   // ids viejos "local-…"
 
   const supabase = createClient();
   let query = supabase
     .from('orders')
     .select(`
       *,
-      business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, nequi_phone),
+      business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, payment_details, location),
       items:order_items(*),
       courier:courier_profiles(id, vehicle_type, plate, profile:profiles!courier_profiles_id_fkey(full_name, phone))
     `);
 
-  if (!orderId || orderId === 'current') {
+  if (actual) {
     const user = await usuarioActual();
-    if (user?.id) {
-      query = query.eq('customer_id', user.id).order('created_at', { ascending: false }).limit(1);
-    }
+    if (!user?.id) return null;
+    query = query.eq('customer_id', user.id).order('created_at', { ascending: false }).limit(1);
   } else {
     query = query.eq('id', orderId);
   }
 
   const { data, error } = await query.maybeSingle();
 
-  if (!error && data) {
-    const sanitized = sanitizeOrder(data);
-    if (typeof window !== 'undefined') {
-      try { localStorage.setItem('turafood_last_order', JSON.stringify(sanitized)); } catch {}
-    }
-    return sanitized;
+  if (error) {
+    // Sin red: la copia guardada sirve solo si es exactamente este pedido
+    try {
+      const copia = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('turafood_last_order') || 'null') : null;
+      if (copia?.id && (actual || copia.id === orderId)) return { ...normalizarPedido(copia), desactualizado: true };
+    } catch { /* copia ilegible */ }
+    throw new Error('No pudimos cargar tu pedido. Revisa tu conexión e inténtalo de nuevo.');
   }
+  if (!data) return null;
 
-  // Fallback si no está en Supabase
+  const pedido = normalizarPedido(data);
+  if (typeof window !== 'undefined') {
+    try { localStorage.setItem('turafood_last_order', JSON.stringify(pedido)); } catch { /* sin almacenamiento */ }
+  }
+  return pedido;
+}
+
+/** {lat, lng} desde la geometría que devuelve Supabase (GeoJSON) o null */
+export function puntoDe(geo) {
+  return toLatLng(geo);
+}
+
+/**
+ * Última posición publicada por un repartidor, o null.
+ * RLS decide quién la ve: el cliente solo mientras ese repartidor lleva SU pedido.
+ */
+export async function getCourierPosition(courierId) {
+  if (!isLive() || !courierId) return null;
   try {
-    const cachedLast = typeof window !== 'undefined' ? localStorage.getItem('turafood_last_order') : null;
-    if (cachedLast) {
-      const parsed = JSON.parse(cachedLast);
-      if (!orderId || orderId === 'current' || parsed?.id === orderId) return sanitizeOrder(parsed);
-    }
-  } catch {}
+    const { data, error } = await createClient()
+      .from('courier_locations')
+      .select('location, created_at')
+      .eq('courier_id', courierId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !data) return null;
+    const p = toLatLng(data.location);
+    return p ? { ...p, at: data.created_at } : null;
+  } catch {
+    return null;
+  }
+}
 
-  return sanitizeOrder(LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0]);
-
-  return LOCAL_ORDERS.find((o) => o.id === orderId) ?? LOCAL_ORDERS[0];
+/**
+ * Avisa cada vez que el repartidor publica una posición nueva (Realtime).
+ * Devuelve la función para cancelar. No se lee la geometría del evento (llega
+ * como binario hex): se vuelve a pedir la última fila, que ya viene en GeoJSON.
+ */
+export function subscribeToCourier(courierId, onPosition) {
+  if (!isLive() || !courierId) return () => {};
+  const supabase = createClient();
+  const channel = supabase
+    .channel(`courier:${courierId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'courier_locations', filter: `courier_id=eq.${courierId}` },
+      async () => {
+        const p = await getCourierPosition(courierId);
+        if (p) onPosition(p);
+      },
+    )
+    .subscribe();
+  return () => { try { supabase.removeChannel(channel); } catch { /* ya cerrado */ } };
 }
 
 /**
@@ -1191,52 +1222,31 @@ export async function getOrders() {
         const cached = localStorage.getItem('turafood_active_order') || localStorage.getItem('turafood_last_order');
         if (cached) {
           const parsed = JSON.parse(cached);
-          if (parsed && !localList.some((o) => o.id === parsed.id)) {
-            localList = [parsed, ...localList];
-          }
+          if (parsed && !localList.some((o) => o.id === parsed.id)) localList = [parsed, ...localList];
         }
-      } catch {}
+      } catch { /* sin copia */ }
     }
     return localList;
   }
 
-  const supabase = createClient();
+  // Modo real: solo los pedidos de esta persona. Sin pedidos = lista vacía (antes se le
+  // mostraban pedidos de demostración a quien nunca había pedido), y un error se informa
+  // en vez de reemplazarse por datos inventados.
   const user = await usuarioActual();
-  if (!user?.id) {
-    let localList = [...LOCAL_ORDERS];
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('turafood_active_order') || localStorage.getItem('turafood_last_order');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed && !localList.some((o) => o.id === parsed.id)) {
-            localList = [parsed, ...localList];
-          }
-        }
-      } catch {}
-    }
-    return localList;
-  }
+  if (!user?.id) return [];
 
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select(`
-        *,
-        business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, nequi_phone),
-        items:order_items(*)
-      `)
-      .eq('customer_id', user.id)
-      .order('created_at', { ascending: false });
+  const { data, error } = await createClient()
+    .from('orders')
+    .select(`
+      *,
+      business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, payment_details),
+      items:order_items(*)
+    `)
+    .eq('customer_id', user.id)
+    .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      return data;
-    }
-  } catch (err) {
-    console.warn('Error fetching orders from Supabase:', err);
-  }
-
-  return LOCAL_ORDERS;
+  if (error) throw new Error('No pudimos cargar tus pedidos. Revisa tu conexión e inténtalo de nuevo.');
+  return (data ?? []).map(normalizarPedido);
 }
 
 export async function submitReview({ orderId, businessId, rating, comment = '', tags = [] }) {

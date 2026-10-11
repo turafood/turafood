@@ -48,7 +48,7 @@ export default function ComandaTicket({
   // El Nequi del LOCAL. Si no lo configuró, se usa el celular del propio negocio, y si tampoco
   // lo hay no se inventa uno: antes caía en un número ajeno (el de otro negocio) y el cliente
   // habría pagado a un tercero.
-  const nequiNumber = business.nequi_phone || business.whatsapp_phone || business.phone || '';
+  const nequiNumber = business.payment_details?.nequi || business.whatsapp_phone || business.phone || '';
 
   const copyToClipboard = (text, key) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {

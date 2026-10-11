@@ -160,7 +160,7 @@ function RatePage() {
                 <Image src="/images/ic-restaurantes.png" alt="Restaurante" fill style={{ objectFit: 'contain' }} unoptimized />
               </div>
               <h1 style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, letterSpacing: '-.02em', lineHeight: 1.2, margin: 0 }}>
-                ¿Cómo estuvo tu pedido de {order?.business?.name ?? 'Burger House Bahia'}?
+                ¿Cómo estuvo tu pedido {order?.business?.name ? `de ${order.business.name}` : ''}?
               </h1>
             </div>
             <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.4 }}>

@@ -11,15 +11,13 @@
  * - Selector interactivo de simulación para probar todos los estados en vivo.
  */
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Script from 'next/script';
-import { getOrder, subscribeToOrder } from '@/lib/data';
-import { BUENAVENTURA } from '@/lib/seed';
+import { getOrder, subscribeToOrder, getCourierPosition, subscribeToCourier, puntoDe } from '@/lib/data';
 import { ORDER_STATUS, cop } from '@/lib/format';
 import { comandaWhatsapp, linkWhatsapp } from '@/lib/comandaWhatsapp';
 import RouteSkeleton from '../components/RouteSkeleton';
-import { cargarLeafletCss } from '@/lib/leafletCss';
+import MapaSeguimiento from '../components/MapaSeguimiento';
 import { pushSupported, activarPush, renovarPush } from '@/lib/push';
 import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
@@ -273,18 +271,14 @@ function TrackingPage() {
 
   const [order, setOrder] = useState(null);
   const [error, setError] = useState(null);
-  const [leafletReady, setLeafletReady] = useState(false);
+  const [courierPos, setCourierPos] = useState(null);   // { lat, lng, at } o null
   const [currentStatus, setCurrentStatus] = useState('pending');
   const [pushToast, setPushToast] = useState(null);
   const [notificationsAllowed, setNotificationsAllowed] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
 
-  const mapDesktopEl = useRef(null);
-  const mapMobileEl = useRef(null);
-  const mapDesktopRef = useRef(null);
-  const mapMobileRef = useRef(null);
-  const bikeMarkerDeskRef = useRef(null);
-  const bikeMarkerMobRef = useRef(null);
+  const mapaDesk = useRef(null);
+  const mapaMovil = useRef(null);
 
   // Activar los avisos: push real (llegan con la app cerrada). Si el
   // navegador no soporta push o no está configurado, queda el permiso local
@@ -401,7 +395,7 @@ function TrackingPage() {
         {
           negocio: order.business?.name || 'Restaurante',
           cliente: 'Cliente Tura Food',
-          numeroPago: order.business?.nequi_phone || order.business?.phone || '',
+          numeroPago: order.business?.payment_details?.nequi || order.business?.phone || '',
         }
       );
 
@@ -410,26 +404,25 @@ function TrackingPage() {
     }
   };
 
-  // Cargar CSS y comprobar si Leaflet ya está en window
+  // Si ya dio permiso de avisos, vuelve a ligar este dispositivo a la sesión actual
+  // (el mapa ya no carga nada aparte: ver MapaSeguimiento).
   useEffect(() => {
-    cargarLeafletCss();
-    if (typeof window !== 'undefined') {
-      if (window.L) {
-        setLeafletReady(true);
-      } else {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.async = true;
-        script.onload = () => setLeafletReady(true);
-        document.body.appendChild(script);
-      }
-
-      if ('Notification' in window && Notification.permission === 'granted') {
-        setNotificationsAllowed(true);
-        renovarPush('cliente'); // liga este dispositivo a la sesión actual
-      }
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      setNotificationsAllowed(true);
+      renovarPush('cliente');
     }
   }, []);
+
+  // Posición REAL del repartidor mientras lleva este pedido: la última publicada y, después,
+  // cada una nueva en tiempo real.
+  const courierId = order?.courier_id ?? null;
+  useEffect(() => {
+    if (!courierId) { setCourierPos(null); return undefined; }
+    let alive = true;
+    getCourierPosition(courierId).then((p) => { if (alive && p) setCourierPos(p); });
+    const stop = subscribeToCourier(courierId, (p) => { if (alive) setCourierPos(p); });
+    return () => { alive = false; stop(); };
+  }, [courierId]);
 
   // Cargar pedido
   useEffect(() => {
@@ -459,7 +452,10 @@ function TrackingPage() {
 
         unsubscribe = subscribeToOrder(data.id, (updated) => {
           setOrder((prev) => {
-            const merged = { ...prev, ...updated };
+            // Las columnas de geometría llegan por tiempo real como binario (hex): no se mezclan,
+            // para no perder el punto de entrega que ya se leyó en GeoJSON.
+            const { delivery_location: _geo, ...cambios } = updated;
+            const merged = { ...prev, ...cambios };
             if (typeof window !== 'undefined') {
               try {
                 localStorage.setItem('turafood_active_order', JSON.stringify(merged));
@@ -487,15 +483,6 @@ function TrackingPage() {
     setCurrentStatus(statusKey);
     setOrder((prev) => ({ ...prev, status: statusKey }));
     triggerPushNotification(statusKey);
-
-    // Mover moto en los mapas
-    const details = STEP_DETAILS[statusKey] || STEP_DETAILS.pending;
-    const route = BUENAVENTURA.route;
-    const targetIdx = Math.min(details.routeIndex, route.length - 1);
-    const targetCoord = route[targetIdx];
-
-    if (bikeMarkerDeskRef.current) bikeMarkerDeskRef.current.setLatLng(targetCoord);
-    if (bikeMarkerMobRef.current) bikeMarkerMobRef.current.setLatLng(targetCoord);
   };
 
   // Simulación continua automática
@@ -517,123 +504,24 @@ function TrackingPage() {
     return () => clearInterval(interval);
   }, [isSimulating, currentStatus]);
 
-  // Inicializar Mapas de Leaflet (Desktop y Mobile por separado)
-  useEffect(() => {
-    if (!leafletReady || !order) return;
-    const L = window.L;
-    if (!L) return;
+  // Puntos REALES del mapa: el destino es la dirección que el cliente guardó, el negocio es
+  // su ubicación (si la tiene) y el repartidor es la última posición que publicó.
+  // (Antes el mapa dibujaba una ruta de demostración fija con un repartidor inventado.)
+  const destino = useMemo(
+    () => puntoDe(order?.delivery_location),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [order?.delivery_location?.coordinates?.[0], order?.delivery_location?.coordinates?.[1]],
+  );
+  const puntoNegocio = useMemo(
+    () => puntoDe(order?.business?.location),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [order?.business?.location?.coordinates?.[0], order?.business?.location?.coordinates?.[1]],
+  );
 
-    const route = BUENAVENTURA.route;
-    const startCoord = route[0];
-    const endCoord = route[route.length - 1];
-    const details = STEP_DETAILS[currentStatus] || STEP_DETAILS.pending;
-    const bikeCoord = route[Math.min(details.routeIndex, route.length - 1)];
-
-    // Crear icono personalizado con pulso y estilo Material 3
-    const makeIcon = (bg, icon, isBike = false) => L.divIcon({
-      className: '',
-      html: `
-        <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-          ${isBike ? `<div style="position:absolute;inset:-8px;border-radius:50%;background:${bg};opacity:0.35;animation:pulseGlow 1.8s infinite;"></div>` : ''}
-          <div style="
-            width:${isBike ? '38px' : '32px'};
-            height:${isBike ? '38px' : '32px'};
-            border-radius:50%;
-            background:${bg};
-            border:2.5px solid #fff;
-            box-shadow:0 6px 18px rgba(0,0,0,0.3);
-            display:flex;align-items:center;justify-content:center;
-            color:#fff;
-          ">
-            <span class="material-symbols-rounded" style="font-size:${isBike ? '20px' : '17px'};line-height:1;">${icon}</span>
-          </div>
-        </div>
-      `,
-      iconSize: isBike ? [38, 38] : [32, 32],
-      iconAnchor: isBike ? [19, 19] : [16, 16],
-    });
-
-    const initMapInstance = (containerEl, isDesktop = true) => {
-      if (!containerEl) return null;
-      
-      const map = L.map(containerEl, {
-        zoomControl: false,
-        attributionControl: false,
-        scrollWheelZoom: true,
-      });
-
-      // Carto Voyager Tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-      }).addTo(map);
-
-      // Línea de brillo de fondo
-      L.polyline(route, { color: '#FF441F', weight: 10, opacity: 0.22, lineCap: 'round' }).addTo(map);
-      // Línea principal de ruta
-      const polyline = L.polyline(route, { color: '#FF441F', weight: 4.5, opacity: 0.95, lineCap: 'round', dashArray: '8, 8' }).addTo(map);
-
-      // Marcador 1: Restaurante
-      L.marker(startCoord, { icon: makeIcon('#1E293B', 'storefront') })
-        .bindTooltip(`🏪 ${order.business?.name || 'Restaurante'}`, { permanent: false, direction: 'top' })
-        .addTo(map);
-
-      // Marcador 2: Repartidor en Vivo
-      const bikeMarker = L.marker(bikeCoord, { icon: makeIcon('#FF441F', 'two_wheeler', true) })
-        .bindTooltip('🛵 Yeison Mosquera (En ruta)', { permanent: true, direction: 'top', className: 'cura-tooltip' })
-        .addTo(map);
-
-      // Marcador 3: Destino Casa Cliente
-      L.marker(endCoord, { icon: makeIcon('#10B981', 'home') })
-        .bindTooltip(`🏠 ${order.delivery_address || 'Tu dirección'}`, { permanent: false, direction: 'top' })
-        .addTo(map);
-
-      map.fitBounds(polyline.getBounds(), { padding: isDesktop ? [40, 40] : [28, 28] });
-
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 200);
-
-      return { map, bikeMarker };
-    };
-
-    // Limpiar mapas previos
-    if (mapDesktopRef.current) mapDesktopRef.current.remove();
-    if (mapMobileRef.current) mapMobileRef.current.remove();
-
-    if (mapDesktopEl.current) {
-      const res = initMapInstance(mapDesktopEl.current, true);
-      if (res) {
-        mapDesktopRef.current = res.map;
-        bikeMarkerDeskRef.current = res.bikeMarker;
-      }
-    }
-
-    if (mapMobileEl.current) {
-      const res = initMapInstance(mapMobileEl.current, false);
-      if (res) {
-        mapMobileRef.current = res.map;
-        bikeMarkerMobRef.current = res.bikeMarker;
-      }
-    }
-
-    return () => {
-      if (mapDesktopRef.current) { mapDesktopRef.current.remove(); mapDesktopRef.current = null; }
-      if (mapMobileRef.current) { mapMobileRef.current.remove(); mapMobileRef.current = null; }
-    };
-  }, [leafletReady, order]);
-
-  // Centrar mapa en el repartidor
+  // Centrar el mapa en el repartidor (o en el destino si todavía no hay repartidor)
   const centerOnCourier = () => {
-    const details = STEP_DETAILS[currentStatus] || STEP_DETAILS.pending;
-    const route = BUENAVENTURA.route;
-    const bikeCoord = route[Math.min(details.routeIndex, route.length - 1)];
-
-    if (mapDesktopRef.current) {
-      mapDesktopRef.current.setView(bikeCoord, 16, { animate: true });
-    }
-    if (mapMobileRef.current) {
-      mapMobileRef.current.setView(bikeCoord, 16, { animate: true });
-    }
+    mapaDesk.current?.centrar();
+    mapaMovil.current?.centrar();
   };
 
   if (error) {
@@ -645,6 +533,18 @@ function TrackingPage() {
         </div>
         <div style={{ fontSize: 14, color: 'var(--muted)', marginTop: 6 }}>{error}</div>
         <button onClick={() => router.push('/')} style={S.errorBtn}>Volver al Inicio</button>
+      </div>
+    );
+  }
+
+  // Sin pedido cargado todavía: no se pinta nada de relleno (antes salía "#TS-4838 · Burger House")
+  if (!order) {
+    return (
+      <div style={S.errorScreen} role="status" aria-live="polite">
+        <span className="ms" style={{ fontSize: 48, color: 'var(--faint)' }}>local_shipping</span>
+        <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, marginTop: 14 }}>
+          Buscando tu pedido…
+        </div>
       </div>
     );
   }
@@ -708,10 +608,10 @@ function TrackingPage() {
               </button>
               <div>
                 <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
-                  Seguimiento de Pedido #{order?.order_number ?? 'TS-4838'}
+                  Seguimiento de Pedido #{order?.order_number ?? ''}
                 </span>
                 <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>
-                  {order?.business?.name ?? 'Burger House Bahia'}
+                  {order?.business?.name ?? ''}
                 </div>
               </div>
             </div>
@@ -763,12 +663,19 @@ function TrackingPage() {
               
               {/* Contenedor del Mapa Leaflet Interactivo */}
               <div style={{ position: 'relative', height: 380, borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border)', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
-                <div ref={mapDesktopEl} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+                <MapaSeguimiento
+                  ref={mapaDesk}
+                  destino={destino}
+                  negocio={puntoNegocio}
+                  repartidor={courierPos}
+                  etiquetaDestino={order?.delivery_address || 'Tu dirección'}
+                  etiquetaNegocio={order?.business?.name || 'El negocio'}
+                />
                 
                 {/* Badge Flotante GPS */}
                 <div style={{ ...S.livePill, top: 14, left: 14, zIndex: 500 }}>
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--primary)', animation: 'pulse 2s infinite' }} />
-                  GPS BUENAVENTURA · EN TIEMPO REAL
+                  {courierPos ? 'REPARTIDOR EN VIVO' : order?.courier_id ? 'ESPERANDO SU UBICACIÓN' : 'TU ENTREGA'}
                 </div>
 
                 {/* Controles Flotantes del Mapa */}
@@ -922,7 +829,14 @@ function TrackingPage() {
             VISTA MÓVIL: MAPA EXPANDIDO + HOJA DESLIZANTE
             ============================================================ */}
         <div className="mobile-only" style={{ position: 'relative', flex: 'none', height: 310, background: 'var(--surface2)', overflow: 'hidden' }}>
-          <div ref={mapMobileEl} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+          <MapaSeguimiento
+            ref={mapaMovil}
+            destino={destino}
+            negocio={puntoNegocio}
+            repartidor={courierPos}
+            etiquetaDestino={order?.delivery_address || 'Tu dirección'}
+            etiquetaNegocio={order?.business?.name || 'El negocio'}
+          />
           
           <button onClick={() => router.push('/')} style={S.mapBack} aria-label="Volver al inicio">
             <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
@@ -949,7 +863,7 @@ function TrackingPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: statusDetails.color, letterSpacing: '.06em' }}>
-              PEDIDO #{order?.order_number ?? 'TS-4838'}
+              PEDIDO #{order?.order_number ?? ''}
             </div>
             <button
               onClick={toggleTheme}
