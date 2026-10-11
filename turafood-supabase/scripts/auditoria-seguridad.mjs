@@ -195,6 +195,30 @@ for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores',
   chequear(`un visitante sin sesión NO puede llamar ${f}()`, bloqueadaRpc(r), `HTTP ${r.status}`);
 }
 
+// Un negocio nuevo que intenta crearse ya aprobado, con calificación y sin comisión
+const neg2 = await http('/auth/v1/signup', { metodo: 'POST', cuerpo: { data: { role: 'business' } } });
+const hN = { token: neg2.data?.access_token };
+await http('/rest/v1/business_profiles', { metodo: 'POST', ...hN, prefer: 'return=minimal', cuerpo: {
+  id: neg2.data?.user?.id, name: 'Auditoria (borrar)', slug: `auditoria-${Date.now()}`, address: 'x',
+  status: 'active', commission_rate: 0, rating: 5, reviews_count: 999, total_orders: 999, pro_plan: true,
+} });
+const miNegocio = await http(`/rest/v1/business_profiles?select=status,commission_rate,rating,reviews_count,pro_plan&id=eq.${neg2.data?.user?.id}`, hN);
+const n0 = miNegocio.data?.[0];
+chequear('un negocio NO puede crearse ya aprobado ni con calificación o comisión a su gusto',
+  n0 && n0.status !== 'active' && Number(n0.reviews_count) === 0 && n0.pro_plan === false && Number(n0.commission_rate) > 0,
+  n0 ? `status=${n0.status} comisión=${n0.commission_rate} reseñas=${n0.reviews_count} pro=${n0.pro_plan}` : 'no se creó');
+
+// La billetera propia no se infla desde el navegador
+const bil = await http(`/rest/v1/wallets?user_id=eq.${A.id}`, { metodo: 'PATCH', ...hA, cuerpo: { credits: 999999, available_withdraw: 999999, cash_owed: 0 }, prefer: 'return=representation' });
+const bilDespues = await http(`/rest/v1/wallets?select=credits,available_withdraw&user_id=eq.${A.id}`, hA);
+chequear('NO puede regalarse TuraCréditos ni saldo retirable', !(Number(bilDespues.data?.[0]?.credits) >= 999999) && !(Number(bilDespues.data?.[0]?.available_withdraw) >= 999999), `credits=${bilDespues.data?.[0]?.credits} retirable=${bilDespues.data?.[0]?.available_withdraw} (HTTP ${bil.status})`);
+
+// ...y el registro normal sigue funcionando (nace pendiente, como corresponde)
+const neg3 = await http('/auth/v1/signup', { metodo: 'POST', cuerpo: { data: { role: 'business' } } });
+const reg = await http('/rest/v1/rpc/register_business', { metodo: 'POST', token: neg3.data?.access_token, cuerpo: { p_name: 'Auditoria registro (borrar)', p_phone: null } });
+const filaReg = Array.isArray(reg.data) ? reg.data[0] : reg.data;
+chequear('un negocio SÍ puede registrarse con register_business() (nace pendiente)', reg.status < 300 && filaReg?.status === 'pending_review', `HTTP ${reg.status}, status=${filaReg?.status}`);
+
 // ---------------------------------------------------------------- 5. catálogo sigue público
 console.log('\n5) Lo público sigue público');
 const neg = await http('/rest/v1/business_profiles?select=id&status=eq.active&limit=2');
