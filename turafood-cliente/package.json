@@ -23,6 +23,7 @@
     "@opennextjs/cloudflare": "^1.14.7",
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
+    "typescript": "^5.9.3",
     "wrangler": "^4.149.0"
   },
   "engines": {
