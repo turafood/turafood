@@ -229,10 +229,10 @@ export default function EntrarPage() {
           {/* Value Prop Badges */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap', position: 'relative', zIndex: 10 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#E8C766', background: 'rgba(232,199,102,0.12)', border: '1px solid rgba(232,199,102,0.25)', padding: '2px 8px', borderRadius: 99 }}>
-              🔥 Más pedidos & ventas
+              📈 Más pedidos para tu negocio
             </span>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#11B26A', background: 'rgba(17,178,106,0.12)', border: '1px solid rgba(17,178,106,0.25)', padding: '2px 8px', borderRadius: 99 }}>
-              ⚡ 0% Comisiones
+              🧾 Comisión clara por pedido
             </span>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#60A5FA', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', padding: '2px 8px', borderRadius: 99 }}>
               🇨🇴 Buenaventura
@@ -262,11 +262,11 @@ export default function EntrarPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF441F', boxShadow: '0 0 6px #FF441F', animation: 'pro-pulse 1.5s infinite' }} />
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>
-                  Solo quedan <span style={{ color: '#E8C766', fontWeight: 900 }}>49 plazas</span> de 100
+                  Únete a los <span style={{ color: '#E8C766', fontWeight: 900 }}>primeros negocios</span> del puerto
                 </span>
               </div>
               <span style={{ fontSize: 9.5, fontWeight: 800, color: '#11B26A', background: 'rgba(17,178,106,0.15)', padding: '2px 7px', borderRadius: 99, border: '1px solid rgba(17,178,106,0.25)', letterSpacing: '0.04em' }}>
-                SIEMPRE GRATIS
+                EMPIEZA GRATIS
               </span>
             </div>
 
@@ -326,7 +326,7 @@ export default function EntrarPage() {
               PA´ TURÍN CON AMOR ❤️
             </span>
             <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
-              · ★★★★★ 4.9 · 100% de la venta para ti
+              · Hecho en Buenaventura, para negocios del puerto
             </span>
           </div>
 

@@ -136,10 +136,6 @@ export default function AccountPage() {
             <div style={S.avatar}>{initials}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>{name}</div>
-              <button style={S.editLink}>
-                Editar perfil
-                <span className="ms" style={{ fontSize: 16 }}>chevron_right</span>
-              </button>
             </div>
           </div>
 
@@ -158,11 +154,10 @@ export default function AccountPage() {
                 {isPlus ? 'Tura Plus' : 'Únete a Tura Plus'}
               </span>
             </div>
-            <div style={{ fontWeight: 800, fontSize: 15, marginTop: 10 }}>{cop(68400)}</div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.4, marginTop: 2 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.4, marginTop: 8 }}>
               {isPlus
-                ? 'Es lo que ahorra en promedio un usuario Plus cada mes'
-                : 'Es lo que ahorrarías al mes con envíos gratis ilimitados'}
+                ? 'Disfrutas de envíos gratis ilimitados.'
+                : 'Envíos gratis ilimitados desde $9.990 los primeros 3 meses.'}
             </div>
           </button>
 

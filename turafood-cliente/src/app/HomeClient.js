@@ -15,7 +15,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
-import { getBusinesses, getFavorites, toggleFavorite, search, seedBusinesses } from '@/lib/data';
+import { getBusinesses, getFavorites, toggleFavorite, search, seedBusinesses, getAddresses } from '@/lib/data';
 import {
   DESK_VERTICALS, STRIP_VERTICALS, HOME_BANNERS, HOME_PROMOS,
 } from '@/lib/seed';
@@ -27,72 +27,6 @@ import LazyVideo from './components/LazyVideo';
 import FastViewModal from './components/FastViewModal';
 import { useThemeStore } from '@/store/useThemeStore';
 
-const TOP_SELLING_MONTH = [
-  {
-    id: 'top-1',
-    productId: 'prod-encocado-jaiba',
-    businessId: 'b0000000-0000-4000-8000-000000000003',
-    businessName: 'Marisquería El Faro',
-    businessCover: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400&auto=format&fit=crop',
-    name: 'Encocado de Jaiba Real',
-    price: 32000,
-    rating: '5.0',
-    reviewsCount: 148,
-    image_url: '/images/food-fork.jpg',
-    badge: '🔥 #1 MÁS VENDIDO',
-    badgeBg: 'linear-gradient(135deg, #FF441F, #E2360F)',
-    prepTime: '15-25 min',
-    avatars: ['👩🏾', '👨🏽', '👱🏾‍♀️'],
-  },
-  {
-    id: 'top-2',
-    productId: 'prod-picada-puerto',
-    businessId: 'b0000000-0000-4000-8000-000000000001',
-    businessName: 'Asadero El Puerto',
-    businessCover: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400&auto=format&fit=crop',
-    name: 'Picada Especial del Puerto',
-    price: 38000,
-    rating: '5.0',
-    reviewsCount: 112,
-    image_url: '/images/steak-ribeye.jpg',
-    badge: '⭐ FAVORITO LOCAL',
-    badgeBg: 'linear-gradient(135deg, #FFB020, #D98200)',
-    prepTime: '20-30 min',
-    avatars: ['👨🏿', '👩🏽', '👨🏾'],
-  },
-  {
-    id: 'top-3',
-    productId: 'prod-burger-doble',
-    businessId: 'b0000000-0000-4000-8000-000000000002',
-    businessName: 'Burger House Tura',
-    businessCover: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&auto=format&fit=crop',
-    name: 'Burger Doble Criolla Turín',
-    price: 24500,
-    rating: '4.9',
-    reviewsCount: 96,
-    image_url: '/images/burger.jpg',
-    badge: '⚡ SÚPER PROMO',
-    badgeBg: 'linear-gradient(135deg, #11B26A, #08874E)',
-    prepTime: '15-20 min',
-    avatars: ['👱🏾', '👩🏾', '🧑🏽'],
-  },
-  {
-    id: 'top-4',
-    productId: 'prod-pargo-rojo',
-    businessId: 'b0000000-0000-4000-8000-000000000004',
-    businessName: 'El Rincón Marino',
-    businessCover: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=400&auto=format&fit=crop',
-    name: 'Pargo Rojo con Patacón',
-    price: 35000,
-    rating: '5.0',
-    reviewsCount: 84,
-    image_url: '/images/food-fork.jpg',
-    badge: '👑 PACÍFICO TOP',
-    badgeBg: 'linear-gradient(135deg, #7D25E8, #5B14B3)',
-    prepTime: '25-35 min',
-    avatars: ['👩🏿', '👨🏽', '👧🏾'],
-  },
-];
 
 /**
  * `initialStores` llega ya consultado desde el servidor (ver page.js), así
@@ -123,28 +57,19 @@ export default function HomePage({ initialStores = null }) {
   const openAi = useAi((s) => s.openAi);
   const hasCart = cartCount > 0;
 
-  const addrShort = 'Cra 3 # 4-45, Centro';
-
-  const [topSellingIndex, setTopSellingIndex] = useState(0);
-  const topSellingSliderRef = useRef(null);
-
-  // Auto-slide suave para productos destacados en móvil
+  // La dirección real de entrega de la persona (antes era un texto fijo para todos)
+  const [addrShort, setAddrShort] = useState('Elige tu dirección');
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTopSellingIndex((prev) => {
-        const next = (prev + 1) % TOP_SELLING_MONTH.length;
-        if (topSellingSliderRef.current) {
-          const cardWidth = 265;
-          topSellingSliderRef.current.scrollTo({
-            left: next * (cardWidth + 16),
-            behavior: 'smooth',
-          });
-        }
-        return next;
-      });
-    }, 4200);
-    return () => clearInterval(timer);
+    let vivo = true;
+    getAddresses()
+      .then((a) => {
+        const d = a.find((x) => x.is_default) ?? a[0];
+        if (vivo && d?.address) setAddrShort(d.address);
+      })
+      .catch(() => {});
+    return () => { vivo = false; };
   }, []);
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -883,229 +808,6 @@ export default function HomePage({ initialStores = null }) {
               </div>
             </div>
 
-            {/* 5. SECCIÓN PRO: PRODUCTOS PREMIUM MÁS VENDIDOS (MÁS GRANDES + AUTO-SLIDE + AVISO ANIMADO) */}
-            <div style={{ marginTop: 22, padding: '0 20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19.5, color: 'var(--text)', letterSpacing: '-.02em' }}>
-                      🔥 Los más vendidos del mes
-                    </span>
-                    <span style={{
-                      fontSize: 11, fontWeight: 800, background: 'rgba(255,68,31,0.12)', color: 'var(--primary)',
-                      padding: '2px 8px', borderRadius: 8, display: 'inline-flex', alignItems: 'center', gap: 3,
-                    }}>
-                      <span className="ms ms-fill" style={{ fontSize: 12, color: 'var(--amber)' }}>star</span>
-                      5.0
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 500 }}>
-                    Platos estrella de Buenaventura · Compra directa al negocio
-                  </div>
-                </div>
-
-                {/* AVISO ANIMADO DE SLIDE / DESLIZAMIENTO */}
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'linear-gradient(135deg, rgba(255,68,31,0.12) 0%, rgba(255,184,0,0.14) 100%)',
-                  border: '1px solid rgba(255,68,31,0.25)',
-                  color: 'var(--primary)', padding: '4px 10px', borderRadius: 99,
-                  fontSize: 11, fontWeight: 800,
-                  animation: 'pulseGlow 2.5s infinite ease-in-out',
-                }}>
-                  <span className="ms ms-fill" style={{ fontSize: 13, animation: 'swipeHand 1.5s infinite ease-in-out' }}>
-                    swipe
-                  </span>
-                  <span>Desliza para ver más</span>
-                  <span className="ms" style={{ fontSize: 13, animation: 'pointRight 1.2s infinite ease-in-out' }}>
-                    arrow_forward
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* CARRUSEL DE PRODUCTOS PREMIUM CON AUTO-SLIDE */}
-            <div
-              ref={topSellingSliderRef}
-              className="hs"
-              style={{
-                display: 'flex', gap: 16, padding: '14px 20px 8px',
-                scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
-                overflowX: 'auto', scrollBehavior: 'smooth',
-              }}
-            >
-              {TOP_SELLING_MONTH.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => router.push(`/store/${item.businessId}`)}
-                  style={{
-                    flex: 'none',
-                    width: 260,
-                    borderRadius: 24,
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 10px 28px rgba(0,0,0,0.07)',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    scrollSnapAlign: 'start',
-                    transition: 'transform .2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .2s ease',
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 36px rgba(0,0,0,0.12)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.07)'; }}
-                >
-                  {/* Foto del Producto con Badges Material 3 */}
-                  <div style={{ position: 'relative', height: 165, width: '100%', overflow: 'hidden' }}>
-                    <Cover
-                      src={item.image_url}
-                      alt={item.name}
-                      radius={0}
-                      sizes="280px"
-                      style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-                    />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 100%)' }} />
-
-                    {/* Tag Top Pacífico o Promo */}
-                    <div style={{ position: 'absolute', top: 12, left: 12, display: 'flex', gap: 6, zIndex: 2 }}>
-                      <span style={{
-                        background: item.badgeBg, color: '#fff', fontSize: 10.5, fontWeight: 800,
-                        padding: '4px 10px', borderRadius: 99, letterSpacing: '.04em',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-                      }}>
-                        {item.badge}
-                      </span>
-                    </div>
-
-                    {/* Rating 5.0 */}
-                    <div style={{
-                      position: 'absolute', top: 12, right: 12, zIndex: 2,
-                      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
-                      color: '#fff', fontSize: 11.5, fontWeight: 800,
-                      padding: '3px 8px', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 3,
-                    }}>
-                      <span className="ms ms-fill" style={{ fontSize: 13, color: 'var(--amber)' }}>star</span>
-                      <span>{item.rating}</span>
-                    </div>
-                  </div>
-
-                  {/* Detalle del Producto */}
-                  <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-                    <div className="tr2" style={{
-                      fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16,
-                      color: 'var(--text)', lineHeight: 1.25,
-                    }}>
-                      {item.name}
-                    </div>
-
-                    {/* Fila de Reviews con Avatares y Tiempo */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          {item.avatars.map((av, idx) => (
-                            <span
-                              key={idx}
-                              style={{
-                                fontSize: 13, marginLeft: idx > 0 ? -5 : 0,
-                                background: 'var(--surface2)', borderRadius: '50%',
-                                width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                border: '1.5px solid var(--surface)',
-                              }}
-                            >
-                              {av}
-                            </span>
-                          ))}
-                        </div>
-                        <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 }}>
-                          +{item.reviewsCount} reviews
-                        </span>
-                      </div>
-
-                      <span style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <span className="ms" style={{ fontSize: 14 }}>schedule</span>
-                        {item.prepTime}
-                      </span>
-                    </div>
-
-                    {/* Fila de Precio y Botón Verde Sutil "Pedir / Comprar Ya" */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
-                      <div>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--muted)', display: 'block', letterSpacing: '.04em' }}>PRECIO</span>
-                        <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--primary)', fontFamily: 'var(--font-bricolage)' }}>
-                          {cop(item.price)}
-                        </span>
-                      </div>
-
-                      {/* Botón Sutil Verde para Compra Rápida Directa */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addLine(
-                            {
-                              productId: item.productId,
-                              name: item.name,
-                              unitPrice: item.price,
-                              basePrice: item.price,
-                              comparePrice: null,
-                              image_url: item.image_url,
-                              extraIds: [],
-                              notes: '',
-                              opts: '',
-                              qty: 1,
-                            },
-                            {
-                              id: item.businessId,
-                              name: item.businessName,
-                              image: item.image_url,
-                            }
-                          );
-                          router.push('/cart');
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          padding: '9px 15px',
-                          borderRadius: 13,
-                          background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontWeight: 800,
-                          fontSize: 13,
-                          boxShadow: '0 4px 14px rgba(16,185,129,0.32)',
-                          transition: 'all .15s ease',
-                        }}
-                      >
-                        <span className="ms ms-fill" style={{ fontSize: 16 }}>bolt</span>
-                        <span>Pedir</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Mini Business Footer: Enlace directo al restaurante */}
-                  <div style={{
-                    marginTop: 'auto',
-                    padding: '10px 15px',
-                    background: 'var(--surface2)',
-                    borderTop: '1px solid var(--border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
-                      <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>storefront</span>
-                      <span className="tr1" style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)' }}>
-                        {item.businessName}
-                      </span>
-                    </div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 2 }}>
-                      Ver menú <span className="ms" style={{ fontSize: 14 }}>arrow_forward</span>
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             {/* 4. SLIDER DE TOP RESTAURANTES Y PROMOS DESTACADAS (MÁS ALTO + ESPACIADO FRESCO) */}
             <div style={{ padding: '32px 0 4px' }}>
@@ -1124,9 +826,9 @@ export default function HomePage({ initialStores = null }) {
                 }}
               >
                 {[
-                  { id: 'f1', image: '/images/food-fork.jpg', badge: '⭐ 4.9 · TOP RESTAURANTE', title: 'Marisquería El Faro', subtitle: 'Pescados y mariscos del Pacífico', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
-                  { id: 'f2', image: '/images/steak-ribeye.jpg', badge: '⭐ 4.8 · TOP ASADOS', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas y carnes', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
-                  { id: 'f3', image: '/images/burger.jpg', badge: '🔥 40% OFF · TOP BURGERS', title: 'Burger House Bahia', subtitle: 'Hamburguesas artesanales premium', action: () => router.push('/store/b0000000-0000-4000-8000-000000000002') },
+                  { id: 'f1', image: '/images/food-fork.jpg', badge: 'MARISCOS Y PESCADOS', title: 'Marisquería El Faro', subtitle: 'Pescados y mariscos del Pacífico', action: () => router.push('/store/b0000000-0000-4000-8000-000000000003') },
+                  { id: 'f2', image: '/images/steak-ribeye.jpg', badge: 'ASADOS Y PICADAS', title: 'Asadero El Puerto', subtitle: 'Disfruta las mejores picadas y carnes', action: () => router.push('/store/b0000000-0000-4000-8000-000000000001') },
+                  { id: 'f3', image: '/images/burger.jpg', badge: 'HAMBURGUESAS', title: 'Burger House Bahia', subtitle: 'Hamburguesas artesanales premium', action: () => router.push('/store/b0000000-0000-4000-8000-000000000002') },
                   { id: 'f4', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop', badge: '⚡ TURBO · LICORES', title: 'Licores la 15', subtitle: 'Bebidas frías directo a tu puerta', action: () => router.push('/store/b0000000-0000-4000-8000-000000000004') },
                 ].map((slide) => (
                   <button
