@@ -22,6 +22,7 @@ import { pushSupported, activarPush, renovarPush } from '@/lib/push';
 import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
 import GuardarCuenta from '../components/GuardarCuenta';
+import ReciboPorCorreo from '../components/ReciboPorCorreo';
 
 /** Pasos del flujo de entrega */
 
@@ -819,6 +820,7 @@ function TrackingPage() {
               />
 
               {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
+              <div style={{ marginTop: 14 }}><ReciboPorCorreo orderId={order?.id} compacto /></div>
               <div style={{ marginTop: 14 }}><GuardarCuenta compacto /></div>
             </div>
 
@@ -959,6 +961,7 @@ function TrackingPage() {
           </div>
 
           {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
+          <div style={{ marginTop: 16 }}><ReciboPorCorreo orderId={order?.id} /></div>
           <div style={{ marginTop: 16 }}><GuardarCuenta /></div>
 
           {/* Bitácora */}

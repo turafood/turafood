@@ -86,7 +86,7 @@ const objetos = [
   'addresses', 'ai_agent_calls', 'business_documents', 'business_hours', 'business_profiles', 'business_team_members',
   'conocimiento_docs', 'coupons', 'courier_locations', 'courier_profiles', 'delivery_zones', 'favorites', 'flota_codigos',
   'flota_intentos', 'internal_config',
-  'marketing_contacts', 'marketing_events', 'marketing_queue', 'messages', 'negocios_recien_llegados', 'notifications',
+  'marketing_contacts', 'marketing_events', 'marketing_queue', 'messages', 'negocios_recien_llegados', 'notifications', 'order_receipts',
   'order_items', 'order_offers', 'orders', 'payment_events', 'payment_methods', 'payments', 'payout_requests',
   'product_categories', 'product_events', 'product_extras', 'product_performance', 'products', 'profiles',
   'push_subscriptions', 'referral_config', 'referrals', 'repartidores_recien_llegados', 'restaurant_plans',
@@ -190,7 +190,7 @@ const cod = await http('/rest/v1/rpc/flota_codigo', { metodo: 'POST', ...hR, cue
 chequear('un repartidor NO puede pedir el código de una flota', cod.status >= 400, cod.data?.message ?? `HTTP ${cod.status}`);
 const malo = await http('/rest/v1/rpc/unirse_a_flota', { metodo: 'POST', ...hR, cuerpo: { p_codigo: 'AAAAAA' } });
 chequear('un código inventado no sirve', malo.data?.ok === false, JSON.stringify(malo.data));
-for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores', 'unirse_a_flota', 'fijar_ubicacion_negocio']) {
+for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores', 'unirse_a_flota', 'fijar_ubicacion_negocio', 'pedir_recibo_por_correo']) {
   const r = await http(`/rest/v1/rpc/${f}`, { metodo: 'POST', cuerpo: { p_codigo: 'AAAAAA' } });
   chequear(`un visitante sin sesión NO puede llamar ${f}()`, bloqueadaRpc(r), `HTTP ${r.status}`);
 }
@@ -207,6 +207,12 @@ const n0 = miNegocio.data?.[0];
 chequear('un negocio NO puede crearse ya aprobado ni con calificación o comisión a su gusto',
   n0 && n0.status !== 'active' && Number(n0.reviews_count) === 0 && n0.pro_plan === false && Number(n0.commission_rate) > 0,
   n0 ? `status=${n0.status} comisión=${n0.commission_rate} reseñas=${n0.reviews_count} pro=${n0.pro_plan}` : 'no se creó');
+
+// Nadie pide que el recibo de un pedido AJENO llegue a su correo
+const reciboAjeno = await http('/rest/v1/rpc/pedir_recibo_por_correo', { metodo: 'POST', ...hA, cuerpo: { p_order_id: '00000000-0000-4000-8000-000000000000', p_email: 'auditoria@example.com' } });
+chequear('NO puede pedir el recibo de un pedido que no es suyo', reciboAjeno.status >= 400, reciboAjeno.data?.message ?? `HTTP ${reciboAjeno.status}`);
+const recibosAjenos = await http('/rest/v1/order_receipts?select=email&limit=5', hA);
+chequear('NO puede leer los correos de recibos ajenos', filas(recibosAjenos) === 0, `${filas(recibosAjenos)} filas`);
 
 // La billetera propia no se infla desde el navegador
 const bil = await http(`/rest/v1/wallets?user_id=eq.${A.id}`, { metodo: 'PATCH', ...hA, cuerpo: { credits: 999999, available_withdraw: 999999, cash_owed: 0 }, prefer: 'return=representation' });

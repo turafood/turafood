@@ -84,3 +84,7 @@ turafood-supabase/respaldos/
 
 # Cuentas de prueba generadas localmente (con contrasenas)
 turafood-supabase/.cuentas-demo*
+
+# Llaves de servicios externos (Twilio, Resend): solo locales
+turafood-supabase/.twilio*
+turafood-supabase/.resend*

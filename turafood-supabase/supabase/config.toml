@@ -438,3 +438,7 @@ verify_jwt = false
 [functions.send-push]
 # La llama la base de datos (pg_net), no un usuario: se protege con el header x-push-secret.
 verify_jwt = false
+
+[functions.send-order-email]
+# La llama la base de datos (pg_net), no un usuario: se protege con el header x-push-secret.
+verify_jwt = false
