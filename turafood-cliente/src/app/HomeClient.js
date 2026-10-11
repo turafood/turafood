@@ -23,6 +23,7 @@ import { cop, feeLabel, etaLabel } from '@/lib/format';
 import { useSearchOverlay } from './components/SearchOverlay';
 import { useAi } from './components/AiOverlay';
 import { Cover, Icon3D } from './components/Media';
+import LazyVideo from './components/LazyVideo';
 import FastViewModal from './components/FastViewModal';
 import { useThemeStore } from '@/store/useThemeStore';
 
@@ -497,12 +498,8 @@ export default function HomePage({ initialStores = null }) {
               position: 'relative', width: 440, height: 320,
               flex: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <video
+              <LazyVideo
                 src="/turafood-ai-video.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
                 style={{
                   width: '100%', height: '100%', objectFit: 'contain',
                   background: 'transparent',
@@ -819,12 +816,8 @@ export default function HomePage({ initialStores = null }) {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: 'transparent',
                 }}>
-                  <video
+                  <LazyVideo
                     src="/turafood-ai-video.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
                     style={{
                       width: '100%', height: '100%', objectFit: 'contain',
                       WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 50%, transparent 95%)',

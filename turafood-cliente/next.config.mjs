@@ -5,9 +5,12 @@ const nextConfig = {
   output: 'standalone',
 
   images: {
-    // Formatos modernos: pesan la mitad que JPEG con la misma calidad
+    // En Cloudflare Workers no hay optimizador de imágenes (haría falta el
+    // producto Cloudflare Images): /_next/image devolvía el archivo original
+    // tres veces, una por cada ancho. Se sirven directo, ya redimensionados
+    // en public/ (las fotos de producto miden ≤ 960 px).
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
-    // Tamaños que realmente usa la app (el marco es de 440px)
     imageSizes: [48, 64, 80, 104, 132, 158, 198, 256],
     deviceSizes: [440, 640, 880, 1200],
     remotePatterns: [

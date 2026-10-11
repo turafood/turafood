@@ -4,6 +4,8 @@ const nextConfig = {
   output: 'standalone',
 
   images: {
+    // Cloudflare Workers no trae optimizador de imágenes: se sirven directo.
+    unoptimized: true,
     formats: ['image/avif', 'image/webp'],
   },
 
