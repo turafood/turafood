@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       // Si la base reintenta, Resend no manda el mismo recibo dos veces
-      "Idempotency-Key": `recibo-${orderId}`,
+      "Idempotency-Key": `recibo-${orderId}-${destino}`,
     },
     body: JSON.stringify({
       from: Deno.env.get("RESEND_FROM") ?? "TuraFood <pedidos@turafood.com>",
