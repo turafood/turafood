@@ -106,8 +106,14 @@ function ChatPage() {
     }
   };
 
-  const courierName = order?.courier?.full_name ?? 'Yeison Mosquera (Repartidor Oficial)';
-  const courierPlate = order?.courier?.plate ?? 'WQR-18C';
+  // Datos reales del repartidor asignado (antes: nombre y placa inventados). Sin repartidor, no se finge uno.
+  const courierName = order?.courier?.profile?.full_name ?? null;
+  const courierPlate = order?.courier?.plate ?? null;
+  const vehiculo = { motorcycle: 'Moto', bicycle: 'Bici', car: 'Carro', walking: 'A pie' }[order?.courier?.vehicle_type] ?? 'Moto';
+  const titulo = courierName ?? (order?.business?.name ? `Tu pedido · ${order.business.name}` : 'Chat del pedido');
+  const subtitulo = courierName
+    ? `Tu repartidor · ${vehiculo}${courierPlate ? ` · Placa ${courierPlate}` : ''}`
+    : order ? 'Aún sin repartidor asignado' : '';
 
   return (
     <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: '100vh', padding: '12px 16px 24px' }}>
@@ -129,13 +135,10 @@ function ChatPage() {
             <div style={S.avatar}>
               <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
             </div>
-            <span style={S.online} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="tr1" style={{ fontWeight: 800, fontSize: 15 }}>{courierName}</div>
-            <div style={{ fontSize: 12, color: 'var(--green)', fontWeight: 700, marginTop: 1 }}>
-              En línea · Moto {courierPlate ? `Placa ${courierPlate}` : ''}
-            </div>
+            <div className="tr1" style={{ fontWeight: 800, fontSize: 15 }}>{titulo}</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>{subtitulo}</div>
           </div>
           
           <button

@@ -18,9 +18,15 @@ import { fileURLToPath } from 'node:url';
 
 const aqui = path.dirname(fileURLToPath(import.meta.url));
 const raiz = path.join(aqui, '..', '..');
-const env = readFileSync(path.join(raiz, 'turafood-app', '.env.local'), 'utf8');
-const URL_ = process.env.SUPABASE_URL || env.match(/^NEXT_PUBLIC_SUPABASE_URL=(.*)$/m)[1].trim();
-const KEY = process.env.SUPABASE_ANON_KEY || env.match(/^NEXT_PUBLIC_SUPABASE_ANON_KEY=(.*)$/m)[1].trim();
+function envLocal(nombre) {
+  try {
+    const t = readFileSync(path.join(raiz, 'turafood-app', '.env.local'), 'utf8');
+    return t.match(new RegExp(`^${nombre}=(.*)$`, 'm'))?.[1].trim();
+  } catch { return undefined; }
+}
+const URL_ = process.env.SUPABASE_URL || envLocal('NEXT_PUBLIC_SUPABASE_URL');
+const KEY = process.env.SUPABASE_ANON_KEY || envLocal('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+if (!URL_ || !KEY) { console.error('Falta SUPABASE_URL / SUPABASE_ANON_KEY (o turafood-app/.env.local)'); process.exit(2); }
 
 function archivos(dir, out = []) {
   for (const e of readdirSync(dir)) {

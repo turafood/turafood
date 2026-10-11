@@ -1,0 +1,35 @@
+name: Auditoria
+
+# Vigila que la base real siga cerrada y que las consultas del codigo coincidan con ella.
+# Corre cada dia, a mano, y cuando cambian las migraciones o las consultas.
+on:
+  schedule:
+    - cron: '0 11 * * *'   # 06:00 hora de Colombia
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'turafood-supabase/**'
+      - 'turafood-*/src/**'
+
+permissions:
+  contents: read
+
+env:
+  # La anon key es publica por diseno (viaja en el navegador); la auditoria la usa como un visitante cualquiera
+  SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+
+jobs:
+  auditoria:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Seguridad (la base sigue cerrada para visitantes)
+        run: node turafood-supabase/scripts/auditoria-seguridad.mjs
+      - name: Consultas del codigo vs. base real
+        run: node turafood-supabase/scripts/verificar-consultas.mjs
