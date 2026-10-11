@@ -15,6 +15,8 @@ concurrency:
 env:
   NEXT_PUBLIC_SUPABASE_URL: https://btaddjjzpvyqltkchqki.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0YWRkamp6cHZ5cWx0a2NocWtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MjI0OTQsImV4cCI6MjEwMjI5ODQ5NH0.o-7hvDoM6-IWdC3gLAhCPF79qHouxYzLY-2c-dxV8yU
+  # Canal del codigo de verificacion: SMS (WhatsApp requiere remitente aprobado por Meta)
+  NEXT_PUBLIC_OTP_CHANNEL: sms
   NEXT_PUBLIC_VAPI_PUBLIC_KEY: 097ab7c5-8b24-4464-bf4d-d83f15a6b808
   # Clave publica VAPID para Web Push (la privada vive solo en los secrets de Supabase)
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: BJlC66IeI0sWU4MdXahEPJMcXd-ZnYF6s3jmzDSZIy2sfDx1GBBSA23kWjnkzAZa2pfIstpKqw5lfqDtIYICF3o

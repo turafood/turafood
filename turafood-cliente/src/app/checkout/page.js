@@ -9,13 +9,16 @@
  * ve es una estimación para pantalla; el que vale lo devuelve el servidor.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '@/lib/data';
 import AddressSheet from '../components/AddressSheet';
+import VerificarCelular from '../components/VerificarCelular';
+import { necesitaVerificar } from '@/lib/cuenta';
+import { invalidate } from '@/lib/cache';
 import { normalizarCelularCO } from '@/lib/direcciones.mjs';
 import { quote, validateCoupon } from '@/lib/pricing';
 import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
@@ -111,6 +114,10 @@ export default function CheckoutPage() {
 
   const [turbo, setTurbo] = useState(false);
   const [placing, setPlacing] = useState(false);
+  // Verificación del celular antes de pedir (segundo envío o número que ya tiene cuenta)
+  const [verificarOpen, setVerificarOpen] = useState(false);
+  const verificado = useRef(false);
+  const metodoPendiente = useRef(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -186,11 +193,43 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     setCouponMsg(res.message ? { text: res.message, ok: res.ok } : null);
   };
 
-  const handlePlaceOrder = async (overrideMethod) => {
+  /**
+   * El código ya se confirmó. Si el celular era de otra cuenta, ahora se está en ESA
+   * cuenta: la dirección de este pedido se guarda en ella y el pedido sigue.
+   */
+  const alVerificar = async ({ cambioDeUsuario }) => {
+    verificado.current = true;
+    setVerificarOpen(false);
+    setPlacing(true);
+    let nueva;
+    try {
+      if (cambioDeUsuario) {
+        invalidate('direcciones');
+        if (mode === 'delivery' && address?.lat != null && address?.lng != null) {
+          nueva = await saveAddress({
+            label: address.label || 'Casa', address: address.address, detail: address.detail,
+            neighborhood: address.neighborhood, lat: address.lat, lng: address.lng, isDefault: true,
+          });
+        }
+        setAddresses(await getAddresses());
+      }
+    } catch (err) {
+      setError(err.message);
+      setPlacing(false);
+      return;
+    }
+    await handlePlaceOrder(metodoPendiente.current, nueva ? { address: nueva } : {});
+  };
+
+  const handlePlaceOrder = async (overrideMethod, opts = {}) => {
     const methodToUse = overrideMethod || payMethod || 'cash';
     setError(null);
 
-    if (faltaDireccion) {
+    // Tras verificar con otra cuenta, la dirección es la que se acaba de guardar en ella
+    const addr = opts.address ?? address;
+    const addrText = addr?.address ?? deliveryAddressText;
+
+    if (opts.address ? false : faltaDireccion) {
       setError('Agrega dónde te entregamos antes de continuar.');
       setAddressOpen(true);
       return;
@@ -198,6 +237,14 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
     setPlacing(true);
     try {
+      // El primer pedido no pide nada; el segundo (o un celular que ya tiene cuenta) pide el código
+      if (!verificado.current && celularOk && await necesitaVerificar(customerPhone)) {
+        metodoPendiente.current = methodToUse;
+        setPlacing(false);
+        setVerificarOpen(true);
+        return;
+      }
+
       const finalCustomerName = customerName.trim() || 'Cliente Tura Food';
       // En formato internacional (+57…): es el mismo número con el que después
       // verifica su cuenta por código (Twilio Verify).
@@ -220,8 +267,8 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
           notes: i.notes || null,
         })),
         mode,
-        addressId: address?.id ?? null,
-        deliveryAddress: deliveryAddressText,
+        addressId: addr?.id ?? null,
+        deliveryAddress: addrText,
         deliveryInstructions: deliveryInstructionsText,
         tip: t.tip,
         couponCode: coupon?.code ?? null,
@@ -257,7 +304,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
           discount: t.discount,
           total: t.total,
           mode,
-          delivery_address: deliveryAddressText,
+          delivery_address: addrText,
           delivery_instructions: deliveryInstructionsText,
           payment_method: methodToUse,
         },
@@ -1371,6 +1418,15 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
           business={store}
           selected={schedule}
         />
+
+        {verificarOpen && (
+          <VerificarCelular
+            open
+            celular={customerPhone}
+            onVerificado={alVerificar}
+            onCerrar={() => setVerificarOpen(false)}
+          />
+        )}
 
         <AddressSheet
           open={addressOpen}

@@ -19,7 +19,7 @@
 
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import { normalizarCelularCO, codigoValido } from './direcciones.mjs';
-import { esInvitado } from './sesion';
+import { esInvitado, asegurarSesion } from './sesion';
 
 /** Canal por defecto: `NEXT_PUBLIC_OTP_CHANNEL=sms` para forzar SMS */
 export const CANAL_POR_DEFECTO = process.env.NEXT_PUBLIC_OTP_CHANNEL === 'sms' ? 'sms' : 'whatsapp';
@@ -82,6 +82,37 @@ export async function confirmarCodigo({ tel, codigo, modo }) {
   });
   if (error) throw new Error(mensaje(error));
   return data?.user ?? null;
+}
+
+/**
+ * ¿Hay que verificar el celular ANTES de hacer este pedido?
+ *
+ * El primer pedido no pide nada: se crea la cuenta con el nombre y el celular
+ * que la persona escribe. Se pide el código cuando:
+ *   · ya hizo un pedido antes como invitado (segundo envío), o
+ *   · ese celular ya tiene una cuenta verificada (la hizo en otro celular o
+ *     navegador): sin el código no se le abre otra cuenta aparte.
+ * Quien ya verificó su celular, o entró con otro método, no pasa por aquí.
+ */
+export async function necesitaVerificar(celular) {
+  const tel = normalizarCelularCO(celular);
+  if (!tel || !isConfigured()) return false;
+
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  const u = session?.user;
+  if (u && !u.is_anonymous) return false;          // ya es una cuenta real
+
+  const user = u ?? await asegurarSesion();
+  if (!user) return false;                         // sin sesión no se puede preguntar: el pedido seguirá su curso
+
+  // Segundo envío: ya tiene pedidos con esta cuenta de invitado (RLS: solo ve los suyos)
+  const { count } = await supabase.from('orders').select('id', { count: 'exact', head: true });
+  if ((count ?? 0) > 0) return true;
+
+  // Primer envío desde este navegador, pero ese celular ya es de una cuenta verificada
+  const { data, error } = await supabase.rpc('telefono_tiene_cuenta', { p_phone: tel });
+  return !error && data === true;
 }
 
 /** ¿La sesión actual ya tiene un celular verificado? */
