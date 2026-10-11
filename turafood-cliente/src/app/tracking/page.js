@@ -23,6 +23,7 @@ import { cargarLeafletCss } from '@/lib/leafletCss';
 import { pushSupported, activarPush, renovarPush } from '@/lib/push';
 import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
+import GuardarCuenta from '../components/GuardarCuenta';
 
 /** Pasos del flujo de entrega */
 
@@ -263,6 +264,9 @@ function TrackingPage() {
   const router = useRouter();
   const params = useSearchParams();
   const orderId = params.get('order');
+  // La simulación de estados es una herramienta de demostración: solo con ?demo=1.
+  // Antes se le mostraba a cualquier cliente, que podía "avanzar" su pedido en pantalla.
+  const demo = params.get('demo') === '1';
 
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
@@ -775,47 +779,30 @@ function TrackingPage() {
                   >
                     <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>my_location</span>
                   </button>
-                  <button
-                    onClick={() => setIsSimulating(!isSimulating)}
-                    style={{
-                      ...S.mapCtrlBtn,
-                      background: isSimulating ? 'var(--primary)' : '#fff',
-                      color: isSimulating ? '#fff' : 'var(--text)',
-                      width: 'auto', padding: '0 12px',
-                    }}
-                    title="Simular avance automático de ruta"
-                  >
-                    <span className="ms ms-fill" style={{ fontSize: 18 }}>
-                      {isSimulating ? 'pause' : 'play_arrow'}
-                    </span>
-                    <span style={{ fontSize: 12, fontWeight: 800 }}>
-                      {isSimulating ? 'Simulando...' : 'Simular'}
-                    </span>
-                  </button>
+                  {demo && (
+                    <button
+                      onClick={() => setIsSimulating(!isSimulating)}
+                      style={{
+                        ...S.mapCtrlBtn,
+                        background: isSimulating ? 'var(--primary)' : '#fff',
+                        color: isSimulating ? '#fff' : 'var(--text)',
+                        width: 'auto', padding: '0 12px',
+                      }}
+                      title="Simular avance automático de ruta"
+                    >
+                      <span className="ms ms-fill" style={{ fontSize: 18 }}>
+                        {isSimulating ? 'pause' : 'play_arrow'}
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 800 }}>
+                        {isSimulating ? 'Simulando...' : 'Simular'}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Repartidor Oficial */}
-              <div style={{ ...S.courierCard, marginTop: 0, padding: '16px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }}>
-                <div style={{ ...S.avatar, width: 46, height: 46 }}>
-                  <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15 }}>Yeison Mosquera</div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Moto · Placa WQR-18C · Repartidor Oficial</div>
-                </div>
-                <button onClick={() => router.push(`/chat?order=${order?.id ?? ''}`)} style={S.chatBtn} aria-label="Escribir al repartidor">
-                  <span className="ms" style={{ fontSize: 19 }}>chat_bubble</span>
-                  <span style={S.unread}>2</span>
-                </button>
-                <button
-                  onClick={() => window.open('tel:+573026886449', '_self')}
-                  style={S.callBtn}
-                  aria-label="Llamar al repartidor"
-                >
-                  <span className="ms" style={{ fontSize: 19, color: '#fff' }}>call</span>
-                </button>
-              </div>
+              {/* Repartidor (datos reales; si aún no hay, "Buscando repartidor") */}
+              <TarjetaRepartidor order={order} router={router} grande />
 
               {/* Botones de acción complementarios en 1 fila */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -892,7 +879,7 @@ function TrackingPage() {
                 </div>
 
                 {/* Simulador rápido de estados (Prueba interactiva PRO) */}
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                <div hidden={!demo} style={{ display: demo ? 'flex' : 'none', gap: 4, flexWrap: 'wrap', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
                   <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)', alignSelf: 'center', marginRight: 4 }}>Simular:</span>
                   {STEPS.map((stKey) => {
                     const active = currentStatus === stKey;
@@ -922,6 +909,9 @@ function TrackingPage() {
                 onShareWhatsapp={shareTrackingOnWhatsapp}
                 onCenterMap={centerOnCourier}
               />
+
+              {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
+              <div style={{ marginTop: 14 }}><GuardarCuenta compacto /></div>
             </div>
 
           </div>
@@ -999,7 +989,7 @@ function TrackingPage() {
           </div>
 
           {/* Simulación Rápida Móvil */}
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 14, paddingBottom: 4 }}>
+          <div hidden={!demo} style={{ display: demo ? 'flex' : 'none', gap: 6, overflowX: 'auto', marginTop: 14, paddingBottom: 4 }}>
             {STEPS.map((stKey) => {
               const active = currentStatus === stKey;
               return (
@@ -1020,27 +1010,8 @@ function TrackingPage() {
             })}
           </div>
 
-          {/* Repartidor */}
-          <div style={S.courierCard}>
-            <div style={S.avatar}>
-              <span className="ms" style={{ fontSize: 26, color: 'var(--muted)' }}>person</span>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5 }}>Yeison Mosquera</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Moto · Placa WQR-18C</div>
-            </div>
-            <button onClick={() => router.push(`/chat?order=${order?.id ?? ''}`)} style={S.chatBtn} aria-label="Escribir al repartidor">
-              <span className="ms" style={{ fontSize: 20 }}>chat_bubble</span>
-              <span style={S.unread}>2</span>
-            </button>
-            <button
-              onClick={() => window.open('tel:+573026886449', '_self')}
-              style={S.callBtn}
-              aria-label="Llamar al repartidor"
-            >
-              <span className="ms" style={{ fontSize: 20, color: '#fff' }}>call</span>
-            </button>
-          </div>
+          {/* Repartidor (datos reales; si aún no hay, "Buscando repartidor") */}
+          <TarjetaRepartidor order={order} router={router} />
 
           {/* Código de entrega */}
           <div style={S.codeCard}>
@@ -1054,7 +1025,9 @@ function TrackingPage() {
               </span>
             </span>
             <span style={{ display: 'flex', gap: 6, flex: 'none' }}>
-              {['4', '8', '2', '1'].map((d, i) => (
+              {/* El servidor valida los ÚLTIMOS 4 DÍGITOS del número de pedido (complete_delivery).
+                  Antes aquí se mostraba siempre 4-8-2-1 y el repartidor nunca podía confirmar. */}
+              {String(order?.order_number ?? '').replace(/\D/g, '').slice(-4).padStart(4, '·').split('').map((d, i) => (
                 <span key={i} style={S.codeDigit}>{d}</span>
               ))}
             </span>
@@ -1069,6 +1042,9 @@ function TrackingPage() {
               onCenterMap={centerOnCourier}
             />
           </div>
+
+          {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
+          <div style={{ marginTop: 16 }}><GuardarCuenta /></div>
 
           {/* Bitácora */}
           <div style={{ marginTop: 20, background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
@@ -1111,6 +1087,57 @@ function TrackingPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * El repartidor del pedido, con sus datos reales (nombre, vehículo, placa,
+ * teléfono). Mientras nadie tomó el pedido muestra "Buscando repartidor".
+ * Antes esta tarjeta mostraba SIEMPRE un repartidor inventado (nombre, placa
+ * y un teléfono fijo, más un "2 mensajes" falso).
+ */
+function TarjetaRepartidor({ order, router, grande = false }) {
+  const base = grande
+    ? { ...S.courierCard, marginTop: 0, padding: '16px 18px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.03)' }
+    : S.courierCard;
+  const c = order?.courier;
+  const tel = c?.profile?.phone;
+
+  if (!order?.courier_id) {
+    return (
+      <div style={{ ...base, opacity: 0.9 }}>
+        <div style={{ ...S.avatar, ...(grande ? { width: 46, height: 46 } : {}) }}>
+          <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>two_wheeler</span>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 800, fontSize: 14.5 }}>Buscando repartidor</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Te avisamos apenas alguien tome tu pedido</div>
+        </div>
+      </div>
+    );
+  }
+
+  const vehiculo = c?.vehicle_type === 'bike' ? 'Bicicleta' : c?.vehicle_type ? 'Moto' : null;
+  const detalle = [vehiculo, c?.plate ? `Placa ${c.plate}` : null].filter(Boolean).join(' · ') || 'En camino';
+
+  return (
+    <div style={base}>
+      <div style={{ ...S.avatar, ...(grande ? { width: 46, height: 46 } : {}) }}>
+        <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 800, fontSize: 14.5 }}>{c?.profile?.full_name || 'Tu repartidor'}</div>
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{detalle}</div>
+      </div>
+      <button onClick={() => router.push(`/chat?order=${order?.id ?? ''}`)} style={S.chatBtn} aria-label="Escribir al repartidor">
+        <span className="ms" style={{ fontSize: 19 }}>chat_bubble</span>
+      </button>
+      {tel && (
+        <button onClick={() => window.open(`tel:${tel}`, '_self')} style={S.callBtn} aria-label="Llamar al repartidor">
+          <span className="ms" style={{ fontSize: 19, color: '#fff' }}>call</span>
+        </button>
+      )}
+    </div>
   );
 }
 

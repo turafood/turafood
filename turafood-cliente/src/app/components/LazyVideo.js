@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from 'react';
  * El contenedor ocupa el 100% de su padre, igual que el video que
  * reemplaza, así que el diseño no cambia.
  */
-export default function LazyVideo({ src, style, ...rest }) {
+export default function LazyVideo({ src, poster, style, ...rest }) {
   const caja = useRef(null);
   const [cargar, setCargar] = useState(false);
 
@@ -46,7 +46,7 @@ export default function LazyVideo({ src, style, ...rest }) {
   return (
     <div ref={caja} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {cargar && (
-        <video src={src} autoPlay loop muted playsInline style={style} {...rest} />
+        <video src={src} poster={poster} autoPlay loop muted playsInline style={style} {...rest} />
       )}
     </div>
   );

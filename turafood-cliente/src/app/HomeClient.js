@@ -500,6 +500,7 @@ export default function HomePage({ initialStores = null }) {
             }}>
               <LazyVideo
                 src="/turafood-ai-video.mp4"
+                poster="/turafood-ai-poster.jpg"
                 style={{
                   width: '100%', height: '100%', objectFit: 'contain',
                   background: 'transparent',
@@ -818,6 +819,7 @@ export default function HomePage({ initialStores = null }) {
                 }}>
                   <LazyVideo
                     src="/turafood-ai-video.mp4"
+                poster="/turafood-ai-poster.jpg"
                     style={{
                       width: '100%', height: '100%', objectFit: 'contain',
                       WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 50%, transparent 95%)',

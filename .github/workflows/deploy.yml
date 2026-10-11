@@ -48,6 +48,11 @@ jobs:
         working-directory: ${{ matrix.app }}
         run: npm ci --legacy-peer-deps
 
+      - name: Pruebas automáticas
+        if: matrix.app == 'turafood-cliente'
+        working-directory: ${{ matrix.app }}
+        run: npm test
+
       - name: Build (OpenNext para Cloudflare)
         working-directory: ${{ matrix.app }}
         env:

@@ -362,35 +362,26 @@ export async function saveAddress({ label, address, detail, neighborhood, lat, l
   const user = await asegurarSesion();
   if (!user) throw new Error('No se pudo abrir la sesión. Revisa tu conexión.');
 
-  const { count } = await supabase
-    .from('addresses')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.id);
+  // Una sola función en la base: valida cobertura y ubicación, reutiliza la
+  // dirección si ya existe y cambia la predeterminada en la MISMA transacción
+  // (antes se desmarcaba primero y, si el insert fallaba, la persona se
+  // quedaba sin ninguna predeterminada).
+  const { data, error } = await supabase.rpc('guardar_direccion', {
+    p_label: label,
+    p_address: address,
+    p_detail: detail || null,
+    p_neighborhood: neighborhood || null,
+    p_lat: lat ?? null,
+    p_lng: lng ?? null,
+    p_default: Boolean(isDefault),
+  });
 
-  const makeDefault = Boolean(isDefault) || (count ?? 0) === 0;
-
-  if (makeDefault) {
-    await supabase.from('addresses')
-      .update({ is_default: false })
-      .eq('user_id', user.id);
+  if (error) {
+    const t = /permission denied|violates|new row|jwt|fetch|network|PGRST/i.test(error.message ?? '');
+    throw new Error(t ? 'No pudimos guardar la dirección. Revisa tu conexión e inténtalo de nuevo.' : error.message);
   }
-
-  const { data, error } = await supabase
-    .from('addresses')
-    .insert({
-      user_id: user.id,
-      label,
-      address,
-      detail: detail || null,
-      neighborhood: neighborhood || null,
-      location: lat != null ? `SRID=4326;POINT(${lng} ${lat})` : null,
-      is_default: makeDefault,
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(`No pudimos guardar la dirección: ${error.message}`);
-  return { ...data, lat, lng };
+  const fila = Array.isArray(data) ? data[0] : data;
+  return { ...fila, ...(toLatLng(fila?.location) ?? { lat, lng }) };
 }
 
 /** Marca una dirección como predeterminada */
@@ -844,6 +835,19 @@ export async function getCoupons() {
 // ============================================================
 
 /**
+ * El servidor responde en español claro cuando algo no se puede ("El negocio
+ * está cerrado en este momento", "El pedido mínimo de este negocio es 15000",
+ * "Tu dirección no está dentro de la zona de entrega"...). Esos mensajes se
+ * muestran tal cual. Los errores técnicos (permisos, red, formato) no le
+ * sirven a nadie en la pantalla: se cambian por uno genérico.
+ */
+function mensajeDePedido(msg = '') {
+  const tecnico = /permission denied|violates|new row|jwt|fetch|network|syntax|duplicate key|invalid input|row-level|schema cache|PGRST/i;
+  if (!msg || tecnico.test(msg)) return 'No pudimos crear tu pedido. Revisa tu conexión e inténtalo de nuevo.';
+  return msg;
+}
+
+/**
  * Crea el pedido. El precio lo calcula SIEMPRE el servidor (RPC
  * place_order): aquí solo se manda qué se quiere, nunca cuánto cuesta.
  *
@@ -893,98 +897,66 @@ export async function placeOrder({
   const orderNum = `TS-${Math.floor(1000 + Math.random() * 9000)}`;
 
   if (isLive()) {
+    // Solo el servidor crea pedidos (place_order): relee los precios y valida
+    // horario, pedido mínimo, cobertura y dirección. Si algo falla se MUESTRA
+    // el motivo.
+    //
+    // Antes, ante cualquier fallo se probaba un INSERT directo y, si también
+    // fallaba, se fabricaba un pedido "local" y se devolvía como éxito: la
+    // persona creía haber pedido y al restaurante nunca le llegaba nada.
     const supabase = createClient();
 
-    // 1. Intento RPC
-    try {
-      const { data: rpcData, error: rpcError } = await supabase.rpc('place_order', {
-        p_business_id: businessId,
-        p_items: items,
-        p_mode: mode,
-        p_address_id: addressId,
-        p_tip: tip,
-        p_coupon_code: couponCode,
-        p_instructions: instructions || deliveryInstructions,
-        p_payment_method: paymentMethod,
-      });
-
-      if (!rpcError && rpcData) {
-        const res = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-        if (typeof window !== 'undefined') {
-          try { localStorage.setItem('turafood_last_order', JSON.stringify(res)); } catch {}
-        }
-        return res;
-      }
-    } catch (e) {
-      console.warn('RPC place_order fallback to direct table insert:', e);
+    if (mode === 'delivery' && !UUID_REGEX.test(String(addressId ?? ''))) {
+      throw new Error('Agrega tu dirección de entrega para continuar.');
     }
 
-    // 2. Inserción directa en tabla 'orders' para garantizar visibilidad en el restaurante y tracking
+    const { data: rpcData, error: rpcError } = await supabase.rpc('place_order', {
+      p_business_id: businessId,
+      p_items: items,
+      p_mode: mode,
+      p_address_id: mode === 'delivery' ? addressId : null,
+      p_tip: tip,
+      p_coupon_code: couponCode,
+      p_instructions: instructions || deliveryInstructions,
+      p_payment_method: paymentMethod,
+    });
+    if (rpcError) throw new Error(mensajeDePedido(rpcError.message));
+
+    const res = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+    if (!res?.id) throw new Error('No pudimos crear tu pedido. Inténtalo de nuevo en un momento.');
+
+    // Datos del negocio para el ticket y la comanda (si falla, el pedido ya existe: se sigue sin ellos)
+    let negocio = null;
     try {
-      const { data: insertedOrder, error: insertError } = await supabase
-        .from('orders')
-        .insert({
-          customer_id: user?.id,
-          business_id: businessId,
-          order_number: orderNum,
-          status: 'pending',
-          payment_status: 'pending',
-          mode: mode,
-          delivery_address: finalAddress,
-          delivery_instructions: finalDetail,
-          subtotal: calcSubtotal,
-          delivery_fee: calcDeliveryFee,
-          service_fee: calcServiceFee,
-          tip: tip,
-          discount: calcDiscount,
-          total: calcTotal,
-          payment_method: paymentMethod,
-          coupon_code: couponCode || null,
-        })
-        .select(`
-          *,
-          business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, nequi_phone)
-        `)
-        .single();
+      const { data } = await supabase
+        .from('business_profiles')
+        .select('id, name, cover_url, address, phone, whatsapp_phone, nequi_phone')
+        .eq('id', businessId)
+        .maybeSingle();
+      negocio = data;
+    } catch { /* no es fatal */ }
 
-      if (!insertError && insertedOrder) {
-        if (items && items.length > 0) {
-          const itemsPayload = items.map((i) => ({
-            order_id: insertedOrder.id,
-            product_id: i.product_id || i.productId || null,
-            name: i.name || 'Plato',
-            unit_price: i.unit_price || i.unitPrice || 0,
-            quantity: i.quantity || i.qty || 1,
-            notes: i.notes || '',
-            subtotal: (i.unit_price || i.unitPrice || 0) * (i.quantity || i.qty || 1),
-          }));
-          await supabase.from('order_items').insert(itemsPayload);
-        }
+    const fullOrder = {
+      ...res,
+      business: negocio ?? { id: businessId },
+      items: items.map((i, idx) => ({
+        id: `item-${idx}`,
+        name: i.name,
+        quantity: i.quantity || i.qty || 1,
+        unit_price: i.unit_price || i.unitPrice || 0,
+        notes: i.notes || '',
+      })),
+    };
 
-        const fullOrder = {
-          ...insertedOrder,
-          items: items.map((i, idx) => ({
-            id: `item-${idx}`,
-            name: i.name,
-            quantity: i.quantity || i.qty || 1,
-            unit_price: i.unit_price || i.unitPrice || 0,
-            notes: i.notes || '',
-          })),
-        };
-
-        if (typeof window !== 'undefined') {
-          try {
-            localStorage.setItem('turafood_last_order', JSON.stringify(fullOrder));
-            localStorage.setItem('turafood_active_order', JSON.stringify(fullOrder));
-            window.dispatchEvent(new CustomEvent('turafood:active-order', { detail: fullOrder }));
-            window.dispatchEvent(new CustomEvent('turafood:order-status', { detail: fullOrder }));
-          } catch {}
-        }
-        return fullOrder;
-      }
-    } catch (err) {
-      console.warn('Direct order insertion fallback notice:', err);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('turafood_last_order', JSON.stringify(fullOrder));
+        localStorage.setItem('turafood_active_order', JSON.stringify(fullOrder));
+        window.dispatchEvent(new CustomEvent('turafood:active-order', { detail: fullOrder }));
+        window.dispatchEvent(new CustomEvent('turafood:order-status', { detail: fullOrder }));
+      } catch { /* sin almacenamiento: el pedido ya está en el servidor */ }
     }
+    return fullOrder;
   }
 
   // Fallback Local Storage
@@ -1108,7 +1080,7 @@ export async function getOrder(orderId) {
       *,
       business:business_profiles(id, name, cover_url, address, phone, whatsapp_phone, nequi_phone),
       items:order_items(*),
-      courier:courier_profiles(id, vehicle_type, plate)
+      courier:courier_profiles(id, vehicle_type, plate, profile:profiles!courier_profiles_id_fkey(full_name, phone))
     `);
 
   if (!orderId || orderId === 'current') {

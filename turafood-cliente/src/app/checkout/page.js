@@ -16,6 +16,7 @@ import { useThemeStore } from '@/store/useThemeStore';
 import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '@/lib/data';
 import AddressSheet from '../components/AddressSheet';
+import { normalizarCelularCO } from '@/lib/direcciones.mjs';
 import { quote, validateCoupon } from '@/lib/pricing';
 import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
 import { cop, deliveryWindow } from '@/lib/format';
@@ -75,7 +76,10 @@ export default function CheckoutPage() {
   const [wizardStep, setWizardStep] = useState(1); // 1: Pedido y Entrega, 2: Método de Pago
   const [store, setStore] = useState(null);
   const [addresses, setAddresses] = useState([]);
-  const [deliveryAddressText, setDeliveryAddressText] = useState('Carrera 3 # 4-58, Centro, Buenaventura');
+  // Antes esto arrancaba con "Carrera 3 # 4-58, Centro" para todo el mundo y el
+  // botón de pedir lo daba por válido: se podía pedir a una dirección falsa sin
+  // darse cuenta. Ahora la dirección sale SOLO de una dirección guardada con
+  // ubicación (ver AddressSheet).
   const [deliveryInstructionsText, setDeliveryInstructionsText] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -124,10 +128,7 @@ export default function CheckoutPage() {
         if (!alive) return;
         setStore(biz);
         setAddresses(addrs);
-        if (addrs?.length && addrs[0].address) {
-          setDeliveryAddressText(addrs[0].address);
-          if (addrs[0].detail) setDeliveryInstructionsText(addrs[0].detail);
-        }
+        if (addrs?.length && addrs[0].detail) setDeliveryInstructionsText(addrs[0].detail);
         setCoupons(cps);
       } catch (err) {
         if (alive) setError(err.message);
@@ -138,16 +139,12 @@ export default function CheckoutPage() {
 
   const metodos = ALL_PAYMENT_METHODS;
 
-  const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? { id: 'default', address: deliveryAddressText, detail: deliveryInstructionsText };
-
-  const setAddress = (addr) => {
-    if (addr.address) setDeliveryAddressText(addr.address);
-    if (addr.detail !== undefined) setDeliveryInstructionsText(addr.detail);
-    setAddresses((prev) => {
-      const existing = prev.filter((a) => a.id !== addr.id);
-      return [{ ...addr, is_default: true }, ...existing.map((a) => ({ ...a, is_default: false }))];
-    });
-  };
+  // La dirección de entrega: la predeterminada guardada (con ubicación). Sin
+  // ninguna guardada es null y el checkout pide agregarla.
+  const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
+  const deliveryAddressText = address?.address ?? '';
+  const faltaDireccion = mode === 'delivery' && !address?.id;
+  const celularOk = Boolean(normalizarCelularCO(customerPhone));
 
   const t = quote({
     subtotal,
@@ -166,11 +163,13 @@ export default function CheckoutPage() {
 
   const falta = items.length === 0
     ? 'Canasta vacía'
-    : (mode === 'delivery' && !deliveryAddressText.trim())
-      ? 'Ingresa tu dirección'
+    : faltaDireccion
+      ? 'Agrega dónde te entregamos'
       : (!customerName.trim() || !customerPhone.trim())
         ? 'Completa nombre y celular'
-        : null;
+        : !celularOk
+          ? 'Revisa tu celular (10 dígitos, ej. 300 123 4567)'
+          : null;
 
 function WhatsAppIcon({ size = 20, color = '#fff' }) {
   return (
@@ -191,15 +190,18 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     const methodToUse = overrideMethod || payMethod || 'cash';
     setError(null);
 
-    if (mode === 'delivery' && !deliveryAddressText.trim()) {
-      setError('Agrega una dirección de entrega antes de continuar.');
+    if (faltaDireccion) {
+      setError('Agrega dónde te entregamos antes de continuar.');
+      setAddressOpen(true);
       return;
     }
 
     setPlacing(true);
     try {
       const finalCustomerName = customerName.trim() || 'Cliente Tura Food';
-      const finalCustomerPhone = customerPhone.trim();
+      // En formato internacional (+57…): es el mismo número con el que después
+      // verifica su cuenta por código (Twilio Verify).
+      const finalCustomerPhone = normalizarCelularCO(customerPhone) || customerPhone.trim();
       const clienteLabel = finalCustomerPhone ? `${finalCustomerName} (${finalCustomerPhone})` : finalCustomerName;
 
       // 1. El servidor o la base de datos crea y persiste el pedido real
@@ -574,62 +576,34 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
                 {mode === 'delivery' ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <div style={{ position: 'relative', flex: 1 }}>
-                        <span className="ms" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: 'var(--muted)' }}>home</span>
-                        <input
-                          value={deliveryAddressText}
-                          onChange={(e) => setDeliveryAddressText(e.target.value)}
-                          placeholder="Dirección en Buenaventura (Ej. Carrera 3 # 4-58)"
-                          style={{
-                            width: '100%', height: 42, borderRadius: 12, padding: '0 12px 0 38px',
-                            border: '1px solid var(--border)', background: 'var(--surface2)',
-                            fontSize: 13.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
-                          }}
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition(
-                              () => setDeliveryAddressText('Buenaventura, Valle del Cauca (Ubicación Actual)'),
-                              () => setDeliveryAddressText('Centro, Buenaventura')
-                            );
-                          }
-                        }}
-                        style={{
-                          padding: '0 14px', height: 42, borderRadius: 12, background: 'var(--surface2)',
-                          border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 800, color: 'var(--primary)',
-                          display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', flex: 'none',
-                        }}
-                      >
-                        <span className="ms" style={{ fontSize: 16 }}>my_location</span>
-                        <span>GPS</span>
-                      </button>
-                    </div>
-
-                    {/* Chips de Barrios Rápidos */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', flex: 'none' }}>Barrios:</span>
-                      {['Centro', 'Pueblo Nuevo', 'La Independencia', 'Bellavista', 'El Cristal'].map((b) => {
-                        const active = deliveryAddressText.includes(b);
-                        return (
-                          <button
-                            key={b}
-                            onClick={() => setDeliveryAddressText(`${b}, Buenaventura`)}
-                            style={{
-                              padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700,
-                              background: active ? 'var(--primary)' : 'var(--surface2)',
-                              color: active ? '#fff' : 'var(--text)',
-                              border: active ? '1px solid var(--primary)' : '1px solid var(--border)',
-                              cursor: 'pointer', transition: 'all .15s', flex: 'none',
-                            }}
-                          >
-                            📍 {b}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* La dirección se elige en el mismo selector del celular: escribir,
+                        elegir sugerencia, ajustar el pin. Nada de texto libre sin ubicación. */}
+                    <button
+                      onClick={() => setAddressOpen(true)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left',
+                        padding: '10px 12px', borderRadius: 12, cursor: 'pointer',
+                        background: faltaDireccion ? 'var(--primary-tint)' : 'var(--surface2)',
+                        border: faltaDireccion ? '1.5px dashed var(--primary)' : '1px solid var(--border)',
+                      }}
+                    >
+                      <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--primary)' }}>
+                        {faltaDireccion ? 'add_location_alt' : 'location_on'}
+                      </span>
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span className="tr1" style={{ display: 'block', fontSize: 13.5, fontWeight: 800 }}>
+                          {faltaDireccion ? 'Agrega dónde te entregamos' : address.address}
+                        </span>
+                        <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
+                          {faltaDireccion
+                            ? 'Escribe tu dirección o usa tu ubicación'
+                            : [address.label, address.detail].filter(Boolean).join(' · ') || 'Toca para cambiarla'}
+                        </span>
+                      </span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', flex: 'none' }}>
+                        {faltaDireccion ? 'Agregar' : 'Cambiar'}
+                      </span>
+                    </button>
 
                     <input
                       value={deliveryInstructionsText}
@@ -649,7 +623,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                         <input
                           value={customerName}
                           onChange={(e) => setCustomerName(e.target.value)}
-                          placeholder="Tu nombre (opcional)"
+                          placeholder="Tu nombre"
                           style={{
                             width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
                             border: '1px solid var(--border)', background: 'var(--surface2)',
@@ -662,7 +636,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                         <input
                           value={customerPhone}
                           onChange={(e) => setCustomerPhone(e.target.value)}
-                          placeholder="Celular (opcional)"
+                          placeholder="Celular (300 123 4567)"
                           style={{
                             width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
                             border: '1px solid var(--border)', background: 'var(--surface2)',
@@ -920,13 +894,13 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                 {/* Botón Principal VERDE WhatsApp */}
                 <button
                   onClick={() => handlePlaceOrder(payMethod)}
-                  disabled={placing || Boolean(falta)}
+                  disabled={placing || Boolean(falta && !faltaDireccion)}
                   style={{
                     width: '100%', height: 52, borderRadius: 16,
                     background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
                     color: '#fff', fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    opacity: falta ? 0.55 : 1,
+                    opacity: falta && !faltaDireccion ? 0.55 : 1,
                     border: 'none',
                     boxShadow: '0 8px 24px rgba(37,211,102,0.35)',
                     transition: 'all .15s ease',
@@ -1356,7 +1330,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
           </div>
           <button
             onClick={() => handlePlaceOrder(payMethod)}
-            disabled={placing || Boolean(falta)}
+            disabled={placing || Boolean(falta && !faltaDireccion)}
             style={{
               flex: 1, height: 50, borderRadius: 999,
               background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
@@ -1364,7 +1338,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               border: 'none', cursor: 'pointer',
               boxShadow: '0 8px 24px rgba(37,211,102,0.32)',
-              opacity: falta ? 0.55 : 1,
+              opacity: falta && !faltaDireccion ? 0.55 : 1,
             }}
           >
             <WhatsAppIcon size={19} />
@@ -1399,6 +1373,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         <AddressSheet
           open={addressOpen}
           onClose={() => setAddressOpen(false)}
+          recientes={addresses.filter((a) => a.lat != null && a.lng != null)}
           onSave={async (payload) => {
             const nueva = await saveAddress({ ...payload, isDefault: true });
             // Replace old array so the new default is at the top

@@ -23,20 +23,11 @@ import { createClient, isConfigured } from '@/utils/supabase/client';
 import HeroBackdrop from '../components/HeroBackdrop';
 import RouteSkeleton from '../components/RouteSkeleton';
 import { GoogleMark, FacebookMark } from '../components/SocialMarks';
+import { enviarCodigo, confirmarCodigo } from '@/lib/cuenta';
 
-/**
- * Canal del código de un solo uso.
- *
- * SMS por ahora. WhatsApp sería mejor —acá todo el mundo lo tiene y no
- * todo el mundo tiene saldo— pero mandar por WhatsApp exige un
- * remitente aprobado por Meta, y eso toma días. Prometer WhatsApp y
- * mandar un SMS es peor que no prometerlo.
- *
- * Cuando Meta apruebe el remitente, esta línea pasa a 'whatsapp' y el
- * botón de abajo vuelve a decir WhatsApp. Es lo único que hay que
- * tocar.
- */
-const OTP_CHANNEL = 'sms';
+// El código llega por WhatsApp o por SMS (Twilio Verify, ver lib/cuenta.js). Si WhatsApp
+// falla se reintenta por SMS y la pantalla dice por cuál canal salió DE VERDAD: prometer
+// WhatsApp y mandar un SMS sería peor que no prometerlo.
 
 export default function AuthPageWrapper() {
   return (
@@ -56,6 +47,7 @@ function AuthPage() {
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [envio, setEnvio] = useState(null); // { tel, modo, canal }
   const [fullName, setFullName] = useState('');
 
   const [busy, setBusy] = useState(false);
@@ -90,18 +82,24 @@ function AuthPage() {
     }
   };
 
-  const sendOtp = async (e) => {
-    e.preventDefault();
+  const sendOtp = async (e, canal = 'whatsapp') => {
+    e?.preventDefault();
     setError(null);
     if (!guard()) return;
 
     setBusy(true);
     try {
-      const { error: otpError } = await createClient().auth.signInWithOtp({
-        phone: `+57${phone}`,
-        options: { channel: OTP_CHANNEL },
-      });
-      if (otpError) throw new Error(otpError.message);
+      let r;
+      try {
+        // Si esta sesión es de invitado y el número es nuevo, el celular se vincula a
+        // la MISMA cuenta (no se pierden sus pedidos).
+        r = await enviarCodigo(phone, { canal });
+      } catch (err) {
+        // El número ya tiene cuenta: aquí la persona quiere entrar a ella.
+        if (err.message === 'EXISTE') r = await enviarCodigo(phone, { canal, forzarIngreso: true });
+        else throw err;
+      }
+      setEnvio(r);
       setMode('otp');
     } catch (err) {
       setError(err.message);
@@ -115,12 +113,7 @@ function AuthPage() {
     setError(null);
     setBusy(true);
     try {
-      const { error: verifyError } = await createClient().auth.verifyOtp({
-        phone: `+57${phone}`,
-        token: otp,
-        type: 'sms',
-      });
-      if (verifyError) throw new Error('El código no es correcto o ya venció.');
+      await confirmarCodigo({ tel: envio.tel, codigo: otp, modo: envio.modo });
       enter();
     } catch (err) {
       setError(err.message);
@@ -195,7 +188,7 @@ function AuthPage() {
               <form onSubmit={sendOtp} className="anim-up">
                 <BackButton onClick={() => { setMode('choose'); setError(null); }} />
                 <h1 style={S.title}>Tu celular</h1>
-                <p style={S.subtitle}>Te mandamos un código de 6 dígitos por mensaje de texto.</p>
+                <p style={S.subtitle}>Te mandamos un código de 6 dígitos por WhatsApp o mensaje de texto.</p>
 
                 <div style={S.phoneRow}>
                   <span style={S.prefix}>+57</span>
@@ -215,7 +208,15 @@ function AuthPage() {
                   disabled={busy || phone.length < 10}
                   style={{ ...S.primary, opacity: phone.length < 10 ? 0.5 : 1 }}
                 >
-                  {busy ? 'Enviando…' : 'Enviar código'}
+                  {busy ? 'Enviando…' : 'Recibir código por WhatsApp'}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || phone.length < 10}
+                  onClick={() => sendOtp(null, 'sms')}
+                  style={{ ...S.ghost, marginTop: 10, opacity: phone.length < 10 ? 0.5 : 1 }}
+                >
+                  Prefiero recibirlo por SMS
                 </button>
               </form>
             )}
@@ -224,7 +225,7 @@ function AuthPage() {
               <form onSubmit={verifyOtp} className="anim-up">
                 <BackButton onClick={() => { setMode('phone'); setError(null); }} />
                 <h1 style={S.title}>Confirma tu número</h1>
-                <p style={S.subtitle}>Escribe el código que enviamos al +57 {phone}.</p>
+                <p style={S.subtitle}>Escribe el código que enviamos por {envio?.canal === 'sms' ? 'SMS' : 'WhatsApp'} al +57 {phone}.</p>
 
                 <input
                   type="text" inputMode="numeric" required autoFocus
