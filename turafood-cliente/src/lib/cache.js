@@ -55,6 +55,15 @@ export async function cached(key, fetcher, { ttl = DEFAULT_TTL, onFresh } = {}) 
 }
 
 /**
+ * Guarda una respuesta que ya llegó por otro camino (por ejemplo, el
+ * servidor la consultó antes de enviar el HTML). Así la pantalla no la
+ * vuelve a pedir al montar.
+ */
+export function seed(key, data) {
+  store.set(key, { data, at: Date.now() });
+}
+
+/**
  * Bota lo guardado después de escribir.
  *
  * Sin esto, aceptar un pedido y volver a la lista mostraría el pedido

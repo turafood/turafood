@@ -16,7 +16,7 @@
  */
 
 import { createClient } from '@/utils/supabase/client';
-import { cached, invalidate } from './cache';
+import { cached, invalidate, seed } from './cache';
 import { asegurarSesion, usuarioActual } from './sesion';
 import {
   BUSINESSES, PRODUCTS, CATEGORIES, EXTRAS, ADDRESSES, COUPONS, BUENAVENTURA,
@@ -95,7 +95,17 @@ export async function getBusinesses({ vertical, from = BUENAVENTURA.home } = {})
   );
 }
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/**
+ * Siembra la caché con la lista que el servidor ya consultó (con la
+ * distancia calculada desde el punto por defecto). La clave es la misma
+ * que usa `getBusinesses()` sin filtros.
+ */
+export function seedBusinesses(rows) {
+  const from = BUENAVENTURA.home;
+  seed(`tiendas|todas|${from?.lat ?? ''},${from?.lng ?? ''}`, rows);
+}
+
+const UUID_REGEX =/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function _getBusiness(id, { from = BUENAVENTURA.home } = {}) {
   // Primero buscar en datos locales de prueba si es un slug de demo/preview
