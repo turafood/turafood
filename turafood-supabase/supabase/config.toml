@@ -431,4 +431,6 @@ verify_jwt = false
 
 # Ésta sí exige JWT: la llama el cron con la llave de servicio.
 [functions.mailerlite-sync]
-verify_jwt = true
+# La llamada viene del cron de la base (pg_net) y no lleva JWT de usuario.
+# La función se protege sola con el header x-sync-secret (SYNC_SECRET).
+verify_jwt = false

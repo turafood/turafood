@@ -4,7 +4,9 @@ const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/icons/icon.svg',
-  '/offline.html',
+  // Cloudflare Workers Assets redirige /offline.html -> /offline (307); una
+  // respuesta redirigida no sirve como fallback de navegacion. Se usa /offline.
+  '/offline',
   '/favicon.ico'
 ];
 
@@ -50,7 +52,7 @@ self.addEventListener('fetch', (event) => {
         .catch(async () => {
           const cached = await caches.match(req);
           if (cached) return cached;
-          const offlinePage = await caches.match('/offline.html');
+          const offlinePage = await caches.match('/offline');
           return offlinePage || new Response('Sin conexión', { status: 503, headers: { 'Content-Type': 'text/plain' } });
         })
     );

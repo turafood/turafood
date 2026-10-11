@@ -72,3 +72,9 @@ _git-backup-turafood-cliente/
 _assets-originales/
 *.tmp
 referencia-turamuebles/
+
+# Build de Cloudflare (OpenNext) y estado local de wrangler
+.open-next/
+.wrangler/
+.dev.vars
+
