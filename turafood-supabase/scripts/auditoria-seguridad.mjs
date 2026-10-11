@@ -86,7 +86,7 @@ const objetos = [
   'addresses', 'ai_agent_calls', 'business_documents', 'business_hours', 'business_profiles', 'business_team_members',
   'conocimiento_docs', 'coupons', 'courier_locations', 'courier_profiles', 'delivery_zones', 'favorites', 'flota_codigos',
   'flota_intentos', 'internal_config',
-  'marketing_contacts', 'marketing_events', 'marketing_queue', 'messages', 'negocios_recien_llegados', 'notifications', 'order_receipts', 'consultas_telefono',
+  'marketing_contacts', 'marketing_events', 'marketing_queue', 'messages', 'negocios_recien_llegados', 'notifications', 'order_receipts',
   'order_items', 'order_offers', 'orders', 'payment_events', 'payment_methods', 'payments', 'payout_requests',
   'product_categories', 'product_events', 'product_extras', 'product_performance', 'products', 'profiles',
   'push_subscriptions', 'referral_config', 'referrals', 'repartidores_recien_llegados', 'restaurant_plans',
@@ -214,13 +214,9 @@ chequear('NO puede pedir el recibo de un pedido que no es suyo', reciboAjeno.sta
 const recibosAjenos = await http('/rest/v1/order_receipts?select=email&limit=5', hA);
 chequear('NO puede leer los correos de recibos ajenos', filas(recibosAjenos) === 0, `${filas(recibosAjenos)} filas`);
 
-// ¿Este celular ya tiene cuenta?: solo responde sí/no y solo con sesión
-const sinCuentaTel = await http('/rest/v1/rpc/telefono_tiene_cuenta', { metodo: 'POST', ...hA, cuerpo: { p_phone: '+573000000000' } });
-chequear('telefono_tiene_cuenta responde solo sí/no (y un número sin cuenta da no)', sinCuentaTel.status < 300 && sinCuentaTel.data === false, JSON.stringify(sinCuentaTel.data));
-const telSinSesion = await http('/rest/v1/rpc/telefono_tiene_cuenta', { metodo: 'POST', cuerpo: { p_phone: '+573000000000' } });
-chequear('un visitante sin sesión NO puede consultar celulares', bloqueadaRpc(telSinSesion), `HTTP ${telSinSesion.status}`);
-const consultasAjenas = await http('/rest/v1/consultas_telefono?select=user_id&limit=1', hA);
-chequear('nadie lee el registro de consultas de celulares', filas(consultasAjenas) === 0, `${filas(consultasAjenas)} filas`);
+// No hay buscador de celulares registrados (se retiró telefono_tiene_cuenta: todo pedido verifica por SMS)
+const buscador = await http('/rest/v1/rpc/telefono_tiene_cuenta', { metodo: 'POST', ...hA, cuerpo: { p_phone: '+573000000000' } });
+chequear('NO existe una consulta de "¿este celular tiene cuenta?"', buscador.status >= 400, `HTTP ${buscador.status}`);
 
 // La billetera propia no se infla desde el navegador
 const bil = await http(`/rest/v1/wallets?user_id=eq.${A.id}`, { metodo: 'PATCH', ...hA, cuerpo: { credits: 999999, available_withdraw: 999999, cash_owed: 0 }, prefer: 'return=representation' });

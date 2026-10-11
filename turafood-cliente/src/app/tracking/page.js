@@ -23,6 +23,7 @@ import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
 import GuardarCuenta from '../components/GuardarCuenta';
 import ReciboPorCorreo from '../components/ReciboPorCorreo';
+import SeguridadCuenta from '../components/SeguridadCuenta';
 
 /** Pasos del flujo de entrega */
 
@@ -822,6 +823,7 @@ function TrackingPage() {
               {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
               <div style={{ marginTop: 14 }}><ReciboPorCorreo orderId={order?.id} compacto /></div>
               <div style={{ marginTop: 14 }}><GuardarCuenta compacto /></div>
+              <div style={{ marginTop: 14 }}><SeguridadCuenta plano /></div>
             </div>
 
           </div>
@@ -963,6 +965,7 @@ function TrackingPage() {
           {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
           <div style={{ marginTop: 16 }}><ReciboPorCorreo orderId={order?.id} /></div>
           <div style={{ marginTop: 16 }}><GuardarCuenta /></div>
+          <div style={{ marginTop: 16 }}><SeguridadCuenta plano /></div>
 
           {/* Bitácora */}
           <div style={{ marginTop: 20, background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>

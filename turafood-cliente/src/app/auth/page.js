@@ -1,33 +1,37 @@
 'use client';
 
 /**
- * ENTRAR A TURAFOOD
+ * ENTRAR A TURAFOOD — con el celular, como en Uber, Rappi o DiDi
  *
- * Las mismas cuatro puertas que en app.turafood.com, en el mismo
- * orden: Google, Facebook, celular y mirar sin cuenta. Que la pantalla
- * de acceso sea distinta en cada app confunde a quien es cliente y
- * además tiene un negocio — y en Buenaventura eso es media ciudad.
+ * Nadie tiene que registrarse para mirar ni para pedir por primera vez. Esta
+ * pantalla es para quien YA pidió y quiere volver a su cuenta (su historial,
+ * sus direcciones) desde otro celular o después de cerrar sesión:
  *
- * El correo sigue existiendo, un nivel más abajo, para quien ya se
- * registró así o no usa ninguna de las otras.
+ *   1. Escribe su celular.
+ *   2. Entra con un código por SMS (lo normal) o con su contraseña (un atajo
+ *      opcional que puede crear después de entrar).
+ *
+ * Un celular nuevo no necesita "registro": el código crea la cuenta. La
+ * contraseña se ofrece al terminar, sin obligar. Google y Facebook siguen
+ * existiendo, escondidos, para quien ya los usaba.
  *
  * El perfil en `public.profiles` no se crea aquí: lo crea el trigger
- * `handle_new_user()` al insertarse el usuario en `auth.users`, con el
- * rol que viaja en `raw_user_meta_data`. Así no hay dos fuentes de
- * verdad para el mismo dato.
+ * `handle_new_user()` al insertarse el usuario en `auth.users`.
  */
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import HeroBackdrop from '../components/HeroBackdrop';
 import RouteSkeleton from '../components/RouteSkeleton';
 import { GoogleMark, FacebookMark } from '../components/SocialMarks';
-import { enviarCodigo, confirmarCodigo } from '@/lib/cuenta';
+import {
+  enviarCodigo, confirmarCodigo, entrarConContrasena, guardarContrasena, validarContrasena,
+  tieneCelularVerificado, tieneContrasena, CANAL_POR_DEFECTO, MIN_CONTRASENA,
+} from '@/lib/cuenta';
+import { mostrarCelular, normalizarCelularCO } from '@/lib/direcciones.mjs';
 
-// El código llega por WhatsApp o por SMS (Twilio Verify, ver lib/cuenta.js). Si WhatsApp
-// falla se reintenta por SMS y la pantalla dice por cuál canal salió DE VERDAD: prometer
-// WhatsApp y mandar un SMS sería peor que no prometerlo.
+const ESPERA_REENVIO = 45;
 
 export default function AuthPageWrapper() {
   return (
@@ -37,22 +41,47 @@ export default function AuthPageWrapper() {
   );
 }
 
+/** Solo rutas internas: evita que un enlace mande a otro sitio después de entrar */
+const rutaSegura = (n) => (typeof n === 'string' && n.startsWith('/') && !n.startsWith('//') ? n : '/');
+
 function AuthPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const destino = rutaSegura(params.get('next'));
 
-  // choose | phone | otp | email
-  const [mode, setMode] = useState(params.get('mode') === 'email' ? 'email' : 'choose');
-  const [isSignup, setIsSignup] = useState(params.get('mode') === 'signup');
-
+  // telefono | codigo | clave | crear
+  const [paso, setPaso] = useState('telefono');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [envio, setEnvio] = useState(null); // { tel, modo, canal }
-  const [fullName, setFullName] = useState('');
-
+  const [envio, setEnvio] = useState(null);           // { tel, modo, canal }
+  const [password, setPassword] = useState('');
+  const [verClave, setVerClave] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const [notice, setNotice] = useState(null);
+  const [aviso, setAviso] = useState(null);
+  const [espera, setEspera] = useState(0);
+  const cajaCodigo = useRef(null);
+
+  // Quien ya entró no necesita esta pantalla; y el último celular se recuerda
+  useEffect(() => {
+    tieneCelularVerificado().then((v) => { if (v) router.replace(destino); }).catch(() => {});
+    Promise.resolve().then(() => {
+      try {
+        const tel = normalizarCelularCO(localStorage.getItem('turafood_customer_phone'));
+        if (tel) setPhone(tel.replace(/^\+57/, ''));
+      } catch { /* sin almacenamiento */ }
+    });
+    // solo al montar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (espera <= 0) return undefined;
+    const id = setTimeout(() => setEspera((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [espera]);
+
+  useEffect(() => { if (paso === 'codigo') cajaCodigo.current?.focus(); }, [paso]);
 
   const guard = () => {
     if (isConfigured()) return true;
@@ -60,20 +89,22 @@ function AuthPage() {
     return false;
   };
 
-  const enter = () => {
-    router.replace('/');
+  const celularOk = Boolean(normalizarCelularCO(phone));
+  const celularBonito = mostrarCelular(normalizarCelularCO(phone) || phone);
+
+  const entrar = () => {
+    router.replace(destino);
     router.refresh();
   };
 
   const signInWith = async (provider) => {
     setError(null);
     if (!guard()) return;
-
     setBusy(true);
     try {
       const { error: oauthError } = await createClient().auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/` },
+        options: { redirectTo: `${window.location.origin}${destino}` },
       });
       if (oauthError) throw new Error(oauthError.message);
     } catch (err) {
@@ -82,25 +113,25 @@ function AuthPage() {
     }
   };
 
-  const sendOtp = async (e, canal = 'whatsapp') => {
+  /** Manda el código por SMS. Si el celular ya es de una cuenta, se entra a ESA cuenta. */
+  const mandarCodigo = async (e) => {
     e?.preventDefault();
     setError(null);
+    setAviso(null);
     if (!guard()) return;
-
     setBusy(true);
     try {
       let r;
       try {
-        // Si esta sesión es de invitado y el número es nuevo, el celular se vincula a
-        // la MISMA cuenta (no se pierden sus pedidos).
-        r = await enviarCodigo(phone, { canal });
+        r = await enviarCodigo(phone, { canal: CANAL_POR_DEFECTO });
       } catch (err) {
-        // El número ya tiene cuenta: aquí la persona quiere entrar a ella.
-        if (err.message === 'EXISTE') r = await enviarCodigo(phone, { canal, forzarIngreso: true });
+        if (err.message === 'EXISTE') r = await enviarCodigo(phone, { canal: CANAL_POR_DEFECTO, forzarIngreso: true });
         else throw err;
       }
       setEnvio(r);
-      setMode('otp');
+      setOtp('');
+      setEspera(ESPERA_REENVIO);
+      setPaso('codigo');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -108,21 +139,61 @@ function AuthPage() {
     }
   };
 
-  const verifyOtp = async (e) => {
-    e.preventDefault();
+  /** Confirma el código; si la cuenta aún no tiene contraseña se ofrece crearla */
+  const confirmar = async (valor) => {
+    if (busy || !envio) return;
     setError(null);
     setBusy(true);
     try {
-      await confirmarCodigo({ tel: envio.tel, codigo: otp, modo: envio.modo });
-      enter();
+      await confirmarCodigo({ tel: envio.tel, codigo: valor, modo: envio.modo });
+      if (await tieneContrasena()) { entrar(); return; }
+      setPassword('');
+      setPaso('crear');
     } catch (err) {
       setError(err.message);
+      setOtp('');
+      cajaCodigo.current?.focus();
     } finally {
       setBusy(false);
     }
   };
 
+  const alEscribirCodigo = (e) => {
+    const valor = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setOtp(valor);
+    if (valor.length === 6) confirmar(valor);
+  };
 
+  const entrarConClave = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!guard()) return;
+    setBusy(true);
+    try {
+      await entrarConContrasena(phone, password);
+      entrar();
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
+  const crearClave = async (e) => {
+    e.preventDefault();
+    setError(null);
+    const motivo = validarContrasena(password);
+    if (motivo) { setError(motivo); return; }
+    setBusy(true);
+    try {
+      await guardarContrasena(password);
+      entrar();
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  };
+
+  const volverAlTelefono = () => { setPaso('telefono'); setError(null); setAviso(null); setPassword(''); };
 
   return (
     <div style={S.page}>
@@ -137,113 +208,146 @@ function AuthPage() {
               <span style={S.wordmark}>TuraFood</span>
             </div>
 
-            {mode === 'choose' && (
-              <div className="anim-fade">
-                <h1 style={S.title}>Bienvenido de vuelta</h1>
+            {paso === 'telefono' && (
+              <form onSubmit={mandarCodigo} className="anim-fade">
+                <h1 style={S.title}>Entra con tu celular</h1>
                 <p style={S.subtitle}>
-                  Entra para seguir pidiendo en Buenaventura.
+                  Recupera tus pedidos y direcciones en cualquier celular. Si es tu primera vez, se crea tu cuenta sola.
                 </p>
-
-                <div style={S.actions}>
-                  <button onClick={() => signInWith('google')} disabled={busy} className="md3-btn" style={S.white}>
-                    <GoogleMark size={19} />
-                    Continuar con Google
-                  </button>
-
-                  <button onClick={() => signInWith('facebook')} disabled={busy} className="md3-btn" style={S.facebook}>
-                    <FacebookMark size={19} />
-                    Continuar con Facebook
-                  </button>
-
-                  <button onClick={() => setMode('phone')} className="md3-btn" style={S.ghost}>
-                    <span className="ms" style={{ fontSize: 20 }}>sms</span>
-                    Continuar con mi celular
-                  </button>
-                </div>
-
-                {error && <Alert text={error} />}
-
-
-
-                <div style={S.sep}>
-                  <span style={S.sepLine} />
-                  <span style={S.sepText}>O MIRA PRIMERO</span>
-                  <span style={S.sepLine} />
-                </div>
-
-                {/* Siempre visible, y con forma de botón. Antes era un
-                    texto tenue al final: quien no quería dar sus datos
-                    todavía no lo veía y cerraba la app. */}
-                <button onClick={() => router.push('/')} style={S.guestBtn}>
-                  <span className="ms" style={{ fontSize: 19 }}>visibility</span>
-                  Solo estoy mirando
-                </button>
-                <p style={S.guestNote}>
-                  Mira todo el catálogo sin cuenta. Te la pedimos solo al momento de pedir.
-                </p>
-              </div>
-            )}
-
-            {mode === 'phone' && (
-              <form onSubmit={sendOtp} className="anim-up">
-                <BackButton onClick={() => { setMode('choose'); setError(null); }} />
-                <h1 style={S.title}>Tu celular</h1>
-                <p style={S.subtitle}>Te mandamos un código de 6 dígitos por WhatsApp o mensaje de texto.</p>
 
                 <div style={S.phoneRow}>
                   <span style={S.prefix}>+57</span>
                   <input
-                    type="tel" required autoFocus
+                    type="tel" inputMode="tel" autoComplete="tel-national" required autoFocus
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="300 000 0000"
+                    placeholder="300 123 4567" aria-label="Tu celular"
                     style={S.phoneInput}
                   />
                 </div>
 
                 {error && <Alert text={error} />}
 
-                <button
-                  type="submit"
-                  disabled={busy || phone.length < 10}
-                  style={{ ...S.primary, opacity: phone.length < 10 ? 0.5 : 1 }}
-                >
-                  {busy ? 'Enviando…' : 'Recibir código por WhatsApp'}
+                <button type="submit" disabled={busy || !celularOk} style={{ ...S.primary, opacity: busy || !celularOk ? 0.5 : 1 }}>
+                  {busy ? 'Enviando…' : 'Enviarme un código por SMS'}
                 </button>
                 <button
-                  type="button"
-                  disabled={busy || phone.length < 10}
-                  onClick={() => sendOtp(null, 'sms')}
-                  style={{ ...S.ghost, marginTop: 10, opacity: phone.length < 10 ? 0.5 : 1 }}
+                  type="button" disabled={!celularOk}
+                  onClick={() => { setError(null); setPaso('clave'); }}
+                  style={{ ...S.ghost, marginTop: 10, opacity: celularOk ? 1 : 0.5 }}
                 >
-                  Prefiero recibirlo por SMS
+                  <span className="ms" style={{ fontSize: 19 }}>lock</span>
+                  Entrar con mi contraseña
+                </button>
+
+                <div style={S.sep}>
+                  <span style={S.sepLine} />
+                  <span style={S.sepText}>O</span>
+                  <span style={S.sepLine} />
+                </div>
+
+                <button type="button" onClick={() => router.push('/')} style={S.guestBtn}>
+                  <span className="ms" style={{ fontSize: 19 }}>visibility</span>
+                  Solo estoy mirando
+                </button>
+                <p style={S.guestNote}>No necesitas cuenta para mirar ni para pedir la primera vez.</p>
+
+                <details style={S.otras}>
+                  <summary style={S.otrasResumen}>Otras formas de entrar</summary>
+                  <div style={{ ...S.actions, marginTop: 12 }}>
+                    <button type="button" onClick={() => signInWith('google')} disabled={busy} className="md3-btn" style={S.white}>
+                      <GoogleMark size={19} /> Continuar con Google
+                    </button>
+                    <button type="button" onClick={() => signInWith('facebook')} disabled={busy} className="md3-btn" style={S.facebook}>
+                      <FacebookMark size={19} /> Continuar con Facebook
+                    </button>
+                  </div>
+                </details>
+              </form>
+            )}
+
+            {paso === 'codigo' && (
+              <div className="anim-up">
+                <BackButton onClick={volverAlTelefono} />
+                <h1 style={S.title}>Escribe el código</h1>
+                <p style={S.subtitle}>Lo enviamos por SMS al +57 {celularBonito}.</p>
+
+                {aviso && <Notice text={aviso} />}
+
+                <input
+                  ref={cajaCodigo} value={otp} onChange={alEscribirCodigo} disabled={busy}
+                  inputMode="numeric" autoComplete="one-time-code" placeholder="000000" maxLength={6}
+                  aria-label="Código de 6 dígitos" style={S.otp}
+                />
+
+                <div aria-live="polite" style={{ minHeight: 22, marginTop: 12, textAlign: 'center' }}>
+                  {busy ? <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>Verificando…</span>
+                    : error ? <span style={{ fontSize: 13, fontWeight: 700, color: '#FFC7BA' }}>{error}</span> : null}
+                </div>
+
+                <button type="button" disabled={espera > 0 || busy} onClick={() => mandarCodigo()} style={S.enlace}>
+                  {espera > 0 ? `Reenviar código en ${espera} s` : 'Reenviar código'}
+                </button>
+                <button type="button" disabled={busy} onClick={() => { setError(null); setPaso('clave'); }} style={S.enlace}>
+                  Prefiero entrar con mi contraseña
+                </button>
+              </div>
+            )}
+
+            {paso === 'clave' && (
+              <form onSubmit={entrarConClave} className="anim-up">
+                <BackButton onClick={volverAlTelefono} />
+                <h1 style={S.title}>Tu contraseña</h1>
+                <p style={S.subtitle}>Para el +57 {celularBonito}.</p>
+
+                <div style={S.phoneRow}>
+                  <input
+                    type={verClave ? 'text' : 'password'} required autoFocus
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password" placeholder="Contraseña" aria-label="Contraseña"
+                    style={{ ...S.phoneInput, fontSize: 16 }}
+                  />
+                  <button type="button" onClick={() => setVerClave((v) => !v)} aria-label={verClave ? 'Ocultar contraseña' : 'Mostrar contraseña'} style={S.ojo}>
+                    <span className="ms" style={{ fontSize: 20 }}>{verClave ? 'visibility_off' : 'visibility'}</span>
+                  </button>
+                </div>
+
+                {error && <Alert text={error} />}
+
+                <button type="submit" disabled={busy || !password} style={{ ...S.primary, opacity: busy || !password ? 0.5 : 1 }}>
+                  {busy ? 'Entrando…' : 'Entrar'}
+                </button>
+                <button type="button" disabled={busy} onClick={() => { setAviso('Si olvidaste tu contraseña, entra con este código y luego crea una nueva.'); mandarCodigo(); }} style={S.enlace}>
+                  Olvidé mi contraseña · enviarme un código
                 </button>
               </form>
             )}
 
-            {mode === 'otp' && (
-              <form onSubmit={verifyOtp} className="anim-up">
-                <BackButton onClick={() => { setMode('phone'); setError(null); }} />
-                <h1 style={S.title}>Confirma tu número</h1>
-                <p style={S.subtitle}>Escribe el código que enviamos por {envio?.canal === 'sms' ? 'SMS' : 'WhatsApp'} al +57 {phone}.</p>
+            {paso === 'crear' && (
+              <form onSubmit={crearClave} className="anim-up">
+                <h1 style={S.title}>¡Listo, ya entraste!</h1>
+                <p style={S.subtitle}>
+                  Si quieres, crea una contraseña y la próxima vez entras sin esperar el SMS. Es opcional.
+                </p>
 
-                <input
-                  type="text" inputMode="numeric" required autoFocus
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="000000"
-                  style={S.otp}
-                />
+                <div style={S.phoneRow}>
+                  <input
+                    type={verClave ? 'text' : 'password'} autoFocus
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password" placeholder={`Mínimo ${MIN_CONTRASENA} caracteres`} aria-label="Nueva contraseña"
+                    style={{ ...S.phoneInput, fontSize: 16 }}
+                  />
+                  <button type="button" onClick={() => setVerClave((v) => !v)} aria-label={verClave ? 'Ocultar contraseña' : 'Mostrar contraseña'} style={S.ojo}>
+                    <span className="ms" style={{ fontSize: 20 }}>{verClave ? 'visibility_off' : 'visibility'}</span>
+                  </button>
+                </div>
 
                 {error && <Alert text={error} />}
 
-                <button
-                  type="submit"
-                  disabled={busy || otp.length < 6}
-                  style={{ ...S.primary, opacity: otp.length < 6 ? 0.5 : 1 }}
-                >
-                  {busy ? 'Confirmando…' : 'Entrar'}
+                <button type="submit" disabled={busy || password.length < MIN_CONTRASENA} style={{ ...S.primary, opacity: busy || password.length < MIN_CONTRASENA ? 0.5 : 1 }}>
+                  {busy ? 'Guardando…' : 'Guardar contraseña'}
                 </button>
+                <button type="button" disabled={busy} onClick={entrar} style={S.enlace}>Ahora no</button>
               </form>
             )}
 
@@ -271,6 +375,15 @@ function Alert({ text }) {
   return (
     <div style={S.alert}>
       <span className="ms" style={{ fontSize: 18, flex: 'none' }}>error</span>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+function Notice({ text }) {
+  return (
+    <div style={S.notice}>
+      <span className="ms" style={{ fontSize: 18, flex: 'none' }}>info</span>
       <span>{text}</span>
     </div>
   );
@@ -385,6 +498,13 @@ const S = {
     border: '1px solid rgba(255,68,31,.32)', color: '#FFC7BA',
     fontSize: 12.5, fontWeight: 600, lineHeight: 1.45,
   },
+  enlace: {
+    display: 'block', width: '100%', marginTop: 6, padding: '10px 0', background: 'none', border: 'none',
+    fontSize: 13.5, fontWeight: 700, color: 'rgba(255,255,255,.72)', textAlign: 'center', cursor: 'pointer',
+  },
+  ojo: { flex: 'none', width: 36, height: 36, background: 'none', border: 'none', color: 'rgba(255,255,255,.6)', cursor: 'pointer' },
+  otras: { marginTop: 18 },
+  otrasResumen: { cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: 'rgba(255,255,255,.5)', textAlign: 'center', listStyle: 'none' },
   notice: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16, padding: '12px 14px',
     borderRadius: 13, background: 'rgba(255,176,32,.14)',

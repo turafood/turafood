@@ -16,6 +16,7 @@ import { createClient, isConfigured } from '@/utils/supabase/client';
 import { getOrders } from '@/lib/data';
 import { cop, relativeTime } from '@/lib/format';
 import { Cover } from '../components/Media';
+import SeguridadCuenta from '../components/SeguridadCuenta';
 
 const QUICK_TILES = [
   { id: 'orders', icon: 'receipt_long', label: 'Pedidos', href: '/account/orders' },
@@ -141,6 +142,9 @@ export default function AccountPage() {
               </button>
             </div>
           </div>
+
+          {/* Celular verificado y contraseña (como en Uber o Rappi) */}
+          <SeguridadCuenta />
 
           {/* Plan */}
           <button onClick={() => router.push('/plus')} style={S.plusCard}>

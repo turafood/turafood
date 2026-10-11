@@ -19,7 +19,6 @@
 
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import { normalizarCelularCO, codigoValido } from './direcciones.mjs';
-import { esInvitado, asegurarSesion } from './sesion';
 
 /** Canal por defecto: `NEXT_PUBLIC_OTP_CHANNEL=sms` para forzar SMS */
 export const CANAL_POR_DEFECTO = process.env.NEXT_PUBLIC_OTP_CHANNEL === 'sms' ? 'sms' : 'whatsapp';
@@ -54,7 +53,10 @@ export async function enviarCodigo(celular, { canal = CANAL_POR_DEFECTO, forzarI
   if (!isConfigured()) throw new Error('Esta función no está disponible en modo demostración.');
 
   const supabase = createClient();
-  const vincular = !forzarIngreso && await esInvitado();
+  // Con sesión (invitado o cuenta sin celular) el número pasa a ser de ESA misma cuenta;
+  // sin sesión, o para entrar a una cuenta que ya existe, se usa el ingreso por código.
+  const { data: { session } } = await supabase.auth.getSession();
+  const vincular = !forzarIngreso && Boolean(session?.user);
 
   const mandar = async (c) => (vincular
     // `channel` no está en los tipos de updateUser pero GoTrue lo acepta en el cuerpo
@@ -85,34 +87,16 @@ export async function confirmarCodigo({ tel, codigo, modo }) {
 }
 
 /**
- * ¿Hay que verificar el celular ANTES de hacer este pedido?
+ * ¿Hay que verificar el celular antes de hacer el pedido?
  *
- * El primer pedido no pide nada: se crea la cuenta con el nombre y el celular
- * que la persona escribe. Se pide el código cuando:
- *   · ya hizo un pedido antes como invitado (segundo envío), o
- *   · ese celular ya tiene una cuenta verificada (la hizo en otro celular o
- *     navegador): sin el código no se le abre otra cuenta aparte.
- * Quien ya verificó su celular, o entró con otro método, no pasa por aquí.
+ * Sí, siempre que la sesión no tenga ya un celular verificado. Se pide al final,
+ * cuando la persona pulsa "Pedir" (ya eligió todo), y solo una vez por dispositivo:
+ * después la sesión queda verificada. Con eso cada pedido tiene un número real al
+ * que el negocio y el repartidor pueden escribir, y se frenan los pedidos falsos.
  */
-export async function necesitaVerificar(celular) {
-  const tel = normalizarCelularCO(celular);
-  if (!tel || !isConfigured()) return false;
-
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  const u = session?.user;
-  if (u && !u.is_anonymous) return false;          // ya es una cuenta real
-
-  const user = u ?? await asegurarSesion();
-  if (!user) return false;                         // sin sesión no se puede preguntar: el pedido seguirá su curso
-
-  // Segundo envío: ya tiene pedidos con esta cuenta de invitado (RLS: solo ve los suyos)
-  const { count } = await supabase.from('orders').select('id', { count: 'exact', head: true });
-  if ((count ?? 0) > 0) return true;
-
-  // Primer envío desde este navegador, pero ese celular ya es de una cuenta verificada
-  const { data, error } = await supabase.rpc('telefono_tiene_cuenta', { p_phone: tel });
-  return !error && data === true;
+export async function necesitaVerificar() {
+  if (!isConfigured()) return false;                 // demostración sin base: no hay a quién verificar
+  return !(await tieneCelularVerificado());
 }
 
 /** ¿La sesión actual ya tiene un celular verificado? */
@@ -121,4 +105,58 @@ export async function tieneCelularVerificado() {
   const { data: { session } } = await createClient().auth.getSession();
   const u = session?.user;
   return Boolean(u && !u.is_anonymous && u.phone && u.phone_confirmed_at);
+}
+
+// ============================================================
+// CONTRASEÑA (opcional): el celular + contraseña entra sin esperar el SMS.
+// Como en Uber, Rappi o DiDi: lo normal es el código, la contraseña es un atajo.
+// ============================================================
+
+export const MIN_CONTRASENA = 8;
+
+/** null si está bien; si no, el motivo en español */
+export function validarContrasena(p) {
+  const t = String(p ?? '');
+  if (t.length < MIN_CONTRASENA) return `Usa al menos ${MIN_CONTRASENA} caracteres.`;
+  if (/^(.)\1+$/.test(t) || /^(0123456789|1234567890|12345678|87654321)$/.test(t)) return 'Es muy fácil de adivinar. Mezcla letras y números.';
+  return null;
+}
+
+/** Entra con celular + contraseña. El error es el mismo se equivoque lo que se equivoque (no revela qué números tienen cuenta). */
+export async function entrarConContrasena(celular, password) {
+  const tel = normalizarCelularCO(celular);
+  if (!tel) throw new Error('Escribe tu celular con 10 dígitos, por ejemplo 300 123 4567.');
+  if (!isConfigured()) throw new Error('Esta función no está disponible en modo demostración.');
+  const { data, error } = await createClient().auth.signInWithPassword({ phone: tel, password });
+  if (error) {
+    if (/rate limit|too many/i.test(error.message)) throw new Error('Demasiados intentos. Espera un momento o entra con un código por SMS.');
+    throw new Error('El celular o la contraseña no coinciden. Si no la recuerdas, entra con un código por SMS.');
+  }
+  return data.user;
+}
+
+/** Crea o cambia la contraseña de la cuenta (la sesión ya tiene el celular verificado) */
+export async function guardarContrasena(password) {
+  const motivo = validarContrasena(password);
+  if (motivo) throw new Error(motivo);
+  const { error } = await createClient().auth.updateUser({ password, data: { tiene_contrasena: true } });
+  if (error) {
+    if (/different from the old|same password/i.test(error.message)) throw new Error('Elige una contraseña distinta a la que ya tienes.');
+    if (/weak|easy to guess|pwned/i.test(error.message)) throw new Error('Es muy fácil de adivinar. Mezcla letras y números.');
+    if (/session|reauth|jwt/i.test(error.message)) throw new Error('Por seguridad, entra de nuevo con un código y vuelve a intentarlo.');
+    throw new Error('No pudimos guardar la contraseña. Inténtalo de nuevo.');
+  }
+  return true;
+}
+
+/** ¿La cuenta ya tiene contraseña? (se marca al crearla; Supabase no lo expone) */
+export async function tieneContrasena() {
+  if (!isConfigured()) return false;
+  const { data: { session } } = await createClient().auth.getSession();
+  return Boolean(session?.user?.user_metadata?.tiene_contrasena);
+}
+
+export async function cerrarSesion() {
+  if (!isConfigured()) return;
+  await createClient().auth.signOut();
 }

@@ -17,7 +17,7 @@ import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '@/lib/data';
 import AddressSheet from '../components/AddressSheet';
 import VerificarCelular from '../components/VerificarCelular';
-import { necesitaVerificar } from '@/lib/cuenta';
+import { necesitaVerificar, tieneCelularVerificado } from '@/lib/cuenta';
 import { invalidate } from '@/lib/cache';
 import { normalizarCelularCO } from '@/lib/direcciones.mjs';
 import { quote, validateCoupon } from '@/lib/pricing';
@@ -117,6 +117,12 @@ export default function CheckoutPage() {
   // Verificación del celular antes de pedir (segundo envío o número que ya tiene cuenta)
   const [verificarOpen, setVerificarOpen] = useState(false);
   const verificado = useRef(false);
+  const [celularVerificado, setCelularVerificado] = useState(false);
+  useEffect(() => {
+    let vivo = true;
+    tieneCelularVerificado().then((v) => { if (vivo) setCelularVerificado(v); }).catch(() => {});
+    return () => { vivo = false; };
+  }, []);
   const metodoPendiente = useRef(null);
   const [error, setError] = useState(null);
 
@@ -199,6 +205,7 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
    */
   const alVerificar = async ({ cambioDeUsuario }) => {
     verificado.current = true;
+    setCelularVerificado(true);
     setVerificarOpen(false);
     setPlacing(true);
     let nueva;
@@ -237,8 +244,8 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
     setPlacing(true);
     try {
-      // El primer pedido no pide nada; el segundo (o un celular que ya tiene cuenta) pide el código
-      if (!verificado.current && celularOk && await necesitaVerificar(customerPhone)) {
+      // Todo pedido sale con el celular verificado por SMS (una vez por dispositivo)
+      if (!verificado.current && celularOk && await necesitaVerificar()) {
         metodoPendiente.current = methodToUse;
         setPlacing(false);
         setVerificarOpen(true);
@@ -1098,12 +1105,19 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
                     setCustomerPhone(val);
                     try { localStorage.setItem('turafood_customer_phone', val); } catch {}
                   }}
+                  autoComplete="tel-national"
                   style={{
                     flex: 1, height: 42, background: 'none', border: 'none',
                     fontSize: 13.5, color: 'var(--text)', outline: 'none',
                   }}
                 />
+                {celularVerificado && <span className="ms ms-fill" aria-label="Celular verificado" style={{ fontSize: 18, color: 'var(--green)' }}>verified</span>}
               </div>
+              {!celularVerificado && (
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4, marginTop: -2 }}>
+                  Al pedir te enviaremos un código por SMS para confirmar que eres tú. Es solo la primera vez.
+                </div>
+              )}
             </div>
           </div>
 
@@ -1421,10 +1435,13 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
         {verificarOpen && (
           <VerificarCelular
-            open
             celular={customerPhone}
             onVerificado={alVerificar}
             onCerrar={() => setVerificarOpen(false)}
+            onCambiarNumero={() => {
+              setVerificarOpen(false);
+              setTimeout(() => document.querySelector('input[type="tel"]')?.focus(), 80);
+            }}
           />
         )}
 
