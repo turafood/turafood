@@ -1,4 +1,4 @@
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AppShell from "./components/AppShell";
 
@@ -12,6 +12,17 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
   display: "swap",
+});
+
+// Solo la usan la landing y el skin editorial: sin precarga para no
+// descargarla en las pantallas que no la necesitan.
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata = {
@@ -138,7 +149,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" suppressHydrationWarning className={`${jakarta.variable} ${bricolage.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${jakarta.variable} ${bricolage.variable} ${instrument.variable}`}>
       <head>
         <link rel="preconnect" href="https://btaddjjzpvyqltkchqki.supabase.co" />
         <link rel="dns-prefetch" href="https://btaddjjzpvyqltkchqki.supabase.co" />
@@ -146,9 +157,7 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://app.turafood.com" />
         <link rel="dns-prefetch" href="https://app.turafood.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" />
+        <link rel="preload" href="/fonts/material-symbols-rounded.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

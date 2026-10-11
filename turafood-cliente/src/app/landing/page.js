@@ -398,7 +398,7 @@ export default function LandingPage() {
                   <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>4.9</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ fontFamily: 'Bricolage Grotesque', fontWeight: 800, fontSize: 13, color: '#4285F4' }}>G</span>
+                  <span style={{ fontFamily: 'var(--font-bricolage), Bricolage Grotesque', fontWeight: 800, fontSize: 13, color: '#4285F4' }}>G</span>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>
                     {es ? '+189 reseñas en Google' : '+189 Google reviews'}
                   </span>

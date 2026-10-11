@@ -78,3 +78,6 @@ referencia-turamuebles/
 .wrangler/
 .dev.vars
 
+
+# Respaldos de datos de produccion (contienen datos de usuarios)
+turafood-supabase/respaldos/

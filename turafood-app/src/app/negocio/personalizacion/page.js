@@ -115,8 +115,11 @@ export default function PersonalizacionPage() {
   // URLs de demostración con datos base pre-cargados
   const turaMueblesDemoUrl = 'https://turamuebles.pages.dev';
   const turaMueblesLocalDemoUrl = '/demo-turamuebles.html';
-  const turaFoodDemoUrl = `http://localhost:3000/store/asadero-el-puerto?skin=vibrant&accent=${cleanAccent}`;
-  const turaFoodHomeDemoUrl = `http://localhost:3000/home?skin=vibrant&accent=${cleanAccent}`;
+  // La app del cliente: en desarrollo corre en :3000, en producción es turafood.com.
+  // (NODE_ENV se fija en el build, así servidor y navegador coinciden.)
+  const clienteUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://turafood.com';
+  const turaFoodDemoUrl = `${clienteUrl}/store/asadero-el-puerto?skin=vibrant&accent=${cleanAccent}`;
+  const turaFoodHomeDemoUrl = `${clienteUrl}/?skin=vibrant&accent=${cleanAccent}`;
 
   // Iframe dinámico según el simulador
   const iframeSrc = simulatorView === 'editorial'

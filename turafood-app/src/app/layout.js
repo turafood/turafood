@@ -64,17 +64,9 @@ export default function RootLayout({ children }) {
     <html lang="es" className={`${jakarta.variable} ${bricolage.variable} ${instrumentSerif.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: TEMA_INICIAL }} />
-        {/* Los iconos vienen de Google en dos saltos: googleapis
-            entrega la hoja y gstatic el archivo de la fuente. Sin
-            preconnect el navegador descubre el segundo solo cuando ya
-            leyó el primero, y son dos apretones de manos TLS en serie
-            antes de que se vea un solo icono. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&family=Playfair+Display:ital,wght@0,400;0,700;0,800;1,400;1,700&display=block"
-        />
+        {/* Iconos: subconjunto propio alojado aquí (35 KB). Antes venían de
+            Google en una hoja de estilos que bloqueaba el primer pintado. */}
+        <link rel="preload" href="/fonts/material-symbols-rounded.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>{children}</body>
     </html>

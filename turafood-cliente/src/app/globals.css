@@ -236,6 +236,16 @@ textarea {
   50% { box-shadow: 0 4px 16px rgba(255,68,31,0.32); transform: scale(1.02); }
 }
 
+/* Iconos Material Symbols: subconjunto propio (solo los iconos que usa la app), 
+   alojado en nuestro dominio. Antes venian de Google en una hoja que bloqueaba el render. */
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-symbols-rounded.woff2') format('woff2');
+}
+
 /* ------------------------------------------------------------
    Material Symbols — el mockup los usa como font-family directa
    ------------------------------------------------------------ */

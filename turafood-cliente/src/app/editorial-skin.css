@@ -5,7 +5,6 @@
    tipografía híbrida con Instrument Serif itálico y micro-bordes milimétricos.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 /* --- Tokens del Skin Editorial (Modo Claro) --- */
 .skin-editorial,
@@ -44,7 +43,7 @@
   --shadow: 0 0 0 1px rgba(17, 17, 17, 0.05), 0 12px 28px -8px rgba(17, 17, 17, 0.12);
   --shadowLg: 0 20px 48px -12px rgba(17, 17, 17, 0.20);
 
-  --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+  --font-serif: var(--font-instrument), 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
   --ease: cubic-bezier(0.2, 0, 0, 1);
 }
 
