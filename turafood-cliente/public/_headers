@@ -1,0 +1,16 @@
+# Cabeceras de cache para archivos estaticos propios (Cloudflare Workers Assets).
+# Lo que lleva hash (/_next/static) ya viene inmutable desde OpenNext.
+# sw.js y manifest.json NO se tocan: deben revalidarse para que las
+# actualizaciones de la PWA lleguen.
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/img/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/icons/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
