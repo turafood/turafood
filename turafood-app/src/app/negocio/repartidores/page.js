@@ -46,11 +46,14 @@ export default function RepartidoresPage() {
 
   useEffect(() => {
     let vivo = true;
+    const cargarFlota = () => getFlota()
+      .then((f) => { if (vivo) { setFlota(f); setError(null); } })
+      .catch((e) => { if (vivo) { setError(e.message); setFlota((f) => f ?? []); } });
     cargarFlota();
     getCodigoFlota().then((c) => vivo && setCodigo(c)).catch((e) => vivo && setError(e.message));
     const detener = subscribeToFlota(() => { if (vivo) cargarFlota(); });
     return () => { vivo = false; detener(); };
-  }, [cargarFlota]);
+  }, []);
 
   useEffect(() => {
     if (business?.id) getSoloFlotaPropia(business.id).then(setSoloPropia).catch(() => {});

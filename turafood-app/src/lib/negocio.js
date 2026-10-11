@@ -784,6 +784,24 @@ export async function updateBusiness(businessId, patch) {
   return data;
 }
 
+/**
+ * Fija el punto del negocio en el mapa. La base comprueba que esté dentro
+ * de Buenaventura y devuelve la ficha actualizada.
+ */
+export async function fijarUbicacionNegocio({ lat, lng, address, neighborhood }) {
+  if (!isLive()) {
+    await delay(200);
+    Object.assign(LOCAL_BUSINESS, { address, neighborhood, location: { type: 'Point', coordinates: [lng, lat] } });
+    return LOCAL_BUSINESS;
+  }
+
+  const { data, error } = await createClient().rpc('fijar_ubicacion_negocio', {
+    p_lat: lat, p_lng: lng, p_address: address ?? null, p_neighborhood: neighborhood ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return Array.isArray(data) ? data[0] : data;
+}
+
 async function _getDocuments(businessId) {
   if (!isLive()) {
     await delay();

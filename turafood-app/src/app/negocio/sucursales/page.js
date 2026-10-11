@@ -10,9 +10,10 @@
  * nueva hasta que exista el modelo de multisucursal.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cop } from '@/lib/format';
 import TuraMap from '../../components/TuraMap';
+import UbicacionNegocio from '../../components/UbicacionNegocio';
 import Vertical3D, { VERTICAL_TINT } from '../../components/Vertical3D';
 import { useBiz } from '../BizContext';
 import HeaderHero from '../../components/HeaderHero';
@@ -47,10 +48,12 @@ const VERTICAL_LABEL = {
 };
 
 export default function SucursalesPage() {
-  const { business, orders } = useBiz();
+  const { business, orders, refreshBusiness, toast } = useBiz();
+  const [fijando, setFijando] = useState(false);
 
   const st = STATUS[business?.status] ?? STATUS.pending_review;
-  const point = readPoint(business?.location) ?? BUENAVENTURA;
+  const real = readPoint(business?.location);      // null = todavía no la fijó
+  const point = real ?? BUENAVENTURA;
   const vertical = business?.vertical ?? 'restaurant';
 
   const inCourse = useMemo(
@@ -58,7 +61,8 @@ export default function SucursalesPage() {
     [orders],
   );
 
-  const points = business
+  // Sin ubicación fijada no se dibuja ningún punto: antes aparecía el centro de la ciudad como si fuera el local
+  const points = business && real
     ? [{
       lat: point.lat, lng: point.lng, color: st.pin, badge: '1',
       label: `<b>${business.name}</b><br/>${business.address ?? ''}`,
@@ -76,14 +80,32 @@ export default function SucursalesPage() {
         ]}
       />
 
+      {business && !real && (
+        <section role="status" style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', padding: '14px 18px', marginBottom: 14, borderRadius: 16, border: '1px solid var(--primary)', background: 'color-mix(in srgb, var(--primary) 8%, var(--surface))' }}>
+          <span className="ms" style={{ fontSize: 26, color: 'var(--primary)' }}>pin_drop</span>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontWeight: 800, fontSize: 15 }}>Aún no marcas dónde está tu negocio</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>Tus clientes lo verán en el seguimiento y tu repartidor llegará sin perderse.</div>
+          </div>
+          <button onClick={() => setFijando(true)} style={{ height: 44, padding: '0 18px', borderRadius: 12, border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
+            Fijar ubicación
+          </button>
+        </section>
+      )}
+
       {/* Mapa */}
       <section style={S.mapCard}>
         <TuraMap points={points} circles height={280} radius={0} />
         <div style={S.legend}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>my_location</span>
-            <span style={{ fontSize: 12.5, fontWeight: 700 }}>Tu punto en Buenaventura</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700 }}>{real ? 'Tu punto en Buenaventura' : 'Sin ubicación fijada'}</span>
           </span>
+          {business && real && (
+            <button onClick={() => setFijando(true)} style={{ marginLeft: 12, background: 'none', border: 'none', padding: 0, color: 'var(--primary)', fontWeight: 800, fontSize: 12.5, cursor: 'pointer', textDecoration: 'underline' }}>
+              Cambiar
+            </button>
+          )}
           <div style={{ flex: 1 }} />
           {[
             { label: 'Abierta', swatch: 'var(--green)' },
@@ -209,6 +231,12 @@ export default function SucursalesPage() {
           </a>
         </article>
       </div>
+      <UbicacionNegocio
+        open={fijando}
+        onClose={() => setFijando(false)}
+        inicial={real ? { lat: real.lat, lng: real.lng, address: business?.address, neighborhood: business?.neighborhood } : { address: business?.address ?? '', neighborhood: business?.neighborhood ?? '' }}
+        onSaved={() => { toast?.('Ubicación guardada'); refreshBusiness?.(); }}
+      />
     </>
   );
 }

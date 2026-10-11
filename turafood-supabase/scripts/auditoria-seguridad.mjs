@@ -190,7 +190,7 @@ const cod = await http('/rest/v1/rpc/flota_codigo', { metodo: 'POST', ...hR, cue
 chequear('un repartidor NO puede pedir el código de una flota', cod.status >= 400, cod.data?.message ?? `HTTP ${cod.status}`);
 const malo = await http('/rest/v1/rpc/unirse_a_flota', { metodo: 'POST', ...hR, cuerpo: { p_codigo: 'AAAAAA' } });
 chequear('un código inventado no sirve', malo.data?.ok === false, JSON.stringify(malo.data));
-for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores', 'unirse_a_flota']) {
+for (const f of ['flota_codigo', 'flota_nuevo_codigo', 'flota_mis_repartidores', 'unirse_a_flota', 'fijar_ubicacion_negocio']) {
   const r = await http(`/rest/v1/rpc/${f}`, { metodo: 'POST', cuerpo: { p_codigo: 'AAAAAA' } });
   chequear(`un visitante sin sesión NO puede llamar ${f}()`, bloqueadaRpc(r), `HTTP ${r.status}`);
 }
