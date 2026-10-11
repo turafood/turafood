@@ -81,3 +81,6 @@ referencia-turamuebles/
 
 # Respaldos de datos de produccion (contienen datos de usuarios)
 turafood-supabase/respaldos/
+
+# Cuentas de prueba generadas localmente (con contrasenas)
+turafood-supabase/.cuentas-demo*
