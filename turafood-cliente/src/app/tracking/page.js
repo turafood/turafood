@@ -21,9 +21,7 @@ import MapaSeguimiento from '../components/MapaSeguimiento';
 import { pushSupported, activarPush, renovarPush } from '@/lib/push';
 import { useThemeStore } from '@/store/useThemeStore';
 import ComandaTicket from '../components/ComandaTicket';
-import GuardarCuenta from '../components/GuardarCuenta';
-import ReciboPorCorreo from '../components/ReciboPorCorreo';
-import SeguridadCuenta from '../components/SeguridadCuenta';
+import GuardarCuentaMinimalista from '../components/GuardarCuentaMinimalista';
 
 /** Pasos del flujo de entrega */
 
@@ -278,6 +276,7 @@ function TrackingPage() {
   const [pushToast, setPushToast] = useState(null);
   const [notificationsAllowed, setNotificationsAllowed] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [verBitacora, setVerBitacora] = useState(false);
 
   const mapaDesk = useRef(null);
   const mapaMovil = useRef(null);
@@ -818,12 +817,13 @@ function TrackingPage() {
                 onOpenWhatsapp={openRestaurantWhatsapp}
                 onShareWhatsapp={shareTrackingOnWhatsapp}
                 onCenterMap={centerOnCourier}
+                showPin={true}
               />
 
-              {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
-              <div style={{ marginTop: 14 }}><ReciboPorCorreo orderId={order?.id} compacto /></div>
-              <div style={{ marginTop: 14 }}><GuardarCuenta compacto /></div>
-              <div style={{ marginTop: 14 }}><SeguridadCuenta plano /></div>
+              {/* Guardar cuenta y recibo por correo ultra-minimalista estilo Tura Sofa */}
+              <div style={{ marginTop: 14 }}>
+                <GuardarCuentaMinimalista orderId={order?.id} telefonoInicial={order?.customer_phone} />
+              </div>
             </div>
 
           </div>
@@ -953,46 +953,75 @@ function TrackingPage() {
           </div>
 
           {/* TICKET DIGITAL DE COMPRA & COMANDA PRO (MÓVIL) */}
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 18 }}>
             <ComandaTicket
               order={order}
               onOpenWhatsapp={openRestaurantWhatsapp}
               onShareWhatsapp={shareTrackingOnWhatsapp}
               onCenterMap={centerOnCourier}
+              showPin={false}
             />
           </div>
 
-          {/* Pidió sin cuenta: la termina con un código (solo aparece a invitados) */}
-          <div style={{ marginTop: 16 }}><ReciboPorCorreo orderId={order?.id} /></div>
-          <div style={{ marginTop: 16 }}><GuardarCuenta /></div>
-          <div style={{ marginTop: 16 }}><SeguridadCuenta plano /></div>
+          {/* Guardar cuenta y recibo por correo ultra-minimalista estilo Tura Sofa */}
+          <div style={{ marginTop: 16 }}>
+            <GuardarCuentaMinimalista orderId={order?.id} telefonoInicial={order?.customer_phone} />
+          </div>
 
-          {/* Bitácora */}
-          <div style={{ marginTop: 20, background: 'var(--surface)', borderRadius: 20, padding: '16px 20px', boxShadow: '0 4px 16px rgba(0,0,0,.04)' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {log.map((l, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <span style={{
-                    ...S.logDot,
-                    background: l.done ? 'var(--green)' : 'var(--surface2)',
-                    color: l.done ? '#fff' : 'var(--faint)',
-                  }}>
-                    <span className="ms" style={{ fontSize: 16 }}>{l.icon}</span>
-                  </span>
-                  <span style={{ flex: 1 }}>
+          {/* Bitácora / Historial de etapas (Colapsable para no alargar la pantalla) */}
+          <div style={{ marginTop: 16, background: 'var(--surface)', borderRadius: 18, border: '1px solid var(--border)', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,.03)' }}>
+            <button
+              type="button"
+              onClick={() => setVerBitacora((v) => !v)}
+              style={{
+                width: '100%',
+                padding: '13px 16px',
+                background: 'transparent',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                color: 'var(--text)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>history</span>
+                <span style={{ fontSize: 13, fontWeight: 800 }}>Historial de entrega</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', background: 'var(--surface2)', padding: '2px 7px', borderRadius: 6 }}>
+                  {log.filter((l) => l.done).length} de {log.length}
+                </span>
+              </div>
+              <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', transform: verBitacora ? 'rotate(180deg)' : 'none', transition: 'transform .2s ease' }}>
+                expand_more
+              </span>
+            </button>
+            {verBitacora && (
+              <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 14 }}>
+                {log.map((l, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <span style={{
-                      display: 'block', fontWeight: 700, fontSize: 13.5,
-                      color: l.done ? 'var(--text)' : 'var(--muted)',
+                      ...S.logDot,
+                      background: l.done ? 'var(--green)' : 'var(--surface2)',
+                      color: l.done ? '#fff' : 'var(--faint)',
                     }}>
-                      {l.title}
+                      <span className="ms" style={{ fontSize: 16 }}>{l.icon}</span>
                     </span>
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>
-                      {hhmm(l.at)}
+                    <span style={{ flex: 1 }}>
+                      <span style={{
+                        display: 'block', fontWeight: 700, fontSize: 13,
+                        color: l.done ? 'var(--text)' : 'var(--muted)',
+                      }}>
+                        {l.title}
+                      </span>
+                      <span style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
+                        {hhmm(l.at)}
+                      </span>
                     </span>
-                  </span>
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 18 }}>

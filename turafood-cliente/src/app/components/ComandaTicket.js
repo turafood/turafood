@@ -34,6 +34,7 @@ export default function ComandaTicket({
   onOpenWhatsapp,
   onShareWhatsapp,
   onCenterMap,
+  showPin = false,
   className = '',
 }) {
   const [copiedKey, setCopiedKey] = useState(null);
@@ -123,7 +124,7 @@ export default function ComandaTicket({
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {(items.length > 0 ? items : [
-              { name: 'Combo Especial Tura Food', quantity: 1, unit_price: order.total || 25000, notes: '' }
+              { name: 'Ítems del pedido', quantity: 1, unit_price: order.total || 0, notes: '' }
             ]).map((item, idx) => {
               const qty = item.quantity || item.qty || 1;
               const unitPrice = item.unit_price || item.unitPrice || item.price || 0;
@@ -253,20 +254,22 @@ export default function ComandaTicket({
           </div>
         )}
 
-        {/* Código PIN de Seguridad Minimalista */}
-        <div style={{ margin: '0 16px 16px', padding: '10px 14px', background: 'linear-gradient(135deg, #18181B 0%, #27272A 100%)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff' }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '.06em' }}>PIN DE SEGURIDAD PARA ENTREGA</div>
-            <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.85)', marginTop: 1 }}>Díctalo a tu repartidor</div>
+        {/* Código PIN de Seguridad para Entrega (solo si showPin está habilitado) */}
+        {showPin && (
+          <div style={{ margin: '0 16px 16px', padding: '10px 14px', background: 'linear-gradient(135deg, #18181B 0%, #27272A 100%)', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#fff' }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '.06em' }}>PIN DE SEGURIDAD PARA ENTREGA</div>
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.85)', marginTop: 1 }}>Díctalo a tu repartidor al recibir</div>
+            </div>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {String(order?.order_number ?? '').replace(/\D/g, '').slice(-4).padStart(4, '·').split('').map((d, i) => (
+                <span key={i} style={{ width: 24, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, fontFamily: 'monospace' }}>
+                  {d}
+                </span>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 5 }}>
-            {['4', '8', '2', '1'].map((d, i) => (
-              <span key={i} style={{ width: 24, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, fontFamily: 'monospace' }}>
-                {d}
-              </span>
-            ))}
-          </div>
-        </div>
+        )}
 
       </div>
 
