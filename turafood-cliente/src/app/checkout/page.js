@@ -402,7 +402,19 @@ export default function CheckoutPage() {
     <div className="v-checkout">
       {/* Botón Volver y Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-        <button className="co-back" onClick={() => router.push('/cart')} aria-label="Volver a la canasta">
+        <button
+          className="co-back"
+          onClick={() => {
+            if (businessId) {
+              router.push(`/store/${businessId}`);
+            } else if (typeof window !== 'undefined' && window.history.length > 2) {
+              router.back();
+            } else {
+              router.push('/');
+            }
+          }}
+          aria-label="Volver a la tienda"
+        >
           <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
           <span>Volver a la tienda</span>
         </button>

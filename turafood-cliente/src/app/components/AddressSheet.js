@@ -571,8 +571,14 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
                     style={{ ...S.opcion, background: i === sel ? 'var(--surface2)' : 'transparent' }}
                   >
                     <span style={S.opcionIcono}>
-                      <span className="ms" style={{ fontSize: 19, color: s.barrio ? 'var(--amber)' : 'var(--primary)' }}>
-                        {s.barrio ? 'holiday_village' : 'location_on'}
+                      <span
+                        className="ms"
+                        style={{
+                          fontSize: 19,
+                          color: s.hito ? '#FF9800' : s.barrio ? '#3B82F6' : s.via ? '#10B981' : 'var(--primary)',
+                        }}
+                      >
+                        {s.icon || (s.hito ? 'storefront' : s.barrio ? 'holiday_village' : s.via ? 'alt_route' : 'location_on')}
                       </span>
                     </span>
                     <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
