@@ -98,9 +98,11 @@ const MapaSeguimiento = forwardRef(function MapaSeguimiento({ destino, negocio, 
     (async () => {
       const [{ default: L }] = await Promise.all([import('leaflet'), import('leaflet/dist/leaflet.css')]);
       if (!vivo || !el.current || mapa.current) return;
-      LRef.current = L;
       const m = L.map(el.current, { zoomControl: false, attributionControl: false, scrollWheelZoom: true });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(m);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(m);
       m.setView(CENTRO, 14);
       mapa.current = m;
       sincronizar();

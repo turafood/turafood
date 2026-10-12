@@ -1,12 +1,15 @@
 'use client';
 
 /**
- * CONFIRMAR PEDIDO
- * Conversión 1:1 de `isCheckout` (línea 887) del mockup del cliente.
- *
- * El pedido se crea con `placeOrder()`, que llama al RPC del servidor:
- * aquí solo se manda QUÉ se pide, nunca CUÁNTO cuesta. El total que se
- * ve es una estimación para pantalla; el que vale lo devuelve el servidor.
+ * CONFIRMAR PEDIDO — EXPERIENCIA TURA SOFA / TURA MUEBLES 1:1
+ * 
+ * Rediseño exhaustivo mobile-first y desktop fiel al sistema de diseño
+ * de Tura Sofa (PWA Screenshots y Handoff):
+ * - Stepper limpio: (1) Contacto · (2) Entrega · (3) Pago
+ * - Paneles con tarjetas de radio, badges "RECOMENDADO", microcopia clara
+ * - Resumen unificado con líneas mini, desglose y doble acción:
+ *   1) Confirmar pedido directo (App / Supabase)
+ *   2) Pedir por WhatsApp con comanda formateada
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -15,51 +18,34 @@ import { useCartStore } from '@/store/useCartStore';
 import { useThemeStore } from '@/store/useThemeStore';
 import { anotarVarios } from '@/lib/eventos';
 import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '@/lib/data';
+import { detectarUbicacionGPS } from '@/lib/geocoding';
 import AddressSheet from '../components/AddressSheet';
 import VerificarCelular from '../components/VerificarCelular';
 import { necesitaVerificar, tieneCelularVerificado } from '@/lib/cuenta';
 import { invalidate } from '@/lib/cache';
 import { normalizarCelularCO } from '@/lib/direcciones.mjs';
 import { quote, validateCoupon } from '@/lib/pricing';
-import { payForOrder, PAYMENT_METHODS } from '@/services/payment';
 import { cop, deliveryWindow } from '@/lib/format';
 import { comandaWhatsapp, linkWhatsapp } from '@/lib/comandaWhatsapp';
 import PaymentSheet from '../components/PaymentSheet';
 import ScheduleSheet from '../components/ScheduleSheet';
 import { Cover } from '../components/Media';
 
-const ALL_PAYMENT_METHODS = [
-  {
-    id: 'cash',
-    label: 'Efectivo al recibir',
-    subtitle: 'Pagas contraentrega en efectivo al repartidor al recibir tu pedido',
-    icon: 'payments',
-    iconColor: '#FF9800',
-    iconBg: 'rgba(255, 152, 0, 0.12)',
-    badge: 'Sin recargos',
-    badgeColor: '#FF9800',
-  },
-  {
-    id: 'nequi',
-    label: 'Nequi Directo',
-    subtitle: 'Transfiere directo al Nequi del restaurante tras su confirmación previa',
-    icon: 'account_balance_wallet',
-    iconColor: '#7D25E8',
-    iconBg: 'rgba(125, 37, 232, 0.12)',
-    badge: 'Transferencia 0%',
-    badgeColor: '#7D25E8',
-  },
-];
-
-const metodosDelNegocio = (store) => ALL_PAYMENT_METHODS;
-
 const TIPS = [
-  { label: '0', value: 0 },
-  { label: '1k', value: 1000 },
-  { label: '2k', value: 2000 },
-  { label: '3k', value: 3000 },
-  { label: '5k', value: 5000 },
+  { label: 'Sin propina', value: 0, emoji: '🚫' },
+  { label: '$1.000', value: 1000, emoji: '💚' },
+  { label: '$2.000', value: 2000, emoji: '⭐', popular: true },
+  { label: '$3.000', value: 3000, emoji: '🙌' },
+  { label: '$5.000', value: 5000, emoji: '🚀' },
 ];
+
+function WhatsAppIcon({ size = 20, color = 'currentColor' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={{ flex: 'none' }}>
+      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 18.15c-1.49 0-2.94-.4-4.22-1.16l-.3-.18-3.13.82.84-3.05-.2-.32a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.188 8.188 0 012.42 5.83c0 4.55-3.7 8.26-8.23 8.26zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.06 0 1.21.89 2.39 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z" />
+    </svg>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -69,20 +55,13 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
   const businessId = useCartStore((s) => s.businessId);
   const businessName = useCartStore((s) => s.businessName);
-  const businessImage = useCartStore((s) => s.businessImage);
   const subtotal = useCartStore((s) => s.getSubtotal());
-  const toOrderItems = useCartStore((s) => s.toOrderItems);
   const clearCart = useCartStore((s) => s.clearCart);
   const updateQty = useCartStore((s) => s.updateQty);
   const removeLine = useCartStore((s) => s.removeLine);
 
-  const [wizardStep, setWizardStep] = useState(1); // 1: Pedido y Entrega, 2: Método de Pago
   const [store, setStore] = useState(null);
   const [addresses, setAddresses] = useState([]);
-  // Antes esto arrancaba con "Carrera 3 # 4-58, Centro" para todo el mundo y el
-  // botón de pedir lo daba por válido: se podía pedir a una dirección falsa sin
-  // darse cuenta. Ahora la dirección sale SOLO de una dirección guardada con
-  // ubicación (ver AddressSheet).
   const [deliveryInstructionsText, setDeliveryInstructionsText] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -100,29 +79,57 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const [mode, setMode] = useState('delivery');
-  const [payMethod, setPayMethod] = useState('cash');
-  const [payOpen, setPayOpen] = useState(false);
+  const [mode, setMode] = useState('delivery'); // 'delivery' | 'pickup'
+  const [payMethod, setPayMethod] = useState('cash'); // 'cash' | 'nequi'
   const [tip, setTip] = useState(2000);
-  const [when, setWhen] = useState('asap');
+  const [when, setWhen] = useState('asap'); // 'asap' | 'scheduled'
   const [schedule, setSchedule] = useState(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [paySheetOpen, setPaySheetOpen] = useState(false);
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState(null);
   const [couponMsg, setCouponMsg] = useState(null);
+  const [copiado, setCopiado] = useState(false);
 
   const [turbo, setTurbo] = useState(false);
   const [placing, setPlacing] = useState(false);
-  // Verificación del celular antes de pedir (segundo envío o número que ya tiene cuenta)
   const [verificarOpen, setVerificarOpen] = useState(false);
   const verificado = useRef(false);
   const [celularVerificado, setCelularVerificado] = useState(false);
+  const [gpsDetecting, setGpsDetecting] = useState(false);
+
+  const handleQuickGps = async () => {
+    setGpsDetecting(true);
+    setError(null);
+    try {
+      const res = await detectarUbicacionGPS();
+      const nueva = await saveAddress({
+        label: 'Casa',
+        address: res.label || res.address,
+        neighborhood: res.neighborhood,
+        lat: res.lat,
+        lng: res.lng,
+        isDefault: true,
+      });
+      setAddresses([nueva, ...addresses.filter((a) => a.id !== nueva.id)]);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('turafood:address-changed', { detail: nueva }));
+        if ('vibrate' in navigator) navigator.vibrate([30, 60]);
+      }
+    } catch (err) {
+      setError(err.message || 'No se pudo obtener la ubicación GPS.');
+      setAddressOpen(true);
+    } finally {
+      setGpsDetecting(false);
+    }
+  };
+
   useEffect(() => {
     let vivo = true;
     tieneCelularVerificado().then((v) => { if (vivo) setCelularVerificado(v); }).catch(() => {});
     return () => { vivo = false; };
   }, []);
+
   const metodoPendiente = useRef(null);
   const [error, setError] = useState(null);
 
@@ -150,14 +157,14 @@ export default function CheckoutPage() {
     return () => { alive = false; };
   }, [businessId]);
 
-  const metodos = ALL_PAYMENT_METHODS;
-
-  // La dirección de entrega: la predeterminada guardada (con ubicación). Sin
-  // ninguna guardada es null y el checkout pide agregarla.
   const address = addresses.find((a) => a.is_default) ?? addresses[0] ?? null;
   const deliveryAddressText = address?.address ?? '';
   const faltaDireccion = mode === 'delivery' && !address?.id;
-  const celularOk = Boolean(normalizarCelularCO(customerPhone));
+  const celularDigits = customerPhone.replace(/\D/g, '').replace(/^57(?=\d{10}$)/, '');
+  const celularOk = celularDigits.length === 10 || Boolean(normalizarCelularCO(customerPhone));
+  const nameOk = customerName.trim().length >= 3;
+  const dataOk = nameOk && celularOk;
+  const addrOk = mode === 'pickup' || Boolean(address?.id);
 
   const t = quote({
     subtotal,
@@ -168,30 +175,16 @@ export default function CheckoutPage() {
   });
 
   const turaTotal = t.total + (turbo ? 2500 : 0);
-  const otherSubtotal = subtotal * 1.18;
-  const otherDelivery = (store?.delivery_fee ?? 0) + 2500;
-  const otherService = 3900;
-  const otherTotal = otherSubtotal + otherDelivery + otherService;
-  const ahorro = Math.max(0, Math.round(otherTotal - turaTotal));
 
   const falta = items.length === 0
     ? 'Canasta vacía'
-    : faltaDireccion
-      ? 'Agrega dónde te entregamos'
-      : (!customerName.trim() || !customerPhone.trim())
-        ? 'Completa nombre y celular'
-        : !celularOk
-          ? 'Revisa tu celular (10 dígitos, ej. 300 123 4567)'
+    : (!nameOk || !customerPhone.trim())
+      ? 'Completa tu nombre y celular'
+      : !celularOk
+        ? 'Revisa tu celular (10 dígitos, ej. 300 123 4567)'
+        : faltaDireccion
+          ? 'Agrega la dirección de entrega'
           : null;
-
-function WhatsAppIcon({ size = 20, color = '#fff' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={{ flex: 'none' }}>
-      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.698c.969.54 1.861.855 2.796.855 3.18 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm0 10.428c-.838 0-1.637-.238-2.327-.67l-.167-.105-1.733.454.463-1.689-.115-.183c-.477-.759-.728-1.558-.727-2.469.001-2.568 2.09-4.657 4.607-4.657 2.518 0 4.607 2.089 4.607 4.657 0 2.568-2.09 4.657-4.607 4.657zm2.531-3.486c-.139-.069-.823-.406-.95-.452-.128-.046-.221-.069-.315.069-.093.139-.361.452-.443.545-.081.093-.163.104-.302.035-.139-.069-.587-.216-1.118-.689-.413-.368-.692-.823-.773-.962-.081-.139-.009-.214.061-.283.063-.063.139-.163.209-.244.069-.081.093-.139.139-.232.046-.093.023-.174-.012-.244-.035-.069-.315-.758-.431-1.039-.113-.273-.228-.236-.314-.24l-.268-.005c-.093 0-.244.035-.372.174-.128.139-.488.476-.488 1.16 0 .684.499 1.345.569 1.438.069.093.982 1.5 2.378 2.103.332.143.591.229.793.293.333.106.637.091.877.055.267-.04.823-.336.939-.661.116-.325.116-.603.081-.661-.035-.058-.128-.093-.267-.162z"/>
-      <path d="M12.004 2c-5.523 0-10 4.477-10 10 0 1.769.459 3.49 1.332 5.006l-1.336 4.877 5.002-1.312c1.472.803 3.134 1.229 4.824 1.229 5.522 0 10-4.477 10-10s-4.478-10-10.002-10zm0 18.25c-1.503 0-2.977-.406-4.264-1.174l-.306-.182-3.167.83.845-3.088-.199-.317c-.843-1.343-1.288-2.903-1.288-4.519 0-4.549 3.701-8.25 8.252-8.25 4.551 0 8.252 3.701 8.252 8.25s-3.701 8.25-8.252 8.25z"/>
-    </svg>
-  );
-}
 
   const applyCoupon = () => {
     const res = validateCoupon(couponInput, coupons, subtotal);
@@ -199,10 +192,6 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     setCouponMsg(res.message ? { text: res.message, ok: res.ok } : null);
   };
 
-  /**
-   * El código ya se confirmó. Si el celular era de otra cuenta, ahora se está en ESA
-   * cuenta: la dirección de este pedido se guarda en ella y el pedido sigue.
-   */
   const alVerificar = async ({ cambioDeUsuario }) => {
     verificado.current = true;
     setCelularVerificado(true);
@@ -232,7 +221,6 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     const methodToUse = overrideMethod || payMethod || 'cash';
     setError(null);
 
-    // Tras verificar con otra cuenta, la dirección es la que se acaba de guardar en ella
     const addr = opts.address ?? address;
     const addrText = addr?.address ?? deliveryAddressText;
 
@@ -242,9 +230,13 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       return;
     }
 
+    if (!nameOk || !celularOk) {
+      setError('Por favor completa tu nombre y número de celular.');
+      return;
+    }
+
     setPlacing(true);
     try {
-      // Todo pedido sale con el celular verificado por SMS (una vez por dispositivo)
       if (!verificado.current && celularOk && await necesitaVerificar()) {
         metodoPendiente.current = methodToUse;
         setPlacing(false);
@@ -253,12 +245,9 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       }
 
       const finalCustomerName = customerName.trim() || 'Cliente Tura Food';
-      // En formato internacional (+57…): es el mismo número con el que después
-      // verifica su cuenta por código (Twilio Verify).
       const finalCustomerPhone = normalizarCelularCO(customerPhone) || customerPhone.trim();
       const clienteLabel = finalCustomerPhone ? `${finalCustomerName} (${finalCustomerPhone})` : finalCustomerName;
 
-      // 1. El servidor o la base de datos crea y persiste el pedido real
       const order = await placeOrder({
         businessId,
         items: items.map((i) => ({
@@ -297,8 +286,6 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
         notes: i.notes || '',
       }));
 
-      // Sin teléfono del negocio no se abre WhatsApp (el pedido igual llegó por la app). Antes
-      // el respaldo era el número de otro negocio, y la comanda terminaba en un tercero.
       const targetPhone = store?.whatsapp_phone || store?.phone || '';
       const comandaText = comandaWhatsapp(
         {
@@ -325,7 +312,6 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
 
       const whatsappUrl = linkWhatsapp(targetPhone, comandaText);
 
-      // Guardar comanda, orden activa y enlace de WhatsApp para que en /tracking siempre esté disponible
       if (typeof window !== 'undefined') {
         try {
           if (customerName.trim()) localStorage.setItem('turafood_customer_name', customerName.trim());
@@ -342,16 +328,13 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
       anotarVarios(items.map((i) => i.productId), 'purchase');
       clearCart();
 
-      // Vibración háptica suave en móvil
       if (typeof window !== 'undefined' && 'vibrate' in navigator) {
         try { navigator.vibrate([40, 60, 40]); } catch {}
       }
 
-      // 2. Navegar de inmediato a la pantalla de tracking con el ticket generado
       router.push(`/tracking?order=${order?.id || 'current'}`);
 
-      // 3. Abrir WhatsApp por defecto en nueva ventana
-      if (whatsappUrl && typeof window !== 'undefined') {
+      if (overrideMethod === 'whatsapp' && whatsappUrl && typeof window !== 'undefined') {
         setTimeout(() => {
           window.open(whatsappUrl, '_blank');
         }, 200);
@@ -362,6 +345,11 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     }
   };
 
+  const handleWhatsAppDirect = () => {
+    handlePlaceOrder('whatsapp');
+  };
+
+  // Estado Canasta Vacía estilo Tura Sofa
   if (items.length === 0) {
     let lastOrder = null;
     if (typeof window !== 'undefined') {
@@ -372,1231 +360,882 @@ function WhatsAppIcon({ size = 20, color = '#fff' }) {
     }
 
     return (
-      <>
-        <div style={S.empty}>
-          <span className="ms ms-fill" style={{ fontSize: 48, color: 'var(--primary)' }}>
-            {lastOrder ? 'receipt_long' : 'shopping_basket'}
+      <div className="v-checkout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', textAlign: 'center' }}>
+        <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--surface2)', display: 'grid', placeItems: 'center', color: 'var(--primary)', marginBottom: 16 }}>
+          <span className="ms ms-fill" style={{ fontSize: 32 }}>
+            {lastOrder ? 'receipt_long' : 'shopping_bag'}
           </span>
-          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22, marginTop: 14 }}>
-            {lastOrder ? '¡Pedido en curso!' : 'No hay productos en la canasta'}
-          </div>
-          <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6, maxWidth: 300, textAlign: 'center' }}>
-            {lastOrder
-              ? `Tu pedido #${lastOrder.order_number || ''} está registrado. Puedes ver tu pedido y mapa GPS en tiempo real.`
-              : 'Explora nuestros restaurantes en Buenaventura y agrega deliciosos platos.'}
-          </div>
-
-          <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {lastOrder && (
-              <button
-                onClick={() => router.push(`/tracking?order=${lastOrder.id || 'current'}`)}
-                style={{ ...S.emptyBtn, background: 'var(--primary)', color: '#fff', border: 'none' }}
-              >
-                <span className="ms ms-fill" style={{ fontSize: 18 }}>near_me</span>
-                <span>Ver Pedido y GPS</span>
-              </button>
-            )}
-            <button onClick={() => router.push('/')} style={S.emptyBtn}>
-              Ver restaurantes
-            </button>
-          </div>
         </div>
-      </>
+        <h1 className="co-title">
+          {lastOrder ? '¡Pedido en preparación!' : 'Tu canasta está vacía'}
+        </h1>
+        <p style={{ color: 'var(--muted)', fontSize: 14.5, maxWidth: 360, margin: '6px 0 24px', lineHeight: 1.5 }}>
+          {lastOrder
+            ? `Tu pedido #${lastOrder.order_number || ''} está registrado y puedes seguir la ruta del repartidor por GPS.`
+            : 'Explora nuestros restaurantes en Buenaventura y elige tus platos favoritos.'}
+        </p>
+
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {lastOrder && (
+            <button
+              onClick={() => router.push(`/tracking?order=${lastOrder.id || 'current'}`)}
+              className="co-btn-brand"
+              style={{ padding: '0 24px', width: 'auto' }}
+            >
+              <span className="ms ms-fill" style={{ fontSize: 18 }}>near_me</span>
+              <span>Ver Pedido y GPS en Vivo</span>
+            </button>
+          )}
+          <button
+            onClick={() => router.push('/')}
+            className="co-btn-wa"
+            style={{ padding: '0 24px', width: 'auto' }}
+          >
+            Ver restaurantes
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0, position: 'relative' }}>
-        {/* Encabezado y Pasos Centrados y Expandidos en Desktop */}
-        <div className="desktop-only" style={{ width: '100%', maxWidth: 960, margin: '0 auto', padding: '20px 24px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button onClick={() => router.push('/cart')} style={S.backBtn} aria-label="Volver a la canasta">
-                <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
-              </button>
-              <div>
-                <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 24, letterSpacing: '-.02em' }}>
-                  Confirmar pedido
-                </span>
-                <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>
-                  {store?.name ?? 'Cargando negocio…'}
-                </div>
-              </div>
-            </div>
+    <div className="v-checkout">
+      {/* Botón Volver y Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <button className="co-back" onClick={() => router.push('/cart')} aria-label="Volver a la canasta">
+          <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
+          <span>Volver a la tienda</span>
+        </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <button
-                onClick={toggleTheme}
-                style={{
-                  height: 40, width: 40, borderRadius: 12,
-                  background: 'var(--surface)', border: '1px solid var(--border)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
-                  boxShadow: 'var(--shadowSm)',
-                }}
-                title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-                aria-label="Cambiar tema"
-              >
-                <span className="ms" style={{ fontSize: 20 }}>
-                  {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-                </span>
-              </button>
-            </div>
-          </div>
+        <button
+          onClick={toggleTheme}
+          style={{
+            height: 38, width: 38, borderRadius: 12,
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
+            boxShadow: 'var(--shadowSm)',
+          }}
+          title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+          aria-label="Cambiar tema"
+        >
+          <span className="ms" style={{ fontSize: 19 }}>
+            {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+          </span>
+        </button>
+      </div>
+
+      <h1 className="co-title">Finalizar pedido</h1>
+      {store?.name && (
+        <div style={{ fontSize: 13.5, color: 'var(--muted)', fontWeight: 600, marginTop: -2, marginBottom: 12 }}>
+          {store.name}
         </div>
+      )}
 
-        {/* ============================================================
-            VISTA DESKTOP EXPANDIDA: 1 SOLO CHECKOUT DIRECTO (2 COLUMNAS)
-            ============================================================ */}
-        <div className="desktop-only sc" style={{ flex: 1, overflowY: 'auto', padding: '12px 24px 60px', minHeight: 0, width: '100%', maxWidth: 1040, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 24, alignItems: 'start' }}>
-            
-            {/* COLUMNA IZQUIERDA: INFORMACIÓN ESENCIAL COMPLETA */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              
-              {/* 1. SECCIÓN: PRODUCTOS EN TU CANASTA */}
-              <div style={{ ...S.card, padding: 22 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>shopping_bag</span>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--text)' }}>
-                      Productos ({items.length})
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>{store?.name || businessName}</span>
-                    <button
-                      onClick={() => clearCart()}
-                      style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}
-                      title="Vaciar toda la canasta"
-                    >
-                      Vaciar
-                    </button>
-                  </div>
-                </div>
+      {/* Stepper Pro 1:1 de Tura Sofa: ❶ Entrega — ❷ Pago — 3 Confirmación */}
+      <ol className="co-stepper">
+        <li className={dataOk && addrOk ? 'on done' : 'on'}>
+          <span className="st-n">
+            {dataOk && addrOk ? <span className="ms ms-fill" style={{ fontSize: 14 }}>check</span> : 1}
+          </span>
+          <span>Entrega</span>
+        </li>
+        <li className={dataOk && addrOk ? 'on' : ''}>
+          <span className="st-n">2</span>
+          <span>Pago</span>
+        </li>
+        <li>
+          <span className="st-n">3</span>
+          <span>Confirmación</span>
+        </li>
+      </ol>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {items.map((it, idx) => {
-                    const lId = it.lineId || it.productId || it.id || `item-${idx}`;
-                    return (
-                      <div key={lId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, paddingBottom: 14, borderBottom: '1px solid var(--border)' }}>
-                        <Cover
-                          src={it.image_url || it.image}
-                          alt={it.name}
-                          radius={14}
-                          sizes="58px"
-                          style={{ width: 56, height: 56, flex: 'none' }}
-                        />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>{it.name}</div>
-                          {it.opts && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{it.opts}</div>}
-                          <div style={{ fontSize: 14.5, fontWeight: 900, color: 'var(--text)', marginTop: 4, fontFamily: 'var(--font-bricolage)' }}>
-                            {cop((it.unitPrice || it.basePrice || it.price || 0) * it.qty)}
-                          </div>
-                        </div>
+      {/* Layout Principal: Dos columnas en Desktop, flujo continuo en Móvil */}
+      <div className="co-layout">
+        
+        {/* COLUMNA PRINCIPAL */}
+        <div className="co-main">
 
-                        {/* Selector de cantidad interactivo estilo Canasta */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--surface2)', borderRadius: 99, padding: '3px 6px', border: '1px solid var(--border)' }}>
-                          <button
-                            onClick={() => (it.qty === 1 ? removeLine(lId) : updateQty(lId, it.qty - 1))}
-                            style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: it.qty === 1 ? '#EF4444' : 'var(--text)' }}
-                            aria-label={it.qty === 1 ? 'Eliminar' : 'Restar'}
-                          >
-                            <span className="ms" style={{ fontSize: 17 }}>{it.qty === 1 ? 'delete' : 'remove'}</span>
-                          </button>
-                          <span style={{ fontSize: 13.5, fontWeight: 800, minWidth: 20, textAlign: 'center', color: 'var(--text)' }}>{it.qty}</span>
-                          <button
-                            onClick={() => updateQty(lId, it.qty + 1)}
-                            style={{ width: 28, height: 28, borderRadius: '50%', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--primary)' }}
-                            aria-label="Sumar"
-                          >
-                            <span className="ms" style={{ fontSize: 17 }}>add</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. PRIORIDAD TURBO INTERACTIVA */}
-              <div
-                onClick={() => setTurbo(!turbo)}
-                style={{
-                  ...S.card,
-                  padding: '14px 18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                  border: turbo ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                  background: turbo ? 'rgba(255,68,31,0.04)' : 'var(--surface)',
-                  transition: 'all .18s ease',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 38, height: 38, borderRadius: 12,
-                    background: turbo ? 'linear-gradient(135deg, #FF441F, #E2360F)' : 'var(--surface2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: turbo ? '#fff' : 'var(--amber)', flex: 'none',
-                  }}>
-                    <span className="ms ms-fill" style={{ fontSize: 20 }}>bolt</span>
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>Prioridad Turbo</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>Prepáralo y envíalo primero en Buenaventura</div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontWeight: 800, fontSize: 13.5, color: 'var(--primary)' }}>+ $2.500</span>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: '50%',
-                    border: turbo ? '6px solid var(--primary)' : '2px solid var(--border)',
-                    background: turbo ? '#fff' : 'transparent',
-                    transition: 'all .15s ease',
-                  }} />
-                </div>
-              </div>
-
-              {/* 3. BANNER DE AHORRO TURAFOOD (OBSIDIAN VERDE ESMERALDA) */}
-              <div style={{
-                borderRadius: 20,
-                background: 'linear-gradient(135deg, #0A1F18 0%, #05140F 100%)',
-                border: '1px solid rgba(16,185,129,0.22)',
-                padding: '16px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
-              }}>
-                <div style={{
-                  width: 42, height: 42, borderRadius: 12,
-                  background: 'rgba(16,185,129,0.18)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'var(--green)', flex: 'none',
-                }}>
-                  <span className="ms" style={{ fontSize: 24 }}>savings</span>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--green)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
-                    MES DE LANZAMIENTO TURAFOOD
-                  </div>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: '#fff', marginTop: 2 }}>
-                    Estás ahorrando {cop(ahorro > 0 ? ahorro : 9342)}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 1 }}>
-                    En otras apps pagarías {cop(turaTotal + (ahorro > 0 ? ahorro : 9342))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 4. DIRECCIÓN DE ENTREGA O PUNTO DE RECOGIDA */}
-              <div style={{ ...S.card, padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>
-                      {mode === 'delivery' ? 'location_on' : 'storefront'}
-                    </span>
-                    <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5 }}>
-                      {mode === 'delivery' ? 'Dirección de Entrega' : 'Punto de Recogida en Tienda'}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 10, padding: 3, gap: 4 }}>
-                    {[
-                      { id: 'delivery', label: 'Domicilio', icon: 'electric_moped' },
-                      { id: 'pickup', label: 'Recoger', icon: 'storefront' },
-                    ].map((m) => {
-                      const active = mode === m.id;
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setMode(m.id)}
-                          style={{
-                            height: 28, padding: '0 10px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                            display: 'flex', alignItems: 'center', gap: 5,
-                            background: active ? 'var(--primary)' : 'transparent',
-                            color: active ? '#fff' : 'var(--muted)',
-                            cursor: 'pointer', border: 'none', transition: 'all .15s',
-                          }}
-                        >
-                          <span className="ms" style={{ fontSize: 15 }}>{m.icon}</span>
-                          {m.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {mode === 'delivery' ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {/* La dirección se elige en el mismo selector del celular: escribir,
-                        elegir sugerencia, ajustar el pin. Nada de texto libre sin ubicación. */}
-                    <button
-                      onClick={() => setAddressOpen(true)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left',
-                        padding: '10px 12px', borderRadius: 12, cursor: 'pointer',
-                        background: faltaDireccion ? 'var(--primary-tint)' : 'var(--surface2)',
-                        border: faltaDireccion ? '1.5px dashed var(--primary)' : '1px solid var(--border)',
-                      }}
-                    >
-                      <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--primary)' }}>
-                        {faltaDireccion ? 'add_location_alt' : 'location_on'}
-                      </span>
-                      <span style={{ flex: 1, minWidth: 0 }}>
-                        <span className="tr1" style={{ display: 'block', fontSize: 13.5, fontWeight: 800 }}>
-                          {faltaDireccion ? 'Agrega dónde te entregamos' : address.address}
-                        </span>
-                        <span className="tr1" style={{ display: 'block', fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
-                          {faltaDireccion
-                            ? 'Escribe tu dirección o usa tu ubicación'
-                            : [address.label, address.detail].filter(Boolean).join(' · ') || 'Toca para cambiarla'}
-                        </span>
-                      </span>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary)', flex: 'none' }}>
-                        {faltaDireccion ? 'Agregar' : 'Cambiar'}
-                      </span>
-                    </button>
-
-                    <input
-                      value={deliveryInstructionsText}
-                      onChange={(e) => setDeliveryInstructionsText(e.target.value)}
-                      placeholder="Indicaciones para el repartidor (opcional, ej. casa blanca timbre 201)"
-                      style={{
-                        width: '100%', height: 38, borderRadius: 10, padding: '0 12px',
-                        border: '1px solid var(--border)', background: 'var(--surface2)',
-                        fontSize: 12.5, color: 'var(--text)', outline: 'none',
-                      }}
-                    />
-
-                    {/* Datos de contacto / Cuenta por defecto */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      <div style={{ position: 'relative' }}>
-                        <span className="ms" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--muted)' }}>person</span>
-                        <input
-                          value={customerName}
-                          onChange={(e) => setCustomerName(e.target.value)}
-                          placeholder="Tu nombre"
-                          style={{
-                            width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
-                            border: '1px solid var(--border)', background: 'var(--surface2)',
-                            fontSize: 12.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
-                          }}
-                        />
-                      </div>
-                      <div style={{ position: 'relative' }}>
-                        <span className="ms" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--muted)' }}>call</span>
-                        <input
-                          value={customerPhone}
-                          onChange={(e) => setCustomerPhone(e.target.value)}
-                          placeholder="Celular (300 123 4567)"
-                          style={{
-                            width: '100%', height: 38, borderRadius: 10, padding: '0 10px 0 32px',
-                            border: '1px solid var(--border)', background: 'var(--surface2)',
-                            fontSize: 12.5, color: 'var(--text)', outline: 'none', fontWeight: 600,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Hora estimada */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700 }}>
-                        <span className="ms" style={{ fontSize: 17, color: 'var(--primary)' }}>schedule</span>
-                        <span>{when === 'asap' ? `Hoy, ${deliveryWindow(store?.prep_time_min ?? 20)}` : schedule?.label ?? 'Programado'}</span>
-                        <span style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--green)', background: 'rgba(16,185,129,0.12)', padding: '2px 6px', borderRadius: 999 }}>En vivo</span>
-                      </div>
-                      <button
-                        onClick={() => (when === 'asap' ? setScheduleOpen(true) : setWhen('asap'))}
-                        style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                      >
-                        {when === 'asap' ? 'Programar hora' : 'Lo antes posible'}
-                      </button>
-                    </div>
-
-                    {/* Propina para el Repartidor Minimalista */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, color: 'var(--text)' }}>
-                        <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>volunteer_activism</span>
-                        <span>Propina repartidor</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 3, background: 'var(--surface2)', padding: 3, borderRadius: 10, border: '1px solid var(--border)' }}>
-                        {TIPS.map((tp) => {
-                          const active = tip === tp.value;
-                          return (
-                            <button
-                              key={tp.label}
-                              onClick={() => setTip(tp.value)}
-                              style={{
-                                padding: '4px 10px', borderRadius: 7, fontSize: 11.5, fontWeight: 800,
-                                background: active ? 'var(--primary)' : 'transparent',
-                                color: active ? '#fff' : 'var(--muted)',
-                                border: 'none',
-                                cursor: 'pointer', transition: 'all .12s ease',
-                              }}
-                            >
-                              {tp.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                  </div>
-                ) : (
-                  /* VISTA RECOGER EN TIENDA */
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {/* Tarjeta del Local Comercial */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '12px 14px', borderRadius: 12,
-                      background: 'var(--surface2)', border: '1px solid var(--border)',
-                      gap: 12,
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {store?.cover_url && (
-                          <Cover src={store.cover_url} alt={store.name} radius={10} sizes="44px" style={{ width: 44, height: 44, flex: 'none' }} />
-                        )}
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>
-                            {store?.name || businessName || 'Restaurante TuraFood'}
-                          </div>
-                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <span className="ms" style={{ fontSize: 15, color: 'var(--primary)' }}>location_on</span>
-                            <span>{store?.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((store?.name || '') + ' ' + (store?.address || 'Buenaventura'))}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          padding: '6px 12px', borderRadius: 99, background: 'var(--surface)',
-                          border: '1px solid var(--border)', fontSize: 11.5, fontWeight: 800,
-                          color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, flex: 'none',
-                        }}
-                      >
-                        <span className="ms" style={{ fontSize: 15 }}>map</span>
-                        <span>Ver mapa</span>
-                      </a>
-                    </div>
-
-                    {/* Horarios y Tiempo de Preparación */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      <div style={{ padding: '9px 12px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)' }}>Tiempo de preparación</div>
-                        <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--green)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span className="ms" style={{ fontSize: 16 }}>timer</span>
-                          <span>Listo en ~{store?.prep_time_min ?? 20} min</span>
-                        </div>
-                      </div>
-
-                      <div style={{ padding: '9px 12px', borderRadius: 10, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)' }}>Horario del local</div>
-                        <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>store</span>
-                          <span>Abierto hasta 10:00 p.m.</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Pasos / Instrucciones para Recoger */}
-                    <div style={{
-                      padding: '12px 14px', borderRadius: 12,
-                      background: 'linear-gradient(135deg, rgba(255,107,0,0.06) 0%, rgba(255,107,0,0.01) 100%)',
-                      border: '1px solid rgba(255,107,0,0.2)',
-                    }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--primary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <span className="ms" style={{ fontSize: 16 }}>info</span>
-                        <span>INSTRUCCIONES PARA RECOGER EN TIENDA</span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 11.5, color: 'var(--text)', lineHeight: 1.35 }}>
-                        <div><b>1.</b> Envía tu pedido por WhatsApp para que la cocina empiece a preparar tu orden.</div>
-                        <div><b>2.</b> Acércate al restaurante en la dirección indicada y menciona tu nombre.</div>
-                        <div><b>3.</b> ¡Pagas en caja (o con tu transferencia Nequi) y te entregan tu comida sin filas!</div>
-                      </div>
-                    </div>
-
-                    {/* Badge de Beneficio */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 11px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, border: '1px solid rgba(16,185,129,0.15)' }}>
-                      <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)' }}>savings</span>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--green)' }}>
-                        ¡Ahorras el 100% del costo de domicilio al recoger directamente en la tienda!
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* COLUMNA DERECHA: RESUMEN DE COMPRA + CUPÓN + MÉTODO DE PAGO + BOTÓN WHATSAPP (STICKY) */}
-            <div style={{ position: 'sticky', top: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ ...S.card, padding: 22, boxShadow: '0 12px 36px rgba(0,0,0,0.06)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
-                  {store?.cover_url && (
-                    <Cover src={store.cover_url} alt={store.name} radius={12} sizes="48px" style={{ width: 48, height: 48, flex: 'none' }} />
-                  )}
-                  <div>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>RESUMEN DE COMPRA</div>
-                    <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, marginTop: 1 }}>{store?.name || businessName}</div>
-                  </div>
-                </div>
-
-                {/* Desglose Financiero */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 14 }}>
-                  <Row label="Subtotal productos" value={cop(t.subtotal)} />
-                  {mode === 'delivery' && (
-                    <Row label="Envío estimado" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0} />
-                  )}
-                  <Row label="Tarifa de servicio" value={cop(t.service)} />
-                  {turbo && <Row label="Prioridad Turbo (⚡)" value={cop(2500)} />}
-                  {t.tip > 0 && <Row label="Propina repartidor" value={cop(t.tip)} />}
-                  {t.discount > 0 && <Row label="Descuento cupón" value={`− ${cop(t.discount)}`} green />}
-                </div>
-
-                {/* Cupón Promocional Minimalista */}
-                <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
-                  <input
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
-                    placeholder="Código de cupón o descuento..."
-                    style={{
-                      ...S.couponInput, height: 34, fontSize: 12, padding: '0 10px',
-                      borderRadius: 10, background: 'var(--surface2)', flex: 1,
-                    }}
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    style={{
-                      ...S.couponBtn, height: 34, fontSize: 12, padding: '0 14px',
-                      borderRadius: 10, flex: 'none',
-                    }}
-                  >
-                    Aplicar
-                  </button>
-                </div>
-
-                {/* MÉTODO DE PAGO INTEGRADO Y MINIMALISTA */}
-                <div style={{
-                  padding: '12px 14px', borderRadius: 14,
-                  background: 'var(--surface2)', border: '1px solid var(--border)',
-                  marginBottom: 14,
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.04em', textTransform: 'uppercase' }}>
-                      Método de Pago
-                    </span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)' }}>
-                      {payMethod === 'cash' ? '💵 Efectivo' : '🟣 Nequi'}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {[
-                      { id: 'cash', label: 'Efectivo', icon: 'payments', iconColor: '#FF9800', badge: 'Al recibir' },
-                      { id: 'nequi', label: 'Nequi', icon: 'account_balance_wallet', iconColor: '#7D25E8', badge: 'Directo' },
-                    ].map((m) => {
-                      const on = payMethod === m.id;
-                      return (
-                        <button
-                          key={m.id}
-                          onClick={() => setPayMethod(m.id)}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 8,
-                            padding: '8px 10px', borderRadius: 10,
-                            background: on ? 'var(--surface)' : 'transparent',
-                            border: on ? '2px solid var(--green)' : '1px solid var(--border)',
-                            cursor: 'pointer', transition: 'all .15s ease',
-                            boxShadow: on ? '0 2px 8px rgba(16,185,129,0.14)' : 'none',
-                          }}
-                        >
-                          <span className="ms" style={{ fontSize: 18, color: m.iconColor, flex: 'none' }}>{m.icon}</span>
-                          <div style={{ textAlign: 'left', minWidth: 0, flex: 1 }}>
-                            <div style={{ fontWeight: 800, fontSize: 12.5, color: 'var(--text)', lineHeight: 1.2 }}>{m.label}</div>
-                            <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{m.badge}</div>
-                          </div>
-                          {on && <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)', flex: 'none' }}>check_circle</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Total Destacado en Grande */}
-                <div style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 16px', borderRadius: 14, marginBottom: 12,
-                  background: 'linear-gradient(135deg, rgba(37,211,102,0.08), rgba(37,211,102,0.02))',
-                  border: '1px solid rgba(37,211,102,0.22)',
-                }}>
-                  <span style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--text)' }}>Total</span>
-                  <span style={{ fontSize: 24, fontWeight: 900, fontFamily: 'var(--font-bricolage)', color: 'var(--green)' }}>
-                    {cop(turaTotal)}
-                  </span>
-                </div>
-
-                {/* Badge de Compra Mínima */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 11px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, marginBottom: 14, border: '1px solid rgba(16,185,129,0.15)' }}>
-                  <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--green)' }}>check_circle</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)' }}>Completaste el mínimo de compra</span>
-                </div>
-
-                {/* Botón Principal VERDE WhatsApp */}
-                <button
-                  onClick={() => handlePlaceOrder(payMethod)}
-                  disabled={placing || Boolean(falta && !faltaDireccion)}
-                  style={{
-                    width: '100%', height: 52, borderRadius: 16,
-                    background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
-                    color: '#fff', fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    opacity: falta && !faltaDireccion ? 0.55 : 1,
-                    border: 'none',
-                    boxShadow: '0 8px 24px rgba(37,211,102,0.35)',
-                    transition: 'all .15s ease',
-                  }}
-                >
-                  <WhatsAppIcon size={21} />
-                  <span>{placing ? 'Enviando Pedido...' : (falta ?? `Pedir por WhatsApp · ${cop(turaTotal)}`)}</span>
-                </button>
-              </div>
-
-              {/* Insignia de Seguridad TuraFood */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: 'var(--surface)', borderRadius: 14, border: '1px solid var(--border)' }}>
-                <span className="ms" style={{ fontSize: 20, color: 'var(--green)' }}>shield</span>
-                <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>
-                  Pedido 100% protegido y respaldado por <b>Tura Food AI</b>.
-                </span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* ============================================================
-            VISTA MÓVIL: FLUJO CONTINUO ORIGINAL 100% INTOCADO
-            ============================================================ */}
-        <div className="mobile-only" style={{ flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px 10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button onClick={() => router.push('/cart')} style={S.backBtn} aria-label="Volver">
-              <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
-            </button>
-            <div>
-              <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18 }}>
-                Confirmar pedido
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
-                {store?.name}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={toggleTheme}
-            style={{
-              height: 38, width: 38, borderRadius: 12,
-              background: 'var(--surface)', border: '1px solid var(--border)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: theme === 'dark' ? '#FFB800' : 'var(--text)',
-              boxShadow: 'var(--shadowSm)',
-            }}
-            title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-            aria-label="Cambiar tema"
-          >
-            <span className="ms" style={{ fontSize: 19 }}>
-              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-          </button>
-        </div>
-
-        <div className="mobile-only sc" style={{ flex: 1, overflowY: 'auto', padding: '6px 20px 140px', minHeight: 0 }}>
-          {/* Stepper Inspirado en Tura Muebles: 1. Contacto · 2. Entrega · 3. Pago */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 4px 14px', gap: 6 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-              <span style={{
-                width: 22, height: 22, borderRadius: '50%',
-                background: customerName.trim() && customerPhone.trim() ? 'var(--green)' : 'var(--primary)',
-                color: '#fff', fontSize: 11, fontWeight: 800,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-              }}>
-                {customerName.trim() && customerPhone.trim() ? <span className="ms" style={{ fontSize: 14 }}>check</span> : 1}
+          {/* ========================================================
+              PANEL 1: DATOS DE ENTREGA Y CONTACTO (Minimalista & PRO)
+              ======================================================== */}
+          <section className="co-panel">
+            <header className="ckp-h" style={{ marginBottom: 16 }}>
+              <span className={'ckp-n' + (dataOk && addrOk ? ' ok' : '')}>
+                {dataOk && addrOk ? <span className="ms ms-fill" style={{ fontSize: 18 }}>check</span> : 1}
               </span>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text)' }}>Contacto</span>
-            </div>
-
-            <span style={{ width: 14, height: 1, background: 'var(--border)' }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-              <span style={{
-                width: 22, height: 22, borderRadius: '50%',
-                background: (mode === 'pickup' || deliveryAddressText.trim()) ? 'var(--green)' : 'var(--surface2)',
-                color: (mode === 'pickup' || deliveryAddressText.trim()) ? '#fff' : 'var(--muted)', fontSize: 11, fontWeight: 800,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-                border: (mode === 'pickup' || deliveryAddressText.trim()) ? 'none' : '1px solid var(--border)',
-              }}>
-                {(mode === 'pickup' || deliveryAddressText.trim()) ? <span className="ms" style={{ fontSize: 14 }}>check</span> : 2}
-              </span>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: (mode === 'pickup' || deliveryAddressText.trim()) ? 'var(--text)' : 'var(--muted)' }}>Entrega</span>
-            </div>
-
-            <span style={{ width: 14, height: 1, background: 'var(--border)' }} />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
-              <span style={{
-                width: 22, height: 22, borderRadius: '50%',
-                background: 'var(--surface2)', color: 'var(--muted)', fontSize: 11, fontWeight: 800,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-                border: '1px solid var(--border)',
-              }}>
-                3
-              </span>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)' }}>Pago</span>
-            </div>
-          </div>
-
-          {/* 1. Paso: Datos de Contacto (Nombre + Celular WhatsApp) */}
-          <div style={{ ...S.card, padding: '14px 16px', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>person</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--text)', letterSpacing: '.04em', textTransform: 'uppercase' }}>
-                  1. Tus Datos de Contacto
-                </span>
+              <div className="ckp-h-text">
+                <h2>Datos de entrega</h2>
+                <p>Indica la dirección y tus datos de contacto en Buenaventura.</p>
               </div>
-              {customerName.trim() && customerPhone.trim() && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--green)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <span className="ms ms-fill" style={{ fontSize: 14 }}>check_circle</span> Listo
-                </span>
-              )}
-            </div>
+            </header>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface2)', borderRadius: 12, padding: '0 12px', border: '1px solid var(--border)' }}>
-                <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>badge</span>
-                <input
-                  type="text"
-                  placeholder="Tu nombre completo"
-                  value={customerName}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setCustomerName(val);
-                    try { localStorage.setItem('turafood_customer_name', val); } catch {}
-                  }}
-                  style={{
-                    flex: 1, height: 42, background: 'none', border: 'none',
-                    fontSize: 13.5, color: 'var(--text)', outline: 'none',
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface2)', borderRadius: 12, padding: '0 12px', border: '1px solid var(--border)' }}>
-                <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>call</span>
-                <input
-                  type="tel"
-                  placeholder="Tu celular (WhatsApp)"
-                  value={customerPhone}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setCustomerPhone(val);
-                    try { localStorage.setItem('turafood_customer_phone', val); } catch {}
-                  }}
-                  autoComplete="tel-national"
-                  style={{
-                    flex: 1, height: 42, background: 'none', border: 'none',
-                    fontSize: 13.5, color: 'var(--text)', outline: 'none',
-                  }}
-                />
-                {celularVerificado && <span className="ms ms-fill" aria-label="Celular verificado" style={{ fontSize: 18, color: 'var(--green)' }}>verified</span>}
-              </div>
-              {!celularVerificado && (
-                <div style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4, marginTop: -2 }}>
-                  Al pedir te enviaremos un código por SMS para confirmar que eres tú. Es solo la primera vez.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Domicilio / Recoger */}
-          <div style={{ display: 'flex', background: 'var(--surface2)', borderRadius: 14, padding: 4, gap: 4, marginBottom: 12 }}>
-            {[
-              { id: 'delivery', label: 'Domicilio', icon: 'electric_moped' },
-              { id: 'pickup', label: 'Recoger', icon: 'storefront' },
-            ].map((m) => {
-              const active = mode === m.id;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setMode(m.id)}
-                  style={{
-                    flex: 1, height: 42, borderRadius: 11, fontSize: 13.5, fontWeight: 700,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    background: active ? 'var(--text)' : 'transparent',
-                    color: active ? '#fff' : 'var(--muted)',
-                  }}
-                >
-                  <span className="ms" style={{ fontSize: 18 }}>{m.icon}</span>
-                  {m.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Dirección / pago / entrega */}
-          <div style={S.card}>
-            {mode === 'delivery' ? (
-              <button onClick={() => setAddressOpen(true)} style={S.cardRow}>
-                <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>location_on</span>
-                <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                  <span style={S.rowLabel}>DIRECCIÓN DE ENTREGA</span>
-                  <span style={S.rowValue}>{address?.address ?? 'Agrega una dirección'}</span>
-                  {address?.detail && <span style={S.rowHint}>{address.detail}</span>}
-                </span>
-                <span className="ms" style={{ fontSize: 20, color: 'var(--faint)' }}>chevron_right</span>
-              </button>
-            ) : (
-              <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>storefront</span>
-                  <div>
-                    <span style={S.rowLabel}>RECOGER EN RESTAURANTE</span>
-                    <span style={{ ...S.rowValue, fontSize: 14 }}>{store?.name || businessName}</span>
-                  </div>
-                </div>
-                <div style={{ fontSize: 12.5, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
-                  <span className="ms" style={{ fontSize: 16, color: 'var(--primary)' }}>location_on</span>
-                  <span>{store?.address || 'Calle 1 # 2-34, Malecón Bahía de la Cruz, Buenaventura'}</span>
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--text)', background: 'var(--surface2)', padding: '8px 10px', borderRadius: 8, lineHeight: 1.35 }}>
-                  💬 <b>Instrucciones:</b> Muestra tu pedido de WhatsApp en caja o barra para retirarlo caliente y sin filas.
-                </div>
-              </div>
-            )}
-
-            <button onClick={() => setPayOpen((v) => !v)} style={S.cardRow} aria-expanded={payOpen}>
-              <span className="ms" style={{ fontSize: 22, color: 'var(--primary)' }}>
-                {metodos.find((m) => m.id === payMethod)?.icon ?? 'payments'}
-              </span>
-              <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                <span style={S.rowLabel}>MÉTODO DE PAGO</span>
-                <span style={S.rowValue}>
-                  {metodos.find((m) => m.id === payMethod)?.label ?? 'Elige cómo pagar'}
-                </span>
-                <span style={S.rowHint}>
-                  {payMethod === 'cash' && 'Pagas al recibir'}
-                  {payMethod === 'whatsapp' && 'Cierras el pago con el restaurante'}
-                  {payMethod !== 'cash' && payMethod !== 'whatsapp' && 'Pago en línea seguro'}
-                </span>
-              </span>
-              <span
-                className="ms"
-                style={{
-                  fontSize: 22, color: 'var(--faint)',
-                  transform: payOpen ? 'rotate(180deg)' : 'none',
-                  transition: 'transform .18s ease',
-                }}
-              >
-                expand_more
-              </span>
-            </button>
-
-            {payOpen && (
-              <div style={{ padding: '4px 15px 14px', borderBottom: '1px solid var(--border)' }}>
-                {metodos.map((m) => {
-                  const on = payMethod === m.id;
-                  return (
-                    <button
-                      key={m.id}
-                      onClick={() => { setPayMethod(m.id); setPayOpen(false); }}
-                      style={{
-                        ...S.payOption,
-                        background: on ? '#FFF1EC' : 'transparent',
-                        border: on ? '1.5px solid var(--primary)' : '1.5px solid var(--border)',
-                      }}
-                    >
-                      <span className="ms" style={{ fontSize: 20, color: on ? 'var(--primary)' : 'var(--muted)', flex: 'none' }}>
-                        {m.icon}
-                      </span>
-                      <span style={{ flex: 1, textAlign: 'left', fontWeight: 700, fontSize: 13.5 }}>{m.label}</span>
-                      {on && <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>check_circle</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Hora de entrega */}
-            <div style={{ padding: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>schedule</span>
-                <span style={{ fontWeight: 800, fontSize: 14.5 }}>
-                  {when === 'asap'
-                    ? `Hoy, ${deliveryWindow(store?.prep_time_min ?? 20)}`
-                    : schedule?.label ?? 'Programado'}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 7, marginTop: 11 }}>
-                {[
-                  { id: 'asap', label: 'Lo antes posible' },
-                  { id: 'scheduled', label: 'Programar' },
-                ].map((w) => {
-                  const active = when === w.id;
-                  return (
-                    <button
-                      key={w.id}
-                      onClick={() => (w.id === 'scheduled' ? setScheduleOpen(true) : setWhen('asap'))}
-                      style={{
-                        flex: 1, height: 38, borderRadius: 9, fontSize: 12.5, fontWeight: 700,
-                        border: active ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                        background: active ? 'var(--primary)' : 'transparent',
-                        color: active ? '#fff' : 'var(--muted)',
-                        padding: '0 10px',
-                      }}
-                    >
-                      {w.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Propina */}
-          <div style={{ marginTop: 18 }}>
-            <div style={{ fontWeight: 800, fontSize: 15.5 }}>Propina para el repartidor</div>
-            <div style={{ display: 'flex', gap: 9, marginTop: 11 }}>
-              {TIPS.map((tp) => {
-                const active = tip === tp.value;
+            {/* Selector de Modo: Domicilio vs Recoger */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, background: 'var(--surface2)', padding: 4, borderRadius: 14, marginBottom: 14 }}>
+              {[
+                { id: 'delivery', label: 'A Domicilio', icon: 'electric_moped' },
+                { id: 'pickup', label: 'Recoger en local', icon: 'storefront' },
+              ].map((m) => {
+                const on = mode === m.id;
                 return (
                   <button
-                    key={tp.label}
-                    onClick={() => setTip(tp.value)}
+                    key={m.id}
+                    type="button"
+                    onClick={() => setMode(m.id)}
                     style={{
-                      flex: 1, height: 48, borderRadius: 14, fontSize: 13.5, fontWeight: 800,
-                      background: active ? 'var(--primary)' : 'var(--surface)',
-                      color: active ? '#fff' : 'var(--text)',
-                      border: active ? 'none' : '1px solid var(--border)',
-                      boxShadow: active ? '0 4px 12px rgba(255,68,31,0.25)' : 'none',
+                      height: 40, borderRadius: 10, fontSize: 13.5, fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                      background: on ? 'var(--text)' : 'transparent',
+                      color: on ? 'var(--bg)' : 'var(--muted)',
+                      transition: 'all .15s ease',
+                      boxShadow: on ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                      cursor: 'pointer',
+                      border: 'none',
                     }}
                   >
-                    {tp.label}
+                    <span className="ms" style={{ fontSize: 18 }}>{m.icon}</span>
+                    <span>{m.label}</span>
                   </button>
                 );
               })}
             </div>
-          </div>
 
-          {/* Cupón */}
-          <div style={{ ...S.card, padding: 16, marginTop: 18 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-              <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>local_activity</span>
-              <span style={{ fontWeight: 800, fontSize: 15.5 }}>Cupón o código</span>
-            </div>
-            <div style={{ display: 'flex', gap: 9, marginTop: 12 }}>
-              <input
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-                placeholder="Ej. TURA20"
-                style={S.couponInput}
-                aria-label="Código de cupón"
-              />
-              <button onClick={applyCoupon} style={S.couponBtn}>Aplicar</button>
-            </div>
+            {mode === 'delivery' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Selector de Dirección ULTRA PRO con GPS en 1 Toque y Mapa */}
+                {!address?.address ? (
+                  <div
+                    style={{
+                      padding: '16px', borderRadius: 18,
+                      background: 'var(--surface2)',
+                      border: '1.5px solid rgba(255,68,31,0.22)',
+                      display: 'flex', flexDirection: 'column', gap: 12,
+                      boxShadow: '0 4px 18px rgba(0,0,0,0.03)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div className="gps-radar-wrap">
+                        {gpsDetecting && (
+                          <>
+                            <div className="gps-radar-wave" />
+                            <div className="gps-radar-wave" />
+                          </>
+                        )}
+                        <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--primary)' }}>
+                          {gpsDetecting ? 'radar' : 'my_location'}
+                        </span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)' }}>
+                          {gpsDetecting ? 'Detectando satélites en Buenaventura...' : 'Ubicar automáticamente por GPS'}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                          {gpsDetecting ? 'Calculando coordenadas de alta precisión...' : 'Detecta tu dirección en 1 toque sin escribir nada'}
+                        </div>
+                      </div>
+                    </div>
 
-            {couponMsg && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={handleQuickGps}
+                        disabled={gpsDetecting}
+                        style={{
+                          height: 42, borderRadius: 12, border: 'none',
+                          background: 'var(--text)', color: 'var(--bg)',
+                          fontSize: 13, fontWeight: 800, display: 'flex',
+                          alignItems: 'center', justifyContent: 'center', gap: 7,
+                          cursor: 'pointer', transition: 'all .15s ease',
+                        }}
+                      >
+                        <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--amber)' }}>bolt</span>
+                        <span>{gpsDetecting ? 'Localizando...' : 'Detectar con GPS'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAddressOpen(true)}
+                        style={{
+                          height: 42, borderRadius: 12,
+                          background: 'var(--surface)', border: '1px solid var(--border)',
+                          color: 'var(--text)', fontSize: 13, fontWeight: 700,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <span className="ms" style={{ fontSize: 18 }}>map</span>
+                        <span>Elegir en mapa</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      padding: '14px 16px', borderRadius: 18,
+                      background: 'var(--surface2)',
+                      border: '1px solid var(--border)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                      <div style={{ position: 'relative', width: 38, height: 38, borderRadius: 12, background: 'var(--surface)', display: 'grid', placeItems: 'center', flex: 'none', color: 'var(--primary)', border: '1px solid var(--border)' }}>
+                        <span className="ms ms-fill" style={{ fontSize: 20 }}>location_on</span>
+                        <span className="gps-live-dot" />
+                      </div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {address.address}
+                        </div>
+                        {address.neighborhood && (
+                          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>
+                            Barrio: {address.neighborhood}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 'none' }}>
+                      <button
+                        type="button"
+                        onClick={handleQuickGps}
+                        disabled={gpsDetecting}
+                        title="Actualizar GPS en 1 toque"
+                        style={{
+                          height: 34, padding: '0 10px', borderRadius: 999,
+                          background: 'var(--surface)', border: '1px solid var(--border)',
+                          fontSize: 12, fontWeight: 800, color: 'var(--primary)',
+                          display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer',
+                        }}
+                      >
+                        <span className="ms ms-fill" style={{ fontSize: 15, animation: gpsDetecting ? 'spin 1s linear infinite' : 'none' }}>
+                          {gpsDetecting ? 'progress_activity' : 'my_location'}
+                        </span>
+                        <span>GPS</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAddressOpen(true)}
+                        style={{
+                          height: 34, padding: '0 12px', borderRadius: 999,
+                          background: 'var(--text)', border: 'none',
+                          fontSize: 12, fontWeight: 800, color: 'var(--bg)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Cambiar
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Notas / Referencia */}
+                <label className="co-tf">
+                  <input
+                    type="text"
+                    className="co-tf-input"
+                    placeholder=" "
+                    value={deliveryInstructionsText}
+                    onChange={(e) => setDeliveryInstructionsText(e.target.value)}
+                  />
+                  <span className="co-tf-label">Punto de referencia o notas (opcional)</span>
+                </label>
+              </div>
+            ) : (
               <div style={{
-                display: 'flex', alignItems: 'center', gap: 7, marginTop: 11,
-                fontSize: 12.5, fontWeight: 700,
-                color: couponMsg.ok ? 'var(--green)' : 'var(--primary)',
+                padding: '14px 16px', borderRadius: 16, background: 'var(--surface2)',
+                border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 6,
+                marginBottom: 12,
               }}>
-                <span className="ms" style={{ fontSize: 17 }}>
-                  {couponMsg.ok ? 'check_circle' : 'error'}
-                </span>
-                {couponMsg.text}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="ms ms-fill" style={{ fontSize: 18, color: 'var(--primary)' }}>storefront</span>
+                  <span style={{ fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>{store?.name || businessName}</span>
+                </div>
+                <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                  📍 {store?.address || 'Restaurante en Buenaventura, Valle del Cauca.'}
+                </div>
               </div>
             )}
 
-            <div className="hs" style={{ display: 'flex', gap: 8, margin: '12px -16px 0', padding: '0 16px' }}>
-              {coupons.slice(0, 2).map((c) => (
+            {/* Horario de Entrega: Chips Limpios */}
+            <div style={{ margin: '14px 0 16px' }}>
+              <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--muted)', marginBottom: 8, letterSpacing: '.04em', textTransform: 'uppercase' }}>
+                Horario de entrega
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button
-                  key={c.code}
-                  onClick={() => { setCouponInput(c.code); setCoupon(c); setCouponMsg({ text: c.description, ok: true }); }}
-                  style={S.couponChip}
+                  type="button"
+                  onClick={() => setWhen('asap')}
+                  style={{
+                    padding: '10px 14px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    background: when === 'asap' ? 'var(--text)' : 'var(--surface2)',
+                    color: when === 'asap' ? 'var(--bg)' : 'var(--text)',
+                    border: '1px solid var(--border)', cursor: 'pointer',
+                    transition: 'all .15s ease',
+                  }}
                 >
-                  <span className="ms" style={{ fontSize: 15 }}>sell</span>
-                  {c.code}
-                  {c.discount_type === 'percent' ? ` · ${c.discount_value}% OFF` : ''}
+                  <span className="ms ms-fill" style={{ fontSize: 18, color: when === 'asap' ? 'var(--bg)' : 'var(--primary)' }}>bolt</span>
+                  <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                    <div>Lo antes posible</div>
+                    <div style={{ fontSize: 11, opacity: 0.8, fontWeight: 600 }}>{deliveryWindow(store?.prep_time_min ?? 25)}</div>
+                  </div>
                 </button>
-              ))}
-            </div>
-          </div>
 
-          {/* Totales */}
-          <div style={{ ...S.card, padding: 16, marginTop: 18 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-              <Row
-                label="Subtotal" value={cop(t.subtotal)}
-                why="Lo que cuestan los productos en el negocio. Los precios los pone el negocio, no nosotros."
-              />
-              {mode === 'delivery' && (
-                <Row
-                  label="Envío" value={t.delivery === 0 ? 'Gratis' : cop(t.delivery)} green={t.delivery === 0}
-                  why={t.delivery === 0
-                    ? 'Hoy el envío va por cuenta del negocio.'
-                    : 'Va completo para el repartidor que te lo trae. Depende de la distancia hasta tu dirección.'}
-                />
-              )}
-              <Row
-                label="Tarifa de servicio" value={cop(t.service)}
-                why="Es fija, no un porcentaje. Cubre el soporte, los pagos y que la app siga funcionando."
-              />
-              {t.tip > 0 && (
-                <Row
-                  label="Propina" value={cop(t.tip)}
-                  why="Se la lleva completa el repartidor. Puedes cambiarla o quitarla arriba."
-                />
-              )}
-              {t.discount > 0 && (
-                <Row
-                  label="Descuento" value={`− ${cop(t.discount)}`} green
-                  why="Tu cupón aplicado."
-                />
-              )}
+                <button
+                  type="button"
+                  onClick={() => { setScheduleOpen(true); setWhen('scheduled'); }}
+                  style={{
+                    padding: '10px 14px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    background: when === 'scheduled' ? 'var(--text)' : 'var(--surface2)',
+                    color: when === 'scheduled' ? 'var(--bg)' : 'var(--text)',
+                    border: '1px solid var(--border)', cursor: 'pointer',
+                    transition: 'all .15s ease',
+                  }}
+                >
+                  <span className="ms" style={{ fontSize: 18, color: when === 'scheduled' ? 'var(--bg)' : 'var(--primary)' }}>event</span>
+                  <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
+                    <div>Programar</div>
+                    <div style={{ fontSize: 11, opacity: 0.8, fontWeight: 600 }}>{schedule?.label ?? 'Elegir hora'}</div>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
 
-          {error && (
-            <div style={S.errorBox}>
-              <span className="ms" style={{ fontSize: 18 }}>error</span>
-              <span>{error}</span>
+            {/* Campos de Contacto */}
+            <div>
+              <div style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--muted)', marginBottom: 8, letterSpacing: '.04em', textTransform: 'uppercase' }}>
+                Contacto para el pedido
+              </div>
+              <div className="co-fgrid">
+                <label className={'co-tf' + (!nameOk && customerName.length > 0 ? ' bad' : '')}>
+                  <input
+                    type="text"
+                    className="co-tf-input"
+                    placeholder=" "
+                    autoComplete="name"
+                    value={customerName}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomerName(val);
+                      try { localStorage.setItem('turafood_customer_name', val); } catch {}
+                    }}
+                  />
+                  <span className="co-tf-label">Nombre completo</span>
+                </label>
+
+                <label className={'co-tf' + (!celularOk && customerPhone.length > 0 ? ' bad' : '')}>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    className="co-tf-input"
+                    placeholder=" "
+                    autoComplete="tel-national"
+                    value={customerPhone}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomerPhone(val);
+                      try { localStorage.setItem('turafood_customer_phone', val); } catch {}
+                    }}
+                  />
+                  <span className="co-tf-label">
+                    {celularVerificado ? '✓ Celular verificado' : 'Celular (WhatsApp)'}
+                  </span>
+                </label>
+              </div>
             </div>
-          )}
+          </section>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 14, padding: '0 4px' }}>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>shield</span>
-            <span style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.45 }}>
-              Pago protegido por TuraFood. Si algo sale mal con tu pedido, te devolvemos el dinero.
-            </span>
-          </div>
+          {/* ========================================================
+              PANEL 2: FORMA DE PAGO (Limpio y directo)
+              ======================================================== */}
+          <section className="co-panel">
+            <header className="ckp-h" style={{ marginBottom: 16 }}>
+              <span className="ckp-n ok">2</span>
+              <div className="ckp-h-text">
+                <h2>Forma de pago</h2>
+                <p>Selecciona tu método de pago preferido.</p>
+              </div>
+            </header>
+
+            <div className="co-pays">
+              <button
+                type="button"
+                className={'co-pay' + (payMethod === 'cash' ? ' on' : '')}
+                onClick={() => setPayMethod('cash')}
+              >
+                <span className="co-radio" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <b style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--text)' }}>
+                      Contra entrega (Efectivo)
+                    </b>
+                    <em className="co-tag">RECOMENDADO</em>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
+                    Pagas en efectivo al repartidor al recibir tu pedido.
+                  </div>
+                </div>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, color: 'var(--text)', flex: 'none' }}>
+                  {cop(turaTotal)}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={'co-pay' + (payMethod === 'nequi' ? ' on' : '')}
+                onClick={() => setPayMethod('nequi')}
+              >
+                <span className="co-radio" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <b style={{ fontSize: 15.5, fontWeight: 800, color: 'var(--text)' }}>
+                      Nequi Directo
+                    </b>
+                    <em className="co-tag" style={{ background: 'rgba(125, 37, 232, 0.12)', color: '#7D25E8' }}>
+                      TRANSFERENCIA DIRECTA
+                    </em>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>
+                    Transfiere directo al Nequi del restaurante tras la confirmación.
+                  </div>
+                </div>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16.5, color: 'var(--text)', flex: 'none' }}>
+                  {cop(turaTotal)}
+                </div>
+              </button>
+            </div>
+
+            {payMethod === 'nequi' && (
+              <div style={{
+                padding: '16px 18px', borderRadius: 20,
+                background: 'var(--surface2)', border: '1.5px dashed var(--border)',
+                display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800, fontSize: 14.5, color: 'var(--text)' }}>
+                  <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>account_balance</span>
+                  <span>Transfiere {cop(turaTotal)} a esta cuenta</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, fontSize: 13 }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Banco / App</div>
+                    <div style={{ fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>Nequi</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Número de Cuenta</div>
+                    <div style={{ fontWeight: 800, color: 'var(--text)', marginTop: 2, fontFamily: 'monospace', fontSize: 14 }}>
+                      {store?.payment_details?.nequi || store?.phone || '313 759 4713'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Titular</div>
+                    <div style={{ fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>{store?.name || 'TuraFood'}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const num = store?.payment_details?.nequi || store?.phone || '3137594713';
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      navigator.clipboard.writeText(num.replace(/\D/g, ''));
+                    }
+                    setCopiado(true);
+                    setTimeout(() => setCopiado(false), 2500);
+                  }}
+                  style={{
+                    height: 38, borderRadius: 12, background: 'var(--surface)',
+                    border: '1px solid var(--border)', fontSize: 12.5, fontWeight: 800,
+                    color: copiado ? 'var(--green)' : 'var(--text)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer',
+                  }}
+                >
+                  <span className="ms" style={{ fontSize: 16 }}>{copiado ? 'check' : 'content_copy'}</span>
+                  <span>{copiado ? '¡Número copiado!' : 'Copiar número Nequi'}</span>
+                </button>
+              </div>
+            )}
+          </section>
+
         </div>
 
-        <div className="mobile-only" style={S.bottom}>
-          <div style={{ flex: 'none' }}>
-            <div style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 600 }}>Total a pagar</div>
-            <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>
-              {cop(t.total)}
+
+        {/* COLUMNA LATERAL (RESUMEN DE COMPRA — MOBILE FIRST TURA SOFA + RAPPI) */}
+        <aside className="co-side">
+          <section className="co-panel" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
+            
+            {/* Header del Resumen con Logo del Restaurante */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: '1px solid var(--border)' }}>
+              {store?.cover_url && (
+                <Cover src={store.cover_url} alt={store.name} radius={12} sizes="48px" style={{ width: 44, height: 44, flex: 'none' }} />
+              )}
+              <div>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                  Resumen de compra
+                </div>
+                <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16, marginTop: 1, color: 'var(--text)' }}>
+                  {store?.name || businessName}
+                </div>
+              </div>
             </div>
-          </div>
-          <button
-            onClick={() => handlePlaceOrder(payMethod)}
-            disabled={placing || Boolean(falta && !faltaDireccion)}
-            style={{
-              flex: 1, height: 50, borderRadius: 999,
-              background: 'linear-gradient(135deg, #25D366 0%, #00A884 100%)',
-              color: '#fff', fontWeight: 800, fontSize: 14.5,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              border: 'none', cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(37,211,102,0.32)',
-              opacity: falta && !faltaDireccion ? 0.55 : 1,
-            }}
-          >
-            <WhatsAppIcon size={19} />
-            <span>{placing ? 'Enviando...' : (falta ?? 'Pedir por WhatsApp')}</span>
-          </button>
-        </div>
 
-        {/* Hoja de pago: último paso nuestro antes de la pasarela */}
-        <PaymentSheet
-          open={paySheetOpen}
-          onClose={() => !placing && setPaySheetOpen(false)}
-          onConfirm={handlePlaceOrder}
-          totals={t}
-          businessName={store?.name}
-          method={payMethod}
-          onMethodChange={setPayMethod}
-          methods={metodos}
-          payDetails={store?.payment_details}
-          busy={placing}
-          error={error}
-        />
+            {/* Líneas de productos Mobile-First estilo Tura Sofa con MD3 Stepper */}
+            <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 14px', display: 'flex', flexDirection: 'column' }}>
+              {items.map((it, idx) => {
+                const lId = it.lineId || it.productId || it.id || `item-${idx}`;
+                const unitPrice = it.unitPrice || it.basePrice || it.price || 0;
+                const lineTotal = unitPrice * it.qty;
+                return (
+                  <li key={lId} className="co-prod-item">
+                    <Cover
+                      src={it.image_url || it.image}
+                      alt={it.name}
+                      radius={14}
+                      sizes="56px"
+                      style={{ width: 54, height: 54, flex: 'none' }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', lineHeight: 1.3 }}>
+                        {it.name}
+                      </div>
+                      {it.opts && (
+                        <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 1 }}>
+                          {it.opts}
+                        </div>
+                      )}
+                      <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)', marginTop: 4 }}>
+                        {cop(lineTotal)}
+                        {it.qty > 1 && (
+                          <span style={{ fontSize: 11.5, fontWeight: 500, color: 'var(--muted)', marginLeft: 4 }}>
+                            ({cop(unitPrice)} c/u)
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-        <ScheduleSheet
-          open={scheduleOpen}
-          onClose={() => setScheduleOpen(false)}
-          onSelect={(slot) => { setSchedule(slot); setWhen('scheduled'); }}
-          address={address?.address}
-          business={store}
-          selected={schedule}
-        />
+                    {/* Material Design 3 Pill Stepper */}
+                    <div className="md3-stepper">
+                      <button
+                        type="button"
+                        className={'md3-stepper-btn' + (it.qty === 1 ? ' danger' : '')}
+                        onClick={() => (it.qty === 1 ? removeLine(lId) : updateQty(lId, it.qty - 1))}
+                        aria-label={it.qty === 1 ? 'Eliminar' : 'Restar'}
+                      >
+                        <span className="ms" style={{ fontSize: 15 }}>
+                          {it.qty === 1 ? 'delete' : 'remove'}
+                        </span>
+                      </button>
+                      <span className="md3-stepper-val">{it.qty}</span>
+                      <button
+                        type="button"
+                        className="md3-stepper-btn"
+                        onClick={() => updateQty(lId, it.qty + 1)}
+                        aria-label="Sumar"
+                      >
+                        <span className="ms" style={{ fontSize: 15 }}>add</span>
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
 
-        {verificarOpen && (
-          <VerificarCelular
-            celular={customerPhone}
-            onVerificado={alVerificar}
-            onCerrar={() => setVerificarOpen(false)}
-            onCambiarNumero={() => {
-              setVerificarOpen(false);
-              setTimeout(() => document.querySelector('input[type="tel"]')?.focus(), 80);
-            }}
-          />
-        )}
-
-        <AddressSheet
-          open={addressOpen}
-          onClose={() => setAddressOpen(false)}
-          recientes={addresses.filter((a) => a.lat != null && a.lng != null)}
-          onSave={async (payload) => {
-            const nueva = await saveAddress({ ...payload, isDefault: true });
-            // Replace old array so the new default is at the top
-            setAddresses([{ ...nueva, is_default: true }, ...addresses.map(a => ({ ...a, is_default: false }))]);
-            setAddressOpen(false);
-          }}
-        />
-      </div>
-    </>
-  );
-}
-
-/**
- * Una linea de la cuenta.
- *
- * Con `why`, el nombre se vuelve tocable y explica de donde sale ese
- * cobro. La sospecha de que a uno le estan metiendo plata de mas es lo
- * que hace abandonar un carrito: contestarla antes de que la pregunten
- * cuesta un renglon.
- */
-function Row({ label, value, green, why }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13.5 }}>
-        {why ? (
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              color: 'var(--muted)', fontWeight: 600, fontSize: 13.5,
-            }}
-          >
-            {label}
-            <span
-              className="ms"
+            {/* Toggle de Prioridad Turbo con Switch MD3 */}
+            <div
+              onClick={() => setTurbo(!turbo)}
               style={{
-                fontSize: 15, color: 'var(--faint)',
-                transform: open ? 'rotate(180deg)' : 'none',
-                transition: 'transform .18s ease',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 14px', borderRadius: 16, cursor: 'pointer',
+                background: turbo ? 'rgba(255,68,31,0.06)' : 'var(--surface2)',
+                border: turbo ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                transition: 'all .15s ease',
+                marginBottom: 12,
               }}
             >
-              expand_more
-            </span>
-          </button>
-        ) : (
-          <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
-        )}
-        <span style={{ fontWeight: 700, color: green ? 'var(--green)' : 'var(--text)' }}>{value}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="ms ms-fill" style={{ fontSize: 20, color: turbo ? 'var(--primary)' : 'var(--amber)' }}>bolt</span>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>Prioridad Turbo</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Despacho preferencial en Buenaventura</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--primary)' }}>+ $2.500</span>
+                <div className={'md3-switch' + (turbo ? ' on' : '')}>
+                  <div className="md3-switch-thumb" />
+                </div>
+              </div>
+            </div>
+
+            {/* Selector de Propina Estilo Rappi (Material Design 3 Chips) */}
+            <div className="rappi-tip-box" style={{ marginBottom: 12 }}>
+              <div className="rappi-tip-header">
+                <div className="rappi-tip-title">
+                  <span>Propina para el repartidor</span>
+                </div>
+                <span className="rappi-tip-sub">100% para el repartidor</span>
+              </div>
+
+              <div className="rappi-tip-chips">
+                {TIPS.map((tp) => {
+                  const on = tip === tp.value;
+                  return (
+                    <button
+                      key={tp.label}
+                      type="button"
+                      onClick={() => setTip(tp.value)}
+                      className={'rappi-chip' + (on ? ' on' : '')}
+                    >
+                      {tp.emoji && <span>{tp.emoji}</span>}
+                      <span>{tp.label}</span>
+                      {tp.popular && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 800, textTransform: 'uppercase',
+                          background: on ? 'rgba(255,255,255,0.25)' : 'var(--primarySoft)',
+                          color: on ? '#fff' : 'var(--primary)',
+                          padding: '2px 5px', borderRadius: 99, marginLeft: 2,
+                        }}>
+                          Top
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {tip > 0 && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: 11.5, fontWeight: 700, color: 'var(--green)',
+                  paddingTop: 2,
+                }}>
+                  <span className="ms ms-fill" style={{ fontSize: 15 }}>volunteer_activism</span>
+                  <span>¡Muchas gracias! Tu propina va directa al repartidor.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Input de Cupón */}
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  placeholder="Cupón de descuento..."
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  style={{
+                    flex: 1, height: 42, borderRadius: 12, border: '1px solid var(--border)',
+                    background: 'var(--surface2)', padding: '0 12px', fontSize: 13, fontWeight: 700,
+                    textTransform: 'uppercase', color: 'var(--text)', outline: 'none',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  style={{
+                    padding: '0 16px', height: 42, borderRadius: 12, background: 'var(--text)',
+                    color: 'var(--bg)', fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                  }}
+                >
+                  Aplicar
+                </button>
+              </div>
+              {couponMsg && (
+                <div style={{ fontSize: 12, fontWeight: 700, color: couponMsg.ok ? 'var(--green)' : '#EF4444', marginTop: 6 }}>
+                  {couponMsg.text}
+                </div>
+              )}
+            </div>
+
+            {/* Desglose de Costos estilo Tura Sofa */}
+            <div className="co-sum">
+              <div className="co-sum-r">
+                <span>Subtotal productos</span>
+                <span>{cop(t.subtotal)}</span>
+              </div>
+              {mode === 'delivery' && (
+                <div className={'co-sum-r' + (t.delivery === 0 ? ' green' : '')}>
+                  <span>Envío estimado</span>
+                  <span>{t.delivery === 0 ? 'Gratis' : cop(t.delivery)}</span>
+                </div>
+              )}
+              <div className="co-sum-r">
+                <span>Tarifa de servicio</span>
+                <span>{cop(t.service)}</span>
+              </div>
+              {turbo && (
+                <div className="co-sum-r">
+                  <span>Prioridad Turbo (⚡)</span>
+                  <span>{cop(2500)}</span>
+                </div>
+              )}
+              {t.tip > 0 && (
+                <div className="co-sum-r">
+                  <span>Propina repartidor</span>
+                  <span>{cop(t.tip)}</span>
+                </div>
+              )}
+              {t.discount > 0 && (
+                <div className="co-sum-r green">
+                  <span>Descuento cupón</span>
+                  <span>− {cop(t.discount)}</span>
+                </div>
+              )}
+              <div className="co-sum-r total">
+                <span>Total</span>
+                <span>{cop(turaTotal)}</span>
+              </div>
+            </div>
+
+            {/* Bloque Split de Pago (1:1 Tura Sofa - Dos Tarjetas Lado a Lado) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '4px 0 8px' }}>
+              <div style={{
+                padding: '14px 16px', borderRadius: 18,
+                background: payMethod === 'nequi' ? 'var(--text)' : 'var(--surface2)',
+                color: payMethod === 'nequi' ? 'var(--bg)' : 'var(--text)',
+                display: 'flex', flexDirection: 'column', gap: 2,
+                transition: 'all .2s ease',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.85 }}>
+                  {payMethod === 'nequi' ? 'Pagas por Nequi' : 'Pagas hoy'}
+                </span>
+                <b style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-bricolage)' }}>
+                  {payMethod === 'nequi' ? cop(turaTotal) : '$0'}
+                </b>
+              </div>
+
+              <div style={{
+                padding: '14px 16px', borderRadius: 18,
+                background: payMethod === 'cash' ? 'var(--text)' : 'var(--surface2)',
+                color: payMethod === 'cash' ? 'var(--bg)' : 'var(--text)',
+                display: 'flex', flexDirection: 'column', gap: 2,
+                transition: 'all .2s ease',
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.85 }}>
+                  {payMethod === 'cash' ? 'Pagas al recibir' : 'Al recibir'}
+                </span>
+                <b style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-bricolage)' }}>
+                  {payMethod === 'cash' ? cop(turaTotal) : '$0'}
+                </b>
+              </div>
+            </div>
+
+            {/* Mensaje de Error si hay validación pendiente */}
+            {error && (
+              <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', color: '#EF4444', fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>
+                {error}
+              </div>
+            )}
+
+            {/* Botón Principal de Confirmación */}
+            <button
+              type="button"
+              className="co-btn-brand"
+              onClick={() => handlePlaceOrder(payMethod)}
+              disabled={placing || Boolean(falta && !faltaDireccion)}
+            >
+              <span>{placing ? 'Enviando Pedido...' : (falta ?? 'Confirmar pedido')}</span>
+              <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+            </button>
+
+            {/* Botón Alternativo de WhatsApp */}
+            <button
+              type="button"
+              className="co-btn-wa"
+              onClick={handleWhatsAppDirect}
+              disabled={placing}
+            >
+              <WhatsAppIcon size={19} color="#25D366" />
+              <span>Pedir por WhatsApp · {cop(turaTotal)}</span>
+            </button>
+
+            <p className="co-fine">
+              🔒 Verificamos tu pedido y te confirmamos por notificación y WhatsApp. Al confirmar autorizas la gestión de tu orden.
+            </p>
+          </section>
+        </aside>
+
       </div>
 
-      {open && why && (
-        <p className="anim-fade" style={S.why}>{why}</p>
+      {/* Barra Flotante Inferior en Pantallas Móviles */}
+      <div
+        className="mobile-only"
+        style={{
+          position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 45,
+          background: 'var(--surface)', borderTop: '1px solid var(--border)',
+          padding: '12px 18px calc(14px + env(safe-area-inset-bottom, 0px))',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 11.5, color: 'var(--muted)', fontWeight: 700 }}>Total</div>
+          <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>
+            {cop(turaTotal)}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="co-btn-brand"
+          onClick={() => handlePlaceOrder(payMethod)}
+          disabled={placing || Boolean(falta && !faltaDireccion)}
+          style={{ flex: 1, height: 48, fontSize: 14.5 }}
+        >
+          <span>{placing ? 'Enviando...' : (falta ?? 'Confirmar pedido')}</span>
+          <span className="ms" style={{ fontSize: 18 }}>arrow_forward</span>
+        </button>
+      </div>
+
+      {/* Modal de Hojas Secundarias: Dirección, Horario, Verificación SMS */}
+      <AddressSheet
+        open={addressOpen}
+        onClose={() => setAddressOpen(false)}
+        recientes={addresses.filter((a) => a.lat != null && a.lng != null)}
+        onSave={async (payload) => {
+          const nueva = await saveAddress({ ...payload, isDefault: true });
+          setAddresses([{ ...nueva, is_default: true }, ...addresses.map(a => ({ ...a, is_default: false }))]);
+          setAddressOpen(false);
+        }}
+      />
+
+      <ScheduleSheet
+        open={scheduleOpen}
+        onClose={() => setScheduleOpen(false)}
+        onSelect={(slot) => { setSchedule(slot); setWhen('scheduled'); }}
+        address={address?.address}
+        business={store}
+        selected={schedule}
+      />
+
+      {verificarOpen && (
+        <VerificarCelular
+          celular={customerPhone}
+          onVerificado={alVerificar}
+          onCerrar={() => setVerificarOpen(false)}
+          onCambiarNumero={() => {
+            setVerificarOpen(false);
+            setTimeout(() => document.querySelector('input[type="tel"]')?.focus(), 80);
+          }}
+        />
       )}
+
+      <PaymentSheet
+        open={paySheetOpen}
+        onClose={() => !placing && setPaySheetOpen(false)}
+        onConfirm={handlePlaceOrder}
+        totals={t}
+        businessName={store?.name}
+        method={payMethod}
+        onMethodChange={setPayMethod}
+        methods={[
+          { id: 'cash', label: 'Efectivo al recibir', subtitle: 'Pagas contraentrega en efectivo al repartidor' },
+          { id: 'nequi', label: 'Nequi Directo', subtitle: 'Transfiere directo al Nequi del restaurante' },
+        ]}
+        payDetails={store?.payment_details}
+        busy={placing}
+        error={error}
+      />
     </div>
-  );
-}
-
-const S = {
-  steps: {
-    flex: 'none', display: 'flex', alignItems: 'center', gap: 8,
-    padding: '0 20px 14px',
-  },
-  stepDot: {
-    width: 20, height: 20, borderRadius: '50%', flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 11, fontWeight: 800,
-  },
-  stepLine: {
-    flex: 1, height: 2, borderRadius: 99, background: 'var(--surface2)',
-  },
-  why: {
-    margin: '7px 0 0', padding: '9px 11px', borderRadius: 11,
-    background: 'var(--surface2)', fontSize: 11.5, lineHeight: 1.5,
-    color: 'var(--muted)',
-  },
-  backBtn: {
-    width: 38, height: 38, borderRadius: '50%', background: 'var(--surface2)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-  },
-  card: {
-    marginTop: 18, background: 'var(--surface)', border: 'none',
-    borderRadius: 20, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-  },
-  cardRow: {
-    display: 'flex', alignItems: 'center', gap: 14, width: '100%',
-    padding: '16px 20px', textAlign: 'left', borderBottom: '1px solid var(--surface2)',
-  },
-  rowLabel: {
-    display: 'block', fontSize: 11.5, color: 'var(--muted)', fontWeight: 700,
-  },
-  rowValue: {
-    display: 'block', fontWeight: 700, fontSize: 14.5, marginTop: 2,
-  },
-  rowHint: {
-    display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1,
-  },
-  payOption: {
-    display: 'flex', alignItems: 'center', gap: 11, width: '100%',
-    height: 46, padding: '0 13px', borderRadius: 13, marginTop: 8,
-  },
-  couponInput: {
-    flex: 1, height: 48, borderRadius: 14, border: '1px solid var(--border)',
-    background: 'var(--bg)', padding: '0 14px', fontSize: 14, fontWeight: 700,
-    letterSpacing: '.06em', textTransform: 'uppercase', outline: 'none', minWidth: 0,
-  },
-  couponBtn: {
-    flex: 'none', height: 48, padding: '0 20px', borderRadius: 14,
-    fontWeight: 700, fontSize: 13.5, background: 'var(--surface2)', color: 'var(--text)',
-  },
-  couponChip: {
-    flex: 'none', display: 'flex', alignItems: 'center', gap: 6, height: 34,
-    padding: '0 12px', borderRadius: 999, border: '1px dashed var(--primary)',
-    background: 'var(--primarySoft)', fontSize: 12, fontWeight: 800,
-    color: 'var(--primary)', whiteSpace: 'nowrap',
-  },
-  bottom: {
-    position: 'fixed', left: 0, right: 0, bottom: 0, background: 'var(--surface)',
-    borderTop: '1px solid var(--border)', padding: '12px 20px calc(14px + env(safe-area-inset-bottom, 0px))',
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
-    maxWidth: 540, margin: '0 auto', zIndex: 40,
-    boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
-  },
-  placeBtn: {
-    flex: 1, height: 56, borderRadius: 999, background: 'var(--primary)', color: '#fff',
-    fontWeight: 700, fontSize: 15.5, boxShadow: '0 10px 24px rgba(255,68,31,.32)',
-  },
-  errorBox: {
-    display: 'flex', alignItems: 'center', gap: 9, marginTop: 14,
-    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
-    color: 'var(--primary)', fontSize: 13, fontWeight: 600,
-  },
-  empty: {
-    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', padding: 32, textAlign: 'center', background: 'var(--bg)',
-  },
-  emptyBtn: {
-    marginTop: 22, height: 52, padding: '0 28px', borderRadius: 999,
-    background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: 15,
-  },
-};
-
-function WhatsAppIcon({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm0 18.15c-1.49 0-2.94-.4-4.22-1.16l-.3-.18-3.13.82.84-3.05-.2-.32a8.196 8.196 0 01-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.188 8.188 0 012.42 5.83c0 4.55-3.7 8.26-8.23 8.26zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.06 0 1.21.89 2.39 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.18-.47-.3z" />
-    </svg>
   );
 }

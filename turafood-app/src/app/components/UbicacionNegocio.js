@@ -35,10 +35,12 @@ export default function UbicacionNegocio({ open, onClose, onSaved, inicial }) {
     let temporizador;
     (async () => {
       const [{ default: L }] = await Promise.all([import('leaflet'), import('leaflet/dist/leaflet.css')]);
-      if (!vivo || !el.current) return;
       const c = inicial?.lat != null ? { lat: inicial.lat, lng: inicial.lng } : BUENAVENTURA_CENTER;
       m = L.map(el.current, { zoomControl: true, attributionControl: false });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(m);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(m);
       m.setView([c.lat, c.lng], inicial?.lat != null ? 17 : 14);
       mapa.current = m;
       setPunto(inicial?.lat != null ? c : null);

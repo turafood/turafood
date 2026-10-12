@@ -535,3 +535,1053 @@ button:disabled {
     border-color: rgba(255,68,31,0.3) !important;
   }
 }
+
+/* ============================================================
+   TURA SOFA CHECKOUT — 1:1 MOBILE-FIRST & DESKTOP SUITE
+   ============================================================ */
+.v-checkout {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 20px 80px;
+}
+@media (max-width: 720px) {
+  .v-checkout {
+    padding: 12px 16px 120px;
+  }
+}
+
+.co-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 6px 0;
+  transition: color 0.15s ease;
+}
+.co-back:hover {
+  color: var(--text);
+}
+
+.co-title {
+  font-family: var(--font-bricolage);
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin: 12px 0 6px;
+}
+@media (max-width: 720px) {
+  .co-title {
+    font-size: 26px;
+    margin: 8px 0 4px;
+  }
+}
+
+.co-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 24px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+  list-style: none;
+  padding: 0;
+  flex-wrap: wrap;
+}
+@media (max-width: 720px) {
+  .co-stepper {
+    gap: 6px;
+    font-size: 12.5px;
+    margin: 12px 0 20px;
+  }
+}
+.co-stepper li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.co-stepper li + li::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+}
+@media (max-width: 720px) {
+  .co-stepper li + li::before {
+    width: 12px;
+  }
+}
+.co-stepper .st-n {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12.5px;
+  font-weight: 800;
+  background: var(--surface2);
+  color: var(--muted);
+  flex: none;
+  transition: all 0.2s ease;
+}
+.co-stepper li.on {
+  color: var(--text);
+}
+.co-stepper li.on .st-n {
+  background: var(--text);
+  color: var(--bg);
+}
+.co-stepper li.done .st-n {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.co-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .co-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.co-main,
+.co-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+@media (min-width: 961px) {
+  .co-side {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+.co-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+@media (max-width: 720px) {
+  .co-panel {
+    border-radius: 20px;
+    padding: 18px 16px;
+    gap: 14px;
+  }
+}
+
+.ckp-h {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.ckp-n {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 15px;
+  flex: none;
+  transition: background 0.2s, color 0.2s;
+}
+.ckp-n.ok {
+  background: var(--green);
+  color: #ffffff;
+}
+.ckp-h-text h2 {
+  font-family: var(--font-bricolage);
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+.ckp-h-text p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+.co-notice {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--surface2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.co-notice b {
+  color: var(--text);
+}
+
+.co-fgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .co-fgrid {
+    grid-template-columns: 1fr;
+  }
+}
+.co-fgrid-full {
+  grid-column: 1 / -1;
+}
+
+.co-tf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.co-tf-input {
+  width: 100%;
+  height: 56px;
+  padding: 22px 14px 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+.co-tf-input:focus {
+  background: var(--surface);
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--border);
+}
+.co-tf-label {
+  position: absolute;
+  left: 14px;
+  top: 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+.co-tf-input:focus + .co-tf-label,
+.co-tf-input:not(:placeholder-shown) + .co-tf-label {
+  transform: translateY(-11px) scale(0.78);
+  color: var(--muted);
+}
+.co-tf.bad .co-tf-input {
+  border-color: #EF4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.co-opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .co-opts {
+    grid-template-columns: 1fr;
+  }
+}
+.co-opt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+.co-opt.on {
+  background: var(--surface);
+  border-color: var(--text);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.co-pays {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.co-pay {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.co-pay.on {
+  background: var(--surface);
+  border-color: var(--text);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+.co-radio {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+  flex: none;
+  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s ease;
+}
+.co-pay.on .co-radio {
+  border-color: var(--text);
+}
+.co-pay.on .co-radio::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.co-tag {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--greenSoft);
+  color: var(--green);
+}
+
+.co-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.co-mini li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.co-mini-w {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface2);
+  flex: none;
+}
+.co-mini-b {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.co-mini-n {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.co-mini-m {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.co-mini-p {
+  font-weight: 800;
+  font-size: 14.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.co-sum {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+.co-sum-r {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+.co-sum-r span:last-child {
+  color: var(--text);
+  font-weight: 700;
+}
+.co-sum-r.green span:last-child {
+  color: var(--green);
+}
+.co-sum-r.total {
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px dashed var(--border);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+.co-sum-r.total span:last-child {
+  font-size: 22px;
+  font-family: var(--font-bricolage);
+  color: var(--text);
+}
+
+.co-split {
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--text);
+  color: var(--bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.co-split span {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.co-split b {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-bricolage);
+}
+
+.co-btn-brand {
+  width: 100%;
+  height: 54px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 15.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.co-btn-brand:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.co-btn-brand:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.co-btn-wa {
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s ease;
+}
+.co-btn-wa:hover {
+  background: var(--border);
+}
+
+.co-fine {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ============================================================
+   MATERIAL DESIGN 3 & RAPPI-STYLE CHECKOUT EXTENSIONS
+   ============================================================ */
+
+/* Rappi Tip Component */
+.rappi-tip-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+
+.rappi-tip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rappi-tip-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.rappi-tip-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.rappi-tip-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 0 4px;
+}
+.rappi-tip-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.rappi-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  flex: none;
+  transition: all 0.18s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.rappi-chip:hover {
+  border-color: var(--muted);
+  transform: translateY(-1px);
+}
+
+.rappi-chip.on {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: scale(1.02);
+}
+
+/* Material Design 3 Stepper for products */
+.md3-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.md3-stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.md3-stepper-btn:hover {
+  background: var(--border);
+}
+
+.md3-stepper-btn.danger {
+  color: #EF4444;
+}
+
+.md3-stepper-val {
+  min-width: 22px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Material Design 3 Switch */
+.md3-switch {
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex: none;
+}
+
+.md3-switch.on {
+  background: var(--primary);
+}
+
+.md3-switch-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.md3-switch.on .md3-switch-thumb {
+  transform: translateX(18px);
+}
+
+/* Mobile-First Product Item */
+.co-prod-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.co-prod-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* ============================================================
+   MATERIAL DESIGN 3 & AJAX FLOATING ADDRESS EXPERIENCE (ULTRA PRO)
+   ============================================================ */
+
+/* Floating Address Header Pill */
+.floating-addr-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 16px 0 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.floating-addr-pill:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px rgba(255, 68, 31, 0.14);
+  transform: translateY(-1px);
+}
+
+.floating-addr-pill:active {
+  transform: scale(0.98);
+}
+
+/* Live GPS Breathing Dot */
+.gps-live-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 2px var(--surface);
+  animation: livePulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes livePulseGlow {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(17, 178, 106, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px rgba(17, 178, 106, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(17, 178, 106, 0);
+  }
+}
+
+/* GPS Radar Pulse for 1-Tap Auto Location */
+.gps-radar-wrap {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primarySoft);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.gps-radar-wave {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  opacity: 0;
+  pointer-events: none;
+  animation: radarWave 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.gps-radar-wave:nth-child(2) {
+  animation-delay: 0.65s;
+}
+
+@keyframes radarWave {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* 1-Tap GPS Hero Action Button */
+.addr-gps-hero-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 68, 31, 0.08) 0%, rgba(255, 184, 0, 0.05) 100%);
+  border: 1.5px solid rgba(255, 68, 31, 0.28);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.addr-gps-hero-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 68, 31, 0.12) 0%, rgba(255, 184, 0, 0.08) 100%);
+  border-color: var(--primary);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(255, 68, 31, 0.12);
+}
+
+.addr-gps-hero-btn:active {
+  transform: scale(0.99);
+}
+
+/* Floating AJAX Popover Overlay & Sheet */
+.floating-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeInModal 0.2s ease forwards;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.floating-modal-sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  background: var(--surface);
+  border-radius: 26px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUpModal 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpModal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   RAPPI & UBER EATS STYLE ADDRESS PICKER (MATERIAL 3 & PRO UX)
+   ============================================================ */
+
+/* Segmented Control / Tabs Header */
+.addr-segmented-control {
+  display: flex;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.addr-tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.addr-tab-item:hover {
+  color: var(--text);
+}
+
+.addr-tab-item.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Quick Action: Elegir en Mapa */
+.addr-map-quick-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.addr-map-quick-card:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Saved Addresses List */
+.addr-saved-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.addr-saved-item:hover {
+  border-color: var(--primary);
+  background: var(--surface2);
+  transform: translateX(2px);
+}
+
+/* Barrio Chips Grid */
+.addr-barrio-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.addr-barrio-chip:hover {
+  background: var(--primary-tint);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Uber Map Pin Physics & Bounce */
+.uber-pin-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.uber-pin-marker.dragging {
+  transform: translate(-50%, -125%) scale(1.12);
+}
+
+.uber-pin-head {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF441F, #E2360F);
+  border: 3.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(255, 68, 31, 0.45);
+}
+
+.uber-pin-shadow {
+  width: 12px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(20, 16, 10, 0.4);
+  margin-top: 5px;
+  transition: all 0.2s ease;
+}
+
+.uber-pin-marker.dragging .uber-pin-shadow {
+  transform: scale(0.6);
+  opacity: 0.25;
+}
+
+/* Live Floating Address Badge over Map */
+.uber-map-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 510;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #17140f;
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+[data-theme='dark'] .uber-map-badge {
+  background: rgba(28, 25, 23, 0.92);
+  color: #f5f5f4;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Floating Recenter GPS FAB */
+.uber-map-recenter-fab {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 510;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uber-map-recenter-fab:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+}
+
+.uber-map-recenter-fab:active {
+  transform: scale(0.94);
+}
+
+
+

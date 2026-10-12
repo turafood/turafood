@@ -15,7 +15,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/useCartStore';
-import { getBusinesses, getFavorites, toggleFavorite, search, seedBusinesses, getAddresses } from '@/lib/data';
+import { getBusinesses, getFavorites, toggleFavorite, search, seedBusinesses, getAddresses, saveAddress } from '@/lib/data';
 import {
   DESK_VERTICALS, STRIP_VERTICALS, HOME_BANNERS,
 } from '@/lib/seed';
@@ -25,6 +25,7 @@ import { useAi } from './components/AiOverlay';
 import { Cover, Icon3D } from './components/Media';
 import LazyVideo from './components/LazyVideo';
 import FastViewModal from './components/FastViewModal';
+import AddressSheet from './components/AddressSheet';
 import { useThemeStore } from '@/store/useThemeStore';
 
 
@@ -57,18 +58,43 @@ export default function HomePage({ initialStores = null }) {
   const openAi = useAi((s) => s.openAi);
   const hasCart = cartCount > 0;
 
-  // La dirección real de entrega de la persona (antes era un texto fijo para todos)
+  // La dirección real de entrega de la persona (sincronizada en vivo vía AJAX)
   const [addrShort, setAddrShort] = useState('Elige tu dirección');
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+
   useEffect(() => {
     let vivo = true;
     getAddresses()
       .then((a) => {
+        if (!vivo) return;
+        setAddresses(a);
         const d = a.find((x) => x.is_default) ?? a[0];
-        if (vivo && d?.address) setAddrShort(d.address);
+        if (d?.address) setAddrShort(d.address);
       })
       .catch(() => {});
     return () => { vivo = false; };
   }, []);
+
+  useEffect(() => {
+    const onAddrChange = (e) => {
+      if (e.detail?.address) setAddrShort(e.detail.address);
+    };
+    window.addEventListener('turafood:address-changed', onAddrChange);
+    return () => window.removeEventListener('turafood:address-changed', onAddrChange);
+  }, []);
+
+  const handleAddressSaved = async (payload) => {
+    try {
+      const nueva = await saveAddress({ ...payload, isDefault: true });
+      setAddrShort(nueva.address);
+      setAddresses((prev) => [{ ...nueva, is_default: true }, ...prev.map((a) => ({ ...a, is_default: false }))]);
+      setAddressOpen(false);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('turafood:address-changed', { detail: nueva }));
+      }
+    } catch {}
+  };
 
 
   useEffect(() => {
@@ -213,15 +239,25 @@ export default function HomePage({ initialStores = null }) {
             </div>
           </div>
 
-          <button onClick={() => router.push('/account/addresses')} style={S.deskAddr}>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--primary)' }}>location_on</span>
-            <span style={{ textAlign: 'left' }}>
-              <span style={{ display: 'block', fontSize: 9.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>
-                ENTREGAR EN
+          <button
+            onClick={() => setAddressOpen(true)}
+            className="floating-addr-pill"
+            aria-label="Seleccionar dirección de entrega"
+          >
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--primary)' }}>location_on</span>
+              <span className="gps-live-dot" />
+            </div>
+            <span style={{ textAlign: 'left', minWidth: 0, maxWidth: 220 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                <span>ENTREGAR EN</span>
+                <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--green)' }} />
               </span>
-              <span style={{ display: 'block', fontSize: 13, fontWeight: 700, marginTop: 1, color: 'var(--text)' }}>{addrShort}</span>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {addrShort}
+              </span>
             </span>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>expand_more</span>
+            <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', marginLeft: 2 }}>expand_more</span>
           </button>
 
           {/* BUSCADOR FLOTANTE SPOTLIGHT PRO */}
@@ -568,11 +604,17 @@ export default function HomePage({ initialStores = null }) {
         <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <div style={{ flex: 'none', background: 'var(--bg)', padding: '4px 20px 12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <button onClick={() => router.push('/account/addresses')} style={S.addrBtn}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', letterSpacing: '.05em' }}>
-                  BUENAVENTURA
+              <button
+                onClick={() => setAddressOpen(true)}
+                className="mobile-addr-btn"
+                style={S.addrBtn}
+                aria-label="Cambiar dirección"
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                  <span>BUENAVENTURA</span>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: 15, maxWidth: '100%' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontWeight: 800, fontSize: 15, maxWidth: '100%', color: 'var(--text)' }}>
                   <span className="tr1">{addrShort}</span>
                   <span className="ms" style={{ fontSize: 19, color: 'var(--muted)', flex: 'none' }}>expand_more</span>
                 </span>
@@ -936,6 +978,14 @@ export default function HomePage({ initialStores = null }) {
             onClose={() => setFastViewStore(null)}
           />
         )}
+
+        {/* Modal Flotante AJAX de Selección y Detección de Dirección */}
+        <AddressSheet
+          open={addressOpen}
+          onClose={() => setAddressOpen(false)}
+          onSave={handleAddressSaved}
+          recientes={addresses}
+        />
 
         {/* El botón flotante de Tura IA lo provee AppShell en toda la app */}
       </div>

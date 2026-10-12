@@ -44,9 +44,9 @@ export default function TuraMap({
       scrollWheelZoom: false,
       dragging: interactive,
     });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      attribution: '&copy; OpenStreetMap contributors',
     }).addTo(m);
 
     layer.current = L.layerGroup().addTo(m);

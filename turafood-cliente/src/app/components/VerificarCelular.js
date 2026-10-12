@@ -111,63 +111,129 @@ export default function VerificarCelular({ celular, onVerificado, onCerrar, onCa
   const ayuda = linkSoporte(`Hola TuraFood, no me llega el código al ${tel}`);
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Confirma tu celular"
-      style={S.fondo} onClick={(e) => { if (e.target === e.currentTarget && !trabajando) onCerrar?.(); }}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirma tu celular"
+      style={S.fondo}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !trabajando) onCerrar?.();
+      }}
+    >
+      <style>{`
+        @keyframes modalPop {
+          from { opacity: 0; transform: scale(0.96) translateY(8px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .turafood-input-otp:focus {
+          border-color: var(--primary, #FF441F) !important;
+          box-shadow: 0 0 0 4px var(--primarySoft, rgba(255, 68, 31, 0.15)) !important;
+        }
+      `}</style>
+
       <div style={S.hoja}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={S.icono}><span className="ms ms-fill" style={{ fontSize: 24, color: '#fff' }}>sms</span></span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={S.titulo}>Confirma tu celular</div>
-            <div style={S.texto}>
-              {paso === 'enviando' ? `Enviando el código al ${tel}…`
-                : paso === 'codigo' ? `Escribe el código de 6 dígitos que enviamos por SMS al ${tel}.`
-                  : 'No pudimos enviar el código.'}
-            </div>
+        <button
+          onClick={onCerrar}
+          disabled={trabajando}
+          aria-label="Cerrar"
+          style={S.cerrar}
+        >
+          <span className="ms" style={{ fontSize: 20 }}>close</span>
+        </button>
+
+        <div style={S.headerCenter}>
+          <div style={S.iconoBadge}>
+            <span className="ms ms-fill" style={{ fontSize: 26, color: 'var(--primary, #FF441F)' }}>sms</span>
           </div>
-          <button onClick={onCerrar} disabled={trabajando} aria-label="Cerrar" style={S.cerrar}>
-            <span className="ms" style={{ fontSize: 20 }}>close</span>
-          </button>
+          <h2 style={S.titulo}>Confirma tu celular</h2>
+          <p style={S.texto}>
+            {paso === 'enviando'
+              ? `Enviando el código al ${tel}…`
+              : paso === 'codigo'
+                ? `Escribe el código de 6 dígitos que enviamos por SMS al ${tel}`
+                : 'No pudimos enviar el código.'}
+          </p>
         </div>
 
         {aviso && <div role="status" style={S.aviso}>{aviso}</div>}
 
         {paso === 'codigo' && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 18, textAlign: 'center' }}>
             <input
-              ref={caja} value={codigo} onChange={alEscribir} disabled={trabajando}
-              inputMode="numeric" autoComplete="one-time-code" placeholder="••••••" maxLength={6}
-              aria-label="Código de verificación" style={S.campo}
+              ref={caja}
+              value={codigo}
+              onChange={alEscribir}
+              disabled={trabajando}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="••••••"
+              maxLength={6}
+              aria-label="Código de verificación"
+              className="turafood-input-otp"
+              style={S.campo}
             />
-            <div aria-live="polite" style={{ minHeight: 20, marginTop: 10, textAlign: 'center', fontSize: 13.5, fontWeight: 700, color: error ? 'var(--primary)' : 'var(--muted)' }}>
-              {trabajando ? 'Verificando y haciendo tu pedido…' : error}
+
+            <div
+              aria-live="polite"
+              style={{
+                minHeight: 22,
+                marginTop: 10,
+                textAlign: 'center',
+                fontSize: 13.5,
+                fontWeight: 700,
+                color: error ? 'var(--primary, #FF441F)' : 'var(--muted)',
+              }}
+            >
+              {trabajando ? 'Verificando y creando tu pedido…' : error}
             </div>
-            <button type="button" disabled={espera > 0 || trabajando}
+
+            <button
+              type="button"
+              disabled={espera > 0 || trabajando}
               onClick={() => reintentar(envio?.modo === 'ingresar' ? { forzarIngreso: true } : {})}
-              style={S.enlace}>
-              {espera > 0 ? `Reenviar código en ${espera} s` : 'Reenviar código'}
+              style={{
+                ...S.enlace,
+                opacity: espera > 0 || trabajando ? 0.6 : 1,
+                cursor: espera > 0 || trabajando ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {espera > 0 ? `Reenviar código en ${espera} s` : 'Reenviar código por SMS'}
             </button>
           </div>
         )}
 
         {paso === 'error' && (
-          <>
-            {error && <div role="alert" style={{ ...S.error, marginTop: 14 }}>{error}</div>}
-            <button onClick={() => reintentar()} style={{ ...S.boton, marginTop: 14 }}>Intentar de nuevo</button>
-          </>
+          <div style={{ marginTop: 16 }}>
+            {error && <div role="alert" style={S.error}>{error}</div>}
+            <button onClick={() => reintentar()} style={S.boton}>
+              Intentar de nuevo
+            </button>
+          </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-          <button type="button" onClick={onCambiarNumero} disabled={trabajando} style={S.secundario}>
+        <div style={S.accionesFooter}>
+          <button
+            type="button"
+            onClick={onCambiarNumero}
+            disabled={trabajando}
+            style={S.secundario}
+          >
             ¿Número equivocado? Cámbialo
           </button>
+
           {(fallos >= 2 || paso === 'error') && (
-            <a href={ayuda} target="_blank" rel="noopener noreferrer" style={{ ...S.secundario, textDecoration: 'none' }}>
+            <a
+              href={ayuda}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...S.secundario, textDecoration: 'none', color: 'var(--green, #11B26A)' }}
+            >
               ¿No te llega? Escríbenos
             </a>
           )}
         </div>
 
-        <p style={{ margin: '12px 0 0', fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
+        <p style={S.pie}>
           Así el negocio y el repartidor saben que eres tú, y tu historial y tus direcciones te acompañan en cualquier celular. Sin contraseñas.
         </p>
       </div>
@@ -176,16 +242,162 @@ export default function VerificarCelular({ celular, onVerificado, onCerrar, onCa
 }
 
 const S = {
-  fondo: { position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' },
-  hoja: { width: '100%', maxWidth: 480, background: 'var(--surface)', borderRadius: '24px 24px 0 0', padding: 20, paddingBottom: 'max(20px, env(safe-area-inset-bottom))', boxShadow: '0 -12px 40px rgba(0,0,0,.25)' },
-  icono: { width: 44, height: 44, borderRadius: 14, background: 'var(--primary)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' },
-  titulo: { fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18, color: 'var(--text)' },
-  texto: { fontSize: 13.5, color: 'var(--muted)', marginTop: 2, lineHeight: 1.4 },
-  cerrar: { width: 36, height: 36, borderRadius: '50%', border: 'none', background: 'var(--surface2)', color: 'var(--text)', cursor: 'pointer', flex: 'none' },
-  aviso: { marginTop: 14, padding: '10px 12px', borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 10%, var(--surface))', fontSize: 13, color: 'var(--text)', lineHeight: 1.4 },
-  campo: { width: '100%', height: 60, borderRadius: 14, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', textAlign: 'center', fontSize: 28, fontWeight: 800, letterSpacing: '.4em' },
-  boton: { width: '100%', height: 52, borderRadius: 14, border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 16, cursor: 'pointer' },
-  enlace: { width: '100%', marginTop: 4, height: 40, background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: 14, cursor: 'pointer' },
-  secundario: { background: 'none', border: 'none', padding: '6px 0', color: 'var(--muted)', fontWeight: 700, fontSize: 13, textDecoration: 'underline', cursor: 'pointer' },
-  error: { fontSize: 13.5, fontWeight: 700, color: 'var(--primary)' },
+  fondo: {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 1000,
+    background: 'rgba(0, 0, 0, 0.65)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '16px',
+    boxSizing: 'border-box',
+  },
+  hoja: {
+    width: '100%',
+    maxWidth: 420,
+    background: 'var(--surface, #FFFFFF)',
+    borderRadius: 24,
+    padding: '28px 24px 22px',
+    boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border)',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+    animation: 'modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+    maxHeight: 'calc(100vh - 32px)',
+    overflowY: 'auto',
+  },
+  cerrar: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 36,
+    height: 36,
+    borderRadius: '50%',
+    border: 'none',
+    background: 'var(--surface2, #F0EEE9)',
+    color: 'var(--text, #17140F)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'opacity 0.15s, transform 0.15s',
+    zIndex: 2,
+  },
+  headerCenter: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    width: '100%',
+  },
+  iconoBadge: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    background: 'var(--primarySoft, #FFF0ED)',
+    border: '1px solid var(--primarySoftBorder, rgba(255, 68, 31, 0.20))',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  titulo: {
+    fontFamily: 'var(--font-bricolage, system-ui, sans-serif)',
+    fontWeight: 800,
+    fontSize: 20,
+    color: 'var(--text, #17140F)',
+    margin: 0,
+    lineHeight: 1.25,
+  },
+  texto: {
+    fontSize: 14,
+    color: 'var(--muted, #8C857B)',
+    margin: '6px 0 0',
+    lineHeight: 1.45,
+    maxWidth: 340,
+  },
+  aviso: {
+    marginTop: 14,
+    padding: '10px 14px',
+    borderRadius: 14,
+    background: 'var(--primarySoft, #FFF0ED)',
+    border: '1px solid var(--primarySoftBorder, rgba(255, 68, 31, 0.20))',
+    fontSize: 13,
+    color: 'var(--text, #17140F)',
+    lineHeight: 1.45,
+    textAlign: 'center',
+  },
+  campo: {
+    width: '100%',
+    height: 58,
+    borderRadius: 16,
+    border: '2px solid var(--border)',
+    background: 'var(--surface2, #F0EEE9)',
+    color: 'var(--text, #17140F)',
+    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: 800,
+    letterSpacing: '0.35em',
+    outline: 'none',
+    boxSizing: 'border-box',
+  },
+  boton: {
+    width: '100%',
+    height: 50,
+    borderRadius: 14,
+    border: 'none',
+    background: 'var(--primary, #FF441F)',
+    color: '#fff',
+    fontWeight: 800,
+    fontSize: 15,
+    cursor: 'pointer',
+    marginTop: 12,
+    transition: 'opacity 0.15s',
+  },
+  enlace: {
+    width: '100%',
+    marginTop: 6,
+    height: 38,
+    background: 'none',
+    border: 'none',
+    color: 'var(--primary, #FF441F)',
+    fontWeight: 800,
+    fontSize: 13.5,
+  },
+  accionesFooter: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    marginTop: 16,
+    flexWrap: 'wrap',
+  },
+  secundario: {
+    background: 'none',
+    border: 'none',
+    padding: '4px 6px',
+    color: 'var(--muted, #8C857B)',
+    fontWeight: 700,
+    fontSize: 13,
+    textDecoration: 'underline',
+    cursor: 'pointer',
+  },
+  error: {
+    fontSize: 13.5,
+    fontWeight: 700,
+    color: 'var(--primary, #FF441F)',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  pie: {
+    margin: '16px 0 0',
+    fontSize: 11.5,
+    color: 'var(--muted, #8C857B)',
+    lineHeight: 1.5,
+    textAlign: 'center',
+  },
 };
