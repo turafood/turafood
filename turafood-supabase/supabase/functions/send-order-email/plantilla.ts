@@ -1,19 +1,23 @@
 // ============================================================
-// TURAFOOD — Correo de pedido entregado (recibo)
+// TURAFOOD — Correo de pedido entregado (recibo tipo Rappi / Uber Eats PRO)
 //
-// Solo arma el texto: `construirCorreo(datos)` devuelve asunto, HTML y texto
-// plano. No sabe nada de Supabase ni de Resend, así que se puede probar y
-// mirar en el navegador (ver vista-previa.mjs).
+// Genera un recibo visual de alta gama con:
+// - Encabezado y logotipo oficial de TuraFood
+// - Banner de éxito con avatar del restaurante
+// - Desglose visual de productos CON FOTOS / miniaturas
+// - Tarjeta de entrega (dirección y repartidor)
+// - Resumen financiero detallado (subtotal, domicilio, servicio, total y método de pago)
+// - Botón de calificación interactivo estilo Rappi/Uber
+// - Canal directo de soporte por WhatsApp para incidencias
 //
-// El HTML usa tablas y estilos en línea a propósito: Gmail, Outlook y los
-// celulares ignoran casi todo lo demás. Todo lo que escribe una persona
-// (nombres, direcciones, notas) pasa por `esc()` antes de entrar al HTML.
+// El HTML usa tablas compatibles con clientes de correo (Gmail, Outlook, Apple Mail).
 // ============================================================
 
 export interface ItemRecibo {
   nombre: string;
   cantidad: number;
   subtotal: number;
+  imagen?: string | null;
   extras?: { name?: string; price?: number }[];
   notas?: string | null;
 }
@@ -22,6 +26,8 @@ export interface DatosRecibo {
   id: string;
   numero: string;
   negocio: string;
+  negocioLogo?: string | null;
+  negocioCover?: string | null;
   cliente?: string | null;
   items: ItemRecibo[];
   subtotal: number;
@@ -36,20 +42,22 @@ export interface DatosRecibo {
   detalleDireccion?: string | null;
   entregadoEn?: string | null;       // ISO
   repartidor?: string | null;
+  repartidorFoto?: string | null;
 }
 
 const SITIO = "https://turafood.com";
 const WHATSAPP_SOPORTE = "573137594713";
 const NARANJA = "#FF441F";
+const VERDE = "#10B981";
 
 const PAGO: Record<string, string> = {
-  cash: "Efectivo al recibir",
-  nequi: "Nequi",
+  cash: "Efectivo contraentrega",
+  nequi: "Nequi Directo",
   daviplata: "Daviplata",
-  card: "Tarjeta",
+  card: "Tarjeta de crédito / débito",
 };
 
-/** Escapa texto que escribió una persona antes de ponerlo en el HTML */
+/** Escapa caracteres HTML peligrosos */
 export function esc(valor: unknown): string {
   return String(valor ?? "")
     .replace(/&/g, "&amp;")
@@ -59,22 +67,31 @@ export function esc(valor: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
-/** $ 95.700 (pesos colombianos, sin decimales) */
+/** Formato moneda colombiana: $ 95.700 */
 export function cop(n: number): string {
   const v = Math.round(Number(n) || 0);
   return "$ " + String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/** Convierte rutas relativas a absolutas HTTPS para que carguen en el correo */
+export function urlAbsoluta(url?: string | null): string | null {
+  if (!url) return null;
+  const s = String(url).trim();
+  if (!s) return null;
+  if (s.startsWith("http://") || s.startsWith("https://")) return s;
+  return `${SITIO}${s.startsWith("/") ? "" : "/"}${s}`;
 }
 
 function fechaLarga(iso?: string | null): string {
   const d = iso ? new Date(iso) : new Date();
   if (Number.isNaN(d.getTime())) return "";
   const fecha = new Intl.DateTimeFormat("es-CO", {
-    timeZone: "America/Bogota", day: "numeric", month: "long", year: "numeric",
+    timeZone: "America/Bogota", day: "numeric", month: "short", year: "numeric",
   }).format(d);
   const hora = new Intl.DateTimeFormat("es-CO", {
     timeZone: "America/Bogota", hour: "numeric", minute: "2-digit", hour12: true,
   }).format(d).replace(/\s/g, " ");
-  return `${fecha}, ${hora}`;
+  return `${fecha} · ${hora}`;
 }
 
 function primerNombre(nombre?: string | null): string {
@@ -85,50 +102,78 @@ export function construirCorreo(d: DatosRecibo): { asunto: string; html: string;
   const nombre = primerNombre(d.cliente);
   const entregaDomicilio = d.modo !== "pickup";
   const cuando = fechaLarga(d.entregadoEn);
-  const pago = d.pago ? (PAGO[d.pago] ?? d.pago) : "";
+  const pagoTexto = d.pago ? (PAGO[d.pago] ?? d.pago) : "Contraentrega";
   const linkCalificar = `${SITIO}/rate?order=${encodeURIComponent(d.id)}`;
   const linkDetalle = `${SITIO}/tracking?order=${encodeURIComponent(d.id)}`;
-  const linkSoporte = `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent(`Hola TuraFood, tengo una duda con mi pedido ${d.numero}`)}`;
+  const linkSoporte = `https://wa.me/${WHATSAPP_SOPORTE}?text=${encodeURIComponent(`Hola TuraFood, tengo una consulta sobre mi pedido ${d.numero}`)}`;
 
-  const asunto = `Tu pedido ${d.numero} fue entregado · Recibo de TuraFood`;
-  const saludo = nombre ? `¡Gracias, ${esc(nombre)}!` : "¡Gracias por tu pedido!";
+  const asunto = `✓ Pedido ${d.numero} entregado · Tu recibo de TuraFood`;
+  const saludo = nombre ? `¡Gracias por tu pedido, ${esc(nombre)}!` : "¡Gracias por tu pedido!";
   const pre = `${d.negocio} · ${d.items.reduce((a, i) => a + i.cantidad, 0)} producto(s) · Total ${cop(d.total)}`;
 
+  const fotoRestaurante = urlAbsoluta(d.negocioCover || d.negocioLogo) || `${SITIO}/images/steak-ribeye.jpg`;
+
+  // Filas de productos con miniaturas fotográficas (estilo Rappi / Uber)
   const filasItems = d.items.map((i) => {
     const extras = (i.extras ?? []).filter((e) => e?.name)
       .map((e) => esc(e.name)).join(", ");
+    const fotoProducto = urlAbsoluta(i.imagen);
+
     return `
-          <tr>
-            <td valign="top" style="padding:12px 0;border-bottom:1px solid #EFEAE4;font-size:15px;color:#1B1712;">
-              <span style="display:inline-block;min-width:26px;font-weight:800;color:${NARANJA};">${esc(i.cantidad)}×</span>${esc(i.nombre)}
-              ${extras ? `<div style="font-size:12.5px;color:#7A7268;margin:3px 0 0 26px;">${extras}</div>` : ""}
-              ${i.notas ? `<div style="font-size:12.5px;color:#7A7268;margin:3px 0 0 26px;font-style:italic;">“${esc(i.notas)}”</div>` : ""}
-            </td>
-            <td valign="top" align="right" style="padding:12px 0 12px 12px;border-bottom:1px solid #EFEAE4;font-size:15px;font-weight:700;color:#1B1712;white-space:nowrap;">${cop(i.subtotal)}</td>
-          </tr>`;
+      <tr>
+        <td style="padding:14px 0;border-bottom:1px solid #F0ECE6;vertical-align:top;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <!-- Miniatura fotográfica -->
+              <td valign="top" style="width:56px;padding-right:12px;">
+                ${fotoProducto ? `
+                  <img src="${esc(fotoProducto)}" alt="${esc(i.nombre)}" width="56" height="56" style="width:56px;height:56px;border-radius:12px;object-fit:cover;display:block;border:1px solid #EAE3DA;background:#FAF7F3;" />
+                ` : `
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:56px;height:56px;background:#FAF6F0;border-radius:12px;border:1px solid #EAE3DA;text-align:center;">
+                    <tr>
+                      <td align="center" valign="middle" style="font-size:24px;line-height:1;">🍽️</td>
+                    </tr>
+                  </table>
+                `}
+              </td>
+
+              <!-- Detalle del producto -->
+              <td valign="top" style="vertical-align:top;">
+                <div style="font-size:14.5px;font-weight:700;color:#18181B;line-height:1.35;">
+                  <span style="display:inline-block;background:#FFF0ED;color:${NARANJA};font-weight:800;font-size:11.5px;padding:2px 7px;border-radius:6px;margin-right:6px;vertical-align:1px;">
+                    ${esc(i.cantidad)}×
+                  </span>
+                  ${esc(i.nombre)}
+                </div>
+                ${extras ? `<div style="font-size:12px;color:#71717A;margin-top:3px;">↳ ${extras}</div>` : ""}
+                ${i.notas ? `<div style="font-size:12px;color:#B45309;margin-top:3px;font-style:italic;">Nota: “${esc(i.notas)}”</div>` : ""}
+              </td>
+
+              <!-- Subtotal del ítem -->
+              <td valign="top" align="right" style="padding-left:12px;font-size:14.5px;font-weight:800;color:#18181B;white-space:nowrap;vertical-align:top;">
+                ${cop(i.subtotal)}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>`;
   }).join("");
 
-  const filaMonto = (etiqueta: string, valor: string, color = "#4A433A") => `
-          <tr>
-            <td style="padding:5px 0;font-size:14px;color:${color};">${etiqueta}</td>
-            <td align="right" style="padding:5px 0;font-size:14px;color:${color};white-space:nowrap;">${valor}</td>
-          </tr>`;
+  const filaMonto = (etiqueta: string, valor: string, color = "#52525B", negrita = false) => `
+    <tr>
+      <td style="padding:5px 0;font-size:13.5px;color:${color};${negrita ? "font-weight:700;" : ""}">${etiqueta}</td>
+      <td align="right" style="padding:5px 0;font-size:13.5px;color:${color};${negrita ? "font-weight:700;" : ""}white-space:nowrap;">${valor}</td>
+    </tr>`;
 
   const montos = [
-    filaMonto("Subtotal", cop(d.subtotal)),
-    entregaDomicilio ? filaMonto("Domicilio", d.domicilio > 0 ? cop(d.domicilio) : "Gratis") : "",
+    filaMonto("Subtotal productos", cop(d.subtotal)),
+    entregaDomicilio
+      ? filaMonto("Tarifa de entrega", d.domicilio > 0 ? cop(d.domicilio) : "Gratis ⚡", d.domicilio > 0 ? "#52525B" : VERDE, d.domicilio === 0)
+      : "",
     d.servicio > 0 ? filaMonto("Tarifa de servicio", cop(d.servicio)) : "",
     d.propina > 0 ? filaMonto("Propina para el repartidor", cop(d.propina)) : "",
-    d.descuento > 0 ? filaMonto("Descuento", `− ${cop(d.descuento)}`, "#0B7A48") : "",
+    d.descuento > 0 ? filaMonto("Descuento aplicado", `− ${cop(d.descuento)}`, VERDE, true) : "",
   ].join("");
-
-  const bloqueEntrega = entregaDomicilio
-    ? `
-        <tr><td style="padding:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.06em;color:#7A7268;text-transform:uppercase;">Entregado en</td></tr>
-        <tr><td style="padding:0 0 14px;font-size:15px;color:#1B1712;line-height:1.45;">${esc(d.direccion || "Tu dirección")}${d.detalleDireccion ? `<br><span style="color:#7A7268;">${esc(d.detalleDireccion)}</span>` : ""}</td></tr>`
-    : `
-        <tr><td style="padding:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.06em;color:#7A7268;text-transform:uppercase;">Recogido en</td></tr>
-        <tr><td style="padding:0 0 14px;font-size:15px;color:#1B1712;line-height:1.45;">${esc(d.negocio)}</td></tr>`;
 
   const html = `<!doctype html>
 <html lang="es">
@@ -139,108 +184,211 @@ export function construirCorreo(d: DatosRecibo): { asunto: string; html: string;
 <meta name="supported-color-schemes" content="light">
 <title>${esc(asunto)}</title>
 </head>
-<body style="margin:0;padding:0;background:#F6F2EC;-webkit-text-size-adjust:100%;">
+<body style="margin:0;padding:0;background:#F5F3EF;-webkit-text-size-adjust:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${esc(pre)}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F2EC;">
-  <tr>
-    <td align="center" style="padding:24px 12px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-        <!-- Marca -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F3EF;">
+  <tr>
+    <td align="center" style="padding:28px 12px 36px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;">
+
+        <!-- 1. Cabecera con Logo Oficial -->
         <tr>
-          <td style="padding:4px 4px 16px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="width:36px;height:36px;background:${NARANJA};border-radius:10px;text-align:center;color:#ffffff;font-size:22px;font-weight:800;line-height:36px;">t</td>
-              <td style="padding-left:10px;font-size:20px;font-weight:800;color:#1B1712;letter-spacing:-.02em;">TuraFood</td>
-            </tr></table>
+          <td style="padding:0 8px 18px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="middle">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="width:36px;height:36px;background:${NARANJA};border-radius:11px;text-align:center;color:#ffffff;font-size:20px;font-weight:900;line-height:36px;">
+                        t
+                      </td>
+                      <td style="padding-left:10px;font-size:21px;font-weight:900;color:#18181B;letter-spacing:-0.03em;">
+                        TuraFood
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td align="right" valign="middle">
+                  <span style="display:inline-block;background:#E6F6EE;color:${VERDE};font-size:11.5px;font-weight:800;letter-spacing:0.04em;padding:4px 10px;border-radius:99px;border:1px solid rgba(16,185,129,0.2);">
+                    ✓ ENTREGADO
+                  </span>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 
-        <!-- Tarjeta -->
+        <!-- 2. Tarjeta Principal Estilo Uber Eats / Rappi -->
         <tr>
-          <td style="background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #EAE3DA;">
+          <td style="background:#ffffff;border-radius:24px;border:1px solid #EAE3DA;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.04);">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
-              <!-- Encabezado -->
+              <!-- Hero: Confirmación de entrega -->
               <tr>
-                <td align="center" style="padding:32px 24px 8px;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                    <td style="width:56px;height:56px;background:#E6F6EE;border-radius:28px;text-align:center;color:#0B7A48;font-size:30px;font-weight:800;line-height:56px;">✓</td>
-                  </tr></table>
-                  <h1 style="margin:16px 0 6px;font-size:26px;line-height:1.2;color:#1B1712;letter-spacing:-.02em;">Pedido entregado</h1>
-                  <p style="margin:0;font-size:15px;line-height:1.5;color:#4A433A;">${saludo} Esperamos que lo disfrutes.</p>
+                <td align="center" style="padding:32px 24px 20px;background:linear-gradient(180deg, rgba(255,68,31,0.04) 0%, transparent 100%);border-bottom:1px solid #F5F1EB;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="width:58px;height:58px;background:#E6F6EE;border-radius:50%;text-align:center;color:${VERDE};font-size:30px;font-weight:900;line-height:58px;box-shadow:0 4px 12px rgba(16,185,129,0.15);">
+                        ✓
+                      </td>
+                    </tr>
+                  </table>
+                  <h1 style="margin:16px 0 4px;font-size:24px;font-weight:900;color:#18181B;letter-spacing:-0.02em;line-height:1.2;">
+                    ¡Tu pedido ha sido entregado!
+                  </h1>
+                  <p style="margin:0;font-size:14.5px;color:#71717A;line-height:1.45;max-width:440px;">
+                    ${saludo} Esperamos que disfrutes cada sabor del puerto de Buenaventura.
+                  </p>
                 </td>
               </tr>
 
-              <!-- Pedido -->
+              <!-- Ficha del Restaurante con Foto -->
               <tr>
-                <td style="padding:20px 24px 4px;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF7F3;border-radius:14px;">
+                <td style="padding:18px 24px 14px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF8F5;border-radius:16px;border:1px solid #EFEAE3;">
                     <tr>
                       <td style="padding:14px 16px;">
-                        <div style="font-size:12px;font-weight:800;letter-spacing:.06em;color:#7A7268;text-transform:uppercase;">Pedido ${esc(d.numero)}</div>
-                        <div style="font-size:17px;font-weight:800;color:#1B1712;margin-top:3px;">${esc(d.negocio)}</div>
-                        ${cuando ? `<div style="font-size:13px;color:#7A7268;margin-top:3px;">${esc(cuando)}</div>` : ""}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td valign="middle" style="width:52px;padding-right:14px;">
+                              <img src="${esc(fotoRestaurante)}" alt="${esc(d.negocio)}" width="52" height="52" style="width:52px;height:52px;border-radius:12px;object-fit:cover;display:block;border:1px solid #EAE3DA;" />
+                            </td>
+                            <td valign="middle">
+                              <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#A1A1AA;text-transform:uppercase;">
+                                Pedido #${esc(d.numero)}
+                              </div>
+                              <div style="font-size:17px;font-weight:900;color:#18181B;margin-top:2px;letter-spacing:-0.01em;">
+                                ${esc(d.negocio)}
+                              </div>
+                              ${cuando ? `<div style="font-size:12.5px;color:#71717A;margin-top:2px;">${esc(cuando)}</div>` : ""}
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
                 </td>
               </tr>
 
-              <!-- Productos -->
+              <!-- Lista de Productos con Fotos -->
               <tr>
-                <td style="padding:8px 24px 0;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${filasItems}
+                <td style="padding:6px 24px 0;">
+                  <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#A1A1AA;text-transform:uppercase;margin-bottom:6px;">
+                    🍽️ DETALLE DE TU ORDEN
+                  </div>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                    ${filasItems}
                   </table>
                 </td>
               </tr>
 
-              <!-- Montos -->
+              <!-- Desglose de Pago / Facturación -->
               <tr>
-                <td style="padding:10px 24px 0;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${montos}
+                <td style="padding:16px 24px 0;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAFAF9;border-radius:14px;padding:14px 16px;">
                     <tr>
-                      <td style="padding:12px 0 4px;border-top:2px solid #1B1712;font-size:18px;font-weight:800;color:#1B1712;">Total</td>
-                      <td align="right" style="padding:12px 0 4px;border-top:2px solid #1B1712;font-size:20px;font-weight:800;color:#1B1712;white-space:nowrap;">${cop(d.total)}</td>
+                      <td>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                          ${montos}
+                          <tr>
+                            <td style="padding:10px 0 2px;border-top:2px dashed #E4E4E7;font-size:16px;font-weight:900;color:#18181B;">
+                              TOTAL PAGADO
+                            </td>
+                            <td align="right" style="padding:10px 0 2px;border-top:2px dashed #E4E4E7;font-size:19px;font-weight:900;color:#18181B;white-space:nowrap;">
+                              ${cop(d.total)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="padding:3px 0 0;font-size:12px;color:#71717A;">
+                              Método de pago: <b>${esc(pagoTexto)}</b>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
                     </tr>
-                    ${pago ? `<tr><td colspan="2" style="padding:0 0 4px;font-size:13px;color:#7A7268;">Pago: ${esc(pago)}</td></tr>` : ""}
                   </table>
                 </td>
               </tr>
 
-              <!-- Entrega -->
+              <!-- Bloque de Entrega & Repartidor -->
               <tr>
                 <td style="padding:18px 24px 0;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${bloqueEntrega}
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #F0ECE6;padding-top:16px;">
+                    <tr>
+                      <td valign="top" style="padding-bottom:12px;">
+                        <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#A1A1AA;text-transform:uppercase;">
+                          ${entregaDomicilio ? "📍 Dirección de entrega" : "🏪 Punto de recogida"}
+                        </div>
+                        <div style="font-size:14px;font-weight:700;color:#18181B;margin-top:3px;line-height:1.4;">
+                          ${esc(entregaDomicilio ? (d.direccion || "Buenaventura") : d.negocio)}
+                        </div>
+                        ${d.detalleDireccion ? `<div style="font-size:12.5px;color:#71717A;margin-top:2px;">${esc(d.detalleDireccion)}</div>` : ""}
+                      </td>
+                    </tr>
                     ${d.repartidor && entregaDomicilio ? `
-                    <tr><td style="padding:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.06em;color:#7A7268;text-transform:uppercase;">Tu repartidor</td></tr>
-                    <tr><td style="padding:0 0 4px;font-size:15px;color:#1B1712;">${esc(d.repartidor)}</td></tr>` : ""}
+                    <tr>
+                      <td valign="top" style="padding-bottom:4px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background:#FAF8F5;padding:8px 14px;border-radius:10px;border:1px solid #EFEAE3;">
+                          <tr>
+                            <td style="font-size:18px;padding-right:8px;">🛵</td>
+                            <td style="font-size:13px;color:#18181B;">
+                              Entregado por <b>${esc(d.repartidor)}</b>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>` : ""}
                   </table>
                 </td>
               </tr>
 
-              <!-- Botón -->
+              <!-- Botones de Acción Estilo Uber Eats / Rappi -->
               <tr>
-                <td align="center" style="padding:14px 24px 8px;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                    <td align="center" style="background:${NARANJA};border-radius:14px;">
-                      <a href="${esc(linkCalificar)}" style="display:inline-block;padding:15px 32px;font-size:16px;font-weight:800;color:#ffffff;text-decoration:none;">Califica tu pedido</a>
-                    </td>
-                  </tr></table>
-                  <p style="margin:12px 0 0;font-size:13px;color:#7A7268;">Tu opinión ayuda a los negocios del puerto a mejorar.</p>
+                <td align="center" style="padding:22px 24px 10px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tr>
+                      <td align="center">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:340px;">
+                          <tr>
+                            <td align="center" style="background:${NARANJA};border-radius:14px;box-shadow:0 6px 20px rgba(255,68,31,0.28);">
+                              <a href="${esc(linkCalificar)}" style="display:block;padding:15px 24px;font-size:15px;font-weight:900;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                                ⭐ Calificar entrega y comida
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center" style="padding-top:12px;">
+                        <a href="${esc(linkDetalle)}" style="display:inline-block;font-size:13px;font-weight:700;color:#71717A;text-decoration:none;">
+                          Ver comanda completa en la app →
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
                 </td>
               </tr>
 
-              <!-- Ayuda -->
+              <!-- Asistencia y Soporte Directo -->
               <tr>
-                <td style="padding:20px 24px 28px;">
-                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #EFEAE4;">
+                <td style="padding:16px 24px 28px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF8F5;border-radius:14px;border:1px solid #EFEAE3;padding:14px 16px;">
                     <tr>
-                      <td style="padding-top:16px;font-size:14px;line-height:1.55;color:#4A433A;">
-                        ¿Algo salió mal con tu pedido? Escríbenos por
-                        <a href="${esc(linkSoporte)}" style="color:${NARANJA};font-weight:700;text-decoration:none;">WhatsApp</a>
-                        o revisa el
-                        <a href="${esc(linkDetalle)}" style="color:${NARANJA};font-weight:700;text-decoration:none;">detalle de tu pedido</a>.
+                      <td>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td valign="middle" style="font-size:13px;color:#52525B;line-height:1.45;">
+                              ¿Algo no salió como esperabas con tu comida?
+                            </td>
+                            <td align="right" valign="middle" style="white-space:nowrap;padding-left:12px;">
+                              <a href="${esc(linkSoporte)}" style="display:inline-block;background:#25D366;color:#ffffff;font-size:12px;font-weight:800;padding:7px 14px;border-radius:8px;text-decoration:none;box-shadow:0 2px 8px rgba(37,211,102,0.2);">
+                                WhatsApp Soporte
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
@@ -251,13 +399,13 @@ export function construirCorreo(d: DatosRecibo): { asunto: string; html: string;
           </td>
         </tr>
 
-        <!-- Pie -->
+        <!-- 3. Pie de Página Institucional -->
         <tr>
-          <td align="center" style="padding:20px 12px 8px;font-size:12px;line-height:1.6;color:#8C857B;">
-            Recibes este correo porque pediste en TuraFood.<br>
-            <a href="${SITIO}/terminos" style="color:#8C857B;">Términos</a> ·
-            <a href="${SITIO}/privacidad" style="color:#8C857B;">Privacidad</a><br>
-            TuraFood · Buenaventura, Colombia
+          <td align="center" style="padding:24px 16px 8px;font-size:12px;line-height:1.6;color:#A1A1AA;">
+            Recibes este correo porque hiciste un pedido a través de TuraFood.<br>
+            <a href="${SITIO}/terminos" style="color:#71717A;text-decoration:none;">Términos de servicio</a> ·
+            <a href="${SITIO}/privacidad" style="color:#71717A;text-decoration:none;">Política de privacidad</a><br>
+            <b>TuraFood</b> · Buenaventura, Valle del Cauca, Colombia
           </td>
         </tr>
 
@@ -274,8 +422,8 @@ export function construirCorreo(d: DatosRecibo): { asunto: string; html: string;
   }).join("\n");
 
   const texto = [
-    `Pedido entregado — ${d.numero}`,
-    nombre ? `¡Gracias, ${nombre}!` : "¡Gracias por tu pedido!",
+    `✓ Pedido entregado — #${d.numero}`,
+    saludo,
     "",
     `${d.negocio}${cuando ? ` · ${cuando}` : ""}`,
     "",
@@ -286,13 +434,14 @@ export function construirCorreo(d: DatosRecibo): { asunto: string; html: string;
     d.servicio > 0 ? `Tarifa de servicio: ${cop(d.servicio)}` : "",
     d.propina > 0 ? `Propina: ${cop(d.propina)}` : "",
     d.descuento > 0 ? `Descuento: -${cop(d.descuento)}` : "",
-    `TOTAL: ${cop(d.total)}`,
-    pago ? `Pago: ${pago}` : "",
+    `TOTAL PAGADO: ${cop(d.total)}`,
+    `Método de pago: ${pagoTexto}`,
     "",
-    entregaDomicilio ? `Entregado en: ${d.direccion ?? ""}` : `Recogido en: ${d.negocio}`,
+    entregaDomicilio ? `Entregado en: ${d.direccion ?? "Tu dirección"}` : `Recogido en: ${d.negocio}`,
+    d.repartidor ? `Repartidor: ${d.repartidor}` : "",
     "",
     `Califica tu pedido: ${linkCalificar}`,
-    `¿Dudas? WhatsApp: ${linkSoporte}`,
+    `¿Dudas con tu entrega? Soporte WhatsApp: ${linkSoporte}`,
     "",
     "TuraFood · Buenaventura, Colombia",
   ].filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");

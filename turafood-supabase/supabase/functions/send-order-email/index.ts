@@ -69,8 +69,8 @@ Deno.serve(async (req) => {
       id, order_number, status, mode, customer_id, courier_id,
       subtotal, delivery_fee, service_fee, tip, discount, total, payment_method,
       delivery_address, delivery_detail, delivered_at,
-      business:business_profiles(name),
-      items:order_items(name, quantity, subtotal, extras, notes)
+      business:business_profiles(name, cover_url, logo_url),
+      items:order_items(name, quantity, subtotal, extras, notes, product:products(image_url))
     `)
     .eq("id", orderId)
     .maybeSingle();
@@ -100,18 +100,26 @@ Deno.serve(async (req) => {
     repartidor = r?.full_name ?? null;
   }
 
+  const biz = pedido.business as { name?: string; cover_url?: string; logo_url?: string } | null;
+
   const datos: DatosRecibo = {
     id: pedido.id,
     numero: pedido.order_number,
-    negocio: (pedido.business as { name?: string } | null)?.name ?? "Tu negocio",
+    negocio: biz?.name ?? "Tu negocio",
+    negocioLogo: biz?.logo_url ?? null,
+    negocioCover: biz?.cover_url ?? null,
     cliente: cliente?.full_name,
-    items: (pedido.items ?? []).map((i: Record<string, unknown>) => ({
-      nombre: String(i.name ?? ""),
-      cantidad: Number(i.quantity ?? 1),
-      subtotal: Number(i.subtotal ?? 0),
-      extras: Array.isArray(i.extras) ? i.extras : [],
-      notas: (i.notes as string | null) ?? null,
-    })),
+    items: (pedido.items ?? []).map((i: Record<string, unknown>) => {
+      const prod = i.product as { image_url?: string } | null;
+      return {
+        nombre: String(i.name ?? ""),
+        cantidad: Number(i.quantity ?? 1),
+        subtotal: Number(i.subtotal ?? 0),
+        imagen: prod?.image_url ?? null,
+        extras: Array.isArray(i.extras) ? i.extras : [],
+        notas: (i.notes as string | null) ?? null,
+      };
+    }),
     subtotal: Number(pedido.subtotal),
     domicilio: Number(pedido.delivery_fee),
     servicio: Number(pedido.service_fee),
