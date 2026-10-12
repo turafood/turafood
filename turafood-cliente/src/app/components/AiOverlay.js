@@ -91,7 +91,7 @@ export default function AiOverlay() {
       }
       return {
         text: `Llevas ${cartItems.length} ${cartItems.length === 1 ? 'producto' : 'productos'} por ${cop(cartSubtotal)}. Con envío y la tarifa de servicio de $1.900, el total sale en el checkout.`,
-        action: { label: 'Ver mi canasta', href: '/cart' },
+        action: { label: 'Ver mi canasta', href: '/checkout' },
       };
     }
 

@@ -68,7 +68,17 @@ export default function NotificationsPage() {
       <div style={{ width: '100%', maxWidth: 680, margin: '0 auto', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '16px 0 0' }}>
 
           <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
-            <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                  router.back();
+                } else {
+                  router.push('/');
+                }
+              }}
+              style={S.backBtn}
+              aria-label="Volver"
+            >
               <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
             </button>
             <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 22 }}>

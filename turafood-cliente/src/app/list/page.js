@@ -120,7 +120,17 @@ function ListPage() {
     return (
       <>
         <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
-          <Header title={title} onBack={() => router.back()} onSearch={openSearch} />
+          <Header
+            title={title}
+            onBack={() => {
+              if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
+            onSearch={openSearch}
+          />
           <div style={S.soon}>
             <span style={S.soonIcon}>
               <span className="ms" style={{ fontSize: 34, color: 'var(--primary)' }}>directions_boat</span>
@@ -152,7 +162,17 @@ function ListPage() {
 
         <div style={{ flex: 'none', background: 'var(--bg)', padding: '0 20px 10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                  router.back();
+                } else {
+                  router.push('/');
+                }
+              }}
+              style={S.backBtn}
+              aria-label="Volver"
+            >
               <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
             </button>
             <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>{title}</span>

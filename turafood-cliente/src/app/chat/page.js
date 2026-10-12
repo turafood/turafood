@@ -128,7 +128,17 @@ function ChatPage() {
 
         {/* Cabecera */}
         <div style={S.header}>
-          <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver al seguimiento">
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                router.back();
+              } else {
+                router.push('/tracking');
+              }
+            }}
+            style={S.backBtn}
+            aria-label="Volver al seguimiento"
+          >
             <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
           </button>
           <div style={{ position: 'relative', flex: 'none' }}>

@@ -361,6 +361,25 @@ export default function CheckoutPage() {
 
     return (
       <div className="v-checkout" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '65vh', textAlign: 'center' }}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
+          <button
+            className="co-back"
+            onClick={() => {
+              const target = store?.slug || store?.id || businessId;
+              if (target) {
+                router.push(`/store/${target}`);
+              } else if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                router.back();
+              } else {
+                router.push('/');
+              }
+            }}
+            aria-label="Volver"
+          >
+            <span className="ms" style={{ fontSize: 18 }}>arrow_back</span>
+            <span>{businessId ? 'Volver a la tienda' : 'Volver al inicio'}</span>
+          </button>
+        </div>
         <div style={{ width: 64, height: 64, borderRadius: 20, background: 'var(--surface2)', display: 'grid', placeItems: 'center', color: 'var(--primary)', marginBottom: 16 }}>
           <span className="ms ms-fill" style={{ fontSize: 32 }}>
             {lastOrder ? 'receipt_long' : 'shopping_bag'}
@@ -405,9 +424,10 @@ export default function CheckoutPage() {
         <button
           className="co-back"
           onClick={() => {
-            if (businessId) {
-              router.push(`/store/${businessId}`);
-            } else if (typeof window !== 'undefined' && window.history.length > 2) {
+            const target = store?.slug || store?.id || businessId;
+            if (target) {
+              router.push(`/store/${target}`);
+            } else if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
               router.back();
             } else {
               router.push('/');

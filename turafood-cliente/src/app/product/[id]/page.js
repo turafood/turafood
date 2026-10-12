@@ -123,7 +123,17 @@ export default function ProductPage() {
       { id: store.id, name: store.name, image: store.cover_url },
     );
 
-    router.push('/cart');
+    router.push('/checkout');
+  };
+
+  const handleBack = () => {
+    if (product?.business_id) {
+      router.push(`/store/${product.business_id}`);
+    } else if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+      router.back();
+    } else {
+      router.push('/');
+    }
   };
 
   if (error) {
@@ -135,7 +145,7 @@ export default function ProductPage() {
             No pudimos abrir el plato
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 6 }}>{error}</div>
-          <button onClick={() => router.back()} style={S.errorBtn}>Volver</button>
+          <button onClick={handleBack} style={S.errorBtn}>Volver</button>
         </div>
       </>
     );
@@ -153,7 +163,7 @@ export default function ProductPage() {
 
           {/* Portada */}
           <div style={{ position: 'relative', height: 264, ...bg(product?.image_url) }}>
-            <button onClick={() => router.back()} style={S.closeBtn} aria-label="Cerrar">
+            <button onClick={handleBack} style={S.closeBtn} aria-label="Cerrar">
               <span className="ms" style={{ fontSize: 21 }}>close</span>
             </button>
           </div>

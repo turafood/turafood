@@ -85,7 +85,7 @@ export default function ProductModal({ product, store, onClose }) {
     setAdded(true);
     setTimeout(() => {
       onClose();
-      router.push('/cart');
+      router.push('/checkout');
     }, 300);
   };
 

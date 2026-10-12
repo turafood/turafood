@@ -555,17 +555,25 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--muted);
   cursor: pointer;
   background: none;
   border: none;
-  padding: 6px 0;
-  transition: color 0.15s ease;
+  padding: 8px 12px 8px 4px;
+  border-radius: 10px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .co-back:hover {
   color: var(--text);
+  background: var(--surface2);
+}
+.co-back:active {
+  transform: translateX(-3px);
+  color: var(--primary);
 }
 
 .co-title {

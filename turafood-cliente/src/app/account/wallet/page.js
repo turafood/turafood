@@ -133,7 +133,17 @@ export default function WalletPage() {
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', background: 'var(--bg)', minHeight: 0 }}>
 
         <div style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '0 20px 12px' }}>
-          <button onClick={() => router.back()} style={S.backBtn} aria-label="Volver">
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                router.back();
+              } else {
+                router.push('/account');
+              }
+            }}
+            style={S.backBtn}
+            aria-label="Volver"
+          >
             <span className="ms" style={{ fontSize: 22 }}>arrow_back_ios_new</span>
           </button>
           <span style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 700, fontSize: 20 }}>

@@ -27,9 +27,12 @@ const nextConfig = {
   },
   allowedDevOrigins: ['172.22.96.1', 'localhost', '127.0.0.1'],
 
-  // Redireccionar cualquier llamada heredada a /home hacia la raíz limpia /
+  // Redireccionar cualquier llamada heredada hacia destinos consolidados
   async redirects() {
-    return [{ source: '/home', destination: '/', permanent: false }];
+    return [
+      { source: '/home', destination: '/', permanent: false },
+      { source: '/cart', destination: '/checkout', permanent: false },
+    ];
   },
 };
 

@@ -97,7 +97,7 @@ export default function DesktopCart() {
         <button onClick={() => router.push('/checkout')} style={S.payBtn}>
           Ir a pagar
         </button>
-        <button onClick={() => router.push('/cart')} style={S.payBtnSecondary}>
+        <button onClick={() => router.push('/checkout')} style={S.payBtnSecondary}>
           Ver canasta completa
         </button>
       </div>

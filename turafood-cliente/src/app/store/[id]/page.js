@@ -152,7 +152,17 @@ export default function StorePage() {
             }}>
               <div style={S.coverShade} />
               <div style={S.coverActions}>
-                <button onClick={() => router.back()} style={S.roundBtn} aria-label="Volver">
+                <button
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                      router.back();
+                    } else {
+                      router.push('/');
+                    }
+                  }}
+                  style={S.roundBtn}
+                  aria-label="Volver"
+                >
                   <span className="ms" style={{ fontSize: 21 }}>arrow_back_ios_new</span>
                 </button>
                 <div style={{ display: 'flex', gap: 9 }}>
@@ -345,7 +355,7 @@ export default function StorePage() {
         {/* Barra de canasta móvil */}
         {showCartBar && (
           <div style={S.cartBarWrap}>
-            <button onClick={() => router.push('/cart')} style={S.cartBar}>
+            <button onClick={() => router.push('/checkout')} style={S.cartBar}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 9, fontWeight: 800, fontSize: 15 }}>
                 <span style={S.cartCount}>{cartCount}</span>
                 Ver canasta de compra

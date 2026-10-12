@@ -634,7 +634,7 @@ export default function HomePage({ initialStores = null }) {
                 <button onClick={() => router.push('/notifications')} style={S.iconBtn}>
                   <span className="ms" style={{ fontSize: 20 }}>notifications</span>
                 </button>
-                <button onClick={() => router.push('/cart')} style={{ ...S.iconBtn, position: 'relative' }}>
+                <button onClick={() => router.push('/checkout')} style={{ ...S.iconBtn, position: 'relative' }}>
                   <span className="ms" style={{ fontSize: 20 }}>shopping_bag</span>
                   {hasCart && <span style={S.cartBadge}>{cartCount}</span>}
                 </button>

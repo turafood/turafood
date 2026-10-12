@@ -53,7 +53,7 @@ export default function FloatingCart() {
 
   return (
     <button
-      onClick={() => router.push('/cart')}
+      onClick={() => router.push('/checkout')}
       style={styles.pill}
       aria-label={`Ver canasta de compra, ${count} ${count === 1 ? 'producto' : 'productos'}, total ${cop(subtotal)}`}
     >

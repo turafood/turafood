@@ -268,7 +268,7 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
             {/* Barra Inferior */}
             <div style={{ padding: '16px 22px', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', gap: 12, alignItems: 'center' }}>
               <button
-                onClick={() => { onClose(); router.push('/cart'); }}
+                onClick={() => { onClose(); router.push('/checkout'); }}
                 style={{
                   flex: 1, height: 48, borderRadius: 14,
                   background: cartItems.length > 0 ? 'linear-gradient(135deg, #17140F, #221E18)' : 'var(--surface2)',
