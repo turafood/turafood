@@ -88,3 +88,7 @@ turafood-supabase/.cuentas-demo*
 # Llaves de servicios externos (Twilio, Resend): solo locales
 turafood-supabase/.twilio*
 turafood-supabase/.resend*
+turafood-supabase/.cloudflare*
+
+# Documento de traspaso (describe la infraestructura: no subir)
+TRASPASO_TURAFOOD.*
