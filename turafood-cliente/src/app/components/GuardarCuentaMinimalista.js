@@ -132,7 +132,7 @@ export default function GuardarCuentaMinimalista({ orderId, telefonoInicial = ''
   const handleConfirmar = async (e) => {
     e?.preventDefault();
     if (!codigoValido(codigo)) {
-      setError('El código debe ser de 6 dígitos.');
+      setError('El código debe ser de 4 o 6 dígitos.');
       return;
     }
     setError('');

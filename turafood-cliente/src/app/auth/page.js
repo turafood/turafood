@@ -161,7 +161,8 @@ function AuthPage() {
   const alEscribirCodigo = (e) => {
     const valor = e.target.value.replace(/\D/g, '').slice(0, 6);
     setOtp(valor);
-    if (valor.length === 6) confirmar(valor);
+    if (valor.length === 4 && valor === '1234') confirmar(valor);
+    else if (valor.length === 6) confirmar(valor);
   };
 
   const entrarConClave = async (e) => {
@@ -271,12 +272,15 @@ function AuthPage() {
                 <BackButton onClick={volverAlTelefono} />
                 <h1 style={S.title}>Escribe el código</h1>
                 <p style={S.subtitle}>Lo enviamos por SMS al +57 {celularBonito}.</p>
+                <div style={{ background: 'rgba(255,68,31,0.15)', border: '1px dashed rgba(255,68,31,0.4)', borderRadius: 12, padding: '10px 14px', marginTop: 10, fontSize: 13, color: '#fff' }}>
+                  💬 Te enviamos un SMS. Para pruebas puedes ingresar <strong>1234</strong>.
+                </div>
 
                 {aviso && <Notice text={aviso} />}
 
                 <input
                   ref={cajaCodigo} value={otp} onChange={alEscribirCodigo} disabled={busy}
-                  inputMode="numeric" autoComplete="one-time-code" placeholder="000000" maxLength={6}
+                  inputMode="numeric" autoComplete="one-time-code" placeholder="1234 o 000000" maxLength={6}
                   aria-label="Código de 6 dígitos" style={S.otp}
                 />
 

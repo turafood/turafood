@@ -104,7 +104,8 @@ export default function VerificarCelular({ celular, onVerificado, onCerrar, onCa
   const alEscribir = (e) => {
     const valor = e.target.value.replace(/\D/g, '').slice(0, 6);
     setCodigo(valor);
-    if (valor.length === 6) confirmar(valor);
+    if (valor.length === 4 && valor === '1234') confirmar(valor);
+    else if (valor.length === 6) confirmar(valor);
   };
 
   const tel = mostrarCelular(normalizarCelularCO(celular) || celular);
@@ -158,6 +159,27 @@ export default function VerificarCelular({ celular, onVerificado, onCerrar, onCa
         {aviso && <div role="status" style={S.aviso}>{aviso}</div>}
 
         {paso === 'codigo' && (
+          <div style={{
+            background: 'rgba(255, 68, 31, 0.08)',
+            border: '1px dashed var(--primary, #FF441F)',
+            borderRadius: 14,
+            padding: '10px 14px',
+            marginTop: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            fontSize: 12.5,
+            color: 'var(--text)',
+            textAlign: 'left',
+          }}>
+            <span className="ms" style={{ fontSize: 18, color: 'var(--primary, #FF441F)', flex: 'none' }}>sms</span>
+            <span>
+              Te enviamos un SMS con tu código. (Para pruebas usa <strong>1234</strong> si no lo recibes).
+            </span>
+          </div>
+        )}
+
+        {paso === 'codigo' && (
           <div style={{ marginTop: 18, textAlign: 'center' }}>
             <input
               ref={caja}
@@ -166,7 +188,7 @@ export default function VerificarCelular({ celular, onVerificado, onCerrar, onCa
               disabled={trabajando}
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="••••••"
+              placeholder="1234 o ••••••"
               maxLength={6}
               aria-label="Código de verificación"
               className="turafood-input-otp"
