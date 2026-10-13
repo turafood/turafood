@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accede a tu cuenta de TuraFood</title>
+</head>
+<body style="margin:0;padding:0;background:#F6F4F0;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Tu enlace de acceso rápido para iniciar sesión en TuraFood.</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F6F4F0;min-height:100vh;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;">
+
+          <!-- BRAND HEADER -->
+          <tr>
+            <td style="padding:0 8px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="width:38px;height:38px;background:linear-gradient(135deg, #FF441F 0%, #E02E0B 100%);border-radius:12px;text-align:center;color:#ffffff;font-size:22px;font-weight:900;line-height:38px;box-shadow:0 4px 14px rgba(255,68,31,0.28);">
+                          t
+                        </td>
+                        <td style="padding-left:12px;font-size:20px;font-weight:900;color:#18181B;letter-spacing:-0.03em;">
+                          TuraFood
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right">
+                    <span style="display:inline-block;background:rgba(24,24,27,0.06);border:1px solid rgba(24,24,27,0.08);border-radius:99px;padding:4px 12px;font-size:11.5px;font-weight:700;color:#71717A;letter-spacing:0.02em;">
+                      Acceso Seguro
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- MAIN CARD -->
+          <tr>
+            <td style="background:#FFFFFF;border-radius:24px;border:1px solid #EAE5DE;box-shadow:0 12px 36px rgba(0,0,0,0.04), 0 2px 6px rgba(0,0,0,0.02);overflow:hidden;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+
+                <!-- TOP ACCENT STRIP -->
+                <tr>
+                  <td style="height:4px;background:linear-gradient(90deg, #FF441F 0%, #FF8A00 50%, #10B981 100%);"></td>
+                </tr>
+
+                <!-- HERO SECTION -->
+                <tr>
+                  <td style="padding:36px 32px 24px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;">
+                      <tr>
+                        <td style="width:52px;height:52px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:16px;text-align:center;vertical-align:middle;font-size:26px;">
+                          ⚡
+                        </td>
+                      </tr>
+                    </table>
+
+                    <h1 style="margin:0 0 10px;font-size:26px;font-weight:900;color:#18181B;letter-spacing:-0.03em;line-height:1.2;">
+                      Inicia sesión sin contraseña
+                    </h1>
+                    <p style="margin:0;font-size:15px;color:#52525B;line-height:1.55;">
+                      Haz clic en el botón a continuación para ingresar de manera directa e instantánea a tu cuenta de TuraFood.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- PRIMARY CTA BUTTON -->
+                <tr>
+                  <td style="padding:0 32px 32px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td align="center" style="background:linear-gradient(135deg, #18181B 0%, #27272A 100%);border-radius:16px;box-shadow:0 6px 20px rgba(24,24,27,0.2);">
+                          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:block;padding:17px 32px;font-size:15.5px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:-0.01em;">
+                            Entrar a mi cuenta ahora →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- NOTION CALLOUT FOR SECURITY -->
+                <tr>
+                  <td style="padding:0 32px 28px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF8F5;border:1px solid #ECE7E0;border-radius:14px;">
+                      <tr>
+                        <td style="padding:14px 18px;font-size:12.5px;color:#71717A;line-height:1.5;">
+                          🔒 <b>Por tu seguridad:</b> Este enlace solo funciona una vez y caduca en <b>15 minutos</b>. Si no solicitaste ingresar, puedes ignorar este correo.
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- FALLBACK LINK -->
+                <tr>
+                  <td style="padding:0 32px 32px;">
+                    <div style="border-top:1px solid #F0ECE6;padding-top:20px;">
+                      <div style="font-size:12px;color:#71717A;margin-bottom:8px;">
+                        ¿El botón no responde? Copia y pega este enlace en tu navegador:
+                      </div>
+                      <div style="background:#F4F1EA;border-radius:10px;padding:10px 14px;font-size:11.5px;color:#52525B;word-break:break-all;font-family:ui-monospace,SFMono-Regular,monospace;line-height:1.45;">
+                        {{ .ConfirmationURL }}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td align="center" style="padding:28px 16px 8px;font-size:12px;color:#A1A1AA;line-height:1.6;">
+              <b>TuraFood</b> · Buenaventura, Valle del Cauca, Colombia.<br>
+              <a href="https://turafood.com/privacidad" style="color:#71717A;text-decoration:underline;">Privacidad</a> · 
+              <a href="https://turafood.com/terminos" style="color:#71717A;text-decoration:underline;">Términos</a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

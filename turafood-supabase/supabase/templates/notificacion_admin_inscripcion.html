@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notificación Admin: Nueva Inscripción en TuraFood</title>
+</head>
+<body style="margin:0;padding:0;background:#0F172A;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;color:#E2E8F0;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Alerta de administración: nuevo registro recibido en TuraFood.</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0F172A;min-height:100vh;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;">
+
+          <!-- TOP BAR: Terminal / Notion Dark / Figma Canvas Style -->
+          <tr>
+            <td style="padding:0 8px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="width:36px;height:36px;background:linear-gradient(135deg, #FF441F 0%, #E02E0B 100%);border-radius:10px;text-align:center;color:#ffffff;font-size:20px;font-weight:900;line-height:36px;box-shadow:0 0 20px rgba(255,68,31,0.4);">
+                          t
+                        </td>
+                        <td style="padding-left:12px;font-size:19px;font-weight:900;color:#F8FAFC;letter-spacing:-0.03em;">
+                          TuraFood <span style="color:#FF441F;font-size:14px;font-weight:800;background:rgba(255,68,31,0.15);padding:2px 8px;border-radius:6px;border:1px solid rgba(255,68,31,0.3);margin-left:6px;">ADMIN</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td align="right">
+                    <span style="display:inline-block;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:99px;padding:4px 12px;font-size:11px;font-weight:800;color:#34D399;letter-spacing:0.04em;">
+                      ● ALERTA EN VIVO
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- MAIN CARD: Apple Dark Glassmorphic / Stripe Dashboard -->
+          <tr>
+            <td style="background:#1E293B;border-radius:24px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);overflow:hidden;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+
+                <!-- HEADER ACCENT -->
+                <tr>
+                  <td style="height:3px;background:linear-gradient(90deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);"></td>
+                </tr>
+
+                <!-- HERO SECTION -->
+                <tr>
+                  <td style="padding:32px 32px 20px;">
+                    <div style="font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">
+                      Nuevo Registro en el Sistema
+                    </div>
+                    <h1 style="margin:0 0 10px;font-size:24px;font-weight:900;color:#F8FAFC;letter-spacing:-0.02em;line-height:1.25;">
+                      Se ha inscrito un nuevo usuario / cuenta
+                    </h1>
+                    <p style="margin:0;font-size:14px;color:#94A3B8;line-height:1.5;">
+                      Se acaba de registrar una nueva cuenta en la plataforma de TuraFood. A continuación los detalles capturados:
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- NOTION / STRIPE METRICS TABLE -->
+                <tr>
+                  <td style="padding:0 32px 24px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0F172A;border:1px solid rgba(255,255,255,0.06);border-radius:18px;overflow:hidden;">
+                      
+                      <!-- Row: Email -->
+                      <tr>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);width:130px;font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;">
+                          Correo
+                        </td>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14.5px;font-weight:800;color:#F8FAFC;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
+                          {{ .Email }}
+                        </td>
+                      </tr>
+
+                      <!-- Row: Fecha -->
+                      <tr>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;">
+                          Fecha y Hora
+                        </td>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13.5px;font-weight:600;color:#CBD5E1;">
+                          {{ .CreatedAt }} (Buenaventura)
+                        </td>
+                      </tr>
+
+                      <!-- Row: Rol / Tipo -->
+                      <tr>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;">
+                          Tipo de Cuenta
+                        </td>
+                        <td style="padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                          <span style="display:inline-block;background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);color:#38BDF8;font-size:12px;font-weight:800;padding:3px 10px;border-radius:6px;">
+                            {{ .Role }}
+                          </span>
+                        </td>
+                      </tr>
+
+                      <!-- Row: Identificador ID -->
+                      <tr>
+                        <td style="padding:14px 18px;font-size:12px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.05em;">
+                          User ID
+                        </td>
+                        <td style="padding:14px 18px;font-size:12px;color:#94A3B8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
+                          {{ .UserId }}
+                        </td>
+                      </tr>
+
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- PRIMARY CTA BUTTON (Stripe / Apple Style) -->
+                <tr>
+                  <td style="padding:0 32px 28px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td align="center" style="background:linear-gradient(135deg, #FF441F 0%, #EA2B06 100%);border-radius:14px;box-shadow:0 6px 20px rgba(255,68,31,0.35);">
+                          <a href="https://admin.turafood.com/users" target="_blank" style="display:block;padding:16px 28px;font-size:15px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:-0.01em;">
+                            Abrir en Panel de Administración (admin.turafood.com) →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- QUICK ACTIONS -->
+                <tr>
+                  <td style="padding:0 32px 30px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:18px;">
+                      <tr>
+                        <td style="font-size:12.5px;color:#64748B;">
+                          Acciones rápidas del administrador:
+                          <a href="https://app.supabase.com/project/btaddjjzpvyqltkchqki/auth/users" target="_blank" style="color:#38BDF8;font-weight:700;text-decoration:none;margin-left:6px;">Ver en Supabase</a> · 
+                          <a href="https://turafood.com" target="_blank" style="color:#94A3B8;text-decoration:none;margin-left:6px;">turafood.com</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td align="center" style="padding:28px 16px 8px;font-size:11.5px;color:#64748B;line-height:1.6;">
+              Notificación interna generada automáticamente para los administradores de <b>TuraFood</b>.<br>
+              Buenaventura, Valle del Cauca, Colombia.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
