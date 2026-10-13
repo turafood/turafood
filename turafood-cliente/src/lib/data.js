@@ -976,41 +976,7 @@ export async function placeOrder({
 }
 
 function sanitizeOrder(rawOrder) {
-  if (!rawOrder) return rawOrder;
-  const order = { ...rawOrder };
-  const items = Array.isArray(order.items) ? [...order.items] : [];
-  
-  order.items = items.map((it, idx) => {
-    const prod = PRODUCTS.find((p) => p.id === (it.product_id || it.productId || it.id));
-    const name = it.name || it.product_name || prod?.name || (idx === 0 ? 'Encocado de Camarón' : 'Cazuela de Mariscos');
-    const unitPrice = Number(it.unit_price || it.unitPrice || it.price || prod?.price || (idx === 0 ? 38900 : 56000));
-    const qty = Number(it.quantity || it.qty || 1);
-    return {
-      id: it.id || `item-${idx}`,
-      name,
-      quantity: qty,
-      qty,
-      unit_price: unitPrice,
-      unitPrice,
-      opts: it.opts || '',
-      notes: it.notes || '',
-    };
-  });
-
-  if (order.items.length === 0) {
-    order.items = [
-      { id: 'item-0', name: 'Encocado de Camarón', quantity: 1, qty: 1, unit_price: 38900, unitPrice: 38900, opts: '', notes: '' },
-      { id: 'item-1', name: 'Cazuela de Mariscos', quantity: 1, qty: 1, unit_price: 56000, unitPrice: 56000, opts: '', notes: '' },
-    ];
-  }
-
-  if (!order.subtotal || order.subtotal === 0) {
-    order.subtotal = order.items.reduce((s, i) => s + (i.unit_price * i.quantity), 0);
-  }
-  if (!order.total || order.total === 0) {
-    order.total = order.subtotal + (order.delivery_fee || 4900) + (order.service_fee || 1900) + (order.tip || 0) - (order.discount || 0);
-  }
-  return order;
+  return normalizarPedido(rawOrder);
 }
 
 /**

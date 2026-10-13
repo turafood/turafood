@@ -109,7 +109,7 @@ function ChatPage() {
   // Datos reales del repartidor asignado (antes: nombre y placa inventados). Sin repartidor, no se finge uno.
   const courierName = order?.courier?.profile?.full_name ?? null;
   const courierPlate = order?.courier?.plate ?? null;
-  const vehiculo = { motorcycle: 'Moto', bicycle: 'Bici', car: 'Carro', walking: 'A pie' }[order?.courier?.vehicle_type] ?? 'Moto';
+  const vehiculo = { motorcycle: 'Moto', bicycle: 'Bicicleta', bike: 'Bicicleta', car: 'Carro', walking: 'A pie' }[order?.courier?.vehicle_type] ?? 'Moto';
   const titulo = courierName ?? (order?.business?.name ? `Tu pedido · ${order.business.name}` : 'Chat del pedido');
   const subtitulo = courierName
     ? `Tu repartidor · ${vehiculo}${courierPlate ? ` · Placa ${courierPlate}` : ''}`
