@@ -221,32 +221,36 @@ function RatePage() {
             </div>
           </div>
 
-          {/* Repartidor */}
-          <div style={S.courierCard}>
-            <div style={S.avatar}>
-              <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>
-                TU REPARTIDOR OFICIAL
+          {/* Repartidor (solo en pedidos a domicilio) */}
+          {order?.mode !== 'pickup' && (
+            <div style={S.courierCard}>
+              <div style={S.avatar}>
+                <span className="ms" style={{ fontSize: 24, color: 'var(--muted)' }}>person</span>
               </div>
-              <div style={{ fontWeight: 800, fontSize: 14.5, marginTop: 2 }}>Yeison Mosquera</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--muted)', letterSpacing: '.06em' }}>
+                  TU REPARTIDOR OFICIAL
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 14.5, marginTop: 2 }}>
+                  {order?.courier?.profile?.full_name || order?.courier?.full_name || 'Repartidor asignado'}
+                </div>
+              </div>
+              <button
+                onClick={() => setCourierUp(true)}
+                style={{ ...S.thumb, background: courierUp === true ? 'var(--green)' : 'var(--surface2)', border: 'none', cursor: 'pointer' }}
+                aria-label="Buen servicio del repartidor"
+              >
+                <span className="ms" style={{ fontSize: 19, color: courierUp === true ? '#fff' : 'var(--muted)' }}>thumb_up</span>
+              </button>
+              <button
+                onClick={() => setCourierUp(false)}
+                style={{ ...S.thumb, background: courierUp === false ? 'var(--primary)' : 'var(--surface2)', border: 'none', cursor: 'pointer' }}
+                aria-label="Mal servicio del repartidor"
+              >
+                <span className="ms" style={{ fontSize: 19, color: courierUp === false ? '#fff' : 'var(--muted)' }}>thumb_down</span>
+              </button>
             </div>
-            <button
-              onClick={() => setCourierUp(true)}
-              style={{ ...S.thumb, background: courierUp === true ? 'var(--green)' : 'var(--surface2)', border: 'none', cursor: 'pointer' }}
-              aria-label="Buen servicio del repartidor"
-            >
-              <span className="ms" style={{ fontSize: 19, color: courierUp === true ? '#fff' : 'var(--muted)' }}>thumb_up</span>
-            </button>
-            <button
-              onClick={() => setCourierUp(false)}
-              style={{ ...S.thumb, background: courierUp === false ? 'var(--primary)' : 'var(--surface2)', border: 'none', cursor: 'pointer' }}
-              aria-label="Mal servicio del repartidor"
-            >
-              <span className="ms" style={{ fontSize: 19, color: courierUp === false ? '#fff' : 'var(--muted)' }}>thumb_down</span>
-            </button>
-          </div>
+          )}
 
           {/* Propina extra */}
           <div>

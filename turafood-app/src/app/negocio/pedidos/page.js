@@ -19,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { cop } from '@/lib/format';
 import { COLUMNS, columnOf, setOrderStatus } from '@/lib/negocio';
 import Vertical3D from '../../components/Vertical3D';
+import TicketModal from '../../components/TicketModal';
 import { useBiz } from '../BizContext';
 
 const PAY = {
@@ -48,6 +49,7 @@ export default function PedidosPage() {
   const [busyId, setBusyId] = useState(null);
   const [sound, setSound] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [ticketOrder, setTicketOrder] = useState(null);
 
   // MODO DEMO: Inyectamos comandas ficticias en el flujo real
   const orders = useMemo(() => {
@@ -93,13 +95,20 @@ export default function PedidosPage() {
 
   const prepLimit = business?.prep_time_min ?? 25;
 
-  // Aviso sonoro cuando entra una comanda nueva
-  const prevNew = useRef(null);
+  // Alarma sonora insistente estilo Rappi / Uber Eats mientras hayan pedidos nuevos sin aceptar
+  const newCount = useMemo(
+    () => orders.filter((o) => columnOf(o.status).key === 'nuevo').length,
+    [orders],
+  );
+
   useEffect(() => {
-    const count = orders.filter((o) => columnOf(o.status).key === 'nuevo').length;
-    if (prevNew.current !== null && count > prevNew.current && sound) chime();
-    prevNew.current = count;
-  }, [orders, sound]);
+    if (!sound || newCount === 0) return undefined;
+    chimeAlert();
+    const interval = setInterval(() => {
+      chimeAlert();
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [sound, newCount]);
 
   const grouped = useMemo(() => {
     const map = Object.fromEntries(COLUMNS.map((c) => [c.key, []]));
@@ -258,6 +267,7 @@ export default function PedidosPage() {
                     onToggle={() => setExpanded(expanded === o.id ? null : o.id)}
                     onAdvance={() => advance(o)}
                     onReject={() => reject(o)}
+                    onPrint={() => setTicketOrder(o)}
                   />
                 ))}
 
@@ -280,12 +290,20 @@ export default function PedidosPage() {
           );
         })}
       </div>
+
+      {ticketOrder && (
+        <TicketModal
+          order={ticketOrder}
+          onClose={() => setTicketOrder(null)}
+          isDemo={Boolean(ticketOrder?.id?.startsWith('demo-'))}
+        />
+      )}
     </>
   );
 }
 
 /** Una comanda: el papel que la cocina lee de un vistazo */
-function Comanda({ order, column, prepLimit, busy, open, onToggle, onAdvance, onReject }) {
+function Comanda({ order, column, prepLimit, busy, open, onToggle, onAdvance, onReject, onPrint }) {
   const isNew = column.key === 'nuevo';
   const mins = minutesSince(order.created_at);
   const live = isNew || column.key === 'preparando';
@@ -437,6 +455,14 @@ function Comanda({ order, column, prepLimit, busy, open, onToggle, onAdvance, on
           </button>
         )}
         <button
+          onClick={(e) => { e.stopPropagation(); onPrint?.(order); }}
+          style={S.printBtn}
+          title="Imprimir comanda térmica"
+          aria-label={`Imprimir comanda ${order.order_number}`}
+        >
+          <span className="ms" style={{ fontSize: 19 }}>print</span>
+        </button>
+        <button
           onClick={onAdvance}
           disabled={busy || !column.next}
           className="md3-btn"
@@ -461,31 +487,39 @@ const NEXT_LABEL = {
 };
 
 /**
- * Campanita de dos notas con la API de audio: no hace falta un archivo
- * ni pedir permisos. Si el navegador exige un gesto previo, falla en
- * silencio y el tablero igual se actualiza solo.
+ * Alarma insistente estilo Rappi / Uber Eats / DiDi KDS
+ * Notas alternadas penetrantes diseñadas para cocinas ruidosas.
  */
-function chime() {
+function chimeAlert() {
   try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([250, 100, 250, 100, 400]);
+    }
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
-    [880, 1174].forEach((freq, i) => {
+    const notes = [
+      { freq: 880, at: 0 },
+      { freq: 1174, at: 0.16 },
+      { freq: 880, at: 0.38 },
+      { freq: 1174, at: 0.54 },
+    ];
+    notes.forEach(({ freq, at }) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      const at = ctx.currentTime + i * 0.16;
-      osc.type = 'sine';
+      const t = ctx.currentTime + at;
+      osc.type = 'triangle';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, at);
-      gain.gain.exponentialRampToValueAtTime(0.2, at + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.42);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
       osc.connect(gain).connect(ctx.destination);
-      osc.start(at);
-      osc.stop(at + 0.45);
+      osc.start(t);
+      osc.stop(t + 0.16);
     });
     setTimeout(() => ctx.close(), 1200);
   } catch {
-    // Silencio: el aviso es un extra, no el mecanismo
+    // Silencio: el aviso es un extra
   }
 }
 
@@ -614,10 +648,15 @@ const S = {
   rejectBtn: {
     flex: 'none', width: 46, height: 46, borderRadius: 14,
     border: '1px solid var(--border)', background: 'var(--surface2)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
+    alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', cursor: 'pointer',
+  },
+  printBtn: {
+    flex: 'none', width: 46, height: 46, borderRadius: 14,
+    border: '1px solid var(--border)', background: 'var(--surface2)', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', color: 'var(--text)', transition: 'all 0.2s', cursor: 'pointer',
   },
   advanceBtn: {
-    flex: 1, height: 46, borderRadius: 14, fontSize: 14, fontWeight: 800, transition: 'all 0.3s'
+    flex: 1, height: 46, borderRadius: 14, fontSize: 14, fontWeight: 800, transition: 'all 0.3s', cursor: 'pointer',
   },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',

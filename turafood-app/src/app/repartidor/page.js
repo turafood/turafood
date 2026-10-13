@@ -326,11 +326,42 @@ export default function RepartidorHome() {
   );
 }
 
+function playRiderOfferAlert() {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([200, 100, 200, 100, 300]);
+    }
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const at = ctx.currentTime + i * 0.11;
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.3, at + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.22);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(at);
+      osc.stop(at + 0.25);
+    });
+    setTimeout(() => ctx.close(), 1000);
+  } catch {
+    // Silencio si el navegador bloquea audio
+  }
+}
+
 /**
  * TARJETA DE NUEVO PEDIDO
  */
 function OfferCard({ offer, taking, onTake, onExpire }) {
   const [left, setLeft] = useState(30);
+
+  useEffect(() => {
+    playRiderOfferAlert();
+  }, [offer.id]);
   
   useEffect(() => {
     let alive = true;

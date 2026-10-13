@@ -1215,7 +1215,26 @@ export async function getOrders() {
   return (data ?? []).map(normalizarPedido);
 }
 
-export async function submitReview({ orderId, businessId, rating, comment = '', tags = [] }) {
+export async function submitReview({
+  orderId,
+  order_id,
+  businessId,
+  business_id,
+  rating,
+  stars,
+  courierId,
+  courier_id,
+  courierUp,
+  courier_rating,
+  comment = '',
+  tags = [],
+}) {
+  const oId = orderId || order_id || null;
+  const bId = businessId || business_id;
+  const bRating = rating || stars || null;
+  const cId = courierId || courier_id || null;
+  const cRating = courier_rating || (courierUp === true ? 5 : courierUp === false ? 1 : null);
+
   if (!isLive()) {
     await delay(200);
     return { success: true, id: `local-review-${Date.now()}` };
@@ -1225,18 +1244,20 @@ export async function submitReview({ orderId, businessId, rating, comment = '', 
   const user = await usuarioActual();
 
   try {
+    const payload = {
+      order_id: oId,
+      business_id: bId,
+      customer_id: user?.id || null,
+      business_rating: bRating,
+      comment,
+      tags: Array.isArray(tags) ? tags : [],
+    };
+    if (cId) payload.courier_id = cId;
+    if (cRating) payload.courier_rating = cRating;
+
     const { data, error } = await supabase
       .from('reviews')
-      .insert({
-        order_id: orderId || null,
-        business_id: businessId,
-        customer_id: user?.id || null,
-        // La columna se llama business_rating. Con `rating` el insert fallaba
-        // siempre y, como el error se tragaba, la reseña nunca se guardaba.
-        business_rating: rating,
-        comment,
-        tags: Array.isArray(tags) ? tags : [],
-      })
+      .insert(payload)
       .select()
       .single();
 
