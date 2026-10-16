@@ -15,7 +15,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { esInvitado } from '@/lib/sesion';
-import { enviarCodigo, confirmarCodigo, CANAL_POR_DEFECTO } from '@/lib/cuenta';
+import { enviarCodigo, confirmarCodigo, CANAL_POR_DEFECTO, METODO_POR_DEFECTO } from '@/lib/cuenta';
 import { mostrarCelular, normalizarCelularCO, codigoValido } from '@/lib/direcciones.mjs';
 
 const ESPERA_REENVIO = 45;
@@ -34,7 +34,8 @@ export default function GuardarCuenta({ telefonoInicial = '', compacto = false }
 
   useEffect(() => {
     let vivo = true;
-    esInvitado().then((v) => { if (vivo) setVisible(v); }).catch(() => {});
+    // Esta tarjeta guarda la cuenta con el celular (SMS): solo tiene sentido cuando el SMS está activo
+    esInvitado().then((v) => { if (vivo) setVisible(v && METODO_POR_DEFECTO === 'sms'); }).catch(() => {});
     return () => { vivo = false; };
   }, []);
 

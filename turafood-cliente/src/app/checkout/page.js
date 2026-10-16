@@ -21,7 +21,7 @@ import { getBusiness, getAddresses, getCoupons, placeOrder, saveAddress } from '
 import { detectarUbicacionGPS } from '@/lib/geocoding';
 import AddressSheet from '../components/AddressSheet';
 import VerificarCelular from '../components/VerificarCelular';
-import { necesitaVerificar, tieneCelularVerificado } from '@/lib/cuenta';
+import { necesitaVerificar, tieneVerificacion, correoDeLaCuenta } from '@/lib/cuenta';
 import { invalidate } from '@/lib/cache';
 import { normalizarCelularCO } from '@/lib/direcciones.mjs';
 import { quote, validateCoupon } from '@/lib/pricing';
@@ -96,6 +96,7 @@ export default function CheckoutPage() {
   const [verificarOpen, setVerificarOpen] = useState(false);
   const verificado = useRef(false);
   const [celularVerificado, setCelularVerificado] = useState(false);
+  const [correoGuardado, setCorreoGuardado] = useState('');
   const [gpsDetecting, setGpsDetecting] = useState(false);
 
   const handleQuickGps = async () => {
@@ -126,7 +127,14 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     let vivo = true;
-    tieneCelularVerificado().then((v) => { if (vivo) setCelularVerificado(v); }).catch(() => {});
+    tieneVerificacion().then((v) => { if (vivo) setCelularVerificado(v); }).catch(() => {});
+    // El correo se precarga (de la última vez o de la cuenta): solo ahorra escribir, no verifica nada
+    Promise.resolve(correoDeLaCuenta()).then((c) => {
+      if (!vivo) return;
+      let g = c;
+      try { g = g || localStorage.getItem('turafood_customer_email') || ''; } catch { /* sin almacenamiento */ }
+      setCorreoGuardado(g);
+    }).catch(() => {});
     return () => { vivo = false; };
   }, []);
 
@@ -772,7 +780,7 @@ export default function CheckoutPage() {
                     }}
                   />
                   <span className="co-tf-label">
-                    {celularVerificado ? '✓ Celular verificado' : 'Celular (WhatsApp)'}
+                    {celularVerificado ? '✓ Cuenta verificada · Celular (WhatsApp)' : 'Celular (WhatsApp)'}
                   </span>
                 </label>
               </div>
@@ -1243,6 +1251,7 @@ export default function CheckoutPage() {
       {verificarOpen && (
         <VerificarCelular
           celular={customerPhone}
+          correoInicial={correoGuardado}
           onVerificado={alVerificar}
           onCerrar={() => setVerificarOpen(false)}
           onCambiarNumero={() => {

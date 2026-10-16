@@ -31,10 +31,11 @@ export default function SeguridadCuenta({ plano = false }) {
     createClient().auth.getSession().then(({ data: { session } }) => {
       if (!vivo) return;
       const u = session?.user;
-      const verificado = Boolean(u && !u.is_anonymous && u.phone && u.phone_confirmed_at);
+      const verificado = Boolean(u && !u.is_anonymous && (u.email_confirmed_at || u.phone_confirmed_at));
       setEstado({
         verificado,
-        tel: u?.phone ? mostrarCelular(normalizarCelularCO(u.phone) || `+${u.phone}`) : '',
+        tel: u?.email ? u.email : (u?.phone ? `+57 ${mostrarCelular(normalizarCelularCO(u.phone) || `+${u.phone}`)}` : ''),
+        esCorreo: Boolean(u?.email),
         conClave: Boolean(u?.user_metadata?.tiene_contrasena),
       });
     });
@@ -68,7 +69,7 @@ export default function SeguridadCuenta({ plano = false }) {
         <div style={S.fila}>
           <span style={S.icono}><span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>phone_iphone</span></span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={S.titulo}>Entra con tu celular</div>
+            <div style={S.titulo}>Entra a tu cuenta</div>
             <div style={S.texto}>Lleva tu historial y tus direcciones a cualquier celular. Sin contraseñas obligatorias.</div>
           </div>
           <button onClick={() => router.push('/auth?next=/account')} style={S.boton}>Entrar</button>
@@ -82,8 +83,8 @@ export default function SeguridadCuenta({ plano = false }) {
       <div style={S.fila}>
         <span style={{ ...S.icono, background: 'var(--green)' }}><span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>verified_user</span></span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={S.titulo}>Celular verificado</div>
-          <div style={S.texto}>+57 {estado.tel}</div>
+          <div style={S.titulo}>{estado.esCorreo ? 'Correo verificado' : 'Celular verificado'}</div>
+          <div style={{ ...S.texto, overflowWrap: 'anywhere' }}>{estado.tel}</div>
         </div>
       </div>
 
@@ -92,7 +93,7 @@ export default function SeguridadCuenta({ plano = false }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 700, fontSize: 14.5 }}>Contraseña</div>
           <div style={S.texto}>
-            {listo ? 'Guardada. Ya puedes entrar con tu celular y tu contraseña.'
+            {listo ? 'Guardada. Ya puedes entrar con tu contraseña.'
               : estado.conClave ? 'Puedes entrar con ella o con un código por SMS.'
                 : 'Opcional: entra sin esperar el SMS.'}
           </div>

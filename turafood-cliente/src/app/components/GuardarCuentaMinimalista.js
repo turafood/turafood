@@ -13,7 +13,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { esInvitado } from '@/lib/sesion';
-import { enviarCodigo, confirmarCodigo, CANAL_POR_DEFECTO } from '@/lib/cuenta';
+import { enviarCodigo, confirmarCodigo, CANAL_POR_DEFECTO, METODO_POR_DEFECTO } from '@/lib/cuenta';
 import { mostrarCelular, normalizarCelularCO, codigoValido } from '@/lib/direcciones.mjs';
 import { pedirRecibo, getRecibo } from '@/lib/recibo';
 import { createClient, isConfigured } from '@/utils/supabase/client';
@@ -22,7 +22,7 @@ const ESPERA_REENVIO = 45;
 
 export default function GuardarCuentaMinimalista({ orderId, telefonoInicial = '', className = '' }) {
   const router = useRouter();
-  const [esInv, setEsInv] = useState(true);
+  const [esInv, setEsInv] = useState(METODO_POR_DEFECTO === 'sms');   // con verificación por correo, el pedido ya deja la cuenta guardada
   const [userPhone, setUserPhone] = useState('');
   const [paso, setPaso] = useState('telefono'); // 'telefono' | 'codigo' | 'listo'
   const [celular, setCelular] = useState(telefonoInicial);
@@ -49,7 +49,7 @@ export default function GuardarCuentaMinimalista({ orderId, telefonoInicial = ''
         const u = session?.user;
         const invitado = await esInvitado();
         if (alive) {
-          setEsInv(invitado);
+          setEsInv(invitado && METODO_POR_DEFECTO === 'sms');
           if (u?.phone) {
             setUserPhone(mostrarCelular(normalizarCelularCO(u.phone) || u.phone));
           }

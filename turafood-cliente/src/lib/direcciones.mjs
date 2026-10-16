@@ -67,8 +67,7 @@ export function mostrarCelular(e164) {
   return d.length === 10 ? `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}` : String(e164 ?? '');
 }
 
-/** ¿Es un código de verificación válido (4 o 6 dígitos)? */
+/** ¿Es un código de verificación válido (6 dígitos)? */
 export function codigoValido(raw) {
-  const s = String(raw ?? '').trim();
-  return /^\d{4}$|^\d{6}$/.test(s);
+  return /^\d{6}$/.test(String(raw ?? '').trim());
 }

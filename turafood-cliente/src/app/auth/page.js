@@ -1,33 +1,35 @@
 'use client';
 
 /**
- * ENTRAR A TURAFOOD — con el celular, como en Uber, Rappi o DiDi
+ * ENTRAR A TURAFOOD — como en Uber, Rappi o DiDi
  *
  * Nadie tiene que registrarse para mirar ni para pedir por primera vez. Esta
  * pantalla es para quien YA pidió y quiere volver a su cuenta (su historial,
  * sus direcciones) desde otro celular o después de cerrar sesión:
  *
- *   1. Escribe su celular.
- *   2. Entra con un código por SMS (lo normal) o con su contraseña (un atajo
- *      opcional que puede crear después de entrar).
+ *   1. Escribe su correo (o su celular, para entrar con contraseña).
+ *   2. Entra con un código que le llega al correo en segundos, o con su contraseña
+ *      (un atajo opcional que puede crear después de entrar).
  *
- * Un celular nuevo no necesita "registro": el código crea la cuenta. La
- * contraseña se ofrece al terminar, sin obligar. Google y Facebook siguen
- * existiendo, escondidos, para quien ya los usaba.
+ * Un correo nuevo no necesita "registro": el código crea la cuenta. La
+ * contraseña se ofrece al terminar, sin obligar. El código por SMS se enciende
+ * con NEXT_PUBLIC_OTP_METODO=sms cuando Twilio esté verificado. Google y Facebook
+ * siguen existiendo, escondidos, para quien ya los usaba.
  *
  * El perfil en `public.profiles` no se crea aquí: lo crea el trigger
  * `handle_new_user()` al insertarse el usuario en `auth.users`.
  */
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient, isConfigured } from '@/utils/supabase/client';
 import HeroBackdrop from '../components/HeroBackdrop';
 import RouteSkeleton from '../components/RouteSkeleton';
+import CodigoInput from '../components/CodigoInput';
 import { GoogleMark, FacebookMark } from '../components/SocialMarks';
 import {
   enviarCodigo, confirmarCodigo, entrarConContrasena, guardarContrasena, validarContrasena,
-  tieneCelularVerificado, tieneContrasena, CANAL_POR_DEFECTO, MIN_CONTRASENA,
+  tieneVerificacion, tieneContrasena, esCorreo, normalizarCorreo, METODO_POR_DEFECTO, MIN_CONTRASENA,
 } from '@/lib/cuenta';
 import { mostrarCelular, normalizarCelularCO } from '@/lib/direcciones.mjs';
 
@@ -49,27 +51,29 @@ function AuthPage() {
   const params = useSearchParams();
   const destino = rutaSegura(params.get('next'));
 
-  // telefono | codigo | clave | crear
-  const [paso, setPaso] = useState('telefono');
-  const [phone, setPhone] = useState('');
+  // contacto | codigo | clave | crear
+  const [paso, setPaso] = useState('contacto');
+  const [contacto, setContacto] = useState('');         // correo o celular
   const [otp, setOtp] = useState('');
-  const [envio, setEnvio] = useState(null);           // { tel, modo, canal }
+  const [envio, setEnvio] = useState(null);             // { contacto, modo, metodo }
   const [password, setPassword] = useState('');
   const [verClave, setVerClave] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [aviso, setAviso] = useState(null);
   const [espera, setEspera] = useState(0);
-  const cajaCodigo = useRef(null);
 
-  // Quien ya entró no necesita esta pantalla; y el último celular se recuerda
+  const porCorreo = esCorreo(contacto);
+  const correoOk = Boolean(normalizarCorreo(contacto));
+  const celularOk = !porCorreo && Boolean(normalizarCelularCO(contacto));
+  const contactoOk = porCorreo ? correoOk : celularOk;
+  const quien = porCorreo ? contacto.trim() : mostrarCelular(normalizarCelularCO(contacto) || contacto);
+
+  // Quien ya entró no necesita esta pantalla; y el último correo se recuerda
   useEffect(() => {
-    tieneCelularVerificado().then((v) => { if (v) router.replace(destino); }).catch(() => {});
+    tieneVerificacion().then((v) => { if (v) router.replace(destino); }).catch(() => {});
     Promise.resolve().then(() => {
-      try {
-        const tel = normalizarCelularCO(localStorage.getItem('turafood_customer_phone'));
-        if (tel) setPhone(tel.replace(/^\+57/, ''));
-      } catch { /* sin almacenamiento */ }
+      try { setContacto(localStorage.getItem('turafood_customer_email') || ''); } catch { /* sin almacenamiento */ }
     });
     // solo al montar
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,16 +85,11 @@ function AuthPage() {
     return () => clearTimeout(id);
   }, [espera]);
 
-  useEffect(() => { if (paso === 'codigo') cajaCodigo.current?.focus(); }, [paso]);
-
   const guard = () => {
     if (isConfigured()) return true;
     setError('Supabase todavía no está conectado en este entorno.');
     return false;
   };
-
-  const celularOk = Boolean(normalizarCelularCO(phone));
-  const celularBonito = mostrarCelular(normalizarCelularCO(phone) || phone);
 
   const entrar = () => {
     router.replace(destino);
@@ -113,19 +112,23 @@ function AuthPage() {
     }
   };
 
-  /** Manda el código por SMS. Si el celular ya es de una cuenta, se entra a ESA cuenta. */
+  /** Manda el código. Si el dato ya es de una cuenta, se entra a ESA cuenta. */
   const mandarCodigo = async (e) => {
     e?.preventDefault();
     setError(null);
     setAviso(null);
     if (!guard()) return;
+    if (!porCorreo && METODO_POR_DEFECTO !== 'sms') {
+      setError('Por ahora el código llega a tu correo. Escribe tu correo, o entra con tu contraseña si ya la creaste.');
+      return;
+    }
     setBusy(true);
     try {
       let r;
       try {
-        r = await enviarCodigo(phone, { canal: CANAL_POR_DEFECTO });
+        r = await enviarCodigo(contacto);
       } catch (err) {
-        if (err.message === 'EXISTE') r = await enviarCodigo(phone, { canal: CANAL_POR_DEFECTO, forzarIngreso: true });
+        if (err.message === 'EXISTE') r = await enviarCodigo(contacto, { forzarIngreso: true });
         else throw err;
       }
       setEnvio(r);
@@ -145,24 +148,16 @@ function AuthPage() {
     setError(null);
     setBusy(true);
     try {
-      await confirmarCodigo({ tel: envio.tel, codigo: valor, modo: envio.modo });
+      await confirmarCodigo({ contacto: envio.contacto, codigo: valor, modo: envio.modo });
       if (await tieneContrasena()) { entrar(); return; }
       setPassword('');
       setPaso('crear');
     } catch (err) {
       setError(err.message);
       setOtp('');
-      cajaCodigo.current?.focus();
     } finally {
       setBusy(false);
     }
-  };
-
-  const alEscribirCodigo = (e) => {
-    const valor = e.target.value.replace(/\D/g, '').slice(0, 6);
-    setOtp(valor);
-    if (valor.length === 4 && valor === '1234') confirmar(valor);
-    else if (valor.length === 6) confirmar(valor);
   };
 
   const entrarConClave = async (e) => {
@@ -171,7 +166,7 @@ function AuthPage() {
     if (!guard()) return;
     setBusy(true);
     try {
-      await entrarConContrasena(phone, password);
+      await entrarConContrasena(contacto, password);
       entrar();
     } catch (err) {
       setError(err.message);
@@ -194,7 +189,7 @@ function AuthPage() {
     }
   };
 
-  const volverAlTelefono = () => { setPaso('telefono'); setError(null); setAviso(null); setPassword(''); };
+  const volver = () => { setPaso('contacto'); setError(null); setAviso(null); setPassword(''); };
 
   return (
     <div style={S.page}>
@@ -209,33 +204,32 @@ function AuthPage() {
               <span style={S.wordmark}>TuraFood</span>
             </div>
 
-            {paso === 'telefono' && (
+            {paso === 'contacto' && (
               <form onSubmit={mandarCodigo} className="anim-fade">
-                <h1 style={S.title}>Entra con tu celular</h1>
+                <h1 style={S.title}>Entra a tu cuenta</h1>
                 <p style={S.subtitle}>
-                  Recupera tus pedidos y direcciones en cualquier celular. Si es tu primera vez, se crea tu cuenta sola.
+                  Recupera tus pedidos y direcciones en cualquier celular. Si es tu primera vez, tu cuenta se crea sola.
                 </p>
 
                 <div style={S.phoneRow}>
-                  <span style={S.prefix}>+57</span>
+                  <span className="ms" style={{ fontSize: 20, color: 'rgba(255,255,255,.5)' }}>{porCorreo || !contacto ? 'mail' : 'smartphone'}</span>
                   <input
-                    type="tel" inputMode="tel" autoComplete="tel-national" required autoFocus
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="300 123 4567" aria-label="Tu celular"
-                    style={S.phoneInput}
+                    type="text" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} required autoFocus
+                    value={contacto} onChange={(e) => setContacto(e.target.value)}
+                    placeholder="Tu correo o tu celular" aria-label="Tu correo o tu celular"
+                    style={{ ...S.phoneInput, fontSize: 16 }}
                   />
                 </div>
 
                 {error && <Alert text={error} />}
 
-                <button type="submit" disabled={busy || !celularOk} style={{ ...S.primary, opacity: busy || !celularOk ? 0.5 : 1 }}>
-                  {busy ? 'Enviando…' : 'Enviarme un código por SMS'}
+                <button type="submit" disabled={busy || !contactoOk} style={{ ...S.primary, opacity: busy || !contactoOk ? 0.5 : 1 }}>
+                  {busy ? 'Enviando…' : 'Enviarme un código'}
                 </button>
                 <button
-                  type="button" disabled={!celularOk}
+                  type="button" disabled={!contactoOk}
                   onClick={() => { setError(null); setPaso('clave'); }}
-                  style={{ ...S.ghost, marginTop: 10, opacity: celularOk ? 1 : 0.5 }}
+                  style={{ ...S.ghost, marginTop: 10, opacity: contactoOk ? 1 : 0.5 }}
                 >
                   <span className="ms" style={{ fontSize: 19 }}>lock</span>
                   Entrar con mi contraseña
@@ -269,22 +263,20 @@ function AuthPage() {
 
             {paso === 'codigo' && (
               <div className="anim-up">
-                <BackButton onClick={volverAlTelefono} />
+                <BackButton onClick={volver} />
                 <h1 style={S.title}>Escribe el código</h1>
-                <p style={S.subtitle}>Lo enviamos por SMS al +57 {celularBonito}.</p>
-                <div style={{ background: 'rgba(255,68,31,0.15)', border: '1px dashed rgba(255,68,31,0.4)', borderRadius: 12, padding: '10px 14px', marginTop: 10, fontSize: 13, color: '#fff' }}>
-                  💬 Te enviamos un SMS. Para pruebas puedes ingresar <strong>1234</strong>.
-                </div>
+                <p style={S.subtitle}>
+                  Lo enviamos a <strong style={{ color: '#fff' }}>{quien}</strong>
+                  {envio?.metodo === 'correo' ? '. Llega en segundos; revisa también spam o promociones.' : ' por SMS.'}
+                </p>
 
                 {aviso && <Notice text={aviso} />}
 
-                <input
-                  ref={cajaCodigo} value={otp} onChange={alEscribirCodigo} disabled={busy}
-                  inputMode="numeric" autoComplete="one-time-code" placeholder="1234 o 000000" maxLength={6}
-                  aria-label="Código de 6 dígitos" style={S.otp}
-                />
+                <div style={{ marginTop: 22 }}>
+                  <CodigoInput valor={otp} onChange={setOtp} onCompleto={confirmar} deshabilitado={busy} error={Boolean(error)} oscuro />
+                </div>
 
-                <div aria-live="polite" style={{ minHeight: 22, marginTop: 12, textAlign: 'center' }}>
+                <div aria-live="polite" style={{ minHeight: 22, marginTop: 14, textAlign: 'center' }}>
                   {busy ? <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>Verificando…</span>
                     : error ? <span style={{ fontSize: 13, fontWeight: 700, color: '#FFC7BA' }}>{error}</span> : null}
                 </div>
@@ -300,9 +292,9 @@ function AuthPage() {
 
             {paso === 'clave' && (
               <form onSubmit={entrarConClave} className="anim-up">
-                <BackButton onClick={volverAlTelefono} />
+                <BackButton onClick={volver} />
                 <h1 style={S.title}>Tu contraseña</h1>
-                <p style={S.subtitle}>Para el +57 {celularBonito}.</p>
+                <p style={S.subtitle}>Para <strong style={{ color: '#fff' }}>{quien}</strong>.</p>
 
                 <div style={S.phoneRow}>
                   <input
@@ -321,9 +313,11 @@ function AuthPage() {
                 <button type="submit" disabled={busy || !password} style={{ ...S.primary, opacity: busy || !password ? 0.5 : 1 }}>
                   {busy ? 'Entrando…' : 'Entrar'}
                 </button>
-                <button type="button" disabled={busy} onClick={() => { setAviso('Si olvidaste tu contraseña, entra con este código y luego crea una nueva.'); mandarCodigo(); }} style={S.enlace}>
-                  Olvidé mi contraseña · enviarme un código
-                </button>
+                {(porCorreo || METODO_POR_DEFECTO === 'sms') && (
+                  <button type="button" disabled={busy} onClick={() => { setAviso('Si olvidaste tu contraseña, entra con este código y luego crea una nueva.'); mandarCodigo(); }} style={S.enlace}>
+                    Olvidé mi contraseña · enviarme un código
+                  </button>
+                )}
               </form>
             )}
 
@@ -331,7 +325,7 @@ function AuthPage() {
               <form onSubmit={crearClave} className="anim-up">
                 <h1 style={S.title}>¡Listo, ya entraste!</h1>
                 <p style={S.subtitle}>
-                  Si quieres, crea una contraseña y la próxima vez entras sin esperar el SMS. Es opcional.
+                  Si quieres, crea una contraseña y la próxima vez entras sin esperar el código. Es opcional.
                 </p>
 
                 <div style={S.phoneRow}>

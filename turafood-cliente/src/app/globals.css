@@ -1593,3 +1593,5 @@ button:disabled {
 
 
 
+
+@keyframes tfsubir { from { transform: translateY(100%); opacity: .6; } to { transform: translateY(0); opacity: 1; } }

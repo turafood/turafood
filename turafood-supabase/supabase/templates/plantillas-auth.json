@@ -1,0 +1,8 @@
+{
+  "confirmacion": "{{ .Token }} es tu código de TuraFood",
+  "magic_link": "{{ .Token }} es tu código para entrar a TuraFood",
+  "cambio_correo": "{{ .Token }} es tu código para confirmar tu pedido",
+  "recuperacion": "Restablece tu contraseña de TuraFood",
+  "invitacion": "Te invitaron a TuraFood",
+  "reautenticacion": "{{ .Token }} es tu código de seguridad de TuraFood"
+}
