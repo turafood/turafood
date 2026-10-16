@@ -1,0 +1,35 @@
+name: Landing de negocios
+
+# negocios.turafood.com: la landing comercial como Worker de solo archivos estaticos.
+# Se despliega sola al cambiar turafood-negocios/ (o a mano desde Actions).
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'turafood-negocios/**'
+      - '.github/workflows/negocios.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: turafood-negocios
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: turafood-negocios/package-lock.json
+      - run: npm ci
+      - name: Desplegar a Cloudflare
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

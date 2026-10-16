@@ -4,20 +4,52 @@
     {
       "name": "turafood-cliente",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "turafood-cliente", "run", "dev", "--", "--port", "3000"],
+      "runtimeArgs": [
+        "--prefix",
+        "turafood-cliente",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3000"
+      ],
       "port": 3000
     },
     {
       "name": "turafood-app",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "turafood-app", "run", "dev", "--", "--port", "3100"],
+      "runtimeArgs": [
+        "--prefix",
+        "turafood-app",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3100"
+      ],
       "port": 3100
     },
     {
       "name": "turafood-admin",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "turafood-admin", "run", "dev", "--", "--port", "3200"],
+      "runtimeArgs": [
+        "--prefix",
+        "turafood-admin",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3200"
+      ],
       "port": 3200
+    },
+    {
+      "name": "turafood-negocios",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "turafood-negocios/servir.mjs"
+      ],
+      "port": 8790
     }
   ]
 }

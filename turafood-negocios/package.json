@@ -1,0 +1,13 @@
+{
+  "name": "turafood-negocios",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Landing comercial de Tura Food AI para negocios (negocios.turafood.com), servida como Worker de solo archivos estáticos",
+  "scripts": {
+    "dev": "wrangler dev --port 8790",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
