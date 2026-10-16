@@ -31,7 +31,10 @@ export const T = {
   verdeTexto: '#0B7A48',
   fuente: "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
   sitio: 'https://turafood.com',
-  logo: 'https://turafood.com/brand/logo-crema.png',
+  logo: 'https://turafood.com/brand/correo-logo.png',
+  bannerCliente: 'https://turafood.com/brand/correo-banner-cliente.jpg',
+  bannerNegocio: 'https://turafood.com/brand/correo-banner-negocio.jpg',
+  bannerCodigo: 'https://turafood.com/brand/correo-banner-codigo.jpg',
   oro: '#D8B65C',
   soporteWa: '573137594713',
 };
@@ -44,15 +47,49 @@ export function esc(valor: unknown): string {
 
 // ---------- bloques ----------
 
-/** Título grande + subtítulo, centrados */
-export function encabezado(icono: string, titulo: string, subtitulo = ''): string {
+/** Imagen de cabecera a todo el ancho de la tarjeta (con texto alternativo para quien no ve imágenes) */
+export function banner(url: string, alt = 'TuraFood'): string {
   return `
               <tr>
-                <td align="center" style="padding:34px 28px 6px;">
+                <td style="padding:0;line-height:0;font-size:0;"><img src="${url}" width="560" alt="${esc(alt)}" style="display:block;width:100%;max-width:560px;height:auto;border:0;background:#0B0B0C;"></td>
+              </tr>`;
+}
+
+/** Indicador de progreso de la secuencia: «Día 2 de 4» con barra fina */
+export function progreso(actual: number, total: number): string {
+  const pct = Math.round((actual / total) * 100);
+  const etiqueta = actual === 0 ? 'Bienvenida' : `Día ${actual} de ${total}`;
+  const relleno = pct > 0
+    ? `<td style="width:${pct}%;height:4px;line-height:4px;font-size:1px;background:${T.oro};border-radius:99px;">&nbsp;</td>`
+    : '';
+  return `
+              <tr>
+                <td style="padding:22px 32px 0;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td style="font-family:${T.fuente};font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:${T.suave};">${etiqueta}</td>
+                    <td align="right" style="font-family:${T.fuente};font-size:11.5px;font-weight:700;color:${T.suave};">${pct} %</td>
+                  </tr><tr>
+                    <td colspan="2" style="padding-top:8px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${T.linea};border-radius:99px;"><tr>${relleno}<td style="font-size:1px;line-height:4px;height:4px;">&nbsp;</td></tr></table>
+                    </td>
+                  </tr></table>
+                </td>
+              </tr>`;
+}
+
+/** Título grande + subtítulo, centrados */
+export function encabezado(icono: string, titulo: string, subtitulo = ''): string {
+  const caja = icono
+    ? `
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
                     <td align="center" style="width:64px;height:64px;background:${T.papel};border:1px solid ${T.linea};border-radius:20px;font-size:30px;line-height:64px;">${icono}</td>
                   </tr></table>
-                  <h1 style="margin:18px 0 8px;font-family:${T.fuente};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:${T.tinta};">${titulo}</h1>
+                  <div style="height:18px;line-height:18px;font-size:1px;">&nbsp;</div>`
+    : '';
+  return `
+              <tr>
+                <td align="center" style="padding:30px 32px 6px;">${caja}
+                  <h1 style="margin:0 0 10px;font-family:${T.fuente};font-size:26px;line-height:1.18;font-weight:800;letter-spacing:-.025em;color:${T.tinta};">${titulo}</h1>
                   ${subtitulo ? `<p style="margin:0;font-family:${T.fuente};font-size:15.5px;line-height:1.55;color:${T.texto};">${subtitulo}</p>` : ''}
                 </td>
               </tr>`;
@@ -87,7 +124,7 @@ export function cajaCodigo(codigo: string, nota = 'Vence en 10 minutos'): string
 export function boton(texto: string, url: string, secundario = false): string {
   const fondo = secundario ? T.tarjeta : T.marca;
   const color = secundario ? T.tinta : '#FFFFFF';
-  const borde = secundario ? `border:1.5px solid ${T.linea};` : '';
+  const borde = secundario ? `border:1.5px solid ${T.linea};` : `border:1px solid ${T.oro};`;
   return `
               <tr>
                 <td align="center" style="padding:22px 32px 4px;">
@@ -154,7 +191,7 @@ export interface OpcionesEnvoltura {
   titulo?: string;
 }
 
-/** Marco común: fondo, marca, tarjeta con franja de color y pie legal */
+/** Marco común: cabecera negra con el logo, franja dorada, tarjeta y pie */
 export function envoltura(o: OpcionesEnvoltura): string {
   return `<!doctype html>
 <html lang="es">
@@ -169,20 +206,22 @@ export function envoltura(o: OpcionesEnvoltura): string {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">${o.preheader}&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${T.fondo};">
   <tr>
-    <td align="center" style="padding:28px 12px 36px;">
+    <td align="center" style="padding:24px 12px 36px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
-
         <tr>
-          <td style="background:${T.tarjeta};border:1px solid #E3E3E3;border-radius:24px;overflow:hidden;">
+          <td style="background:#FFFFFF;border:1px solid #E3E3E3;border-radius:24px;overflow:hidden;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-              <tr><td align="center" bgcolor="#0B0B0C" style="background:#0B0B0C;padding:26px 20px 24px;"><img src="${T.logo}" width="150" alt="TuraFood" style="display:block;width:150px;max-width:70%;height:auto;border:0;font-family:${T.fuente};font-size:22px;font-weight:800;color:#FFF8ED;"></td></tr>
+              <tr>
+                <td align="center" bgcolor="#0B0B0C" style="background:#0B0B0C;padding:26px 24px 22px;">
+                  <img src="${T.logo}" width="132" alt="TuraFood" style="display:block;width:132px;height:auto;margin:0 auto;border:0;color:#FFF8ED;font-family:${T.fuente};font-size:22px;font-weight:800;">
+                </td>
+              </tr>
               <tr><td style="height:3px;line-height:3px;font-size:1px;background:${T.oro};background-image:linear-gradient(90deg,#B8912F,#E6C877,#B8912F);">&nbsp;</td></tr>${o.filas}
             </table>
           </td>
         </tr>
-
         <tr>
-          <td align="center" style="padding:22px 14px 6px;font-family:${T.fuente};font-size:12px;line-height:1.7;color:#8A8A8A;">
+          <td align="center" style="padding:24px 14px 6px;font-family:${T.fuente};font-size:12px;line-height:1.7;color:#8A8A8A;">
             ${o.destinatario ? `Enviado a ${esc(o.destinatario)}.<br>` : ''}
             <a href="${T.sitio}/terminos" style="color:#8A8A8A;">Términos</a> &nbsp;·&nbsp;
             <a href="${T.sitio}/privacidad" style="color:#8A8A8A;">Privacidad</a> &nbsp;·&nbsp;
@@ -191,7 +230,6 @@ export function envoltura(o: OpcionesEnvoltura): string {
             TuraFood · Buenaventura, Colombia
           </td>
         </tr>
-
       </table>
     </td>
   </tr>

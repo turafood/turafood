@@ -352,7 +352,7 @@ export default function BizShell({ children }) {
           className={`biz-side${drawer ? ' is-open' : ''}${rail.collapsed ? ' is-rail' : ''}`}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '20px 18px 18px' }}>
-            <div style={S.logo}>t</div>
+            <div style={S.logo}><img src="/brand/ola-crema.png" alt="TuraFood" style={{ width: "72%", height: "auto", display: "block" }} /></div>
             <div className="rail-hide" style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 15.5, letterSpacing: '-.02em', display: 'flex', alignItems: 'center', gap: 4, color: 'var(--text)' }}>
                 Tura Food <span className="tf-serif" style={{ color: 'var(--primary)', fontStyle: 'italic', fontWeight: 700 }}>AI</span>
@@ -1089,7 +1089,7 @@ const S = {
     borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column',
   },
   logo: {
-    width: 34, height: 34, borderRadius: 11, background: 'var(--primary)', color: '#fff',
+    width: 34, height: 34, borderRadius: 11, background: '#0B0B0C', color: '#FFF8ED', border: '1px solid rgba(216, 182, 92, .55)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19,
   },

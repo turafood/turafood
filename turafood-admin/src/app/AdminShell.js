@@ -130,7 +130,7 @@ export default function AdminShell({ children }) {
 
       <aside className={`adm-side${drawer ? ' is-open' : ''}`}>
         <div style={S.brand}>
-          <span style={S.logo}>t</span>
+          <span style={S.logo}><img src="/brand/ola-crema.png" alt="TuraFood" style={{ width: "72%", height: "auto", display: "block" }} /></span>
           <span style={{ minWidth: 0 }}>
             <span style={S.brandName}>TuraFood</span>
             <span style={S.brandKicker}>CONSOLA ADMIN</span>
@@ -247,7 +247,7 @@ const S = {
   },
   brand: { display: 'flex', alignItems: 'center', gap: 10, padding: '20px 18px 16px' },
   logo: {
-    width: 34, height: 34, borderRadius: 11, background: 'var(--primary)', color: '#fff',
+    width: 34, height: 34, borderRadius: 11, background: '#0B0B0C', color: '#FFF8ED', border: '1px solid rgba(216, 182, 92, .55)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 19,
   },
