@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
  * —negocio o repartidor— que abren una sesión anónima y lo dejan
  * adentro. No es una pantalla de registro, es la puerta abierta.
  */
-const PUBLIC = ['/auth', '/registro', '/entrar', '/unirse', '/terminos', '/privacidad', '/actualizar-clave'];
+const PUBLIC = ['/auth', '/empezar', '/registro', '/entrar', '/unirse', '/terminos', '/privacidad', '/actualizar-clave'];
 
 /**
  * Prefijo que le corresponde a cada rol. Es lo que convierte
@@ -85,7 +85,7 @@ export async function updateSession(request) {
   if (!user) {
     // A /entrar, no a /auth: quien llega por primera vez no viene a
     // registrarse, viene a ver si esto le sirve.
-    return isPublic(pathname) ? response : redirect('/entrar');
+    return isPublic(pathname) ? response : redirect('/auth');
   }
 
   const { data: profile } = await supabase

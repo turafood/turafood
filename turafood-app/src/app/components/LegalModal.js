@@ -53,7 +53,7 @@ export default function LegalModal({ isOpen, initialTab = 'terminos', onClose })
           WebkitBackdropFilter: 'blur(45px) saturate(180%)',
           border: '1px solid rgba(232, 199, 102, 0.22)',
           borderRadius: 24,
-          boxShadow: '0 35px 100px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 68, 31, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 35px 100px rgba(0, 0, 0, 0.9), 0 0 40px color-mix(in srgb, var(--primary) 6%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden', animation: 'tfPopIn .28s cubic-bezier(0.16, 1, 0.3, 1) both',
           color: '#fff',
@@ -78,7 +78,7 @@ export default function LegalModal({ isOpen, initialTab = 'terminos', onClose })
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700,
                 border: 'none', cursor: 'pointer', transition: 'all .2s ease',
-                background: tab === 'terminos' ? 'linear-gradient(135deg, rgba(232,199,102,0.22) 0%, rgba(255,68,31,0.18) 100%)' : 'transparent',
+                background: tab === 'terminos' ? 'linear-gradient(135deg, rgba(232,199,102,0.22) 0%, color-mix(in srgb, var(--primary) 18%, transparent) 100%)' : 'transparent',
                 color: tab === 'terminos' ? '#E8C766' : 'rgba(255, 255, 255, 0.6)',
                 borderWidth: 1, borderStyle: 'solid',
                 borderColor: tab === 'terminos' ? 'rgba(232,199,102,0.35)' : 'transparent',
@@ -174,8 +174,8 @@ export default function LegalModal({ isOpen, initialTab = 'terminos', onClose })
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{
-                        width: 26, height: 26, borderRadius: 8, background: 'rgba(255, 68, 31, 0.15)',
-                        border: '1px solid rgba(255, 68, 31, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 26, height: 26, borderRadius: 8, background: 'color-mix(in srgb, var(--primary) 15%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'var(--primary)',
                       }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -396,8 +396,8 @@ export default function LegalModal({ isOpen, initialTab = 'terminos', onClose })
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{
-                        width: 26, height: 26, borderRadius: 8, background: 'rgba(255, 68, 31, 0.15)',
-                        border: '1px solid rgba(255, 68, 31, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 26, height: 26, borderRadius: 8, background: 'color-mix(in srgb, var(--primary) 15%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'var(--primary)',
                       }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -443,9 +443,9 @@ export default function LegalModal({ isOpen, initialTab = 'terminos', onClose })
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '8px 22px', borderRadius: 12,
-              background: 'linear-gradient(145deg, #FF5B2E, #E2360F)',
+              background: 'linear-gradient(145deg, #FF5B2E, var(--primaryDark))',
               color: '#fff', border: 'none', fontWeight: 700, fontSize: 13,
-              cursor: 'pointer', boxShadow: '0 4px 16px rgba(255, 68, 31, 0.4)',
+              cursor: 'pointer', boxShadow: '0 4px 16px color-mix(in srgb, var(--primary) 40%, transparent)',
               transition: 'transform 0.15s ease, filter 0.15s ease',
             }}
           >

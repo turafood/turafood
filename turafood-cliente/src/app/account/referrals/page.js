@@ -323,7 +323,7 @@ export default function ReferralsPage() {
               />
 
               {notice && (
-                <div style={{ ...S.notice, background: notice.ok ? '#E6F6EE' : '#FFF0ED', color: notice.ok ? '#0B7A48' : 'var(--primary)' }}>
+                <div style={{ ...S.notice, background: notice.ok ? '#E6F6EE' : 'var(--primarySoft)', color: notice.ok ? '#0B7A48' : 'var(--primary)' }}>
                   <span className="ms" style={{ fontSize: 17 }}>{notice.ok ? 'check_circle' : 'error'}</span>
                   {notice.text}
                 </div>
@@ -419,7 +419,7 @@ const S = {
   },
   hero: {
     position: 'relative', overflow: 'hidden', borderRadius: 24,
-    background: 'linear-gradient(135deg,#FF7A3D,#E2360F)', padding: 22, color: '#fff',
+    background: 'linear-gradient(135deg,#FF7A3D,var(--primaryDark))', padding: 22, color: '#fff',
   },
   heroBubble: {
     position: 'absolute', right: -36, top: -36, width: 160, height: 160,
@@ -480,7 +480,7 @@ const S = {
   submitBtn: {
     width: '100%', height: 50, borderRadius: 999, marginTop: 14,
     background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 14.5,
-    boxShadow: '0 8px 20px rgba(255,68,31,.28)',
+    boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   row: {
     display: 'flex', alignItems: 'center', gap: 12,
@@ -500,7 +500,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

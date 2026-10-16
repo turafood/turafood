@@ -23,8 +23,8 @@ const STATUS_LABELS = {
   preparing: { label: 'Cocinando al Instante', color: '#A8730B', bg: 'rgba(168, 115, 11, 0.14)', icon: 'skillet' },
   ready: { label: 'Listo · Esperando Repartidor', color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)', icon: 'takeout_dining' },
   courier_assigned: { label: 'Repartidor Asignado', color: '#2E6BFF', bg: 'rgba(46, 107, 255, 0.12)', icon: 'two_wheeler' },
-  picked_up: { label: 'En Ruta con el Repartidor', color: '#FF441F', bg: 'rgba(255, 68, 31, 0.12)', icon: 'two_wheeler' },
-  delivering: { label: 'Llegando a tu Dirección', color: '#FF441F', bg: 'rgba(255, 68, 31, 0.14)', icon: 'near_me' },
+  picked_up: { label: 'En Ruta con el Repartidor', color: 'var(--primary)', bg: 'color-mix(in srgb, var(--primary) 12%, transparent)', icon: 'two_wheeler' },
+  delivering: { label: 'Llegando a tu Dirección', color: 'var(--primary)', bg: 'color-mix(in srgb, var(--primary) 14%, transparent)', icon: 'near_me' },
   delivered: { label: 'Entregado con Éxito', color: '#10B981', bg: 'rgba(16, 185, 129, 0.14)', icon: 'check_circle' },
   cancelled: { label: 'Pedido Cancelado', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.12)', icon: 'cancel' },
 };
@@ -339,7 +339,7 @@ const S = {
   },
   header: {
     padding: '14px 18px 12px',
-    background: 'linear-gradient(180deg, rgba(255, 68, 31, 0.04) 0%, transparent 100%)',
+    background: 'linear-gradient(180deg, color-mix(in srgb, var(--primary) 4%, transparent) 0%, transparent 100%)',
   },
   brandLogo: {
     width: 38,
@@ -418,7 +418,7 @@ const S = {
     fontWeight: 800,
     fontSize: 12,
     color: 'var(--primary)',
-    background: 'rgba(255, 68, 31, 0.1)',
+    background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     padding: '2px 7px',
     borderRadius: 6,
     height: 'fit-content',
@@ -462,7 +462,7 @@ const S = {
     width: 32,
     height: 32,
     borderRadius: 8,
-    background: 'rgba(255, 68, 31, 0.1)',
+    background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

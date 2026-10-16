@@ -291,7 +291,7 @@ export const COUPONS = [
  * y estos colores exactos (`isDeskHome`, línea 2351 del .dc.html).
  */
 export const DESK_VERTICALS = [
-  { id: 'restaurant', label: 'Restaurantes', hint: 'Comida lista, caliente', emoji: '🍔', bg: 'linear-gradient(135deg, #FFF3EE 0%, #FEE5DC 100%)', border: 'rgba(255, 68, 31, 0.15)', fg: '#B32A0D', go: 'rest' },
+  { id: 'restaurant', label: 'Restaurantes', hint: 'Comida lista, caliente', emoji: '🍔', bg: 'linear-gradient(135deg, #FFF3EE 0%, #FEE5DC 100%)', border: 'color-mix(in srgb, var(--primary) 15%, transparent)', fg: '#B32A0D', go: 'rest' },
   { id: 'market', label: 'Mercado', hint: 'Frutas, verduras, granos', emoji: '🛒', bg: 'linear-gradient(135deg, #EBF8F2 0%, #DCF2E7 100%)', border: 'rgba(17, 178, 106, 0.15)', fg: '#0B6E44', go: 'market' },
   { id: 'pharmacy', label: 'Farmacia', hint: 'Medicamentos y cuidado', emoji: '💊', bg: 'linear-gradient(135deg, #EEF4FF 0%, #DFECFF 100%)', border: 'rgba(46, 107, 255, 0.15)', fg: '#1E4FBF', go: 'rest' },
   { id: 'liquor', label: 'Licores', hint: 'Cerveza, ron, mezcladores', emoji: '🍾', bg: 'linear-gradient(135deg, #FBF6EC 0%, #F5ECDA 100%)', border: 'rgba(232, 199, 102, 0.25)', fg: '#7A5A16', go: 'rest' },
@@ -332,7 +332,7 @@ export const BEACHES = [
 
 /** Banners del inicio — copy y gradientes literales del mockup */
 export const HOME_BANNERS = [
-  { tag: 'SOLO HOY', title: 'Envío gratis en tu primer pedido', code: 'TURA15', bg: 'linear-gradient(135deg,#FF7A3D,#E2360F)', codeFg: '#E2360F' },
+  { tag: 'SOLO HOY', title: 'Envío gratis en tu primer pedido', code: 'TURA15', bg: 'linear-gradient(135deg,#FF7A3D,var(--primaryDark))', codeFg: 'var(--primaryDark)' },
   { tag: 'MERCADO', title: '20% off en frutas y verduras', code: 'MERCA20', bg: 'linear-gradient(135deg,#2ECB84,#0B8E54)', codeFg: '#0B7A48' },
   { tag: 'TURA PLUS', title: 'Envíos ilimitados por $16.900', code: 'VER PLAN', bg: 'linear-gradient(135deg,#3A332A,#17140F)', codeFg: '#17140F' },
 ];

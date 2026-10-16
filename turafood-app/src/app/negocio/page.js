@@ -336,8 +336,8 @@ export default function ResumenPage() {
             </span>
             <span style={{
               display: 'flex', alignItems: 'center', gap: 4, padding: '3px 9px', borderRadius: 999,
-              background: delta >= 0 ? '#E6F6EE' : '#FFF0ED',
-              color: delta >= 0 ? '#0B8E54' : '#FF441F',
+              background: delta >= 0 ? '#E6F6EE' : 'var(--primarySoft)',
+              color: delta >= 0 ? '#0B8E54' : 'var(--primary)',
               fontSize: 11.5, fontWeight: 800,
             }}>
               <span className="ms" style={{ fontSize: 14 }}>{delta >= 0 ? 'trending_up' : 'trending_down'}</span>
@@ -406,7 +406,7 @@ export default function ResumenPage() {
                     width: '100%', borderRadius: '9px 9px 4px 4px',
                     height: `${Math.max(4, (d.gross / chartMax) * 100)}%`,
                     background: i === days.length - 1
-                      ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
+                      ? 'linear-gradient(180deg,#FF7A3D,var(--primary))'
                       : 'var(--surface2)',
                   }}
                 />
@@ -475,7 +475,7 @@ export default function ResumenPage() {
         <div style={S.channels}>
           {[
             {
-              id: 'tura', name: 'TuraFood', icon: 'storefront', color: 'var(--primary)', bg: 'linear-gradient(135deg, rgba(255,68,31,0.2) 0%, rgba(255,68,31,0.05) 100%)',
+              id: 'tura', name: 'TuraFood', icon: 'storefront', color: 'var(--primary)', bg: 'linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent) 0%, color-mix(in srgb, var(--primary) 5%, transparent) 100%)',
               connected: true,
               value: cop(weekTotal),
               hint: `${days.reduce((a, d) => a + d.orders, 0)} pedidos en 7 días`,
@@ -616,7 +616,7 @@ export default function ResumenPage() {
           <div style={{ position: 'absolute', top: -100, right: -50, width: 250, height: 250, background: 'var(--primary)', filter: 'blur(90px)', opacity: 0.15 }} />
           
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,68,31,0.1)', color: 'var(--primary)', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', backdropFilter: 'blur(4px)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'color-mix(in srgb, var(--primary) 10%, transparent)', color: 'var(--primary)', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', backdropFilter: 'blur(4px)' }}>
               <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Tura IA
             </span>
             <div style={{ ...S.cardTitle, color: '#fff' }}>Insights para tu negocio</div>
@@ -640,7 +640,7 @@ export default function ResumenPage() {
             </div>
             
             {outOfStock > 0 && (
-              <div style={{ background: 'rgba(255,68,31,0.1)', padding: 16, borderRadius: 16, border: '1px solid rgba(255,68,31,0.2)' }}>
+              <div style={{ background: 'color-mix(in srgb, var(--primary) 10%, transparent)', padding: 16, borderRadius: 16, border: '1px solid color-mix(in srgb, var(--primary) 20%, transparent)' }}>
                 <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', marginBottom: 8 }}>warning</span>
                 <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: '#FFB0A0' }}>Productos agotados</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
@@ -773,7 +773,7 @@ function Kpi({ label, value, icon, bg, fg, delta, up }) {
       <div
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          fontSize: 12.5, fontWeight: 800, color: up ? '#0B8E54' : '#FF441F',
+          fontSize: 12.5, fontWeight: 800, color: up ? '#0B8E54' : 'var(--primary)',
         }}
       >
         <span className="ms" style={{ fontSize: 16 }}>{up ? 'trending_up' : 'trending_down'}</span>
@@ -833,7 +833,7 @@ const S = {
   },
   heroGlow: {
     position: 'absolute', right: -50, top: -60, width: 250, height: 250, borderRadius: '50%',
-    background: 'radial-gradient(circle,rgba(255,68,31,.25),rgba(255,68,31,0) 70%)',
+    background: 'radial-gradient(circle,color-mix(in srgb, var(--primary) 25%, transparent),color-mix(in srgb, var(--primary) 0%, transparent) 70%)',
   },
   heroDelta: {
     display: 'flex', alignItems: 'center', gap: 6, height: 26, padding: '0 12px',
@@ -891,7 +891,7 @@ const S = {
   },
   attentionBtn: {
     height: 38, padding: '0 16px', borderRadius: 12, background: 'var(--primary)',
-    color: '#fff', fontSize: 13, fontWeight: 800, flex: 'none', boxShadow: '0 4px 16px rgba(255,68,31,0.3)',
+    color: '#fff', fontSize: 13, fontWeight: 800, flex: 'none', boxShadow: '0 4px 16px color-mix(in srgb, var(--primary) 30%, transparent)',
   },
   pill: { fontSize: 11.5, fontWeight: 800, padding: '6px 12px', borderRadius: 10, flex: 'none' },
   emptyIcon: {

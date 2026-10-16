@@ -124,7 +124,7 @@ export default function PerformanceOverlay({ product, onClose }) {
             </div>
           </div>
           
-          <div className="glass-card" style={{ ...S.metricCard, background: convRate > 5 ? 'rgba(17, 178, 106, 0.12)' : 'rgba(255, 68, 31, 0.12)', borderColor: convRate > 5 ? 'rgba(17, 178, 106, 0.35)' : 'rgba(255, 68, 31, 0.35)' }}>
+          <div className="glass-card" style={{ ...S.metricCard, background: convRate > 5 ? 'rgba(17, 178, 106, 0.12)' : 'color-mix(in srgb, var(--primary) 12%, transparent)', borderColor: convRate > 5 ? 'rgba(17, 178, 106, 0.35)' : 'color-mix(in srgb, var(--primary) 35%, transparent)' }}>
             <div style={{ ...S.metricIcon, background: 'transparent' }}>
               <span className="ms" style={{ color: convRate > 5 ? '#11B26A' : '#FF5B22', fontSize: 20 }}>{convRate > 5 ? 'trending_up' : 'trending_down'}</span>
             </div>

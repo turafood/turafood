@@ -6,7 +6,7 @@ import { updateBusiness } from '@/lib/negocio';
 
 // Presets de color de acento de marca
 const COLOR_PRESETS = [
-  { name: 'Naranja TuraFood', hex: '#FF441F', tag: 'Vibrante' },
+  { name: 'Naranja TuraFood', hex: 'var(--primary)', tag: 'Vibrante' },
   { name: 'Negro Carbón', hex: '#111111', tag: 'Editorial Tura Muebles' },
   { name: 'Oro Pacífico', hex: '#B8912F', tag: 'Luxury' },
   { name: 'Verde Esmeralda', hex: '#12784A', tag: 'Natural' },
@@ -70,10 +70,10 @@ export default function PersonalizacionPage() {
   const handleSelectSkin = (selectedSkin) => {
     setSkin(selectedSkin);
     setSimulatorView(selectedSkin);
-    if (selectedSkin === 'editorial' && brandColor === '#FF441F') {
+    if (selectedSkin === 'editorial' && brandColor === 'var(--primary)') {
       setBrandColor('#111111');
     } else if (selectedSkin === 'vibrant' && brandColor === '#111111') {
-      setBrandColor('#FF441F');
+      setBrandColor('var(--primary)');
     }
   };
 
@@ -188,7 +188,7 @@ export default function PersonalizacionPage() {
               gap: 8,
               border: 'none',
               cursor: saving ? 'wait' : 'pointer',
-              boxShadow: '0 8px 22px rgba(255,68,31,0.32)',
+              boxShadow: '0 8px 22px color-mix(in srgb, var(--primary) 32%, transparent)',
               opacity: saving ? 0.75 : 1,
             }}
           >
@@ -236,7 +236,7 @@ export default function PersonalizacionPage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span className="ms" style={{ fontSize: 24, color: '#FF441F' }}>language</span>
+            <span className="ms" style={{ fontSize: 24, color: 'var(--primary)' }}>language</span>
           </div>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', color: 'rgba(255,255,255,0.6)' }}>
@@ -353,7 +353,7 @@ export default function PersonalizacionPage() {
         >
           <span className="ms" style={{ fontSize: 20, color: activeTab === 'turafood' ? 'var(--primary)' : 'var(--muted)' }}>local_pizza</span>
           <span>2. TuraFood Delivery Vibrante</span>
-          <span style={{ fontSize: 11, background: 'rgba(255,68,31,0.1)', color: 'var(--primary)', padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>
+          <span style={{ fontSize: 11, background: 'color-mix(in srgb, var(--primary) 10%, transparent)', color: 'var(--primary)', padding: '2px 8px', borderRadius: 999, fontWeight: 700 }}>
             ESTILO RAPPI
           </span>
         </button>
@@ -526,7 +526,7 @@ export default function PersonalizacionPage() {
                 border: '1.5px solid var(--primary)',
                 borderRadius: 22,
                 padding: 28,
-                boxShadow: '0 8px 30px rgba(255,68,31,0.08)',
+                boxShadow: '0 8px 30px color-mix(in srgb, var(--primary) 8%, transparent)',
                 position: 'relative',
                 overflow: 'hidden',
               }}>
@@ -539,7 +539,7 @@ export default function PersonalizacionPage() {
                       TuraFood · Experiencia Delivery Vibrante
                     </span>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 800, padding: '4px 10px', borderRadius: 999, background: '#FFE8E3', color: '#E2360F' }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, padding: '4px 10px', borderRadius: 999, background: '#FFE8E3', color: 'var(--primaryDark)' }}>
                     Estilo Rappi / DoorDash
                   </span>
                 </div>
@@ -614,7 +614,7 @@ export default function PersonalizacionPage() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      boxShadow: skin === 'vibrant' ? '0 6px 18px rgba(255,68,31,0.25)' : 'none',
+                      boxShadow: skin === 'vibrant' ? '0 6px 18px color-mix(in srgb, var(--primary) 25%, transparent)' : 'none',
                     }}
                   >
                     <span className="ms" style={{ fontSize: 18 }}>{skin === 'vibrant' ? 'check_circle' : 'radio_button_unchecked'}</span>

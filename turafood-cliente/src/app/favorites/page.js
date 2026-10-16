@@ -140,7 +140,7 @@ export default function FavoritesPage() {
                   Mis Favoritos
                 </span>
                 <span style={{
-                  background: 'rgba(255,68,31,0.12)', color: 'var(--primary)',
+                  background: 'color-mix(in srgb, var(--primary) 12%, transparent)', color: 'var(--primary)',
                   fontSize: 12, fontWeight: 800, padding: '3px 8px', borderRadius: 99,
                 }}>
                   {savedStores.length} {savedStores.length === 1 ? 'guardado' : 'guardados'}
@@ -394,15 +394,15 @@ const S = {
     boxShadow: 'var(--shadowSm)',
   },
   emptyIconWrapper: {
-    width: 72, height: 72, borderRadius: '50%', background: 'rgba(255,68,31,0.1)',
+    width: 72, height: 72, borderRadius: '50%', background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 8px 24px rgba(255,68,31,0.12)',
+    boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 12%, transparent)',
   },
   exploreBtn: {
     marginTop: 28, height: 48, padding: '0 24px', borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 14,
     display: 'inline-flex', alignItems: 'center', gap: 8, border: 'none',
-    cursor: 'pointer', boxShadow: '0 8px 24px rgba(255,68,31,0.28)',
+    cursor: 'pointer', boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   recommendCard: {
     background: 'var(--surface)', borderRadius: 18, overflow: 'hidden',

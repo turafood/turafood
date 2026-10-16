@@ -19,7 +19,7 @@ import { Panel, Kpi, HeroCard, Pill, Initials, Empty, Skeleton, ErrorNote } from
 const CUT_STATE = {
   lista:    { label: 'LISTA',    bg: '#E6F6EE', color: '#0B8E54' },
   revisar:  { label: 'REVISAR',  bg: '#FFF7E6', color: '#A8730B' },
-  retenida: { label: 'RETENIDA', bg: '#FFF0ED', color: '#C0341A' },
+  retenida: { label: 'RETENIDA', bg: 'var(--primarySoft)', color: '#C0341A' },
 };
 
 export default function FinanzasPage() {
@@ -83,7 +83,7 @@ export default function FinanzasPage() {
         />
         <Kpi
           label="Retenido" value={millions(cut.filter((b) => b.state === 'retenida').reduce((a, b) => a + b.net, 0))}
-          icon="pause_circle" tint="#FFF0ED" color="var(--primary)"
+          icon="pause_circle" tint="var(--primarySoft)" color="var(--primary)"
           note="A la espera de resolver disputas"
         />
       </div>

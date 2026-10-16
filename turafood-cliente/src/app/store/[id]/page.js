@@ -417,7 +417,7 @@ const S = {
     border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10,
   },
   pillIcon: {
-    width: 36, height: 36, borderRadius: 10, background: 'rgba(255,68,31,.1)',
+    width: 36, height: 36, borderRadius: 10, background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
   },
   couponBar: {

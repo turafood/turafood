@@ -386,8 +386,8 @@ const S = {
   sparkle: { fontSize: 14, color: 'var(--gold)' },
   newTag: {
     fontSize: 9.5, fontWeight: 900, padding: '2px 6px', borderRadius: 6,
-    background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff',
-    letterSpacing: '.05em', boxShadow: '0 2px 8px rgba(255,68,31,0.4)',
+    background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))', color: '#fff',
+    letterSpacing: '.05em', boxShadow: '0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent)',
   },
   heroTitle: {
     fontSize: 'clamp(28px, 4.5vw, 42px)', fontWeight: 800, fontFamily: 'var(--font-bricolage)',
@@ -458,7 +458,7 @@ const S = {
     flex: 1, height: 42, padding: '0 16px', borderRadius: 12, border: 'none',
     background: 'var(--primary)', color: '#fff', fontSize: 12.5, fontWeight: 800,
     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, textDecoration: 'none',
-    boxShadow: '0 4px 14px rgba(255,68,31,0.25)',
+    boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 25%, transparent)',
   },
 
   channelsList: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 'auto', marginBottom: 6 },

@@ -30,7 +30,7 @@
 
 const G = {
   // Naranja de marca, de claro arriba a quemado abajo
-  naranja: ['#FFB57A', '#FF7A4D', '#E2360F'],
+  naranja: ['#FFB57A', 'var(--gold)', 'var(--primaryDark)'],
   // Verde de "esto está funcionando"
   verde: ['#7BE8B0', '#25D366', '#0B7A48'],
   // Azul frío para lo que es información

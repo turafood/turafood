@@ -245,7 +245,7 @@ export default function HorariosPage() {
 
           <section style={{ ...S.card, background: 'var(--ink)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', boxShadow: '0 4px 10px rgba(255,68,31,0.2)' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 800, padding: '4px 8px', borderRadius: 8, letterSpacing: '.05em', boxShadow: '0 4px 10px color-mix(in srgb, var(--primary) 20%, transparent)' }}>
                 <span className="ms" style={{ fontSize: 14 }}>auto_awesome</span> Guía IA
               </span>
               <div style={{...S.cardTitle, color: 'var(--onInk)'}}>Consejos de disponibilidad</div>

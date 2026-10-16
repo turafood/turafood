@@ -16,7 +16,7 @@ import { useBiz } from '../BizContext';
 import HeaderHero from '../../components/HeaderHero';
 
 const AVATAR_BG = [
-  { bg: 'color-mix(in srgb, #E2360F 12%, transparent)', color: '#E2360F' },
+  { bg: 'color-mix(in srgb, var(--primaryDark) 12%, transparent)', color: 'var(--primaryDark)' },
   { bg: 'color-mix(in srgb, #2E6BFF 12%, transparent)', color: '#2E6BFF' },
   { bg: 'color-mix(in srgb, #0B8E54 12%, transparent)', color: '#0B8E54' },
   { bg: 'color-mix(in srgb, #6B2FD6 12%, transparent)', color: '#6B2FD6' },
@@ -216,7 +216,7 @@ export default function ResenasPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 16 }}>
           {[
             { label: 'Tasa de respuesta', value: `${stats.rate}%`, icon: 'forum', bg: 'color-mix(in srgb, #2E6BFF 12%, transparent)', fg: '#2E6BFF' },
-            { label: 'Sin responder', value: String(pending), icon: 'mark_email_unread', bg: 'color-mix(in srgb, #E2360F 12%, transparent)', fg: '#E2360F' },
+            { label: 'Sin responder', value: String(pending), icon: 'mark_email_unread', bg: 'color-mix(in srgb, var(--primaryDark) 12%, transparent)', fg: 'var(--primaryDark)' },
             { label: 'Recomendarían', value: `${stats.recommend}%`, icon: 'thumb_up', bg: 'color-mix(in srgb, #A8730B 12%, transparent)', fg: '#A8730B' },
             { label: 'Calificación', value: stats.avg.toFixed(1).replace('.', ','), icon: 'star', bg: 'color-mix(in srgb, #0B8E54 12%, transparent)', fg: '#0B8E54' },
           ].map((k) => (
@@ -298,7 +298,7 @@ export default function ResenasPage() {
         {shown.map((r, i) => {
           const av = AVATAR_BG[i % AVATAR_BG.length];
           const tag = r.rating <= 2
-            ? { label: 'NECESITA ATENCIÓN', bg: 'color-mix(in srgb, #E2360F 12%, transparent)', color: '#E2360F' }
+            ? { label: 'NECESITA ATENCIÓN', bg: 'color-mix(in srgb, var(--primaryDark) 12%, transparent)', color: 'var(--primaryDark)' }
             : r.rating === 3
               ? { label: 'NEUTRAL', bg: 'color-mix(in srgb, #A8730B 12%, transparent)', color: '#A8730B' }
               : { label: 'POSITIVA', bg: 'color-mix(in srgb, #0B7A48 12%, transparent)', color: '#0B7A48' };
@@ -497,7 +497,7 @@ const S = {
   sendBtn: {
     flex: 'none', display: 'flex', alignItems: 'center', gap: 8, height: 48,
     padding: '0 22px', borderRadius: 999, fontWeight: 800, fontSize: 13.5,
-    boxShadow: '0 2px 8px rgba(255,68,31,0.2)'
+    boxShadow: '0 2px 8px color-mix(in srgb, var(--primary) 20%, transparent)'
   },
   empty: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -510,6 +510,6 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

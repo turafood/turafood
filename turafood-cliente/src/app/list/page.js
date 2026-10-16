@@ -390,7 +390,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginTop: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   soon: {

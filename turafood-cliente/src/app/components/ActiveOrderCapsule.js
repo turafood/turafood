@@ -21,8 +21,8 @@ const STATUS_DESCRIPTIONS = {
   preparing: { label: 'En preparación', sub: 'Cocinando tus platos', color: '#A8730B', icon: 'skillet' },
   ready: { label: 'Platos listos', sub: 'Esperando al repartidor', color: '#10B981', icon: 'takeout_dining' },
   courier_assigned: { label: 'Repartidor asignado', sub: 'Va al restaurante', color: '#2E6BFF', icon: 'two_wheeler' },
-  picked_up: { label: 'En camino', sub: 'Yeison va en ruta hacia ti', color: '#FF441F', icon: 'two_wheeler' },
-  delivering: { label: 'Cerca de tu casa', sub: 'Llegando a tu dirección', color: '#FF441F', icon: 'near_me' },
+  picked_up: { label: 'En camino', sub: 'Yeison va en ruta hacia ti', color: 'var(--primary)', icon: 'two_wheeler' },
+  delivering: { label: 'Cerca de tu casa', sub: 'Llegando a tu dirección', color: 'var(--primary)', icon: 'near_me' },
 };
 
 export default function ActiveOrderCapsule() {
@@ -246,7 +246,7 @@ const S = {
     fontSize: 12.5,
     fontWeight: 800,
     cursor: 'pointer',
-    boxShadow: '0 4px 14px rgba(255, 68, 31, 0.3)',
+    boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent)',
     flexShrink: 0,
   },
   closeBtn: {

@@ -9,8 +9,8 @@
   --muted: #8C857B;
   --faint: #B6AFA4;
   --border: rgba(20, 16, 10, 0.10);
-  --primary: #FF441F;
-  --primaryDark: #E2360F;
+  --primary: var(--primary);
+  --primaryDark: var(--primaryDark);
   --onPrimary: #FFFFFF;
   --green: #11B26A;
   --amber: #FFB020;

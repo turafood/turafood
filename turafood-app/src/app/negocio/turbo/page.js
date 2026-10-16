@@ -77,7 +77,7 @@ export default function TurboPage() {
       <section style={{
         background: 'linear-gradient(135deg, #141009 0%, #291807 50%, #15110B 100%)',
         borderRadius: 28, padding: '40px 40px', color: '#fff', position: 'relative', overflow: 'hidden',
-        boxShadow: '0 28px 60px rgba(255,68,31,0.2)', border: '1px solid rgba(255,122,77,0.3)',
+        boxShadow: '0 28px 60px color-mix(in srgb, var(--primary) 20%, transparent)', border: '1px solid rgba(255,122,77,0.3)',
         marginBottom: 28
       }}>
         {/* Glows */}
@@ -87,12 +87,12 @@ export default function TurboPage() {
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 28 }}>
           <div style={{ flex: '1 1 480px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(255,107,0,0.15)', borderRadius: 99, border: '1px solid rgba(255,107,0,0.35)', marginBottom: 16 }}>
-              <span className="ms" style={{ fontSize: 16, color: '#FF7A4D' }}>bolt</span>
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#FF7A4D', letterSpacing: '.1em', textTransform: 'uppercase' }}>Despacho Ultra Rápido</span>
+              <span className="ms" style={{ fontSize: 16, color: 'var(--gold)' }}>bolt</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--gold)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Despacho Ultra Rápido</span>
             </div>
 
             <h1 style={{ margin: '0 0 12px', fontSize: 36, fontFamily: 'var(--font-bricolage)', fontWeight: 800, letterSpacing: '-.02em', lineHeight: 1.15 }}>
-              Tura Turbo ⚡ <br /><span style={{ background: 'linear-gradient(90deg, #FF7A4D, #E8C766)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Entregas en menos de 15 Minutos</span>
+              Tura Turbo ⚡ <br /><span style={{ background: 'linear-gradient(90deg, var(--gold), #E8C766)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Entregas en menos de 15 Minutos</span>
             </h1>
             <p style={{ margin: '0 0 24px', fontSize: 15, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, maxWidth: 520 }}>
               Destaca tu restaurante en la sección exclusiva <strong>TURBO 15 MIN</strong> de la app para clientes hambrientos que exigen entregas inmediatas con tarifa express.
@@ -103,10 +103,10 @@ export default function TurboPage() {
                 onClick={() => setTurboActive(!turboActive)}
                 style={{
                   height: 48, padding: '0 24px', borderRadius: 14, border: 'none',
-                  background: turboActive ? 'linear-gradient(135deg, #FF7A4D, #E2360F)' : 'var(--surface2)',
+                  background: turboActive ? 'linear-gradient(135deg, var(--gold), var(--primaryDark))' : 'var(--surface2)',
                   color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 10,
-                  boxShadow: turboActive ? '0 8px 24px rgba(255,68,31,0.4)' : 'none',
+                  boxShadow: turboActive ? '0 8px 24px color-mix(in srgb, var(--primary) 40%, transparent)' : 'none',
                   transition: 'all .3s'
                 }}
               >
@@ -166,7 +166,7 @@ export default function TurboPage() {
             border: '1px solid var(--border)', textAlign: 'center', marginBottom: 20,
             position: 'relative'
           }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#FF7A4D', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>
               ⚡ TIEMPO RESTANTE GARANTIZADO
             </div>
             <div style={{ fontSize: 48, fontFamily: 'monospace', fontWeight: 900, color: simSecondsLeft < 180 ? 'var(--primary)' : 'var(--text)', letterSpacing: '0.05em' }}>
@@ -181,7 +181,7 @@ export default function TurboPage() {
               <div style={{
                 height: '100%',
                 width: `${((900 - simSecondsLeft) / 900) * 100}%`,
-                background: 'linear-gradient(90deg, var(--gold), #FF7A4D)',
+                background: 'linear-gradient(90deg, var(--gold), var(--gold))',
                 borderRadius: 99,
                 transition: 'width 1s linear'
               }} />
@@ -312,10 +312,10 @@ export default function TurboPage() {
             onClick={saveTurboConfig}
             style={{
               marginTop: 'auto', height: 48, borderRadius: 14, border: 'none',
-              background: 'linear-gradient(135deg, #FF7A4D, #E2360F)',
+              background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))',
               color: '#fff', fontWeight: 800, fontSize: 14.5, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: '0 8px 24px rgba(255,68,31,0.35)'
+              boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 35%, transparent)'
             }}
           >
             <span className="ms" style={{ fontSize: 18 }}>save</span>
@@ -337,7 +337,7 @@ export default function TurboPage() {
               Solo activa productos con preparación menor a 5 minutos para no comprometer el cronómetro.
             </p>
           </div>
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#FF7A4D', background: 'rgba(255,107,0,0.15)', padding: '4px 12px', borderRadius: 99 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)', background: 'rgba(255,107,0,0.15)', padding: '4px 12px', borderRadius: 99 }}>
             {turboProducts.filter(p => p.active).length} Platos Turbo
           </span>
         </div>
@@ -367,12 +367,12 @@ export default function TurboPage() {
                   </span>
                 </td>
                 <td style={{ padding: '16px 24px', fontWeight: 800, color: 'var(--text)' }}>{cop(p.price)}</td>
-                <td style={{ padding: '16px 24px', color: '#FF7A4D', fontWeight: 800 }}>+{cop(turboSurcharge)}</td>
+                <td style={{ padding: '16px 24px', color: 'var(--gold)', fontWeight: 800 }}>+{cop(turboSurcharge)}</td>
                 <td style={{ padding: '16px 24px' }}>
                   <span style={{
                     fontSize: 11, padding: '4px 10px', borderRadius: 99, fontWeight: 800,
                     background: p.active ? 'rgba(255,107,0,0.15)' : 'var(--surface2)',
-                    color: p.active ? '#FF7A4D' : 'var(--muted)'
+                    color: p.active ? 'var(--gold)' : 'var(--muted)'
                   }}>
                     {p.active ? '⚡ Turbo Activo' : '○ Inactivo'}
                   </span>

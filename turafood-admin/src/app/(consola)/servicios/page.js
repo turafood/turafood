@@ -200,7 +200,7 @@ const S = {
   kindIcon: {
     width: 48, height: 48, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(255,68,31,0.08)',
+    background: 'color-mix(in srgb, var(--primary) 8%, transparent)',
   },
   meta: { display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 6 },
   btnBlue: {

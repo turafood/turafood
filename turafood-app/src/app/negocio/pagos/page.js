@@ -39,7 +39,7 @@ import {
  * comprobó en globals.css— y usar una variable que no existe hace que
  * el borde de error salga del color del texto, o sea invisible.
  */
-const ROJO = '#E2360F';
+const ROJO = 'var(--primaryDark)';
 
 /**
  * Primero lo que se recibe sin configurar nada. Un dueño que solo

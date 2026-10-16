@@ -109,7 +109,7 @@ export default function AjustesDespachoPage() {
           border-radius: 50%;
           background: var(--primary);
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(255,68,31,0.35);
+          box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent);
           border: 3px solid #fff;
         }
 
@@ -119,9 +119,9 @@ export default function AjustesDespachoPage() {
           color: var(--muted); transition: all .2s; display: flex; align-items: center; gap: 6px;
         }
         .surge-pill.active {
-          background: linear-gradient(135deg, #FF7A4D, #E2360F);
+          background: linear-gradient(135deg, var(--gold), var(--primaryDark));
           color: #fff; border-color: transparent;
-          box-shadow: 0 6px 18px rgba(255,68,31,0.3);
+          box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 30%, transparent);
         }
       `}</style>
 
@@ -132,10 +132,10 @@ export default function AjustesDespachoPage() {
         boxShadow: '0 24px 48px rgba(20,16,10,0.15)', border: '1px solid rgba(232,199,102,0.18)'
       }}>
         <div style={{ position: 'absolute', top: -100, right: -50, width: 320, height: 320, background: 'radial-gradient(circle, rgba(232,199,102,0.18) 0%, transparent 70%)', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', bottom: -60, left: -40, width: 220, height: 220, background: 'radial-gradient(circle, rgba(255,68,31,0.15) 0%, transparent 70%)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', bottom: -60, left: -40, width: 220, height: 220, background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 15%, transparent) 0%, transparent 70%)', borderRadius: '50%' }} />
         
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, position: 'relative', zIndex: 2 }}>
-          <div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(145deg, #FF7A4D, #E2360F)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(255,68,31,0.35)', flex: 'none' }}>
+          <div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(145deg, var(--gold), var(--primaryDark))', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 35%, transparent)', flex: 'none' }}>
             <span className="ms" style={{ fontSize: 34, color: '#fff' }}>electric_bolt</span>
           </div>
           <div>
@@ -504,9 +504,9 @@ export default function AjustesDespachoPage() {
           onClick={handleSave}
           style={{
             padding: '0 32px', height: 48, borderRadius: 99,
-            background: 'linear-gradient(135deg, var(--primary), #FF7A4D)',
+            background: 'linear-gradient(135deg, var(--primary), var(--gold))',
             color: '#fff', border: 'none', fontWeight: 800, fontSize: 15, cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(255,68,31,0.3)', display: 'flex', alignItems: 'center', gap: 8
+            boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 30%, transparent)', display: 'flex', alignItems: 'center', gap: 8
           }}
         >
           <span className="ms" style={{ fontSize: 20 }}>save</span>

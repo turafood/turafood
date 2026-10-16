@@ -64,8 +64,8 @@ export default function LandingPage() {
         });
         window.Cal.ns?.["growthpartner"]?.("ui", {
           cssVarsPerTheme: {
-            light: { "cal-brand": "#FF441F" },
-            dark: { "cal-brand": "#FF441F" }
+            light: { "cal-brand": "var(--primary)" },
+            dark: { "cal-brand": "var(--primary)" }
           },
           hideEventTypeDetails: false,
           layout: "month_view"
@@ -193,12 +193,12 @@ export default function LandingPage() {
   }
 
   const dashBars = [
-    { h: '40%', bg: 'rgba(255,68,31,.35)' },
-    { h: '58%', bg: 'rgba(255,68,31,.35)' },
-    { h: '46%', bg: 'rgba(255,68,31,.35)' },
-    { h: '70%', bg: 'rgba(255,68,31,.35)' },
-    { h: '55%', bg: 'rgba(255,68,31,.35)' },
-    { h: '82%', bg: 'rgba(255,68,31,.35)' },
+    { h: '40%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
+    { h: '58%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
+    { h: '46%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
+    { h: '70%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
+    { h: '55%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
+    { h: '82%', bg: 'color-mix(in srgb, var(--primary) 35%, transparent)' },
     { h: '68%', bg: 'var(--primary)' },
     { h: '96%', bg: 'var(--primary)' }
   ];
@@ -243,7 +243,7 @@ export default function LandingPage() {
         <div className="tf-wrap" style={{ paddingTop: 13, paddingBottom: 13, display: 'flex', alignItems: 'center', gap: 22 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 11, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px rgba(255,68,31,.35)' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 11, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent)' }}>
                 <span className="tf-disp" style={{ fontWeight: 800, fontSize: 22, color: '#fff', lineHeight: 1 }}>t</span>
               </div>
               <span className="tf-disp" style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-.02em', color: 'var(--text)' }}>
@@ -281,8 +281,8 @@ export default function LandingPage() {
                 height: 38,
                 padding: '0 13px',
                 borderRadius: 11,
-                background: 'rgba(255,68,31,0.1)',
-                border: '1px solid rgba(255,68,31,0.25)',
+                background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--primary) 25%, transparent)',
                 fontSize: 13,
                 fontWeight: 800,
                 color: 'var(--primary)',
@@ -325,7 +325,7 @@ export default function LandingPage() {
 
             <button
               onClick={() => scrollTo('tf-pricing')}
-              style={{ height: 38, padding: '0 17px', borderRadius: 11, background: 'var(--primary)', color: '#fff', fontSize: 13.5, fontWeight: 700, boxShadow: '0 8px 20px rgba(255,68,31,.32)' }}
+              style={{ height: 38, padding: '0 17px', borderRadius: 11, background: 'var(--primary)', color: '#fff', fontSize: 13.5, fontWeight: 700, boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 32%, transparent)' }}
             >
               {es ? 'Ver planes' : 'See plans'}
             </button>
@@ -361,7 +361,7 @@ export default function LandingPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 28 }}>
               <button
                 onClick={() => scrollTo('tf-pricing')}
-                style={{ height: 54, padding: '0 26px', borderRadius: 15, background: 'var(--primary)', color: '#fff', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 9, boxShadow: '0 12px 30px rgba(255,68,31,.36)' }}
+                style={{ height: 54, padding: '0 26px', borderRadius: 15, background: 'var(--primary)', color: '#fff', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 9, boxShadow: '0 12px 30px color-mix(in srgb, var(--primary) 36%, transparent)' }}
               >
                 <span className="tf-ms" style={{ fontSize: 21 }}>sell</span>
                 {es ? 'Ver planes' : 'See plans'}
@@ -454,7 +454,7 @@ export default function LandingPage() {
             </div>
 
             <div className="tf-hide-sm" style={{ position: 'absolute', right: -22, top: '46%', animation: 'tffloat 6s ease-in-out infinite .8s', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 17, padding: '12px 14px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: 11, minWidth: 196 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(255,68,31,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 11, background: 'color-mix(in srgb, var(--primary) 13%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
                 <span className="tf-ms" style={{ fontSize: 21, color: 'var(--primary)' }}>support_agent</span>
               </div>
               <div>
@@ -500,7 +500,7 @@ export default function LandingPage() {
 
       {/* ============ VALUE PROPS (NEURO BENTO) ============ */}
       <div id="tf-features" style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg,#0C0B0A 0%,#141009 100%)', marginTop: 20 }}>
-        <div style={{ position: 'absolute', right: '-8%', top: -90, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,68,31,.14),transparent 62%)', pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', right: '-8%', top: -90, width: 520, height: 520, borderRadius: '50%', background: 'radial-gradient(circle,color-mix(in srgb, var(--primary) 14%, transparent),transparent 62%)', pointerEvents: 'none' }}></div>
         <div style={{ position: 'absolute', left: '-10%', bottom: -130, width: 440, height: 440, borderRadius: '50%', background: 'radial-gradient(circle,rgba(232,199,102,.1),transparent 65%)', pointerEvents: 'none' }}></div>
         
         <div className="tf-wrap" style={{ paddingTop: 74, paddingBottom: 78, position: 'relative' }}>
@@ -591,7 +591,7 @@ export default function LandingPage() {
             {/* Card 5: CRM */}
             <div className="tf-card b-wide" style={{ padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
               <div style={{ maxWidth: '64%' }}>
-                <span style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(255,68,31,.14)', border: '1px solid rgba(255,68,31,.28)', fontSize: 10, fontWeight: 800, letterSpacing: '.07em', color: '#FF7A5C' }}>
+                <span style={{ padding: '4px 10px', borderRadius: 999, background: 'color-mix(in srgb, var(--primary) 14%, transparent)', border: '1px solid color-mix(in srgb, var(--primary) 28%, transparent)', fontSize: 10, fontWeight: 800, letterSpacing: '.07em', color: '#FF7A5C' }}>
                   CRM
                 </span>
                 <div className="tf-disp" style={{ marginTop: 12, fontWeight: 700, fontSize: 19, color: '#fff', letterSpacing: '-.01em' }}>
@@ -634,15 +634,15 @@ export default function LandingPage() {
       {/* SESIÓN 1: E-COMMERCE APP PARA RESTAURANTES & DELIVERY (ESTILO RAPPI)     */}
       {/* ========================================================================= */}
       <div id="tf-demo-restaurante" className="tf-wrap" style={{ paddingTop: 74, paddingBottom: 24 }}>
-        <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: 'linear-gradient(135deg,#FFE7DF 0%,#FFD7CB 52%,#FFEFE9 100%)', border: '1.5px solid rgba(255,68,31,.22)', boxShadow: '0 24px 60px rgba(255,68,31,0.12)' }}>
-          <div style={{ position: 'absolute', left: -70, bottom: -90, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,68,31,.14)' }}></div>
+        <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: 'linear-gradient(135deg,#FFE7DF 0%,#FFD7CB 52%,#FFEFE9 100%)', border: '1.5px solid color-mix(in srgb, var(--primary) 22%, transparent)', boxShadow: '0 24px 60px color-mix(in srgb, var(--primary) 12%, transparent)' }}>
+          <div style={{ position: 'absolute', left: -70, bottom: -90, width: 320, height: 320, borderRadius: '50%', background: 'color-mix(in srgb, var(--primary) 14%, transparent)' }}></div>
           <div style={{ position: 'absolute', right: -60, top: -80, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,176,32,.2)' }}></div>
           
           <div className="tf-mock tf-cardpad" style={{ position: 'relative', padding: '54px 48px' }}>
             <div>
               {/* Pill & Subdomain */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
-                <span style={{ fontSize: 12, fontWeight: 900, color: '#E2360F', textTransform: 'uppercase', letterSpacing: '.08em', padding: '5px 12px', borderRadius: 999, background: 'rgba(255,68,31,0.12)' }}>
+                <span style={{ fontSize: 12, fontWeight: 900, color: 'var(--primaryDark)', textTransform: 'uppercase', letterSpacing: '.08em', padding: '5px 12px', borderRadius: 999, background: 'color-mix(in srgb, var(--primary) 12%, transparent)' }}>
                   🍔 {es ? 'Demo 1 · E-Commerce para Restaurantes' : 'Demo 1 · Restaurant E-Commerce'}
                 </span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#6b524a', background: 'rgba(255,255,255,0.7)', padding: '5px 12px', borderRadius: 999, border: '1px solid rgba(0,0,0,0.06)' }}>
@@ -652,7 +652,7 @@ export default function LandingPage() {
 
               <h2 className="tf-disp" style={{ margin: '10px 0 0', fontWeight: 900, fontSize: 38, lineHeight: 1.08, letterSpacing: '-.03em', color: '#1a120e', textWrap: 'balance' }}>
                 {es ? 'Tu propia app de delivery, sin pagar el ' : 'Your own delivery app, without paying '}
-                <span className="tf-serif" style={{ color: '#E2360F', fontWeight: 400 }}>
+                <span className="tf-serif" style={{ color: 'var(--primaryDark)', fontWeight: 400 }}>
                   {es ? '30% de comisión.' : '30% commission.'}
                 </span>
               </h2>
@@ -672,7 +672,7 @@ export default function LandingPage() {
                 ].map((c, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(226,54,15,.14)', flex: 'none' }}>
-                      <span className="tf-ms" style={{ fontSize: 19, color: '#E2360F' }}>{c.icon}</span>
+                      <span className="tf-ms" style={{ fontSize: 19, color: 'var(--primaryDark)' }}>{c.icon}</span>
                     </div>
                     <span style={{ fontSize: 14.5, fontWeight: 700, color: '#3a2a24' }}>{c.label}</span>
                   </div>
@@ -691,12 +691,12 @@ export default function LandingPage() {
                     gap: 9,
                     padding: '14px 24px',
                     borderRadius: 14,
-                    background: '#FF441F',
+                    background: 'var(--primary)',
                     color: '#fff',
                     fontSize: 15,
                     fontWeight: 800,
                     textDecoration: 'none',
-                    boxShadow: '0 10px 24px rgba(255,68,31,0.36)'
+                    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 36%, transparent)'
                   }}
                 >
                   <span className="tf-ms" style={{ fontSize: 20 }}>launch</span>
@@ -721,7 +721,7 @@ export default function LandingPage() {
                     boxShadow: 'var(--shadowSm)'
                   }}
                 >
-                  <span className="tf-ms" style={{ fontSize: 19, color: '#FF441F' }}>storefront</span>
+                  <span className="tf-ms" style={{ fontSize: 19, color: 'var(--primary)' }}>storefront</span>
                   <span>{es ? 'Activar esta App para mi Negocio' : 'Launch for my business'}</span>
                 </button>
               </div>
@@ -735,8 +735,8 @@ export default function LandingPage() {
                 padding: '12px 18px',
                 borderRadius: 18,
                 background: 'rgba(255,255,255,0.88)',
-                border: '1.5px solid rgba(255,68,31,0.25)',
-                boxShadow: '0 8px 20px rgba(255,68,31,0.08)',
+                border: '1.5px solid color-mix(in srgb, var(--primary) 25%, transparent)',
+                boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 8%, transparent)',
                 backdropFilter: 'blur(8px)'
               }}>
                 <div style={{ padding: 4, background: '#fff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', flex: 'none' }}>
@@ -748,13 +748,13 @@ export default function LandingPage() {
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 900, color: '#17140F' }}>
-                    <span className="tf-ms" style={{ fontSize: 17, color: '#FF441F' }}>qr_code_scanner</span>
+                    <span className="tf-ms" style={{ fontSize: 17, color: 'var(--primary)' }}>qr_code_scanner</span>
                     <span>{es ? 'Prueba en tu celular' : 'Test on your phone'}</span>
                   </div>
                   <div style={{ fontSize: 11.5, color: '#6b524a', marginTop: 2, lineHeight: 1.35 }}>
                     {es ? 'Escanea para abrir la app interactiva' : 'Scan to open interactive app'}
                   </div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#FF441F', marginTop: 3 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary)', marginTop: 3 }}>
                     rest.turafood.com
                   </div>
                 </div>
@@ -773,7 +773,7 @@ export default function LandingPage() {
                         <div>
                           <div style={{ fontSize: 9.5, fontWeight: 700, color: '#8C857B', textTransform: 'uppercase', letterSpacing: '.05em' }}>{es ? 'Pedir a domicilio' : 'Order delivery'}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 13, fontWeight: 800, color: '#17140F' }}>
-                            <span className="tf-ms" style={{ fontSize: 15, color: '#FF441F' }}>location_on</span>
+                            <span className="tf-ms" style={{ fontSize: 15, color: 'var(--primary)' }}>location_on</span>
                             Asadero El Puerto
                           </div>
                         </div>
@@ -788,7 +788,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="tf-sc" style={{ flex: 1, overflowY: 'auto', padding: '11px 15px 14px' }}>
-                      <div style={{ position: 'relative', borderRadius: 15, overflow: 'hidden', height: 84, background: '#FF441F', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ position: 'relative', borderRadius: 15, overflow: 'hidden', height: 84, background: 'var(--primary)', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <div style={{ position: 'absolute', right: -10, bottom: -14, fontSize: 60 }}>🍔</div>
                         <div style={{ fontSize: 9, fontWeight: 800, color: '#fff', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '.06em' }}>2x1 HOY</div>
                         <div className="tf-disp" style={{ fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1.05, maxWidth: 140 }}>
@@ -827,7 +827,7 @@ export default function LandingPage() {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '9px 0 12px', background: '#fff', borderTop: '1px solid rgba(20,16,10,.07)' }}>
-                      <span className="tf-ms" style={{ fontSize: 21, color: '#FF441F' }}>home</span>
+                      <span className="tf-ms" style={{ fontSize: 21, color: 'var(--primary)' }}>home</span>
                       <span className="tf-ms" style={{ fontSize: 21, color: '#B6AFA4' }}>search</span>
                       <span className="tf-ms" style={{ fontSize: 21, color: '#B6AFA4' }}>receipt_long</span>
                       <span className="tf-ms" style={{ fontSize: 21, color: '#B6AFA4' }}>person</span>
@@ -880,7 +880,7 @@ export default function LandingPage() {
                     </div>
 
                     <div style={{ padding: '12px 16px 16px', background: '#fff' }}>
-                      <div style={{ height: 46, borderRadius: 13, background: '#FF441F', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, boxShadow: '0 8px 18px rgba(255,68,31,.3)' }}>
+                      <div style={{ height: 46, borderRadius: 13, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, boxShadow: '0 8px 18px color-mix(in srgb, var(--primary) 30%, transparent)' }}>
                         <span className="tf-ms" style={{ fontSize: 18, color: '#fff' }}>lock</span>
                         <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{es ? 'Pagar con Nequi' : 'Pay with Nequi'}</span>
                       </div>
@@ -899,7 +899,7 @@ export default function LandingPage() {
       <div id="tf-demo-turamuebles" className="tf-wrap" style={{ paddingTop: 30, paddingBottom: 64 }}>
         <div style={{ position: 'relative', borderRadius: 32, overflow: 'hidden', background: 'linear-gradient(135deg,#0C0B0A 0%,#1A1715 60%,#111111 100%)', border: '1.5px solid rgba(255,255,255,0.12)', boxShadow: '0 30px 70px rgba(0,0,0,0.5)', color: '#FFFFFF' }}>
           <div style={{ position: 'absolute', right: -70, top: -70, width: 340, height: 340, borderRadius: '50%', background: 'radial-gradient(circle,rgba(232,199,102,.12),transparent 70%)', pointerEvents: 'none' }}></div>
-          <div style={{ position: 'absolute', left: -80, bottom: -90, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,68,31,.1),transparent 70%)', pointerEvents: 'none' }}></div>
+          <div style={{ position: 'absolute', left: -80, bottom: -90, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,color-mix(in srgb, var(--primary) 10%, transparent),transparent 70%)', pointerEvents: 'none' }}></div>
           
           <div className="tf-mock tf-cardpad" style={{ position: 'relative', padding: '54px 48px' }}>
             <div>
@@ -1286,7 +1286,7 @@ export default function LandingPage() {
           {/* Card 2: Tura Food */}
           <div style={{ position: 'relative', borderRadius: 24, padding: 28, background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadowSm)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-              <div className="tf-3d" style={{ width: 38, height: 38, borderRadius: 11, background: 'rgba(255,68,31,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="tf-3d" style={{ width: 38, height: 38, borderRadius: 11, background: 'color-mix(in srgb, var(--primary) 12%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span className="tf-ms" style={{ fontSize: 21, color: 'var(--primary)' }}>language</span>
               </div>
               <div className="tf-disp" style={{ fontWeight: 800, fontSize: 21, letterSpacing: '-.02em', color: 'var(--text)' }}>Tura Food</div>
@@ -1310,7 +1310,7 @@ export default function LandingPage() {
             </div>
             <button
               onClick={() => openOnb('turafood')}
-              style={{ width: '100%', height: 50, borderRadius: 14, marginTop: 18, fontSize: 15, fontWeight: 700, background: 'var(--primary)', color: '#fff', boxShadow: '0 10px 24px rgba(255,68,31,.3)' }}
+              style={{ width: '100%', height: 50, borderRadius: 14, marginTop: 18, fontSize: 15, fontWeight: 700, background: 'var(--primary)', color: '#fff', boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)' }}
             >
               {es ? 'Elegir plan' : 'Choose plan'}
             </button>
@@ -1415,7 +1415,7 @@ export default function LandingPage() {
       <div id="tf-cal" className="tf-wrap" style={{ paddingTop: 80, paddingBottom: 10 }}>
         <div style={{ position: 'relative', borderRadius: 30, overflow: 'hidden', background: 'linear-gradient(160deg,#241C12 0%,#150F09 60%,#0C0B0A 100%)', border: '1px solid var(--nightBorder)', boxShadow: '0 40px 90px rgba(12,11,10,.5)' }}>
           <div style={{ position: 'absolute', right: -90, top: -90, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(232,199,102,.22),transparent 68%)' }}></div>
-          <div style={{ position: 'absolute', left: -70, bottom: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(255,68,31,.18),transparent 70%)' }}></div>
+          <div style={{ position: 'absolute', left: -70, bottom: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,color-mix(in srgb, var(--primary) 18%, transparent),transparent 70%)' }}></div>
           <div className="tf-cal tf-cardpad" style={{ position: 'relative', padding: 40 }}>
             <div style={{ position: 'relative' }}>
               <span className="tf-gold-text" style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.12em' }}>
@@ -1495,7 +1495,7 @@ export default function LandingPage() {
 
       {/* ============ FINAL CTA ============ */}
       <div className="tf-wrap" style={{ paddingTop: 70, paddingBottom: 60 }}>
-        <div style={{ position: 'relative', borderRadius: 30, overflow: 'hidden', background: 'var(--primary)', padding: '54px 44px', textAlign: 'center', boxShadow: '0 30px 70px rgba(255,68,31,.32)' }}>
+        <div style={{ position: 'relative', borderRadius: 30, overflow: 'hidden', background: 'var(--primary)', padding: '54px 44px', textAlign: 'center', boxShadow: '0 30px 70px color-mix(in srgb, var(--primary) 32%, transparent)' }}>
           <div style={{ position: 'absolute', right: -80, bottom: -90, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,.12)' }}></div>
           <div style={{ position: 'absolute', left: -70, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,.10)' }}></div>
           <div style={{ position: 'relative' }}>
@@ -1550,7 +1550,7 @@ export default function LandingPage() {
         <span className="tf-wa-bubble tf-hide-sm">{es ? '¿Dudas? Escríbenos 👋' : 'Questions? Chat with us 👋'}</span>
         <a className="tf-wa" href={`https://wa.me/${waNumber}?text=${waText}`} target="_blank" rel="noopener" aria-label="WhatsApp">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.35c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
-          <span style={{ position: 'absolute', top: -3, right: -3, width: 20, height: 20, borderRadius: '50%', background: '#FF441F', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 800, color: '#fff' }}>1</span>
+          <span style={{ position: 'absolute', top: -3, right: -3, width: 20, height: 20, borderRadius: '50%', background: 'var(--primary)', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 800, color: '#fff' }}>1</span>
         </a>
       </div>
 
@@ -1606,7 +1606,7 @@ export default function LandingPage() {
                           textAlign: 'left',
                           padding: '15px 16px',
                           borderRadius: 15,
-                          background: sel ? 'rgba(255,68,31,.08)' : 'var(--surface)',
+                          background: sel ? 'color-mix(in srgb, var(--primary) 8%, transparent)' : 'var(--surface)',
                           border: sel ? '2px solid var(--primary)' : '1px solid var(--border)',
                           transition: 'all .15s',
                           cursor: 'pointer'
@@ -1732,7 +1732,7 @@ export default function LandingPage() {
                 <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18, padding: 17, marginTop: 16, boxShadow: 'var(--shadowSm)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,68,31,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'color-mix(in srgb, var(--primary) 13%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span className="tf-ms" style={{ fontSize: 20, color: 'var(--primary)' }}>{curMeta.icon}</span>
                       </div>
                       <div>
@@ -1764,7 +1764,7 @@ export default function LandingPage() {
 
                 <button
                   onClick={goPay}
-                  style={{ width: '100%', height: 54, borderRadius: 15, marginTop: 18, background: 'var(--primary)', color: '#fff', fontSize: 16, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, boxShadow: '0 12px 28px rgba(255,68,31,.34)' }}
+                  style={{ width: '100%', height: 54, borderRadius: 15, marginTop: 18, background: 'var(--primary)', color: '#fff', fontSize: 16, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, boxShadow: '0 12px 28px color-mix(in srgb, var(--primary) 34%, transparent)' }}
                 >
                   <span className="tf-ms" style={{ fontSize: 22 }}>rocket_launch</span>
                   {isFree ? (es ? 'Crear mi cuenta gratis' : 'Create my free account') : (es ? `Pagar ${coTotal} con ePayco` : `Pay ${coTotal} with ePayco`)}
@@ -1792,7 +1792,7 @@ export default function LandingPage() {
                       href="https://app.turafood.com"
                       target="_blank"
                       rel="noopener"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 50, padding: '0 26px', borderRadius: 14, marginTop: 24, background: 'var(--primary)', color: '#fff', fontSize: 15, fontWeight: 700, boxShadow: '0 10px 24px rgba(255,68,31,.3)' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 50, padding: '0 26px', borderRadius: 14, marginTop: 24, background: 'var(--primary)', color: '#fff', fontSize: 15, fontWeight: 700, boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)' }}
                     >
                       {es ? 'Ir a mi panel de negocio' : 'Go to my dashboard'}
                       <span className="tf-ms" style={{ fontSize: 19 }}>arrow_forward</span>

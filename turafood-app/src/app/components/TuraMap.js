@@ -81,12 +81,12 @@ export default function TuraMap({
     if (route && route.length > 1) {
       L.polyline(route, { color: '#D8D3CB', weight: 5, opacity: 1, lineCap: 'round' })
         .addTo(layer.current);
-      done.current = L.polyline([route[0]], { color: '#FF441F', weight: 5, opacity: .95, lineCap: 'round' })
+      done.current = L.polyline([route[0]], { color: 'var(--primary)', weight: 5, opacity: .95, lineCap: 'round' })
         .addTo(layer.current);
     }
 
     points.forEach((p) => {
-      const color = p.color ?? '#FF441F';
+      const color = p.color ?? 'var(--primary)';
       if (circles) {
         L.circle([p.lat, p.lng], {
           radius: 900, color, weight: 1.5, fillColor: color, fillOpacity: .1, opacity: .6,

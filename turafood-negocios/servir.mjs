@@ -10,6 +10,7 @@ const tipos = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '
 createServer(async (req, res) => {
   let ruta = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (ruta.endsWith('/')) ruta += 'index.html';
+  if (!path.extname(ruta)) ruta += '.html';   // como el Worker: /planes -> planes.html
   const archivo = path.join(raiz, ruta);
   if (!archivo.startsWith(raiz)) { res.writeHead(403).end(); return; }
   try {

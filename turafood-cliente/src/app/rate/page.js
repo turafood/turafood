@@ -294,7 +294,7 @@ function RatePage() {
               ...S.submitBtn,
               background: stars ? 'var(--primary)' : 'var(--surface2)',
               color: stars ? '#fff' : 'var(--faint)',
-              boxShadow: stars ? '0 10px 24px rgba(255,68,31,.3)' : 'none',
+              boxShadow: stars ? '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)' : 'none',
               opacity: submitting ? 0.7 : 1,
             }}
           >
@@ -347,6 +347,6 @@ const S = {
   doneBtn: {
     marginTop: 24, height: 56, padding: '0 32px', borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 15.5,
-    boxShadow: '0 10px 24px rgba(255,68,31,.3)',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)',
   },
 };

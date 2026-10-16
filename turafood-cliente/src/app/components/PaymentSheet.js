@@ -279,14 +279,14 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 8, margin: '14px 22px 0',
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '11px 13px', borderRadius: 12, fontSize: 12.5, fontWeight: 600,
   },
   payBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
     width: '100%', height: 56, borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 15.5,
-    boxShadow: '0 12px 28px rgba(255,68,31,.34)',
+    boxShadow: '0 12px 28px color-mix(in srgb, var(--primary) 34%, transparent)',
   },
   cancelBtn: {
     width: '100%', height: 46, fontWeight: 700, fontSize: 13.5,

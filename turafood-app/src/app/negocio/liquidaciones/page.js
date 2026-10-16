@@ -110,7 +110,7 @@ export default function LiquidacionesPage() {
 
   const mix = [
     { label: 'Ventas', value: thisWeek.gross, color: '#7BE8B0' },
-    { label: 'Comisión', value: thisWeek.fee, color: '#FF7A4D' },
+    { label: 'Comisión', value: thisWeek.fee, color: 'var(--gold)' },
   ].filter((m) => m.value > 0);
   const mixTotal = mix.reduce((a, m) => a + m.value, 0) || 1;
 
@@ -434,8 +434,8 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, padding: '16px 18px',
-    borderRadius: 18, background: 'rgba(255,68,31,0.15)', color: '#FFB0A0', fontSize: 14, fontWeight: 700,
-    border: '1px solid rgba(255,68,31,0.3)'
+    borderRadius: 18, background: 'color-mix(in srgb, var(--primary) 15%, transparent)', color: '#FFB0A0', fontSize: 14, fontWeight: 700,
+    border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)'
   },
 };
 

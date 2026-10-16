@@ -69,7 +69,7 @@ export default function BottomNav() {
         const style = {
           ...S.item,
           color: active ? 'var(--primary)' : 'var(--muted)',
-          background: active ? '#FFF0ED' : 'transparent',
+          background: active ? 'var(--primarySoft)' : 'transparent',
         };
 
         if (item.action === 'search') {

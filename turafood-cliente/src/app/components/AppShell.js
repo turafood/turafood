@@ -32,7 +32,7 @@ const NO_NAV = ['/auth', '/checkout', '/cart', '/product', '/tracking', '/chat',
 const DARK = ['/auth', '/landing'];
 
 /** Rutas del flujo que se centran en desktop como un popup enfocado */
-const FOCUSED_FLOW = ['/auth'];
+const FOCUSED_FLOW = [];   // /auth trae su propio marco a pantalla completa (AuthShell)
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
@@ -111,7 +111,7 @@ export default function AppShell({ children }) {
       {isOffline && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999,
-          background: 'linear-gradient(135deg, #E2360F 0%, #B91C1C 100%)',
+          background: 'linear-gradient(135deg, var(--primaryDark) 0%, #B91C1C 100%)',
           color: '#fff', padding: '9px 16px', fontSize: 12.5, fontWeight: 800,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           boxShadow: '0 4px 14px rgba(0,0,0,0.2)',

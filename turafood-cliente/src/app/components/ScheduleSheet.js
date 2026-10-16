@@ -171,7 +171,7 @@ export default function ScheduleSheet({
               ...S.confirmBtn,
               background: chosen ? 'var(--primary)' : 'var(--surface2)',
               color: chosen ? '#fff' : 'var(--faint)',
-              boxShadow: chosen ? '0 10px 24px rgba(255,68,31,.3)' : 'none',
+              boxShadow: chosen ? '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)' : 'none',
             }}
           >
             {chosen ? `Programar para ${day.label}, ${chosen.label}` : 'Elige una franja'}

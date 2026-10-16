@@ -26,7 +26,7 @@ const DEFAULT_ROLES = [
     id: 'kitchen',
     name: 'Jefe de Cocina / KDS',
     icon: 'restaurant',
-    color: '#FF7A4D',
+    color: 'var(--gold)',
     desc: 'Acceso exclusivo al monitor de comandas en vivo para marcar pedidos en preparación y listos.',
     members: 2,
     permisos: { comandas: true, menu: false, finanzas: false, promos: false, ajustes: false },
@@ -128,9 +128,9 @@ export default function RolesPage() {
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             height: 44, padding: '0 20px', borderRadius: 14,
-            background: 'linear-gradient(145deg, #FF5B2E, #E2360F)',
+            background: 'linear-gradient(145deg, #FF5B2E, var(--primaryDark))',
             color: '#fff', border: 'none', fontWeight: 700, fontSize: 13.5,
-            cursor: 'pointer', boxShadow: '0 6px 20px rgba(255, 68, 31, 0.4)',
+            cursor: 'pointer', boxShadow: '0 6px 20px color-mix(in srgb, var(--primary) 40%, transparent)',
           }}
         >
           <span className="ms" style={{ fontSize: 20 }}>person_add</span>
@@ -277,8 +277,8 @@ export default function RolesPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{
                       width: 38, height: 38, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, rgba(255,68,31,0.2), rgba(232,199,102,0.2))',
-                      border: '1px solid rgba(255,68,31,0.3)',
+                      background: 'linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent), rgba(232,199,102,0.2))',
+                      border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontWeight: 800, fontSize: 13, color: 'var(--text)',
                     }}>
@@ -464,9 +464,9 @@ export default function RolesPage() {
                   type="submit"
                   style={{
                     width: '100%', height: 46, borderRadius: 14,
-                    background: 'linear-gradient(145deg, #FF5B2E, #E2360F)',
+                    background: 'linear-gradient(145deg, #FF5B2E, var(--primaryDark))',
                     color: '#fff', border: 'none', fontWeight: 700, fontSize: 14,
-                    cursor: 'pointer', boxShadow: '0 6px 20px rgba(255, 68, 31, 0.4)',
+                    cursor: 'pointer', boxShadow: '0 6px 20px color-mix(in srgb, var(--primary) 40%, transparent)',
                   }}
                 >
                   Generar Invitación y Magic Link

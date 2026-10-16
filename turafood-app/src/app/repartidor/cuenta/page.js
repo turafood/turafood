@@ -177,7 +177,7 @@ export default function CuentaPage() {
     const vencido = states.find((x) => x.s.urgent);
     if (vencido) {
       return {
-        bg: '#FFF0ED', fg: '#C0341A', icon: 'error',
+        bg: 'var(--primarySoft)', fg: '#C0341A', icon: 'error',
         // Ya no bloquea: los documentos son opcionales. El aviso se
         // queda porque a quien SÍ los tiene cargados le sirve saber
         // que se le vencieron, pero sin la amenaza que era mentira.
@@ -332,7 +332,7 @@ export default function CuentaPage() {
         <div style={S.filas}>
           <Row
             icon="two_wheeler" label="Mi vehículo"
-            tint="#FFF1EC" fg="#E2360F"
+            tint="#FFF1EC" fg="var(--primaryDark)"
             value={`${VEHICLE[courier?.vehicle_type] ?? 'Sin registrar'}${courier?.plate ? ` · ${courier.plate}` : ''}`}
           />
           <Row

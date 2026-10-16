@@ -58,9 +58,9 @@ foreach ($fn in 'secuencia-emails', 'send-order-email') {
 
 # ---------------------------------------------------------------- 4. Auth por correo
 Paso '4. Auth: código por correo con Resend'
-$llave = (Get-Content '.resend.local.txt' -Raw).Trim()
+$llave = (Get-Content (Join-Path $aqui '.resend.local.txt') -Raw).Trim()
 node scripts\generar-plantillas-auth.mjs 2>$null | Out-Null
-$tp = 'supabase\templates'
+$tp = Join-Path $aqui 'supabase\templates'
 $asuntos = Get-Content "$tp\plantillas-auth.json" -Raw | ConvertFrom-Json
 $leer = { param($n) [IO.File]::ReadAllText((Join-Path $tp "otp_$n.html"), [Text.Encoding]::UTF8) }
 $cuerpo = [ordered]@{
@@ -89,7 +89,7 @@ $c = Invoke-RestMethod -Uri $url -Headers $h
 'smtp_host={0} · remitente={1} · otp={2} dígitos / {3}s · limite correos/h={4}' -f $c.smtp_host, $c.smtp_admin_email, $c.mailer_otp_length, $c.mailer_otp_exp, $c.rate_limit_email_sent
 # ---------------------------------------------------------------- 5. limpieza del catálogo
 Paso '5. Catálogo público: ocultar negocios de prueba de la auditoría'
-$o = & supabase db query --linked -f scriptsocultar-negocios-de-prueba.sql 2>&1 | Out-String
+$o = & supabase db query --linked -f (Join-Path $aqui 'scripts\ocultar-negocios-de-prueba.sql') 2>&1 | Out-String
 if ($o -match 'ERROR|"_tag":"Error"') { Write-Host 'No se pudo (revisar a mano)' -ForegroundColor Yellow } else { Write-Host 'OK' }
 
 Write-Host "`nListo." -ForegroundColor Green

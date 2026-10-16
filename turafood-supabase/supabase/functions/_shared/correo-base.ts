@@ -16,21 +16,23 @@
 
 /** Tokens de diseño (equivalen a las variables del diseño en Figma) */
 export const T = {
-  marca: '#FF441F',
-  marcaOscura: '#E02E0B',
-  ambar: '#FFB020',
-  tinta: '#1B1712',
-  texto: '#4A433A',
-  suave: '#7A7268',
-  linea: '#EFEAE4',
-  fondo: '#F6F2EC',
+  marca: '#141414',
+  marcaOscura: '#000000',
+  ambar: '#B8912F',
+  tinta: '#111111',
+  texto: '#3F3F3F',
+  suave: '#767676',
+  linea: '#E9E9E9',
+  fondo: '#F2F2F2',
   tarjeta: '#FFFFFF',
-  papel: '#FAF7F3',
+  papel: '#F7F7F7',
   verde: '#11B26A',
   verdeFondo: '#E6F6EE',
   verdeTexto: '#0B7A48',
   fuente: "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif",
   sitio: 'https://turafood.com',
+  logo: 'https://turafood.com/brand/logo-crema.png',
+  oro: '#D8B65C',
   soporteWa: '573137594713',
 };
 
@@ -71,7 +73,7 @@ export function cajaCodigo(codigo: string, nota = 'Vence en 10 minutos'): string
                 <td align="center" style="padding:22px 32px 4px;">
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:340px;">
                     <tr>
-                      <td align="center" style="background:${T.papel};border:2px dashed #E5DCD0;border-radius:18px;padding:20px 12px 16px;">
+                      <td align="center" style="background:${T.papel};border:2px dashed #D8B65C;border-radius:18px;padding:20px 12px 16px;">
                         <div style="font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:42px;line-height:1;font-weight:800;letter-spacing:12px;color:${T.tinta};padding-left:12px;">${codigo}</div>
                         <div style="font-family:${T.fuente};font-size:12.5px;font-weight:700;color:${T.suave};margin-top:12px;">${nota}</div>
                       </td>
@@ -171,29 +173,21 @@ export function envoltura(o: OpcionesEnvoltura): string {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 
         <tr>
-          <td style="padding:2px 6px 18px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td align="center" bgcolor="${T.marca}" style="width:38px;height:38px;background:${T.marca};border-radius:12px;color:#FFFFFF;font-family:${T.fuente};font-size:23px;font-weight:800;line-height:38px;">t</td>
-              <td style="padding-left:10px;font-family:${T.fuente};font-size:20px;font-weight:800;letter-spacing:-.02em;color:${T.tinta};">TuraFood</td>
-            </tr></table>
-          </td>
-        </tr>
-
-        <tr>
-          <td style="background:${T.tarjeta};border:1px solid #EAE3DA;border-radius:24px;overflow:hidden;">
+          <td style="background:${T.tarjeta};border:1px solid #E3E3E3;border-radius:24px;overflow:hidden;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-              <tr><td style="height:6px;line-height:6px;font-size:1px;background:${T.marca};background-image:linear-gradient(90deg,${T.marca},${T.ambar});">&nbsp;</td></tr>${o.filas}
+              <tr><td align="center" bgcolor="#0B0B0C" style="background:#0B0B0C;padding:26px 20px 24px;"><img src="${T.logo}" width="150" alt="TuraFood" style="display:block;width:150px;max-width:70%;height:auto;border:0;font-family:${T.fuente};font-size:22px;font-weight:800;color:#FFF8ED;"></td></tr>
+              <tr><td style="height:3px;line-height:3px;font-size:1px;background:${T.oro};background-image:linear-gradient(90deg,#B8912F,#E6C877,#B8912F);">&nbsp;</td></tr>${o.filas}
             </table>
           </td>
         </tr>
 
         <tr>
-          <td align="center" style="padding:22px 14px 6px;font-family:${T.fuente};font-size:12px;line-height:1.7;color:#8C857B;">
+          <td align="center" style="padding:22px 14px 6px;font-family:${T.fuente};font-size:12px;line-height:1.7;color:#8A8A8A;">
             ${o.destinatario ? `Enviado a ${esc(o.destinatario)}.<br>` : ''}
-            <a href="${T.sitio}/terminos" style="color:#8C857B;">Términos</a> &nbsp;·&nbsp;
-            <a href="${T.sitio}/privacidad" style="color:#8C857B;">Privacidad</a> &nbsp;·&nbsp;
-            <a href="https://wa.me/${T.soporteWa}" style="color:#8C857B;">Soporte por WhatsApp</a><br>
-            ${o.bajaUrl ? `<a href="${esc(o.bajaUrl)}" style="color:#8C857B;text-decoration:underline;">Dejar de recibir estos consejos</a><br>` : ''}
+            <a href="${T.sitio}/terminos" style="color:#8A8A8A;">Términos</a> &nbsp;·&nbsp;
+            <a href="${T.sitio}/privacidad" style="color:#8A8A8A;">Privacidad</a> &nbsp;·&nbsp;
+            <a href="https://wa.me/${T.soporteWa}" style="color:#8A8A8A;">Soporte por WhatsApp</a><br>
+            ${o.bajaUrl ? `<a href="${esc(o.bajaUrl)}" style="color:#8A8A8A;text-decoration:underline;">Dejar de recibir estos consejos</a><br>` : ''}
             TuraFood · Buenaventura, Colombia
           </td>
         </tr>

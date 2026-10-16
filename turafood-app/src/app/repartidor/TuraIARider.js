@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const TIPS = [
   {
-    id: 'zone', title: 'Muévete al Centro', icon: 'near_me', bg: '#FFF1EC', fg: '#E2360F',
+    id: 'zone', title: 'Muévete al Centro', icon: 'near_me', bg: '#FFF1EC', fg: 'var(--primaryDark)',
     body: 'Hay 7 restaurantes despachando y solo 3 repartidores en línea. Desde donde estás son 6 minutos.',
   },
   {

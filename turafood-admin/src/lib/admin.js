@@ -505,7 +505,7 @@ export async function getPayoutCut() {
 export const BUSINESS_STATUS = {
   pending_review: { label: 'EN REVISIÓN', bg: '#FFF7E6', color: '#A8730B' },
   active:         { label: 'ACTIVO',      bg: '#E6F6EE', color: '#0B8E54' },
-  rejected:       { label: 'RECHAZADO',   bg: '#FFF0ED', color: '#C0341A' },
+  rejected:       { label: 'RECHAZADO',   bg: 'var(--primarySoft)', color: '#C0341A' },
   suspended:      { label: 'SUSPENDIDO',  bg: '#F0EEE9', color: '#8C857B' },
   closed:         { label: 'CERRADO',     bg: '#F0EEE9', color: '#8C857B' },
 };
@@ -513,8 +513,8 @@ export const BUSINESS_STATUS = {
 export const COURIER_STATUS = {
   pending_review: { label: 'EN REVISIÓN', bg: '#FFF7E6', color: '#A8730B' },
   active:         { label: 'ACTIVO',      bg: '#E6F6EE', color: '#0B8E54' },
-  rejected:       { label: 'RECHAZADO',   bg: '#FFF0ED', color: '#C0341A' },
-  suspended:      { label: 'SUSPENDIDO',  bg: '#FFF0ED', color: '#C0341A' },
+  rejected:       { label: 'RECHAZADO',   bg: 'var(--primarySoft)', color: '#C0341A' },
+  suspended:      { label: 'SUSPENDIDO',  bg: 'var(--primarySoft)', color: '#C0341A' },
 };
 
 export const SERVICE_STATUS = {
@@ -522,7 +522,7 @@ export const SERVICE_STATUS = {
   submitted:   { label: 'POR REVISAR', bg: '#FFF7E6', color: '#A8730B' },
   in_progress: { label: 'MONTANDO',   bg: '#EAF1FF', color: '#2E6BFF' },
   active:      { label: 'ACTIVO',     bg: '#E6F6EE', color: '#0B8E54' },
-  rejected:    { label: 'RECHAZADO',  bg: '#FFF0ED', color: '#C0341A' },
+  rejected:    { label: 'RECHAZADO',  bg: 'var(--primarySoft)', color: '#C0341A' },
   cancelled:   { label: 'CANCELADO',  bg: '#F0EEE9', color: '#8C857B' },
 };
 
@@ -537,7 +537,7 @@ export const SERVICE_KIND = {
 };
 
 export const VERTICAL = {
-  restaurant: { label: 'Restaurante', bg: '#FFF0ED', color: '#C0341A' },
+  restaurant: { label: 'Restaurante', bg: 'var(--primarySoft)', color: '#C0341A' },
   market:     { label: 'Minimercado', bg: '#E6F6EE', color: '#0B8E54' },
   pharmacy:   { label: 'Farmacia',    bg: '#EAF1FF', color: '#2E6BFF' },
   liquor:     { label: 'Licorera',    bg: '#F3ECFF', color: '#6B2FD6' },
@@ -720,7 +720,7 @@ const LOCAL_PAYOUT_CUT = [
 /** Zonas y comisiones: hoy son constantes; cuando existan en la base
  *  se leen de `delivery_zones`. Los valores son los del mockup. */
 export const ZONES = [
-  { id: 'z1', name: 'Zona 1 · Centro', areas: 'Centro, Pueblo Nuevo, Muro Yusti', base: 2900, perKm: 700, min: 15000, color: '#FF441F' },
+  { id: 'z1', name: 'Zona 1 · Centro', areas: 'Centro, Pueblo Nuevo, Muro Yusti', base: 2900, perKm: 700, min: 15000, color: 'var(--primary)' },
   { id: 'z2', name: 'Zona 2 · Comunas 4–7', areas: 'El Jorge, Juan XXIII, Bellavista', base: 3900, perKm: 800, min: 20000, color: '#2E6BFF' },
   { id: 'z3', name: 'Zona 3 · Punta del Este', areas: 'Punta del Este, Ciudadela San Antonio', base: 4900, perKm: 900, min: 25000, color: '#11B26A' },
   { id: 'z4', name: 'Zona 4 · Rural', areas: 'Córdoba, Zacarías, Llano Bajo', base: 8900, perKm: 1400, min: 40000, color: '#8C857B' },

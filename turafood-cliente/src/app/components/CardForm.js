@@ -189,7 +189,7 @@ export default function CardForm({ onSave, onCancel }) {
         ...S.saveBtn,
         background: complete ? 'var(--primary)' : 'var(--surface2)',
         color: complete ? '#fff' : 'var(--faint)',
-        boxShadow: complete ? '0 10px 24px rgba(255,68,31,.3)' : 'none',
+        boxShadow: complete ? '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)' : 'none',
       }}>
         {saving ? 'Guardando…' : 'Guardar tarjeta'}
       </button>
@@ -249,7 +249,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 8, marginTop: 14,
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '11px 13px', borderRadius: 12, fontSize: 12.5, fontWeight: 600,
   },
   notice: {

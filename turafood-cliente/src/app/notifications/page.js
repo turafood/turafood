@@ -18,7 +18,7 @@ import { relativeTime } from '@/lib/format';
 const TONE_BY_ICON = {
   check_circle: { bg: '#E6F6EE', fg: 'var(--green)' },
   takeout_dining: { bg: '#E6F6EE', fg: 'var(--green)' },
-  two_wheeler: { bg: '#FFF0ED', fg: 'var(--primary)' },
+  two_wheeler: { bg: 'var(--primarySoft)', fg: 'var(--primary)' },
   restaurant: { bg: '#FFF7E6', fg: '#A8730B' },
   cancel: { bg: 'var(--surface2)', fg: 'var(--muted)' },
   local_activity: { bg: '#FFF7E6', fg: '#A8730B' },

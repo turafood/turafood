@@ -265,7 +265,7 @@ const S = {
   aviso: { marginTop: 16, padding: '11px 13px', borderRadius: 14, background: 'color-mix(in srgb, var(--primary) 9%, var(--surface))', fontSize: 13, lineHeight: 1.45, color: 'var(--text)' },
   campoEnvoltura: { display: 'flex', alignItems: 'center', gap: 10, height: 56, padding: '0 16px', borderRadius: 16, background: 'var(--surface2)', border: '1.5px solid var(--border)' },
   campo: { flex: 1, minWidth: 0, height: '100%', background: 'none', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 16.5, fontWeight: 600 },
-  boton: { width: '100%', height: 54, borderRadius: 16, border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 16, cursor: 'pointer', boxShadow: '0 10px 24px rgba(255,68,31,.28)' },
+  boton: { width: '100%', height: 54, borderRadius: 16, border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 16, cursor: 'pointer', boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 28%, transparent)' },
   botonSecundario: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 46, borderRadius: 14, border: '1.5px solid var(--border)', background: 'transparent', color: 'var(--text)', fontWeight: 800, fontSize: 14.5, textDecoration: 'none' },
   enlace: { width: '100%', marginTop: 6, height: 40, background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: 14, cursor: 'pointer' },
   pieAcciones: { display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 8, flexWrap: 'wrap' },

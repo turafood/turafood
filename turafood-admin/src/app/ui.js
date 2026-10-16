@@ -78,7 +78,7 @@ export function HeroCard({ label, value, delta, spark = [], stats = [] }) {
                 height: `${Math.max((v / max) * 100, 6)}%`,
                 borderRadius: '3px 3px 1px 1px',
                 background: i === spark.length - 2
-                  ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
+                  ? 'linear-gradient(180deg,#FF7A3D,var(--primary))'
                   : 'rgba(255,255,255,.16)',
               }}
             />
@@ -264,7 +264,7 @@ export const btn = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
     height: 46, padding: '0 20px', borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontSize: 14, fontWeight: 800, transition: 'all 0.2s ease',
-    boxShadow: '0 4px 15px rgba(255, 68, 31, 0.25)',
+    boxShadow: '0 4px 15px color-mix(in srgb, var(--primary) 25%, transparent)',
   },
   green: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
@@ -281,7 +281,7 @@ export const btn = {
   danger: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
     height: 42, padding: '0 16px', borderRadius: 999,
-    background: '#FFF0ED', color: '#C0341A', fontSize: 13, fontWeight: 700,
+    background: 'var(--primarySoft)', color: '#C0341A', fontSize: 13, fontWeight: 700,
   },
 };
 
@@ -322,7 +322,7 @@ const S = {
   },
   heroGlow: {
     position: 'absolute', right: -50, top: -60, width: 200, height: 200, borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(255,68,31,.32), rgba(255,68,31,0) 70%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 32%, transparent), color-mix(in srgb, var(--primary) 0%, transparent) 70%)',
   },
   heroLabel: { fontSize: 10, fontWeight: 800, letterSpacing: '.09em', color: 'rgba(255,255,255,.5)' },
   heroDelta: {
@@ -375,7 +375,7 @@ const S = {
 
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: '#C0341A',
+    borderRadius: 14, background: 'var(--primarySoft)', color: '#C0341A',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 

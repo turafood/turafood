@@ -143,9 +143,9 @@ export default function RepartidorHome() {
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.4); }
         @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(255,68,31,0.4); }
-          70% { box-shadow: 0 0 0 20px rgba(255,68,31,0); }
-          100% { box-shadow: 0 0 0 0 rgba(255,68,31,0); }
+          0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 40%, transparent); }
+          70% { box-shadow: 0 0 0 20px color-mix(in srgb, var(--primary) 0%, transparent); }
+          100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent); }
         }
         .pulse-active { animation: pulse-ring 2s infinite cubic-bezier(0.2,0,0,1); }
         .glass-panel {
@@ -163,7 +163,7 @@ export default function RepartidorHome() {
         .pro-card::before {
            content: "";
            position: absolute; right: 0; top: 0; bottom: 0; width: 100px;
-           background: radial-gradient(ellipse at right, rgba(255,68,31,0.15) 0%, transparent 70%);
+           background: radial-gradient(ellipse at right, color-mix(in srgb, var(--primary) 15%, transparent) 0%, transparent 70%);
            pointer-events: none;
         }
         html[data-theme='light'] .pro-card {
@@ -241,7 +241,7 @@ export default function RepartidorHome() {
                   flex: 1, borderRadius: '4px 4px 2px 2px',
                   height: `${Math.max(10, val)}%`,
                   background: i === arr.length - 1
-                    ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
+                    ? 'linear-gradient(180deg,#FF7A3D,var(--primary))'
                     : 'rgba(255,255,255,.1)',
                 }}
               />
@@ -402,7 +402,7 @@ function OfferCard({ offer, taking, onTake, onExpire }) {
         </div>
         <div style={S.timer}>
           <svg width="40" height="40" viewBox="0 0 40 40" style={S.timerSvg}>
-            <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,68,31,0.15)" strokeWidth="3" />
+            <circle cx="20" cy="20" r="18" fill="none" stroke="color-mix(in srgb, var(--primary) 15%, transparent)" strokeWidth="3" />
             <circle
               className="timer-circle"
               cx="20" cy="20" r="18" fill="none"
@@ -478,7 +478,7 @@ const S = {
   scroll: { flex: 1, padding: '0 20px', position: 'relative' },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 20, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   pendingBox: {
     display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '16px',
@@ -578,6 +578,6 @@ const S = {
   acceptBtn: {
      width: '100%', height: 56, borderRadius: 16, background: 'var(--primary)',
      color: '#fff', fontSize: 16, fontWeight: 800, border: 'none', cursor: 'pointer',
-     boxShadow: '0 8px 24px rgba(255,68,31,0.3)'
+     boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 30%, transparent)'
   }
 };

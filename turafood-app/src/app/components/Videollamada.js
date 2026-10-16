@@ -66,7 +66,7 @@ export default function Videollamada({ tema = 'light' }) {
         });
         window.Cal.ns[ESPACIO]('ui', {
           cssVarsPerTheme: {
-            light: { 'cal-brand': '#FF441F' },
+            light: { 'cal-brand': 'var(--primary)' },
             dark: { 'cal-brand': '#30c578' },
           },
           hideEventTypeDetails: false,
@@ -155,7 +155,7 @@ export default function Videollamada({ tema = 'light' }) {
 
         {estado === 'falla' && (
           <div style={S.falla}>
-            <span className="ms" style={{ fontSize: 36, color: 'var(--primary)', textShadow: '0 0 20px rgba(255,68,31,0.4)' }}>wifi_off</span>
+            <span className="ms" style={{ fontSize: 36, color: 'var(--primary)', textShadow: '0 0 20px color-mix(in srgb, var(--primary) 40%, transparent)' }}>wifi_off</span>
             <p style={S.fallaTexto}>
               El calendario está tardando en cargar. Puedes intentarlo de nuevo o escribirnos por WhatsApp y coordinamos la videollamada de una vez.
             </p>
@@ -211,18 +211,18 @@ const S = {
     display: 'flex', gap: 16, alignItems: 'flex-start',
     padding: 24, borderRadius: 24,
     background: 'var(--primary-tint)',
-    border: '1px solid rgba(255,68,31,0.15)',
+    border: '1px solid color-mix(in srgb, var(--primary) 15%, transparent)',
   },
   avisoGlow: {
     position: 'absolute', top: -50, left: -50, width: 150, height: 150,
-    background: 'radial-gradient(circle, rgba(255,68,31,0.1), transparent 70%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 10%, transparent), transparent 70%)',
     borderRadius: '50%', pointerEvents: 'none',
   },
   avisoIcono: {
     width: 52, height: 52, borderRadius: 16, flex: 'none',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'linear-gradient(135deg, var(--primary) 0%, #D83A1A 100%)', color: '#fff',
-    boxShadow: '0 8px 24px rgba(255,68,31,0.3)', position: 'relative',
+    boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 30%, transparent)', position: 'relative',
   },
   avisoTitulo: {
     margin: 0, fontFamily: 'var(--font-bricolage)', fontWeight: 800,

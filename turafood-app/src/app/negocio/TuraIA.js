@@ -85,7 +85,7 @@ export default function TuraIA({ open, onClose, pendingReviews = 0, onTipCount }
     },
     {
       id: 'prep', title: 'Tu tiempo de preparación subió 6 minutos',
-      icon: 'timer', bg: '#FFF1EC', fg: '#E2360F', cta: 'Ver pedidos en vivo', go: '/negocio/pedidos',
+      icon: 'timer', bg: '#FFF1EC', fg: 'var(--primaryDark)', cta: 'Ver pedidos en vivo', go: '/negocio/pedidos',
       body: 'Entre 7 y 8 p.m. la cocina se congestiona. Marca los pedidos como listos apenas salgan para que el estimado del cliente sea real.',
     },
   ];

@@ -7,21 +7,24 @@
 
 :root {
   --backdrop: #E7E5E1;
-  --bg: #F6F5F2;
+  --bg: #F6F6F6;
   --surface: #FFFFFF;
-  --surface2: #F0EEE9;
+  --surface2: #EFEFEF;
 
-  --text: #17140F;
-  --muted: #8C857B;
-  --faint: #B6AFA4;
-  --border: rgba(20, 16, 10, 0.09);
+  --text: #111111;
+  --muted: #6B6B6B;
+  --faint: #A6A6A6;
+  --border: rgba(0, 0, 0, 0.09);
 
-  --primary: #FF441F;
-  --primaryDark: #E2360F;
+  --primary: #141414;
+  --gold: #B8912F;
+  --gold2: #E6C877;
+  --goldSoft: #FBF4E1;
+  --primaryDark: #000000;
   --onPrimary: #FFFFFF;
 
   --green: #11B26A;
-  --amber: #FFB020;
+  --amber: #C99A2E;
   --blue: #2E6BFF;
 
   /* Tintes de las etiquetas y fondos suaves. Se derivan del color base
@@ -31,8 +34,8 @@
   --amber-tint: color-mix(in srgb, var(--amber) 15%, transparent);
   --blue-tint: color-mix(in srgb, var(--blue) 12%, transparent);
 
-  --shadow: 0 14px 40px rgba(20, 16, 10, 0.10);
-  --shadowSm: 0 3px 14px rgba(20, 16, 10, 0.07);
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.09);
+  --shadowSm: 0 3px 14px rgba(0, 0, 0, 0.07);
 
   /* Tipografías: se cargan desde layout.js */
   --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
@@ -177,8 +180,8 @@ textarea {
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 31, .45); }
-  50%      { box-shadow: 0 0 0 10px rgba(255, 68, 31, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+  50%      { box-shadow: 0 0 0 10px color-mix(in srgb, var(--primary) 0%, transparent); }
 }
 
 @keyframes slideup {
@@ -204,8 +207,8 @@ textarea {
 
 /* Punto rojo de "nuevo pedido" en la app del repartidor */
 @keyframes glow {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 68, 31, .55); }
-  50%      { opacity: .55; box-shadow: 0 0 0 6px rgba(255, 68, 31, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 55%, transparent); }
+  50%      { opacity: .55; box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 0%, transparent); }
 }
 
 @keyframes banner {
@@ -756,4 +759,16 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   .adm-side { transition: none; }
   .adm-pulse span:first-child { animation: none; }
+}
+
+
+/* Modo oscuro: el botón principal es claro, así que el texto fijo en blanco pasa a negro mate */
+html.dark [style*="background: var(--primary)"],
+[data-theme="dark"] [style*="background: var(--primary)"],
+html.dark [style*="background-color: var(--primary)"] {
+  color: var(--onPrimary) !important;
+}
+html.dark [style*="background: var(--primary)"] *,
+[data-theme="dark"] [style*="background: var(--primary)"] * {
+  color: inherit !important;
 }

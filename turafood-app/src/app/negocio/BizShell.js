@@ -1,5 +1,8 @@
 'use client';
 
+import { ES_DEMO, NEGOCIO_DEMO } from '@/lib/sitio';
+import DemoBar from '../components/DemoBar';
+
 /**
  * ARMAZÓN DEL PANEL DE NEGOCIOS
  * Conversión de `isApp` (línea 156) del mockup de Negocios: barra
@@ -58,7 +61,7 @@ const PAGES = {
   '/negocio/roles': ['Roles y Permisos', 'Control de acceso para cocina, caja, administración y domiciliarios'],
   '/negocio/seguridad': ['Seguridad y Clave', 'Cambio de contraseña, sesiones activas y autenticación segura'],
   '/negocio/equipo': ['Equipo y Ajustes', 'Roles, verificación y plan'],
-  '/negocio/crecimiento': ['Growth Partner', 'La app es gratis. Esto es lo que puedes alquilar para crecer'],
+  '/negocio/crecimiento': ['Partners y planes', 'Crece a tu ritmo: herramientas y planes de TuraFood'],
   '/negocio/redes': ['Redes Sociales AI', 'Tus cuentas, tus posts y tu bandeja'],
   '/negocio/redes/crear': ['Crear Publicación', 'Míralo antes de publicarlo'],
   '/negocio/crecimiento/google': ['Google Ads AI', 'Tu ficha, tus campañas y YouTube en un solo lugar'],
@@ -69,57 +72,36 @@ const PAGES = {
 /** Grupos del menú lateral */
 const NAV_GROUPS = [
   {
-    label: 'OPERACIONES',
     items: [
-      { label: 'Panel general', icon: 'space_dashboard', href: '/negocio' },
-      { label: 'Pedidos en vivo', icon: 'receipt_long', href: '/negocio/pedidos', badge: 'new' },
-      { label: 'Menú + Productos', icon: 'restaurant_menu', href: '/negocio/catalogo' },
+      { label: 'Resumen', icon: 'space_dashboard', href: '/negocio' },
+      { label: 'Pedidos', icon: 'receipt_long', href: '/negocio/pedidos', badge: 'new' },
+      { label: 'Menú', icon: 'restaurant_menu', href: '/negocio/catalogo' },
     ],
   },
   {
-    label: 'TURA GROWTH AI',
+    label: 'OPERACIÓN',
     items: [
-      { label: 'Kit Turafood', icon: 'auto_awesome', href: '/negocio/kit', badge: '⚡ ULTRA' },
-      { label: 'Email Marketing', icon: 'mark_email_unread', href: '/negocio/email-mkt' },
-      { label: 'Negocios Locales', icon: 'storefront', href: '/negocio/crecimiento/google-negocio' },
-    ],
-  },
-  {
-    label: 'REPARTIDOR IA',
-    items: [
-      { label: 'Radar en Vivo', icon: 'radar', href: '/negocio/repartidores' },
-      { label: 'Tura Turbo', icon: 'bolt', href: '/negocio/turbo', badge: '15 min' },
-      { label: 'Motor de Despacho', icon: 'route', href: '/negocio/repartidores/ajustes' },
-      { label: 'Finanzas y Pagos', icon: 'account_balance_wallet', href: '/negocio/repartidores/liquidacion' },
-    ],
-  },
-  {
-    label: 'MI NEGOCIO',
-    items: [
-      { label: 'Skins & Demos PWA', icon: 'devices', href: '/negocio/personalizacion', badge: 'DEMOS' },
-      { label: 'Métodos de Pago', icon: 'payments', href: '/negocio/pagos' },
+      { label: 'Repartidores', icon: 'two_wheeler', href: '/negocio/repartidores' },
       { label: 'Horarios', icon: 'schedule', href: '/negocio/horarios' },
+      { label: 'Métodos de pago', icon: 'payments', href: '/negocio/pagos' },
+      { label: 'Ubicación', icon: 'location_on', href: '/negocio/sucursales' },
       { label: 'Promociones', icon: 'local_activity', href: '/negocio/promociones' },
-      { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: '4.9 ★' },
-      { label: 'Sucursales', icon: 'store', href: '/negocio/sucursales' },
     ],
   },
   {
-    label: 'FINANZAS PRO',
+    label: 'NEGOCIO',
     items: [
-      { label: 'Historial de pedidos', icon: 'history', href: '/negocio/historial' },
+      { label: 'Historial', icon: 'history', href: '/negocio/historial' },
       { label: 'Reportes', icon: 'insights', href: '/negocio/reportes' },
-      { label: 'Afiliados & Wallet', icon: 'card_giftcard', href: '/negocio/afiliados', badge: '10%' },
+      { label: 'Partners y planes', icon: 'workspace_premium', href: '/negocio/crecimiento' },
+      { label: 'Reseñas', icon: 'reviews', href: '/negocio/resenas', badge: 'reviews' },
+      { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
     ],
   },
   {
-    label: 'SEGURIDAD Y EQUIPO',
     items: [
-      { label: 'Roles y permisos', icon: 'shield_person', href: '/negocio/roles', badge: 'PRO' },
-      { label: 'Seguridad y clave', icon: 'lock_reset', href: '/negocio/seguridad' },
-      { label: 'Verificación', icon: 'verified_user', href: '/negocio/verificacion', badge: 'onboarding' },
       { label: 'Soporte', icon: 'support_agent', href: '/negocio/soporte' },
-      { label: 'Documentación Tfood', icon: 'menu_book', href: '/negocio/conocimiento' },
+      { label: 'Seguridad', icon: 'lock', href: '/negocio/seguridad' },
     ],
   },
 ];
@@ -129,7 +111,7 @@ const BOTTOM_NAV = [
   { label: 'Resumen', icon: 'space_dashboard', href: '/negocio' },
   { label: 'Pedidos', icon: 'notifications_active', href: '/negocio/pedidos', badge: 'new' },
   { label: 'Menú', icon: 'restaurant_menu', href: '/negocio/catalogo' },
-  { label: 'Promos', icon: 'local_activity', href: '/negocio/promociones' },
+  { label: 'Repartidores', icon: 'two_wheeler', href: '/negocio/repartidores' },
 ];
 
 const initials = (name) =>
@@ -144,7 +126,7 @@ export default function BizShell({ children }) {
   const [pendingReviews, setPendingReviews] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [demoMode, setDemoMode] = useState(true);
+  const [demoMode, setDemoMode] = useState(false);   // solo con ?demo=1 (presentaciones); nunca por defecto
   const [hasTurnedOffDemo, setHasTurnedOffDemo] = useState(true);
   const [showDemoPopup, setShowDemoPopup] = useState(false);
 
@@ -156,15 +138,15 @@ export default function BizShell({ children }) {
   const [teamPhone, setTeamPhone] = useState('');
   const [teamScheduled, setTeamScheduled] = useState(false);
   
+  // Los datos de ejemplo solo se ven si alguien los pide a propósito (/negocio?demo=1) para una presentación.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isOff = localStorage.getItem('tura_demo_off') === '1';
-      if (isOff) {
-        setDemoMode(false);
-      } else {
-        setHasTurnedOffDemo(false);
-      }
-    }
+    if (ES_DEMO) { setDemoMode(true); return; }
+    try {
+      const q = new URLSearchParams(window.location.search).get('demo');
+      if (q === '1') localStorage.setItem('tura_demo_on', '1');
+      if (q === '0') localStorage.removeItem('tura_demo_on');
+      setDemoMode(localStorage.getItem('tura_demo_on') === '1');
+    } catch { /* sin almacenamiento */ }
   }, []);
 
   const handleToggleDemo = () => {
@@ -258,6 +240,7 @@ export default function BizShell({ children }) {
   useEffect(() => {
     let alive = true;
     (async () => {
+      if (ES_DEMO) { setBusiness(NEGOCIO_DEMO); setLoading(false); return; }
       try {
         const biz = await getMyBusiness();
         if (!alive) return;
@@ -445,16 +428,16 @@ export default function BizShell({ children }) {
                     if (rawBadge === '⚡ ULTRA' || rawBadge === 'NUEVO') {
                       badgeStyle = {
                         flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
-                        background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff',
+                        background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))', color: '#fff',
                         fontSize: 9.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(255,68,31,0.4)', letterSpacing: '.03em'
+                        boxShadow: '0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent)', letterSpacing: '.03em'
                       };
                     } else if (rawBadge === '15 min') {
                       badgeStyle = {
                         flex: 'none', height: 19, padding: '0 7px', borderRadius: 99,
-                        background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff',
+                        background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))', color: '#fff',
                         fontSize: 9.5, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(255,68,31,0.35)', letterSpacing: '.02em'
+                        boxShadow: '0 2px 8px color-mix(in srgb, var(--primary) 35%, transparent)', letterSpacing: '.02em'
                       };
                     } else if (rawBadge === '10%') {
                       badgeStyle = {
@@ -572,38 +555,7 @@ export default function BizShell({ children }) {
 
             <div style={{ flex: 1 }} />
 
-            <div data-tour="modo-demo" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '2px 4px', borderRadius: 14 }}>
-            {/* Modo Demo solid pill toggle */}
-            <button
-              onClick={handleToggleDemo}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 9, height: 38,
-                padding: '0 5px 0 14px', borderRadius: 999,
-                background: demoMode ? '#FF5B2E' : 'var(--surface2)',
-                border: demoMode ? 'none' : '1px solid var(--border)',
-                color: demoMode ? '#FFFFFF' : 'var(--muted)',
-                cursor: 'pointer', flex: 'none',
-                boxShadow: demoMode ? '0 3px 12px rgba(255, 91, 46, 0.35)' : 'none',
-                transition: 'all .2s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-              title={t('Alterna entre datos de prueba y tus datos reales')}
-            >
-              <span className="demo-label" style={{ fontSize: 12.5, fontWeight: 800, color: demoMode ? '#fff' : 'var(--muted)' }}>
-                {demoMode ? t('Modo Demo') : t('Modo Real')}
-              </span>
-              <span style={{
-                width: 32, height: 20, borderRadius: 99, padding: 2, display: 'flex', flex: 'none',
-                background: demoMode ? 'rgba(255,255,255,0.35)' : 'var(--faint)',
-              }}>
-                <span style={{
-                  width: 16, height: 16, borderRadius: '50%', background: '#fff',
-                  transform: demoMode ? 'translateX(12px)' : 'translateX(0)',
-                  transition: 'transform .18s ease',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                }} />
-              </span>
-            </button>
-
+            <div data-tour="modo-demo" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {/* Tienda abierta / cerrada */}
             <button
               onClick={toggleOpen}
@@ -625,12 +577,6 @@ export default function BizShell({ children }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {/* Idioma: la bandera dice a qué idioma se cambia */}
-            <button onClick={toggleLang} style={S.iconBtn} aria-label={t('Cambiar idioma')} title={t('Cambiar idioma')}>
-              <span style={{ fontSize: 15, lineHeight: 1 }}>{lang === 'es' ? '🇺🇸' : '🇨🇴'}</span>
-              <span style={S.langTag}>{lang === 'es' ? 'EN' : 'ES'}</span>
-            </button>
-
             <button
               onClick={toggleTheme}
               style={S.iconBtn}
@@ -647,15 +593,10 @@ export default function BizShell({ children }) {
               {newCount > 0 && <span style={S.dot} />}
             </Link>
 
-            {/* Botón Equipo Turafood en Negro Mate (Siempre Visible) */}
-            <button
-              onClick={() => { setShowTeamPanel(true); setTeamScheduled(false); }}
-              style={S.teamBtn}
-              aria-label="Equipo Turafood - Agendar llamada"
-              title="Habla con el equipo de Turafood"
-            >
-              <span className="ms ms-fill" style={{ fontSize: 17, color: 'var(--amber)' }}>support_agent</span>
-              <span>Equipo Turafood</span>
+            {/* Asistente (antes era un botón flotante que tapaba la pantalla) */}
+            <button data-tour="ia" onClick={() => setAiOpen(true)} style={S.iconBtn} aria-label="Tura IA" title="Tura IA">
+              <span className="ms ms-fill" style={{ fontSize: 20, color: 'var(--primary)' }}>auto_awesome</span>
+              {aiTips > 0 && <span style={S.dot} />}
             </button>
           </div>
           </header>
@@ -669,19 +610,13 @@ export default function BizShell({ children }) {
                 <span>{error}</span>
               </div>
             )}
+            {ES_DEMO && <DemoBar />}
             <AvisosPush app="negocio" />
             {children}
           </main>
         </div>
 
-        {/* Botón y panel de Tura IA */}
-        {!aiOpen && !sheetOpen && (
-          <button data-tour="ia" onClick={() => setAiOpen(true)} style={S.aiFab}>
-            <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--amber)' }}>auto_awesome</span>
-            <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-.01em' }}>Tura IA</span>
-            {aiTips > 0 && <span style={S.aiBadge}>{aiTips}</span>}
-          </button>
-        )}
+        {/* Panel de Tura IA (se abre desde el encabezado) */}
         <Recorrido id="negocio" pasos={PASOS_NEGOCIO} />
 
         <TuraIA
@@ -935,7 +870,7 @@ export default function BizShell({ children }) {
                     }}>
                       <div style={{
                         width: 44, height: 44, borderRadius: 14,
-                        background: 'linear-gradient(135deg, #FF5B2E, #E2360F)',
+                        background: 'linear-gradient(135deg, #FF5B2E, var(--primaryDark))',
                         color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 18, fontWeight: 800, flex: 'none',
                       }}>
@@ -1160,7 +1095,7 @@ const S = {
   },
   branch: {
     display: 'flex', alignItems: 'center', gap: 10, margin: '0 12px 14px', padding: 11,
-    borderRadius: 16, background: 'var(--surface2)', textAlign: 'left',
+    borderRadius: 14, background: 'transparent', border: '1px solid var(--border)', textAlign: 'left',
     color: 'var(--text)', textDecoration: 'none',
   },
   branchImg: {
@@ -1168,15 +1103,15 @@ const S = {
     backgroundSize: 'cover', backgroundPosition: 'center',
   },
   groupLabel: {
-    fontSize: 10, fontWeight: 800, color: 'var(--faint)',
-    letterSpacing: '.1em', padding: '0 10px 8px',
+    fontSize: 11, fontWeight: 700, color: 'var(--faint)',
+    letterSpacing: '.06em', padding: '0 12px 6px',
   },
   navItem: {
-    display: 'flex', alignItems: 'center', gap: 11, width: '100%', height: 42,
-    padding: '0 12px', borderRadius: 999, textAlign: 'left', marginBottom: 2,
+    display: 'flex', alignItems: 'center', gap: 12, width: '100%', height: 40,
+    padding: '0 12px', borderRadius: 12, textAlign: 'left', marginBottom: 2,
     textDecoration: 'none',
   },
-  navOn: { background: '#FDF0EA', color: 'var(--primary)' },
+  navOn: { background: 'color-mix(in srgb, var(--primary) 9%, var(--surface))', color: 'var(--text)' },
   navOff: { color: 'var(--muted)' },
   navBadge: {
     flex: 'none', minWidth: 20, height: 20, padding: '0 6px', borderRadius: 99,
@@ -1194,7 +1129,8 @@ const S = {
   },
   topbar: {
     flex: 'none', display: 'flex', alignItems: 'center', gap: 12, minHeight: 68,
-    padding: '10px 26px', background: 'var(--surface)',
+    padding: '10px 28px', background: 'color-mix(in srgb, var(--surface) 88%, transparent)',
+    backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', position: 'sticky', top: 0, zIndex: 20,
     borderBottom: '1px solid var(--border)', flexWrap: 'wrap',
   },
   menuBtn: {
@@ -1217,8 +1153,8 @@ const S = {
     transition: 'transform .18s ease',
   },
   iconBtn: {
-    width: 40, height: 40, borderRadius: '50%', border: '1px solid var(--border)',
-    background: 'var(--surface)', display: 'flex', flexDirection: 'column',
+    width: 38, height: 38, borderRadius: 12, border: '1px solid var(--border)',
+    background: 'transparent', display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center', position: 'relative',
     flex: 'none', color: 'var(--text)', textDecoration: 'none',
   },
@@ -1249,7 +1185,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 16, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   aiFab: {
     position: 'fixed', right: 18, bottom: 118, zIndex: 60,

@@ -195,7 +195,7 @@ const S = {
   texto: { fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.4 },
   boton: {
     flex: 'none', height: 40, padding: '0 16px', borderRadius: 999, background: 'var(--primary)', color: '#fff',
-    fontWeight: 800, fontSize: 13.5, boxShadow: '0 6px 16px rgba(255,68,31,.28)',
+    fontWeight: 800, fontSize: 13.5, boxShadow: '0 6px 16px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   prefijo: {
     display: 'flex', alignItems: 'center', padding: '0 12px', height: 48, borderRadius: 13,
@@ -217,7 +217,7 @@ const S = {
   },
   confirmar: {
     width: '100%', height: 50, marginTop: 12, borderRadius: 999, background: 'var(--primary)', color: '#fff',
-    fontWeight: 800, fontSize: 15, boxShadow: '0 8px 20px rgba(255,68,31,.28)',
+    fontWeight: 800, fontSize: 15, boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   error: {
     marginTop: 10, padding: '9px 12px', borderRadius: 11, background: 'var(--primary-tint)', color: 'var(--primary)',

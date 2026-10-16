@@ -38,7 +38,7 @@ const VIEW = {
     body: 'Estamos esperando la confirmación del proveedor de pagos.',
   },
   failed: {
-    icon: 'cancel', color: 'var(--primary)', bg: '#FFF0ED',
+    icon: 'cancel', color: 'var(--primary)', bg: 'var(--primarySoft)',
     title: 'No pudimos procesar el pago',
     body: 'No se te cobró nada. Puedes intentarlo otra vez o cambiar de método.',
   },
@@ -268,7 +268,7 @@ const S = {
   },
   reason: {
     display: 'flex', alignItems: 'center', gap: 7, marginTop: 12,
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '10px 13px', borderRadius: 12, fontSize: 12.5, fontWeight: 700,
   },
   card: {
@@ -284,13 +284,13 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 8, marginTop: 16,
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '11px 13px', borderRadius: 12, fontSize: 12.5, fontWeight: 600,
   },
   primaryBtn: {
     width: '100%', maxWidth: 340, height: 54, borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontWeight: 700, fontSize: 15,
-    boxShadow: '0 10px 24px rgba(255,68,31,.3)', marginInline: 'auto',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)', marginInline: 'auto',
   },
   ghostBtn: {
     width: '100%', maxWidth: 340, height: 48, borderRadius: 999,

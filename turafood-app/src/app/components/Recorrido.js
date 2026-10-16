@@ -279,7 +279,7 @@ const S = {
   foco: {
     position: 'absolute',
     borderRadius: 20,
-    boxShadow: '0 0 0 9999px rgba(8,7,10,.72), 0 0 0 2px rgba(255,68,31,.6) inset, 0 0 24px rgba(255,68,31,.2)',
+    boxShadow: '0 0 0 9999px rgba(8,7,10,.72), 0 0 0 2px color-mix(in srgb, var(--primary) 60%, transparent) inset, 0 0 24px color-mix(in srgb, var(--primary) 20%, transparent)',
     transition: 'top .34s cubic-bezier(.16,1,.3,1), left .34s cubic-bezier(.16,1,.3,1), width .34s, height .34s',
     pointerEvents: 'none',
   },

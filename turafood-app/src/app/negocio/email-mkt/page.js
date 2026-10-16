@@ -69,7 +69,7 @@ const G = {
   muted: 'rgba(245,240,232,0.65)',
   faint: 'rgba(245,240,232,0.3)',
   green: '#11B26A',
-  red: '#FF441F',
+  red: 'var(--primary)',
   blue: '#2E6BFF',
   purple: '#A855F7',
   serif: "'Playfair Display', 'Georgia', serif",
@@ -442,7 +442,7 @@ export default function EmailMktAIPage() {
 
                     <div style={{ background: '#f8f8f8', padding: '16px', borderRadius: 12, border: '1px dashed #ddd', textAlign: 'center', margin: '16px 0' }}>
                       <div style={{ fontSize: 12, color: '#777', textTransform: 'uppercase', fontWeight: 700, marginBottom: 4 }}>Código de Descuento</div>
-                      <div style={{ fontSize: 20, fontWeight: 900, color: '#FF441F', letterSpacing: '0.1em' }}>TURA10OFF</div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--primary)', letterSpacing: '0.1em' }}>TURA10OFF</div>
                     </div>
 
                     <div style={{ textAlign: 'center', marginTop: 20 }}>

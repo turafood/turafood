@@ -1,0 +1,14 @@
+{
+  // demo.turafood.com: el mismo panel de app.turafood.com compilado con NEXT_PUBLIC_DEMO=1 y SIN
+  // credenciales de Supabase. No puede leer ni escribir datos reales; solo muestra datos de ejemplo.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "turafood-demo",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    { "pattern": "demo.turafood.com", "custom_domain": true }
+  ],
+  "observability": { "enabled": true },
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" }
+}

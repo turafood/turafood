@@ -78,8 +78,8 @@ export default function SeguridadPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
             <div style={{
-              width: 40, height: 40, borderRadius: 12, background: 'rgba(255, 68, 31, 0.12)',
-              border: '1px solid rgba(255, 68, 31, 0.25)', display: 'flex', alignItems: 'center',
+              width: 40, height: 40, borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 12%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--primary) 25%, transparent)', display: 'flex', alignItems: 'center',
               justifyContent: 'center', color: 'var(--primary)',
             }}>
               <span className="ms" style={{ fontSize: 22 }}>lock_reset</span>
@@ -145,8 +145,8 @@ export default function SeguridadPage() {
             {error && (
               <div style={{
                 display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 14, padding: '10px 12px',
-                borderRadius: 12, background: 'rgba(255,68,31,.12)',
-                border: '1px solid rgba(255,68,31,.3)', color: '#FF7A4D',
+                borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 12%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)', color: 'var(--gold)',
                 fontSize: 12, fontWeight: 600,
               }}>
                 <span className="ms" style={{ fontSize: 17, flex: 'none' }}>error</span>
@@ -159,9 +159,9 @@ export default function SeguridadPage() {
               disabled={busy || !password}
               style={{
                 width: '100%', height: 46, borderRadius: 14,
-                background: 'linear-gradient(145deg, #FF5B2E, #E2360F)',
+                background: 'linear-gradient(145deg, #FF5B2E, var(--primaryDark))',
                 color: '#fff', border: 'none', fontWeight: 700, fontSize: 14,
-                cursor: 'pointer', boxShadow: '0 6px 20px rgba(255, 68, 31, 0.4)',
+                cursor: 'pointer', boxShadow: '0 6px 20px color-mix(in srgb, var(--primary) 40%, transparent)',
                 opacity: !password ? 0.6 : 1,
               }}
             >

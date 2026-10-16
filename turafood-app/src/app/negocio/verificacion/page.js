@@ -173,7 +173,7 @@ export default function VerificacionPage() {
           <div style={S.donutBox}>
             <div style={{
               ...S.donutRing,
-              background: `conic-gradient(#FF7A4D ${pct * 3.6}deg, rgba(255,255,255,0.08) 0)`,
+              background: `conic-gradient(var(--gold) ${pct * 3.6}deg, rgba(255,255,255,0.08) 0)`,
             }}>
               <div style={S.donutHole}>
                 <span style={{ fontSize: 24, fontWeight: 900, fontFamily: 'var(--font-bricolage)', color: '#fff' }}>
@@ -213,7 +213,7 @@ export default function VerificacionPage() {
               >
                 <span style={{
                   width: 22, height: 22, borderRadius: '50%',
-                  background: isDone ? '#10B981' : isActive ? '#FF441F' : 'rgba(255,255,255,0.15)',
+                  background: isDone ? '#10B981' : isActive ? 'var(--primary)' : 'rgba(255,255,255,0.15)',
                   color: '#fff', fontSize: 11, fontWeight: 900,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
                 }}>
@@ -545,7 +545,7 @@ const S = {
     height: 48, padding: '0 24px', borderRadius: 14, border: 'none',
     background: 'var(--primary)', color: '#fff', fontSize: 14, fontWeight: 800,
     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-    boxShadow: '0 6px 18px rgba(255,68,31,0.3)',
+    boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 30%, transparent)',
   },
 
   bottomCard: {

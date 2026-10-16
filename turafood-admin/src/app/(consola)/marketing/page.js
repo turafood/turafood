@@ -26,7 +26,7 @@ const TABS = [
 const STATUS = {
   pending: { label: 'EN COLA',  bg: '#FFF7E6', color: '#A8730B' },
   sent:    { label: 'ENVIADO',  bg: '#E6F6EE', color: '#0B8E54' },
-  failed:  { label: 'FALLÓ',    bg: '#FFF0ED', color: '#C0341A' },
+  failed:  { label: 'FALLÓ',    bg: 'var(--primarySoft)', color: '#C0341A' },
   skipped: { label: 'OMITIDO',  bg: '#F0EEE9', color: '#8C857B' },
 };
 
@@ -84,7 +84,7 @@ export default function MarketingPage() {
         />
         <Kpi
           label="Fallidos" value={String(overview?.marketing?.fallidos ?? counts.failed)}
-          icon="error" tint={counts.failed ? '#FFF0ED' : '#F0EEE9'}
+          icon="error" tint={counts.failed ? 'var(--primarySoft)' : '#F0EEE9'}
           color={counts.failed ? 'var(--primary)' : 'var(--muted)'}
           note={counts.failed ? 'Revisa el token de MailerLite' : 'Nada atorado'}
           noteColor={counts.failed ? 'var(--primary)' : 'var(--muted)'}

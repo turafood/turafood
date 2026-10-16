@@ -1,0 +1,49 @@
+name: Demo de la plataforma
+
+# demo.turafood.com: el panel de negocios en modo demostración (datos de ejemplo, sin base de datos).
+# Se compila aparte de app.turafood.com a propósito: NO lleva las claves de Supabase.
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'turafood-app/**'
+      - '.github/workflows/demo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desplegar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: turafood-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: turafood-app/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - name: Compilar en modo demo
+        run: npx @opennextjs/cloudflare build
+        env:
+          NEXT_PUBLIC_DEMO: '1'
+          NEXT_PUBLIC_BASE_URL: https://demo.turafood.com
+      - name: Desplegar a Cloudflare
+        run: |
+          for intento in 1 2 3; do
+            if npx wrangler deploy -c wrangler.demo.jsonc; then exit 0; fi
+            sleep $((intento * 45))
+          done
+          exit 1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

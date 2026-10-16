@@ -330,13 +330,13 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 8, marginTop: 14,
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '11px 13px', borderRadius: 12, fontSize: 12.5, fontWeight: 600,
   },
   saveBtn: {
     width: '100%', height: 54, borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontWeight: 800, fontSize: 15,
-    boxShadow: '0 10px 24px rgba(255,68,31,.3)',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 30%, transparent)',
   },
   explainIcon: {
     width: 76, height: 76, borderRadius: '50%', background: '#FFF1EC',

@@ -254,7 +254,7 @@ const S = {
   confirmBtn: {
     width: '100%', height: 54, borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 15.5,
-    boxShadow: '0 10px 24px rgba(255,68,31,.32)',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent)',
   },
   emptyIcon: {
     width: 66, height: 66, borderRadius: '50%', background: 'var(--surface2)',

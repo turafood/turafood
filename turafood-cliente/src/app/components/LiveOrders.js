@@ -19,13 +19,13 @@ import { createClient, isConfigured } from '@/utils/supabase/client';
 
 /** Mensaje por estado. Solo avisamos de los que le importan al cliente. */
 const MESSAGES = {
-  pending: { icon: 'hourglass_top', tone: '#FF441F', title: 'Pedido enviado en vivo', body: 'Pendiente de confirmación por el restaurante' },
+  pending: { icon: 'hourglass_top', tone: 'var(--primary)', title: 'Pedido enviado en vivo', body: 'Pendiente de confirmación por el restaurante' },
   accepted: { icon: 'restaurant', tone: '#2E6BFF', title: 'Pedido aceptado', body: 'El negocio ya está preparando tu pedido' },
   preparing: { icon: 'skillet', tone: '#A8730B', title: 'En preparación', body: 'Tu comida se está preparando' },
   ready: { icon: 'takeout_dining', tone: '#11B26A', title: 'Pedido listo', body: 'Buscando repartidor' },
   courier_assigned: { icon: 'two_wheeler', tone: '#2E6BFF', title: 'Repartidor asignado', body: 'Va camino al negocio' },
-  picked_up: { icon: 'two_wheeler', tone: '#FF441F', title: 'Pedido recogido', body: 'Tu pedido va en camino' },
-  delivering: { icon: 'near_me', tone: '#FF441F', title: 'Va en camino', body: 'Está cerca de tu dirección' },
+  picked_up: { icon: 'two_wheeler', tone: 'var(--primary)', title: 'Pedido recogido', body: 'Tu pedido va en camino' },
+  delivering: { icon: 'near_me', tone: 'var(--primary)', title: 'Va en camino', body: 'Está cerca de tu dirección' },
   delivered: { icon: 'check_circle', tone: '#11B26A', title: 'Pedido entregado', body: '¿Nos cuentas cómo te fue?' },
   cancelled: { icon: 'cancel', tone: '#8C857B', title: 'Pedido cancelado', body: 'Revisa los detalles' },
 };

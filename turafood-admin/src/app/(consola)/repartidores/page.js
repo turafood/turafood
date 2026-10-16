@@ -28,7 +28,7 @@ const TABS = [
  * ninguna fila real encontraba su etiqueta.
  */
 const VEHICLE = {
-  motorcycle: { label: 'Moto',  bg: '#FFF0ED', color: '#C0341A' },
+  motorcycle: { label: 'Moto',  bg: 'var(--primarySoft)', color: '#C0341A' },
   bicycle:    { label: 'Bici',  bg: '#E6F6EE', color: '#0B8E54' },
   car:        { label: 'Carro', bg: '#EAF1FF', color: '#2E6BFF' },
 };

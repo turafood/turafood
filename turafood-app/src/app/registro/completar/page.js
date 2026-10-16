@@ -142,7 +142,7 @@ const S = {
     width: 40, height: 40, borderRadius: 13, background: 'var(--primary)', color: '#fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 23,
-    boxShadow: '0 6px 18px rgba(255,68,31,.45)',
+    boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 45%, transparent)',
   },
   title: {
     margin: '20px 0 0', fontFamily: 'var(--font-bricolage)', fontWeight: 800,
@@ -162,12 +162,12 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: '100%', height: 50, borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 15, marginTop: 18,
-    boxShadow: '0 10px 26px rgba(255,68,31,.38)',
+    boxShadow: '0 10px 26px color-mix(in srgb, var(--primary) 38%, transparent)',
   },
   alert: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 14, padding: '12px 14px',
-    borderRadius: 14, background: 'rgba(255,68,31,.14)',
-    border: '1px solid rgba(255,68,31,.35)', color: '#FFC7BA',
+    borderRadius: 14, background: 'color-mix(in srgb, var(--primary) 14%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--primary) 35%, transparent)', color: '#FFC7BA',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 };

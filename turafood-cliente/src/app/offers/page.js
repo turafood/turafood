@@ -21,7 +21,7 @@ function couponHeadline(c) {
 }
 
 const CARD_BG = [
-  'linear-gradient(135deg,#FF7A3D,#E2360F)',
+  'linear-gradient(135deg,#FF7A3D,var(--primaryDark))',
   'linear-gradient(135deg,#2ECB84,#0B8E54)',
   'linear-gradient(135deg,#3A332A,#17140F)',
 ];

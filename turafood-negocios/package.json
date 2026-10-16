@@ -5,7 +5,8 @@
   "description": "Landing comercial de Tura Food AI para negocios (negocios.turafood.com), servida como Worker de solo archivos estáticos",
   "scripts": {
     "dev": "wrangler dev --port 8790",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "build": "node site/build.mjs && node -e \"require('fs').copyFileSync('site/styles.css','public/styles.css')\""
   },
   "devDependencies": {
     "wrangler": "^4"

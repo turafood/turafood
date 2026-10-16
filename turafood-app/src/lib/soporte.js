@@ -15,19 +15,19 @@ import { usuarioActual } from './sesion';
 const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
 
 export const CATEGORIES = [
-  { value: 'orders', label: 'Pedidos y comandas', icon: 'receipt_long', tint: '#FFF1EC', color: '#E2360F' },
+  { value: 'orders', label: 'Pedidos y comandas', icon: 'receipt_long', tint: '#FFF1EC', color: 'var(--primaryDark)' },
   { value: 'payouts', label: 'Pagos y liquidaciones', icon: 'account_balance_wallet', tint: '#E6F6EE', color: '#0B8E54' },
   { value: 'catalog', label: 'Menú y productos', icon: 'restaurant_menu', tint: '#FFF7E6', color: '#A8730B' },
   { value: 'account', label: 'Cuenta y verificación', icon: 'verified_user', tint: '#EAF1FF', color: '#2E6BFF' },
   { value: 'growth', label: 'Servicios de crecimiento', icon: 'rocket_launch', tint: '#F3ECFF', color: '#6B2FD6' },
-  { value: 'technical', label: 'Algo no funciona', icon: 'bug_report', tint: '#FFF1EC', color: '#E2360F' },
+  { value: 'technical', label: 'Algo no funciona', icon: 'bug_report', tint: '#FFF1EC', color: 'var(--primaryDark)' },
   { value: 'other', label: 'Otra cosa', icon: 'help', tint: 'var(--surface2)', color: 'var(--muted)' },
 ];
 
 export const TICKET_STATUS = {
   open: { label: 'Abierta', bg: '#EAF1FF', color: '#2E6BFF', icon: 'mark_email_unread' },
   in_progress: { label: 'En proceso', bg: '#FFF7E6', color: '#A8730B', icon: 'sync' },
-  waiting: { label: 'Esperando tu respuesta', bg: '#FFF1EC', color: '#E2360F', icon: 'reply' },
+  waiting: { label: 'Esperando tu respuesta', bg: '#FFF1EC', color: 'var(--primaryDark)', icon: 'reply' },
   resolved: { label: 'Resuelta', bg: '#E6F6EE', color: '#0B7A48', icon: 'check_circle' },
   closed: { label: 'Cerrada', bg: 'var(--surface2)', color: 'var(--muted)', icon: 'lock' },
 };

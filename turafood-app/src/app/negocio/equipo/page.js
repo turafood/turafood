@@ -31,7 +31,7 @@ const VERIFICATION = {
     note: 'Tu negocio está aprobado y visible en la app de clientes.',
   },
   rejected: {
-    label: 'Rechazado', color: '#FF7A4D', dot: 'var(--primary)', icon: 'close',
+    label: 'Rechazado', color: 'var(--gold)', dot: 'var(--primary)', icon: 'close',
     note: 'Tu solicitud fue rechazada. Escríbenos para saber qué corregir.',
   },
   suspended: {
@@ -280,8 +280,8 @@ const S = {
     borderRadius: 18, padding: 18, border: '1px solid var(--border)',
   },
   signOut: {
-    width: '100%', height: 54, borderRadius: 18, border: '1px solid rgba(255,68,31,0.3)',
-    background: 'rgba(255,68,31,0.05)', color: 'var(--primary)', fontWeight: 800, fontSize: 15, 
+    width: '100%', height: 54, borderRadius: 18, border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)',
+    background: 'color-mix(in srgb, var(--primary) 5%, transparent)', color: 'var(--primary)', fontWeight: 800, fontSize: 15, 
     marginTop: 24, cursor: 'pointer', transition: 'all 0.3s'
   },
   planRows: {
@@ -300,8 +300,8 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, padding: '16px 20px',
-    borderRadius: 18, background: 'rgba(255,68,31,0.15)', color: '#FFB0A0', fontSize: 14, fontWeight: 700,
-    border: '1px solid rgba(255,68,31,0.3)'
+    borderRadius: 18, background: 'color-mix(in srgb, var(--primary) 15%, transparent)', color: '#FFB0A0', fontSize: 14, fontWeight: 700,
+    border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)'
   },
 };
 

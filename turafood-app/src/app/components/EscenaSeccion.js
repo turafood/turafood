@@ -27,7 +27,7 @@
 /* Cada escena manda su propia paleta; el fondo lo pone la cabecera */
 const P = {
   piel:   '#C89B7B',
-  ropa1:  '#FF7A4D',
+  ropa1:  'var(--gold)',
   ropa2:  '#4A90E2',
   ropa3:  '#25D366',
   pelo:   '#2B2118',

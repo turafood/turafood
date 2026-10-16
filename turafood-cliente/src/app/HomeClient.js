@@ -220,9 +220,9 @@ export default function HomePage({ initialStores = null }) {
         <div className="desktop-only" style={S.deskHeader}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none', cursor: 'pointer' }} onClick={() => router.push('/')}>
             <span style={{
-              width: 40, height: 40, borderRadius: 13, background: 'linear-gradient(135deg, #FF441F 0%, #E2360F 100%)',
+              width: 40, height: 40, borderRadius: 13, background: 'linear-gradient(135deg, var(--primary) 0%, var(--primaryDark) 100%)',
               color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
-              boxShadow: '0 6px 18px rgba(255,68,31,.35)',
+              boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent)',
             }}>
               <span style={{ fontSize: 21, fontWeight: 900, color: '#fff', fontFamily: 'var(--font-bricolage)' }}>t</span>
             </span>
@@ -456,7 +456,7 @@ export default function HomePage({ initialStores = null }) {
             {/* Fondo con brillo sutil naranja cálido */}
             <div style={{
               position: 'absolute', top: -80, left: -80, width: 300, height: 300,
-              borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,68,31,0.16) 0%, transparent 70%)',
+              borderRadius: '50%', background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 16%, transparent) 0%, transparent 70%)',
               filter: 'blur(45px)', pointerEvents: 'none',
             }} />
 
@@ -473,7 +473,7 @@ export default function HomePage({ initialStores = null }) {
                   La plataforma de IA para tu Negocio
                 </span>
                 <span style={{
-                  background: 'linear-gradient(135deg, #FF441F, #E2360F)', color: '#fff', fontSize: 11.5,
+                  background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))', color: '#fff', fontSize: 11.5,
                   fontWeight: 800, padding: '4px 10px', borderRadius: 8, letterSpacing: '.04em',
                 }}>
                   Tura Food AI
@@ -520,11 +520,11 @@ export default function HomePage({ initialStores = null }) {
               {/* Plazas y Urgencia */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{
-                  background: 'rgba(255,68,31,0.1)', border: '1px solid rgba(255,68,31,0.2)',
+                  background: 'color-mix(in srgb, var(--primary) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--primary) 20%, transparent)',
                   color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 99,
                   display: 'flex', alignItems: 'center', gap: 6,
                 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FF441F' }} />
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary)' }} />
                   Solo quedan <strong style={{ color: '#FFB800' }}>49 plazas</strong> de 100
                 </span>
                 <span style={{
@@ -542,19 +542,19 @@ export default function HomePage({ initialStores = null }) {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14,
                     padding: '12px 22px', borderRadius: 18,
-                    background: 'linear-gradient(135deg, rgba(255,68,31,0.14), rgba(255,68,31,0.04))',
-                    border: '1px solid rgba(255,68,31,0.35)',
+                    background: 'linear-gradient(135deg, color-mix(in srgb, var(--primary) 14%, transparent), color-mix(in srgb, var(--primary) 4%, transparent))',
+                    border: '1px solid color-mix(in srgb, var(--primary) 35%, transparent)',
                     cursor: 'pointer', transition: 'all .2s ease',
                     boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
                   }}
                   onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'rgba(255,68,31,0.35)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--primary) 35%, transparent)'; }}
                 >
                   <div style={{
                     width: 42, height: 42, borderRadius: 12,
-                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                    background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 14px rgba(255,68,31,0.4)', flex: 'none',
+                    boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 40%, transparent)', flex: 'none',
                   }}>
                     <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>storefront</span>
                   </div>
@@ -657,21 +657,15 @@ export default function HomePage({ initialStores = null }) {
                   onClick={() => router.push('/list?v=restaurant')}
                   style={{
                     ...S.bigVertical,
-                    background: theme === 'dark'
-                      ? 'linear-gradient(145deg, rgba(255,107,0,0.16) 0%, rgba(255,68,31,0.06) 100%)'
-                      : 'linear-gradient(145deg, #FFF4EE 0%, #FEEFE8 100%)',
-                    border: theme === 'dark'
-                      ? '1px solid rgba(255,107,0,0.28)'
-                      : '1px solid rgba(255,107,0,0.12)',
-                    boxShadow: theme === 'dark'
-                      ? '0 8px 24px rgba(255,68,31,0.12)'
-                      : '0 6px 20px rgba(255,68,31,0.06)',
+                    background: 'var(--surface2)',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'none',
                   }}
                 >
                   <Icon3D src="/images/ic-restaurantes.png" alt="" sizes="200px" style={S.bigVerticalImg} />
                   <span style={{
                     fontSize: 20, fontWeight: 800, letterSpacing: '-.01em', position: 'relative',
-                    color: theme === 'dark' ? '#FF8A50' : '#A8412A',
+                    color: 'var(--text)',
                   }}>
                     Restaurantes
                   </span>
@@ -681,21 +675,15 @@ export default function HomePage({ initialStores = null }) {
                   onClick={() => router.push('/list?v=market')}
                   style={{
                     ...S.bigVertical,
-                    background: theme === 'dark'
-                      ? 'linear-gradient(145deg, rgba(16,185,129,0.16) 0%, rgba(5,150,105,0.06) 100%)'
-                      : 'linear-gradient(145deg, #EEFBF4 0%, #E6F6EE 100%)',
-                    border: theme === 'dark'
-                      ? '1px solid rgba(16,185,129,0.28)'
-                      : '1px solid rgba(16,185,129,0.12)',
-                    boxShadow: theme === 'dark'
-                      ? '0 8px 24px rgba(16,185,129,0.12)'
-                      : '0 6px 20px rgba(16,185,129,0.06)',
+                    background: 'var(--surface2)',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'none',
                   }}
                 >
                   <Icon3D src="/images/ic-mercado.png" alt="" sizes="200px" style={S.bigVerticalImg} />
                   <span style={{
                     fontSize: 20, fontWeight: 800, letterSpacing: '-.01em', position: 'relative',
-                    color: theme === 'dark' ? '#34D399' : '#0E7A52',
+                    color: 'var(--text)',
                   }}>
                     Mercado
                   </span>
@@ -873,7 +861,7 @@ export default function HomePage({ initialStores = null }) {
                 <div style={{
                   position: 'absolute', top: -50, left: '50%', transform: 'translateX(-50%)',
                   width: 200, height: 200, borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(255,68,31,0.18) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 70%)',
                   filter: 'blur(30px)', pointerEvents: 'none',
                 }} />
 
@@ -888,7 +876,7 @@ export default function HomePage({ initialStores = null }) {
                     La plataforma de IA para tu Negocio
                   </span>
                   <span style={{
-                    background: 'linear-gradient(135deg, #FF441F, #E2360F)', color: '#fff', fontSize: 10.5,
+                    background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))', color: '#fff', fontSize: 10.5,
                     fontWeight: 800, padding: '3px 8px', borderRadius: 6, letterSpacing: '.04em',
                   }}>
                     Tura Food AI
@@ -953,10 +941,10 @@ export default function HomePage({ initialStores = null }) {
                   onClick={() => window.open('https://app.turafood.com', '_blank')}
                   style={{
                     width: '100%', height: 46, borderRadius: 14,
-                    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                    background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))',
                     color: '#fff', fontSize: 13.5, fontWeight: 800, border: 'none',
                     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    boxShadow: '0 4px 16px rgba(255,68,31,0.35)', marginTop: 4,
+                    boxShadow: '0 4px 16px color-mix(in srgb, var(--primary) 35%, transparent)', marginTop: 4,
                   }}
                 >
                   <span className="ms" style={{ fontSize: 18 }}>storefront</span>
@@ -1027,9 +1015,9 @@ const S = {
   },
   deskLogo: {
     width: 40, height: 40, borderRadius: 13,
-    background: 'linear-gradient(150deg,#FF7A3D,#FF441F)',
+    background: 'linear-gradient(150deg,#FF7A3D,var(--primary))',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 14px rgba(255,68,31,.35)',
+    boxShadow: '0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent)',
   },
   deskAddr: {
     flex: 'none', display: 'flex', alignItems: 'center', gap: 9, height: 44,
@@ -1141,7 +1129,7 @@ const S = {
   addBtn: {
     position: 'absolute', right: 8, top: 8, width: 34, height: 34, borderRadius: '50%',
     background: 'var(--primary)', color: '#fff', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px rgba(255,68,31,.4)',
+    alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 16px color-mix(in srgb, var(--primary) 40%, transparent)',
   },
   offTag: {
     background: '#FFE9A3', fontSize: 10.5, fontWeight: 800, padding: '2px 5px', borderRadius: 5,
@@ -1165,7 +1153,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 10, margin: '0 20px 12px',
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

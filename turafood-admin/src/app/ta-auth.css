@@ -1,0 +1,245 @@
+/* ============================================================
+   TURAFOOD — Sistema de diseño de los accesos ("ta-")
+   Mismo archivo en cliente, negocios y admin.
+
+   Principios (Notion · Apple · Stripe · Material 3):
+   · Aire: mucho espacio en blanco, una sola acción principal por pantalla.
+   · Líneas de 1 px y superficies tonales, casi sin sombras ni degradados.
+   · Tipografía grande y apretada para los títulos; texto de lectura a 15,5 px.
+   · Campos Material con etiqueta flotante; el foco se ve (anillo de 4 px).
+   · Movimiento corto (≈ 250 ms) y respeta "reducir movimiento".
+   · Claro y oscuro automáticos según el sistema.
+   ============================================================ */
+
+.ta-root {
+  /* Roles de color (Material 3) */
+  --ta-primary: #141414;
+  --ta-on-primary: #FFFFFF;
+  --ta-accent: #B8912F;
+  --ta-bg: #FFFFFF;
+  --ta-surface: #FFFFFF;
+  --ta-surface-2: #F3F3F3;
+  --ta-text: #111111;
+  --ta-muted: #6B6B6B;
+  --ta-faint: #A6A6A6;
+  --ta-line: #E6E6E6;
+  --ta-tonal: color-mix(in srgb, var(--ta-primary) 10%, #FFFFFF);
+  --ta-ok: #0B7A48;
+  --ta-ok-bg: #E6F6EE;
+  --ta-error: #C0341A;
+  --ta-error-bg: #FDECE8;
+
+  /* Forma y movimiento */
+  --ta-r-sm: 10px;
+  --ta-r-md: 14px;
+  --ta-r-lg: 22px;
+  --ta-ease: cubic-bezier(.2, 0, 0, 1);
+
+  /* Compatibilidad: los componentes compartidos (CodigoInput…) leen estas variables */
+  --text: var(--ta-text);
+  --surface: var(--ta-surface);
+  --surface2: var(--ta-surface-2);
+  --border: var(--ta-line);
+  --muted: var(--ta-muted);
+  --faint: var(--ta-faint);
+  --primary: var(--ta-primary);
+
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--ta-bg);
+  color: var(--ta-text);
+  font-family: var(--font-jakarta, system-ui, -apple-system, 'Segoe UI', sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ta-root {
+    --ta-bg: #0B0B0C;
+    --ta-primary: #F5F5F5;
+    --ta-accent: #D8B65C;
+    --ta-on-primary: #0B0B0C;
+    --ta-surface: #151516;
+    --ta-surface-2: #1F1F21;
+    --ta-text: #F5F5F5;
+    --ta-muted: #9A9A9E;
+    --ta-faint: #5E5E63;
+    --ta-line: #2A2A2D;
+    --ta-tonal: color-mix(in srgb, var(--ta-primary) 18%, #151516);
+    --ta-ok: #5BDBA0;
+    --ta-ok-bg: #11291F;
+    --ta-error: #FF8A73;
+    --ta-error-bg: #2A1612;
+  }
+}
+
+/* ---------- Distribución ---------- */
+@media (min-width: 980px) {
+  .ta-root { grid-template-columns: minmax(440px, 560px) minmax(0, 1fr); }
+}
+
+.ta-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: clamp(20px, 4vw, 40px) clamp(20px, 5vw, 56px);
+}
+
+.ta-brand { display: flex; align-items: center; gap: 10px; }
+.ta-logo {
+  width: 36px; height: 36px; border-radius: 11px; flex: none;
+  background: var(--ta-primary); color: #fff;
+  display: grid; place-items: center;
+  font-family: var(--font-bricolage, inherit); font-weight: 800; font-size: 21px; line-height: 1;
+}
+.ta-logo-img { height: 38px; width: auto; display: block; }
+.ta-logo-img.oscuro { display: none; }
+@media (prefers-color-scheme: dark) { .ta-logo-img.claro { display: none; } .ta-logo-img.oscuro { display: block; } }
+.ta-wordmark { font-family: var(--font-bricolage, inherit); font-weight: 800; font-size: 19px; letter-spacing: -.02em; }
+.ta-tag {
+  border: 1px solid color-mix(in srgb, var(--ta-accent) 55%, transparent);
+  margin-left: 4px; padding: 3px 9px; border-radius: 999px;
+  background: var(--ta-surface-2); color: var(--ta-accent);
+  font-size: 11.5px; font-weight: 700; letter-spacing: .02em;
+}
+
+.ta-main { flex: 1; display: grid; align-content: center; padding: 28px 0; }
+.ta-card { width: 100%; max-width: 400px; margin: 0 auto; }
+
+.ta-legal { text-align: center; font-size: 12px; line-height: 1.6; color: var(--ta-faint); }
+.ta-legal a { color: var(--ta-muted); font-weight: 700; text-decoration: none; }
+.ta-legal a:hover { text-decoration: underline; }
+
+/* ---------- Texto ---------- */
+.ta-title {
+  margin: 0; font-family: var(--font-bricolage, inherit);
+  font-size: clamp(28px, 4.4vw, 34px); line-height: 1.08; font-weight: 800; letter-spacing: -.035em;
+}
+.ta-sub { margin: 10px 0 0; font-size: 15.5px; line-height: 1.55; color: var(--ta-muted); }
+.ta-sub strong { color: var(--ta-text); font-weight: 700; }
+.ta-step { animation: ta-in .28s var(--ta-ease) both; }
+@keyframes ta-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Campos (Material 3, etiqueta flotante) ---------- */
+.ta-field { position: relative; margin-top: 22px; }
+.ta-field + .ta-field { margin-top: 12px; }
+.ta-field input {
+  width: 100%; height: 58px; padding: 24px 48px 6px 16px;
+  border: 1.5px solid var(--ta-line); border-radius: var(--ta-r-md);
+  background: var(--ta-surface); color: var(--ta-text);
+  font: 600 16px/1 var(--font-jakarta, inherit); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ta-field input::placeholder { color: transparent; }
+.ta-field label {
+  position: absolute; left: 17px; top: 50%; transform: translateY(-50%);
+  color: var(--ta-muted); font: 500 16px/1 var(--font-jakarta, inherit);
+  pointer-events: none; transition: top .15s, font-size .15s, color .15s, transform .15s;
+}
+.ta-field input:focus + label,
+.ta-field input:not(:placeholder-shown) + label { top: 19px; font-size: 12px; font-weight: 700; }
+.ta-field input:hover { border-color: var(--ta-faint); }
+.ta-field input:focus { border-color: var(--ta-text); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ta-primary) 16%, transparent); }
+.ta-field.is-error input { border-color: var(--ta-error); }
+.ta-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 42px; height: 42px; border: 0; border-radius: 12px; background: none;
+  color: var(--ta-muted); cursor: pointer; display: grid; place-items: center;
+}
+.ta-eye:hover { background: var(--ta-surface-2); }
+
+/* ---------- Botones ---------- */
+.ta-btn {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; height: 54px; margin-top: 18px; padding: 0 20px;
+  border: 0; border-radius: var(--ta-r-md); cursor: pointer;
+  background: var(--ta-primary); color: var(--ta-on-primary);
+  font: 800 16px/1 var(--font-jakarta, inherit); letter-spacing: -.005em; text-decoration: none;
+  transition: transform .12s var(--ta-ease), filter .15s, opacity .15s, box-shadow .15s;
+}
+.ta-btn:hover:not(:disabled) { filter: brightness(1.06); box-shadow: 0 8px 22px color-mix(in srgb, var(--ta-primary) 30%, transparent); }
+.ta-btn:active:not(:disabled) { transform: scale(.985); }
+.ta-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ta-btn.tonal { background: var(--ta-tonal); color: var(--ta-text); }
+.ta-btn.tonal:hover:not(:disabled) { box-shadow: none; filter: brightness(.98); }
+.ta-btn.outline { background: transparent; color: var(--ta-text); border: 1.5px solid var(--ta-line); }
+.ta-btn.outline:hover:not(:disabled) { background: var(--ta-surface-2); box-shadow: none; filter: none; }
+.ta-btn .ms { font-size: 20px; }
+
+.ta-link {
+  display: block; width: 100%; margin-top: 6px; padding: 12px 0; border: 0; background: none;
+  color: var(--ta-primary); font: 800 14px/1 var(--font-jakarta, inherit); text-align: center; cursor: pointer; text-decoration: none;
+}
+.ta-link:disabled { color: var(--ta-faint); cursor: default; }
+.ta-link.muted { color: var(--ta-muted); font-weight: 700; }
+
+.ta-or { display: flex; align-items: center; gap: 14px; margin: 22px 0 4px; color: var(--ta-faint); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+.ta-or::before, .ta-or::after { content: ''; flex: 1; height: 1px; background: var(--ta-line); }
+
+/* ---------- Mensajes ---------- */
+.ta-msg {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 12px 14px;
+  border-radius: var(--ta-r-md); font-size: 13.5px; line-height: 1.5; font-weight: 600;
+}
+.ta-msg .ms { font-size: 19px; flex: none; margin-top: 1px; }
+.ta-msg.error { background: var(--ta-error-bg); color: var(--ta-error); }
+.ta-msg.info { background: var(--ta-surface-2); color: var(--ta-text); }
+.ta-msg.ok { background: var(--ta-ok-bg); color: var(--ta-ok); }
+
+.ta-back {
+  width: 40px; height: 40px; margin: 0 0 22px -8px; border: 0; border-radius: 12px; background: none;
+  color: var(--ta-text); cursor: pointer; display: grid; place-items: center;
+}
+.ta-back:hover { background: var(--ta-surface-2); }
+
+.ta-more { margin-top: 18px; }
+.ta-more summary { cursor: pointer; text-align: center; font-size: 13px; font-weight: 700; color: var(--ta-muted); list-style: none; }
+.ta-more summary::-webkit-details-marker { display: none; }
+.ta-more[open] summary { margin-bottom: 12px; }
+
+/* ---------- Panel visual (solo escritorio) ---------- */
+.ta-visual { display: none; }
+@media (min-width: 980px) {
+  .ta-visual {
+    display: block; position: relative; margin: 14px 14px 14px 0; border-radius: 28px; overflow: hidden;
+    background: #14100C;
+  }
+}
+.ta-photo { position: absolute; inset: 0; background-size: cover; background-position: center; transform: scale(1.02); }
+.ta-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,10,.05) 30%, rgba(14,12,10,.78) 100%); }
+.ta-grid-bg {
+  position: absolute; inset: 0; opacity: .5;
+  background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 44px 44px; mask-image: radial-gradient(circle at 50% 40%, #000 20%, transparent 75%);
+}
+.ta-copy { position: absolute; left: 44px; right: 44px; bottom: 44px; color: #fff; }
+.ta-kicker { font-size: 12.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #E6C877; }
+.ta-hero-title { margin: 10px 0 0; max-width: 460px; font-family: var(--font-bricolage, inherit); font-size: clamp(30px, 3.4vw, 44px); line-height: 1.04; font-weight: 800; letter-spacing: -.035em; }
+.ta-hero-text { margin: 12px 0 0; max-width: 420px; font-size: 15.5px; line-height: 1.55; color: rgba(255,255,255,.78); }
+
+/* Renders de interfaz (ilustrativos) */
+.ta-render {
+  position: absolute; top: 44px; right: 44px; width: 292px; padding: 16px;
+  border-radius: 20px; color: #fff;
+  background: rgba(24,20,16,.55); border: 1px solid rgba(255,255,255,.16);
+  backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  animation: ta-float 6s ease-in-out infinite;
+}
+@keyframes ta-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.ta-render-head { display: flex; align-items: center; gap: 10px; }
+.ta-render-ico { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--ta-primary); }
+.ta-render-ico .ms { font-size: 19px; }
+.ta-render-t { font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+.ta-render-s { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 1px; }
+.ta-render-bar { height: 6px; border-radius: 6px; background: rgba(255,255,255,.16); margin-top: 14px; overflow: hidden; }
+.ta-render-bar i { display: block; height: 100%; width: 68%; border-radius: 6px; background: var(--ta-primary); }
+.ta-render-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12.5px; color: rgba(255,255,255,.8); }
+.ta-render-row b { color: #fff; font-weight: 800; }
+.ta-render-btn { margin-top: 14px; height: 38px; border-radius: 11px; background: #fff; color: #1B1712; display: grid; place-items: center; font-size: 13px; font-weight: 800; }
+.ta-render-note { margin-top: 10px; font-size: 10.5px; color: rgba(255,255,255,.45); text-align: right; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ta-step, .ta-render { animation: none; }
+  .ta-btn, .ta-field input, .ta-field label { transition: none; }
+}

@@ -548,7 +548,7 @@ export default function CheckoutPage() {
                     style={{
                       padding: '16px', borderRadius: 18,
                       background: 'var(--surface2)',
-                      border: '1.5px solid rgba(255,68,31,0.22)',
+                      border: '1.5px solid color-mix(in srgb, var(--primary) 22%, transparent)',
                       display: 'flex', flexDirection: 'column', gap: 12,
                       boxShadow: '0 4px 18px rgba(0,0,0,0.03)',
                     }}
@@ -986,7 +986,7 @@ export default function CheckoutPage() {
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '12px 14px', borderRadius: 16, cursor: 'pointer',
-                background: turbo ? 'rgba(255,68,31,0.06)' : 'var(--surface2)',
+                background: turbo ? 'color-mix(in srgb, var(--primary) 6%, transparent)' : 'var(--surface2)',
                 border: turbo ? '1.5px solid var(--primary)' : '1px solid var(--border)',
                 transition: 'all .15s ease',
                 marginBottom: 12,

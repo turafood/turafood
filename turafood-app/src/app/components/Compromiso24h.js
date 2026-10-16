@@ -90,7 +90,7 @@ export default function Compromiso24h({ desde, aprobado }) {
   if (t.vencido) {
     return (
       <div style={{ ...S.caja, ...S.cajaTarde }}>
-        <span style={{ ...S.icono, background: '#E2360F' }}>
+        <span style={{ ...S.icono, background: 'var(--primaryDark)' }}>
           <span className="ms" style={{ fontSize: 22, color: '#fff' }}>schedule</span>
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>

@@ -143,7 +143,7 @@ const S = {
   payBtn: {
     width: '100%', height: 48, borderRadius: 16, background: 'var(--primary)', color: '#fff',
     fontSize: 15, fontWeight: 800, border: 'none', cursor: 'pointer', marginTop: 16,
-    boxShadow: '0 8px 20px rgba(255,68,31,0.25)'
+    boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 25%, transparent)'
   },
   payBtnSecondary: {
     width: '100%', height: 48, borderRadius: 16, background: 'var(--surface)', color: 'var(--text)',

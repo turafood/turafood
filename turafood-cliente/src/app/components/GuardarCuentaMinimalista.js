@@ -244,7 +244,7 @@ export default function GuardarCuentaMinimalista({ orderId, telefonoInicial = ''
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
               <span style={S.sparkleBadge}>
-                <span className="ms ms-fill" style={{ fontSize: 16, color: '#FF441F' }}>auto_awesome</span>
+                <span className="ms ms-fill" style={{ fontSize: 16, color: 'var(--primary)' }}>auto_awesome</span>
               </span>
               <div>
                 <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.01em' }}>
@@ -375,7 +375,7 @@ const S = {
     width: 32,
     height: 32,
     borderRadius: 10,
-    background: 'rgba(255, 68, 31, 0.1)',
+    background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

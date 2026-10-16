@@ -111,7 +111,7 @@ export default function ActivoPage() {
   const target = goingToStore ? active.business : { address: active.delivery_address };
 
   const points = [];
-  if (me) points.push({ lat: me.lat, lng: me.lng, color: '#FF441F', badge: '', label: 'Tú' });
+  if (me) points.push({ lat: me.lat, lng: me.lng, color: 'var(--primary)', badge: '', label: 'Tú' });
 
   return (
     <>
@@ -364,11 +364,11 @@ const S = {
   slideKnob: {
     position: 'absolute', top: 5, left: 5, width: 48, height: 48, borderRadius: 16,
     background: 'var(--primary)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', boxShadow: '0 6px 18px rgba(255,68,31,.42)',
+    justifyContent: 'center', boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 42%, transparent)',
     cursor: 'grab', touchAction: 'none',
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginTop: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

@@ -217,7 +217,7 @@ const S = {
   premiumCard: {
     background: 'linear-gradient(135deg, #251c1a 0%, #120e0d 100%)',
     border: '1px solid rgba(217, 154, 21, 0.2)',
-    boxShadow: '0 20px 40px rgba(255,68,31,0.08), inset 0 1px 0 rgba(255,255,255,0.08)',
+    boxShadow: '0 20px 40px color-mix(in srgb, var(--primary) 8%, transparent), inset 0 1px 0 rgba(255,255,255,0.08)',
   },
   docMeta: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12,

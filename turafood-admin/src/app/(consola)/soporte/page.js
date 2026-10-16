@@ -35,8 +35,8 @@ const TABS = [
  * ticket real encontraba su etiqueta y todos salían como "BAJA".
  */
 const PRIORITY = {
-  urgent: { label: 'URGENTE', bg: '#FFF0ED', color: '#C0341A' },
-  high:   { label: 'ALTA',    bg: '#FFF0ED', color: '#C0341A' },
+  urgent: { label: 'URGENTE', bg: 'var(--primarySoft)', color: '#C0341A' },
+  high:   { label: 'ALTA',    bg: 'var(--primarySoft)', color: '#C0341A' },
   normal: { label: 'MEDIA',   bg: '#FFF7E6', color: '#A8730B' },
   low:    { label: 'BAJA',    bg: '#F0EEE9', color: '#8C857B' },
 };
@@ -77,7 +77,7 @@ export default function SoportePage() {
       <div style={S.kpis}>
         <Kpi
           label="Tickets abiertos" value={String(counts.open)}
-          icon="confirmation_number" tint="#FFF0ED" color="var(--primary)"
+          icon="confirmation_number" tint="var(--primarySoft)" color="var(--primary)"
           note={high ? `${high} de prioridad alta` : 'Ninguno urgente'}
           noteColor={high ? 'var(--primary)' : 'var(--green)'}
         />
@@ -186,14 +186,14 @@ const S = {
   },
   ticketIcon: {
     width: 44, height: 44, borderRadius: 14, flex: 'none',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,68,31,0.08)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'color-mix(in srgb, var(--primary) 8%, transparent)',
   },
   body: { display: 'block', fontSize: 13, color: 'var(--muted)', marginTop: 8, lineHeight: 1.55 },
   who: { display: 'block', fontSize: 11.5, color: 'var(--text)', marginTop: 10, fontWeight: 700 },
   actionBtn: {
     height: 36, padding: '0 16px', borderRadius: 999,
     background: 'var(--primary)', color: '#fff', fontSize: 13, fontWeight: 800,
-    boxShadow: '0 4px 15px rgba(255,68,31,0.2)', transition: 'all 0.2s ease',
+    boxShadow: '0 4px 15px color-mix(in srgb, var(--primary) 20%, transparent)', transition: 'all 0.2s ease',
   },
   assignBtn: {
     height: 36, padding: '0 16px', borderRadius: 999,

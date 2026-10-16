@@ -78,7 +78,7 @@ const PILLARS = [
     ],
     href: '/negocio/crecimiento',
     cta: 'Ver servicios y precios',
-    accent: '#FF7A4D',
+    accent: 'var(--gold)',
     glow: 'rgba(255,122,77,.22)',
     icon: 'rocket_launch',
     kinds: ['voice_agent', 'booking', 'website', 'custom_app'],
@@ -341,7 +341,7 @@ const S = {
   },
   em: {
     fontStyle: 'italic',
-    background: 'linear-gradient(96deg,#FFB57A,#FF7A4D)',
+    background: 'linear-gradient(96deg,#FFB57A,var(--gold))',
     WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
   },
   heroText: {
@@ -353,7 +353,7 @@ const S = {
     display: 'inline-flex', alignItems: 'center', gap: 8, height: 48, padding: '0 22px',
     borderRadius: 999, background: 'var(--primary)', color: '#fff',
     fontSize: 14.5, fontWeight: 700, textDecoration: 'none',
-    boxShadow: '0 12px 28px rgba(255,68,31,.36)',
+    boxShadow: '0 12px 28px color-mix(in srgb, var(--primary) 36%, transparent)',
   },
   heroGhost: {
     display: 'inline-flex', alignItems: 'center', gap: 8, height: 48, padding: '0 20px',
@@ -457,7 +457,7 @@ const S = {
   closing: {
     position: 'relative', overflow: 'hidden', marginTop: 16,
     borderRadius: 26, padding: '30px 26px', textAlign: 'center',
-    background: 'linear-gradient(120deg,#FF5A2B,#FF441F)', color: '#fff',
+    background: 'linear-gradient(120deg,#FF5A2B,var(--primary))', color: '#fff',
   },
   closingGlow: {
     position: 'absolute', left: -60, top: -80, width: 260, height: 260, borderRadius: '50%',

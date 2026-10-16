@@ -455,7 +455,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 16, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 };

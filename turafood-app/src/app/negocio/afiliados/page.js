@@ -101,7 +101,7 @@ export default function AfiliadosPage() {
       }}>
         {/* Glows */}
         <div style={{ position: 'absolute', top: -120, right: -60, width: 400, height: 400, background: 'radial-gradient(circle, rgba(232,199,102,0.22) 0%, transparent 65%)', borderRadius: '50%', filter: 'blur(50px)' }} />
-        <div style={{ position: 'absolute', bottom: -80, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, rgba(255,68,31,0.18) 0%, transparent 65%)', borderRadius: '50%', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', bottom: -80, left: -60, width: 300, height: 300, background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent) 0%, transparent 65%)', borderRadius: '50%', filter: 'blur(50px)' }} />
 
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 28 }}>
           <div style={{ flex: '1 1 480px' }}>
@@ -111,7 +111,7 @@ export default function AfiliadosPage() {
             </div>
 
             <h1 style={{ margin: '0 0 14px', fontSize: 34, fontFamily: 'var(--font-bricolage)', fontWeight: 800, letterSpacing: '-.02em', lineHeight: 1.15 }}>
-              Invita a otros negocios y gana <span style={{ background: 'linear-gradient(90deg, #E8C766, #FF7A4D)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>comisiones de por vida. 🎁</span>
+              Invita a otros negocios y gana <span style={{ background: 'linear-gradient(90deg, #E8C766, var(--gold))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>comisiones de por vida. 🎁</span>
             </h1>
             <p style={{ margin: '0 0 24px', fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 520 }}>
               Por cada restaurante o comercio que traigas a TuraFood, recibes el <strong>10% recurrente</strong> de sus ventas en efectivo o créditos para tu propio negocio.

@@ -241,7 +241,7 @@ export default function CatalogoPage() {
               onClick={() => setStockFilter(f.id)}
               style={{
                 padding: '6px 12px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                background: stockFilter === f.id ? (f.id === 'turbo' ? 'linear-gradient(135deg, #FF7A4D, #E2360F)' : 'var(--text)') : 'transparent',
+                background: stockFilter === f.id ? (f.id === 'turbo' ? 'linear-gradient(135deg, var(--gold), var(--primaryDark))' : 'var(--text)') : 'transparent',
                 color: stockFilter === f.id ? (f.id === 'turbo' ? '#fff' : 'var(--bg)') : 'var(--muted)',
                 fontSize: 12, fontWeight: 700, transition: 'all .2s'
               }}
@@ -522,7 +522,7 @@ export default function CatalogoPage() {
                           <span>★</span> <span style={{ color: 'var(--text)' }}>4.9</span>
                         </span>
                         {p.is_turbo && (
-                          <span style={{ fontSize: 9.5, fontWeight: 800, padding: '2px 6px', borderRadius: 5, background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff', boxShadow: '0 2px 6px rgba(255,68,31,0.2)' }}>
+                          <span style={{ fontSize: 9.5, fontWeight: 800, padding: '2px 6px', borderRadius: 5, background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))', color: '#fff', boxShadow: '0 2px 6px color-mix(in srgb, var(--primary) 20%, transparent)' }}>
                             ⚡ TURBO 15m
                           </span>
                         )}
@@ -591,7 +591,7 @@ export default function CatalogoPage() {
                           height: '100%', borderRadius: 99,
                           width: `${Math.max(6, ((p.sold ?? 0) / soldMax) * 100)}%`,
                           background: (p.sold ?? 0) >= 200
-                            ? 'linear-gradient(90deg,#FF7A3D,#FF441F)'
+                            ? 'linear-gradient(90deg,#FF7A3D,var(--primary))'
                             : 'var(--faint)',
                         }}
                       />
@@ -760,7 +760,7 @@ const S = {
   starterPrimary: {
     display: 'flex', alignItems: 'center', gap: 8, height: 50, padding: '0 22px',
     borderRadius: 999, background: 'var(--primary)', color: 'var(--onPrimary, #fff)',
-    fontSize: 14.5, fontWeight: 700, boxShadow: '0 10px 26px rgba(255,68,31,.32)',
+    fontSize: 14.5, fontWeight: 700, boxShadow: '0 10px 26px color-mix(in srgb, var(--primary) 32%, transparent)',
   },
   starterGhost: {
     display: 'flex', alignItems: 'center', gap: 8, height: 50, padding: '0 20px',
@@ -768,7 +768,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 };

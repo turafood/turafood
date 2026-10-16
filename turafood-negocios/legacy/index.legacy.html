@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tura Food AI — Tu restaurante digital en Buenaventura</title>
+<meta name="description" content="Recibe pedidos a domicilio, gestiona tu menú y tus repartidores desde un solo panel. Empieza gratis, sin papeles. Hecho en Buenaventura.">
+<meta property="og:title" content="Tura Food AI — Tu restaurante digital en Buenaventura">
+<meta property="og:description" content="Pedidos a domicilio, panel en tiempo real y tus propios repartidores. Empieza gratis.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://negocios.turafood.com/">
+<meta property="og:image" content="https://negocios.turafood.com/img/burger-hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FF441F">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://negocios.turafood.com/">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+ --bg:#F6F5F2;--surface:#FFFFFF;--surface2:#F0EEE9;--surface3:#E9E6DF;
+ --text:#17140F;--muted:#8C857B;--faint:#B6AFA4;--border:rgba(20,16,10,.10);
+ --primary:#FF441F;--primaryDark:#E2360F;--onPrimary:#FFFFFF;
+ --green:#11B26A;--amber:#FFB020;--ink:#0C0B0A;--navBg:rgba(246,245,242,.82);
+ --gold:#E8C766;--gold2:#F6E4A6;--goldDeep:#B8912F;--night:#141009;--night2:#1E1811;--nightBorder:rgba(232,199,102,.18);
+ --shadow:0 18px 50px rgba(20,16,10,.12);--shadowSm:0 4px 16px rgba(20,16,10,.08);
+ font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);background:var(--bg);
+}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+input{font-family:inherit}
+a{color:inherit;text-decoration:none}
+.tf-disp{font-family:'Bricolage Grotesque',serif}
+.tf-serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+.tf-ms{font-family:'Material Symbols Rounded'}
+.tf-sc::-webkit-scrollbar{height:0;width:0}
+.tf-sc{scrollbar-width:none}
+.tf-wrap{max-width:1200px;margin:0 auto;padding-left:24px;padding-right:24px}
+.tf-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:46px;align-items:center}
+.tf-3col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tf-mock{display:grid;grid-template-columns:.95fr 1.05fr;gap:24px;align-items:center}
+.tf-dash{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+.tf-price{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.tf-rev{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tf-cal{display:grid;grid-template-columns:.78fr 1.22fr;gap:26px;align-items:stretch}
+.tf-navlinks{display:flex;align-items:center;gap:24px;margin-left:14px;flex:1}
+.tf-h1{font-size:56px}
+.tf-phones{display:flex;justify-content:center;align-items:flex-end;gap:16px;flex-wrap:wrap}
+@media(max-width:1000px){ .tf-3col{grid-template-columns:repeat(2,1fr)} .tf-rev{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:1040px){ .tf-navlinks{display:none} }
+@media(max-width:880px){
+ .tf-hero{grid-template-columns:1fr;gap:30px}
+ .tf-mock{grid-template-columns:1fr;gap:28px}
+ .tf-dash{grid-template-columns:1fr;gap:24px}
+ .tf-cal{grid-template-columns:1fr;gap:20px}
+ .tf-price{grid-template-columns:1fr;max-width:430px;margin-left:auto;margin-right:auto}
+ .tf-h1{font-size:40px}
+ .tf-phone2{display:none}
+ .tf-pad{padding-top:40px!important;padding-bottom:8px!important}
+ .tf-cardpad{padding:30px 22px!important}
+}
+@media(max-width:620px){
+ .tf-3col{grid-template-columns:1fr} .tf-rev{grid-template-columns:1fr}
+ .tf-wrap{padding-left:16px;padding-right:16px}
+ .tf-h1{font-size:33px}
+ .tf-hide-sm{display:none!important}
+ .tf-sp4{grid-template-columns:repeat(2,1fr)!important}
+}
+@keyframes tfup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes tffloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes tfpulse{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
+@keyframes tfspin{to{transform:rotate(360deg)}}
+@keyframes tfpop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes tfpulse2{0%{transform:scale(.85);opacity:.85}100%{transform:scale(1.4);opacity:0}}
+@keyframes tfslidehint{0%,100%{transform:translateX(0)}50%{transform:translateX(-22px)}}
+.tf-gold-text{background:linear-gradient(100deg,#F6E4A6,#E8C766 40%,#B8912F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tf-3d{box-shadow:inset 0 2px 3px rgba(255,255,255,.7),inset 0 -3px 6px rgba(20,16,10,.12),0 10px 20px rgba(20,16,10,.12)}
+.tf-3d-gold{box-shadow:inset 0 2px 3px rgba(255,255,255,.45),inset 0 -3px 7px rgba(120,90,20,.5),0 12px 24px rgba(120,90,20,.4)}
+.tf-wa{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#2BE36C,#12A952);box-shadow:0 16px 34px rgba(37,211,102,.5),inset 0 2px 5px rgba(255,255,255,.4);transition:transform .2s,box-shadow .2s;position:relative;flex:none}
+.tf-wa:hover{transform:scale(1.08) translateY(-2px);box-shadow:0 22px 46px rgba(37,211,102,.62)}
+.tf-wa::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(37,211,102,.55);animation:tfpulse2 2.4s ease-out infinite;pointer-events:none}
+.tf-wa-bubble{background:var(--surface);color:var(--text);font-weight:700;font-size:12.5px;padding:9px 13px;border-radius:14px 14px 4px 14px;box-shadow:0 12px 26px rgba(20,16,10,.18);border:1px solid var(--border);white-space:nowrap;animation:tffloat 3.6s ease-in-out infinite}
+.tf-blogtrack{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tf-only-sm{display:none}
+.tf-bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(155px,auto);gap:16px}
+.tf-bento .b-big{grid-column:span 2;grid-row:span 2}
+.tf-bento .b-wide{grid-column:span 2}
+.tf-card{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:#171310;transition:transform .3s,box-shadow .3s}
+.tf-card:hover{transform:translateY(-4px);box-shadow:0 22px 44px rgba(0,0,0,.45)}
+.tf-heroimg{transition:transform .55s cubic-bezier(.22,1,.36,1)}
+.tf-heroimg:hover{transform:scale(1.045) rotate(-1.2deg)}
+.tf-blogcard{transition:transform .3s,box-shadow .3s}
+.tf-blogcard:hover{transform:translateY(-6px);box-shadow:0 32px 62px rgba(12,11,10,.55)}
+@media(max-width:900px){.tf-bento{grid-template-columns:repeat(2,1fr)}.tf-bento .b-big{grid-column:span 2;grid-row:span 1}.tf-bento .b-wide{grid-column:span 2}}
+@media(max-width:560px){.tf-bento{grid-template-columns:1fr}.tf-bento .b-big,.tf-bento .b-wide{grid-column:span 1}}
+@media(max-width:760px){.tf-blogtrack{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding-bottom:8px;-webkit-overflow-scrolling:touch}.tf-blogtrack>*{scroll-snap-align:start;flex:0 0 78%}}</style>
+</helmet>
+
+<div style="min-height:100dvh;background:var(--bg);color:var(--text);{{ rootVars }}">
+
+<!-- ANNOUNCEMENT BAR -->
+<div style="background:var(--ink);color:#fff;text-align:center;padding:9px 16px;font-size:12.5px;font-weight:600;letter-spacing:.01em">
+<span style="opacity:.95">{{ L.annBar }}</span>
+</div>
+
+<!-- ============ NAV ============ -->
+<div style="position:sticky;top:0;z-index:40;background:var(--navBg);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)">
+<div class="tf-wrap" style="padding-top:13px;padding-bottom:13px;display:flex;align-items:center;gap:22px">
+<div style="display:flex;align-items:center;gap:10px;flex:none">
+<div style="width:36px;height:36px;border-radius:11px;background:var(--primary);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(255,68,31,.35)"><span class="tf-disp" style="font-weight:800;font-size:22px;color:#fff;line-height:1">t</span></div>
+<span class="tf-disp" style="font-weight:800;font-size:19px;letter-spacing:-.02em">Tura Food <span class="tf-serif" style="color:var(--primary)">AI</span></span>
+</div>
+<div class="tf-navlinks">
+<button onClick="{{ goFeatures }}" style="font-size:14px;font-weight:600;color:var(--muted)">{{ L.navProducto }}</button>
+<button onClick="{{ goMock }}" style="font-size:14px;font-weight:600;color:var(--muted)">{{ L.navMockup }}</button>
+<button onClick="{{ goPricing }}" style="font-size:14px;font-weight:600;color:var(--muted)">{{ L.navPlanes }}</button>
+<button onClick="{{ goCompare }}" style="font-size:14px;font-weight:600;color:var(--muted)">{{ L.navComparar }}</button>
+<button onClick="{{ goFaq }}" style="font-size:14px;font-weight:600;color:var(--muted)">{{ L.navFaq }}</button>
+</div>
+<div style="display:flex;align-items:center;gap:9px;flex:none;margin-left:auto">
+<button onClick="{{ toggleLang }}" style="height:38px;padding:0 13px;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:12.5px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px"><span class="tf-ms" style="font-size:17px;color:var(--muted)">language</span>{{ langLabel }}</button>
+<button onClick="{{ toggleTheme }}" style="width:38px;height:38px;border-radius:11px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:19px;color:var(--text)">{{ themeIcon }}</span></button>
+<a href="https://app.turafood.com" target="_blank" rel="noopener" class="tf-hide-sm" style="height:38px;padding:0 13px;display:flex;align-items:center;gap:6px;border-radius:11px;background:var(--surface);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text)"><span class="tf-ms" style="font-size:17px;color:var(--muted)">login</span>{{ L.navLogin }}</a>
+<button onClick="{{ goPricing }}" style="height:38px;padding:0 17px;border-radius:11px;background:var(--primary);color:#fff;font-size:13.5px;font-weight:700;box-shadow:0 8px 20px rgba(255,68,31,.32)">{{ L.navCta }}</button>
+</div>
+</div>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="tf-wrap tf-pad" style="padding-top:46px;padding-bottom:30px">
+<div class="tf-hero">
+<div style="animation:tfup .6s ease both">
+<div style="display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadowSm)">
+<span style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(17,178,106,.16)"></span>
+<span style="font-size:12.5px;font-weight:700;color:var(--text)">{{ L.heroBadge }}</span>
+</div>
+<h1 class="tf-disp tf-h1" style="margin:20px 0 0;font-weight:800;line-height:1.02;letter-spacing:-.03em;text-wrap:balance">{{ L.heroT1 }} <span class="tf-serif" style="color:var(--primary);font-weight:400">{{ L.heroT2 }}</span> {{ L.heroT3 }}</h1>
+<p style="margin:20px 0 0;font-size:17.5px;line-height:1.55;color:var(--muted);max-width:520px">{{ L.heroSub }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+<button onClick="{{ goPricing }}" style="height:54px;padding:0 26px;border-radius:15px;background:var(--primary);color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px;box-shadow:0 12px 30px rgba(255,68,31,.36)"><span class="tf-ms" style="font-size:21px">sell</span>{{ L.heroCta1 }}</button>
+<button onClick="{{ startFree }}" style="height:54px;padding:0 24px;border-radius:15px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px;box-shadow:var(--shadowSm)"><span class="tf-ms" style="font-size:21px;color:var(--primary)">bolt</span>{{ L.heroCta2 }}</button>
+</div>
+<div style="display:flex;align-items:center;gap:8px 16px;margin-top:22px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text)"><span class="tf-ms" style="font-size:18px;color:var(--green)">verified</span>Sin papeles para empezar</span>
+<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text)"><span class="tf-ms" style="font-size:18px;color:var(--green)">bolt</span>Pedidos en tiempo real</span>
+<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text)"><span class="tf-ms" style="font-size:18px;color:var(--green)">two_wheeler</span>Con tus propios repartidores</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:26px;margin-top:30px">
+<sc-for list="{{ heroStats }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:2px">
+<span class="tf-disp" style="font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--text)">{{ s.num }}</span>
+<span style="font-size:12.5px;font-weight:600;color:var(--muted)">{{ s.label }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="position:relative;animation:tfpop .7s ease both">
+<div class="tf-heroimg" style="position:relative;border-radius:30px;overflow:hidden;aspect-ratio:4/4.3;background:#1a1714 url('img/burger-hero.jpg') center/cover;box-shadow:0 40px 90px rgba(20,16,10,.32)">
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.05) 40%,rgba(8,7,6,.55) 100%)"></div>
+<div style="position:absolute;left:18px;top:18px;display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.22)"><span style="font-size:15px">🔥</span><span style="font-size:12.5px;font-weight:800;color:#fff">{{ L.heroChipTop }}</span></div>
+</div>
+<div style="position:absolute;right:-12px;top:-16px;z-index:4;animation:tffloat 4.6s ease-in-out infinite;transform:rotate(3deg)">
+<div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:7px 12px 7px 8px;box-shadow:var(--shadow)">
+<img src="img/flag-co.png" alt="Colombia" style="width:40px;height:27px;object-fit:contain">
+<div><div style="font-size:11px;font-weight:800;color:var(--text);line-height:1.12">{{ L.flagTop }}</div><div style="font-size:11px;font-weight:800;color:var(--primary);line-height:1.12">Buenaventura</div></div>
+</div>
+</div>
+<div class="tf-hide-sm" style="position:absolute;left:-26px;top:64px;animation:tffloat 5s ease-in-out infinite;background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:12px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px;min-width:190px">
+<div style="width:38px;height:38px;border-radius:11px;background:rgba(17,178,106,.14);display:flex;align-items:center;justify-content:center;flex:none"><span class="tf-ms" style="font-size:21px;color:var(--green);font-variation-settings:'FILL' 1">event_available</span></div>
+<div><div style="font-size:13px;font-weight:800;color:var(--text)">{{ L.floatResTitle }}</div><div style="font-size:11.5px;color:var(--muted);margin-top:1px">{{ L.floatResSub }}</div></div>
+</div>
+<div class="tf-hide-sm" style="position:absolute;right:-22px;top:46%;animation:tffloat 6s ease-in-out infinite .8s;background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:12px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px;min-width:196px">
+<div style="width:38px;height:38px;border-radius:11px;background:rgba(255,68,31,.13);display:flex;align-items:center;justify-content:center;flex:none"><span class="tf-ms" style="font-size:21px;color:var(--primary);font-variation-settings:'FILL' 1">support_agent</span></div>
+<div><div style="font-size:13px;font-weight:800;color:var(--text)">{{ L.floatVoiceTitle }}</div><div style="font-size:11.5px;color:var(--muted);margin-top:1px">{{ L.floatVoiceSub }}</div></div>
+</div>
+<div class="tf-hide-sm" style="position:absolute;left:6px;bottom:-22px;animation:tffloat 5.5s ease-in-out infinite .4s;background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:11px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:11px;min-width:182px">
+<div style="width:38px;height:38px;border-radius:11px;background:#25D36622;display:flex;align-items:center;justify-content:center;flex:none"><span class="tf-ms" style="font-size:21px;color:#25D366;font-variation-settings:'FILL' 1">chat</span></div>
+<div><div style="font-size:13px;font-weight:800;color:var(--text)">{{ L.floatWaTitle }}</div><div style="font-size:11.5px;color:var(--muted);margin-top:1px">{{ L.floatWaSub }}</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ TRUST STRIP ============ -->
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);margin-top:42px">
+<div class="tf-wrap" style="padding-top:20px;padding-bottom:20px;display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:center">
+<span style="font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">{{ L.trustLead }}</span>
+<sc-for list="{{ trustItems }}" as="t" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:8px;opacity:.85"><span class="tf-ms" style="font-size:20px;color:var(--primary)">{{ t.icon }}</span><span style="font-size:14.5px;font-weight:700;color:var(--text)">{{ t.label }}</span></div>
+</sc-for>
+</div>
+</div>
+
+<!-- ============ VALUE PROPS (NEURO BENTO) ============ -->
+<div id="tf-features" style="position:relative;overflow:hidden;background:linear-gradient(180deg,#0C0B0A 0%,#141009 100%);margin-top:20px">
+<div style="position:absolute;right:-8%;top:-90px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(255,68,31,.14),transparent 62%);pointer-events:none"></div>
+<div style="position:absolute;left:-10%;bottom:-130px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(232,199,102,.1),transparent 65%);pointer-events:none"></div>
+<div class="tf-wrap" style="padding-top:74px;padding-bottom:78px;position:relative">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+<div style="max-width:640px">
+<span class="tf-gold-text" style="font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em">{{ L.featKicker }}</span>
+<h2 class="tf-disp" style="margin:12px 0 0;font-weight:800;font-size:40px;line-height:1.05;letter-spacing:-.03em;color:#fff;text-wrap:balance">{{ L.featT1 }} <span class="tf-serif tf-gold-text" style="font-weight:400">{{ L.featT2 }}</span></h2>
+</div>
+<div style="display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)"><span class="tf-ms" style="font-size:18px;color:var(--gold)">bolt</span><span style="font-size:13px;font-weight:700;color:#fff">{{ L.featSub2 }}</span></div>
+</div>
+<div class="tf-bento" style="margin-top:32px">
+<div class="tf-card b-big" style="min-height:344px">
+<div style="position:absolute;inset:0;background:#000 center/cover;background-image:url('img/fork-dark.jpg')"></div>
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.28) 0%,rgba(8,7,6,.8) 66%,rgba(8,7,6,.96) 100%)"></div>
+<div style="position:absolute;top:20px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:23px;color:#fff;font-variation-settings:'FILL' 1">support_agent</span></div>
+<div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:26px">
+<span style="align-self:flex-start;padding:5px 11px;border-radius:999px;background:rgba(232,199,102,.16);border:1px solid var(--nightBorder);font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--gold)">{{ bento.voice.cat }}</span>
+<div class="tf-disp" style="margin-top:14px;font-weight:800;font-size:26px;letter-spacing:-.02em;color:#fff">{{ bento.voice.title }}</div>
+<div style="margin-top:8px;font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.74);max-width:380px">{{ bento.voice.body }}</div>
+</div>
+</div>
+<div class="tf-card b-wide" style="min-height:164px">
+<div style="position:absolute;right:0;top:0;bottom:0;width:46%;background:center/cover;background-image:url('img/burger-hero.jpg')"></div>
+<div style="position:absolute;inset:0;background:linear-gradient(100deg,#171310 48%,rgba(23,19,16,.72) 72%,rgba(23,19,16,.15) 100%)"></div>
+<div style="position:relative;padding:24px;max-width:64%">
+<span style="padding:4px 10px;border-radius:999px;background:rgba(232,199,102,.14);border:1px solid var(--nightBorder);font-size:10px;font-weight:800;letter-spacing:.07em;color:var(--gold)">{{ bento.presencia.cat }}</span>
+<div class="tf-disp" style="margin-top:12px;font-weight:700;font-size:19px;color:#fff;letter-spacing:-.01em">{{ bento.presencia.title }}</div>
+<div style="margin-top:6px;font-size:13.5px;line-height:1.45;color:rgba(255,255,255,.66)">{{ bento.presencia.body }}</div>
+</div>
+</div>
+<div class="tf-card" style="padding:22px">
+<div style="width:46px;height:46px;border-radius:14px;background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.25);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:24px;color:#25D366;font-variation-settings:'FILL' 1">chat</span></div>
+<div class="tf-disp" style="margin-top:14px;font-weight:700;font-size:17px;color:#fff">{{ bento.whatsapp.title }}</div>
+<div style="margin-top:6px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.6)">{{ bento.whatsapp.body }}</div>
+</div>
+<div class="tf-card" style="padding:22px">
+<div class="tf-3d-gold" style="width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#F6E4A6,#B8912F);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:24px;color:#1a1206;font-variation-settings:'FILL' 1">trending_up</span></div>
+<div class="tf-disp" style="margin-top:14px;font-weight:700;font-size:17px;color:#fff">{{ bento.marketing.title }}</div>
+<div style="margin-top:6px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.6)">{{ bento.marketing.body }}</div>
+</div>
+<div class="tf-card b-wide" style="padding:24px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+<div style="max-width:64%">
+<span style="padding:4px 10px;border-radius:999px;background:rgba(255,68,31,.14);border:1px solid rgba(255,68,31,.28);font-size:10px;font-weight:800;letter-spacing:.07em;color:#FF7A5C">{{ bento.fidel.cat }}</span>
+<div class="tf-disp" style="margin-top:12px;font-weight:700;font-size:19px;color:#fff;letter-spacing:-.01em">{{ bento.fidel.title }}</div>
+<div style="margin-top:6px;font-size:13.5px;line-height:1.45;color:rgba(255,255,255,.66)">{{ bento.fidel.body }}</div>
+</div>
+<div style="text-align:right;flex:none">
+<div class="tf-disp tf-gold-text" style="font-weight:800;font-size:44px;letter-spacing:-.03em;line-height:1">↻</div>
+<div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.6);margin-top:2px">{{ L.bentoStat }}</div>
+</div>
+</div>
+<div class="tf-card b-wide" style="padding:24px;display:flex;align-items:center;justify-content:space-between;gap:18px">
+<div style="max-width:58%">
+<span style="padding:4px 10px;border-radius:999px;background:rgba(17,178,106,.14);border:1px solid rgba(17,178,106,.28);font-size:10px;font-weight:800;letter-spacing:.07em;color:#3FD08A">{{ bento.dashboard.cat }}</span>
+<div class="tf-disp" style="margin-top:12px;font-weight:700;font-size:19px;color:#fff;letter-spacing:-.01em">{{ bento.dashboard.title }}</div>
+<div style="margin-top:6px;font-size:13.5px;line-height:1.45;color:rgba(255,255,255,.66)">{{ bento.dashboard.body }}</div>
+</div>
+<div style="display:flex;align-items:flex-end;gap:5px;height:60px;width:148px;flex:none">
+<sc-for list="{{ dashBars }}" as="b" hint-placeholder-count="8"><div style="flex:1;border-radius:4px 4px 0 0;background:{{ b.bg }};height:{{ b.h }}"></div></sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ MOCKUPS SHOWCASE ============ -->
+<div id="tf-mockup" class="tf-wrap" style="padding-top:64px;padding-bottom:10px">
+<div style="position:relative;border-radius:30px;overflow:hidden;background:linear-gradient(135deg,#FFE7DF 0%,#FFD7CB 52%,#FFEFE9 100%);border:1px solid rgba(255,68,31,.16)">
+<div style="position:absolute;left:-70px;bottom:-90px;width:280px;height:280px;border-radius:50%;background:rgba(255,68,31,.12)"></div>
+<div style="position:absolute;right:-60px;top:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,176,32,.18)"></div>
+<div class="tf-mock tf-cardpad" style="position:relative;padding:50px 46px">
+<div>
+<span style="font-size:13px;font-weight:800;color:#E2360F;text-transform:uppercase;letter-spacing:.1em">{{ L.mockKicker }}</span>
+<h2 class="tf-disp" style="margin:12px 0 0;font-weight:800;font-size:38px;line-height:1.06;letter-spacing:-.03em;color:#1a120e;text-wrap:balance">{{ L.mockT1 }} <span class="tf-serif" style="color:#E2360F;font-weight:400">{{ L.mockT2 }}</span></h2>
+<p style="margin:14px 0 0;font-size:16px;line-height:1.55;color:#6b524a;max-width:400px">{{ L.mockSub }}</p>
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:22px">
+<sc-for list="{{ mockChips }}" as="c" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:11px"><div style="width:34px;height:34px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(226,54,15,.14);flex:none"><span class="tf-ms" style="font-size:19px;color:#E2360F">{{ c.icon }}</span></div><span style="font-size:14.5px;font-weight:700;color:#3a2a24">{{ c.label }}</span></div>
+</sc-for>
+</div>
+</div>
+<div class="tf-phones">
+<!-- PHONE 1 — customer PWA -->
+<div style="width:262px;flex:none;border-radius:42px;background:#0C0B0A;padding:8px;box-shadow:0 38px 70px rgba(20,16,10,.34);transform:rotate(-2deg)">
+<div style="position:relative;border-radius:35px;overflow:hidden;background:#F6F5F2;height:540px">
+<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:118px;height:24px;background:#0C0B0A;border-radius:0 0 15px 15px;z-index:6"></div>
+<div style="height:100%;overflow:hidden;display:flex;flex-direction:column">
+<div style="padding:30px 15px 11px;background:#fff">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div><div style="font-size:9.5px;font-weight:700;color:#8C857B;text-transform:uppercase;letter-spacing:.05em">{{ L.mockLoc }}</div><div style="display:flex;align-items:center;gap:3px;font-size:13px;font-weight:800;color:#17140F"><span class="tf-ms" style="font-size:15px;color:#FF441F;font-variation-settings:'FILL' 1">location_on</span>El Sazón del Puerto</div></div>
+<div style="width:30px;height:30px;border-radius:50%;background:#F0EEE9;display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:18px;color:#17140F">shopping_bag</span></div>
+</div>
+<div style="display:flex;align-items:center;gap:7px;margin-top:11px;height:36px;background:#F0EEE9;border-radius:11px;padding:0 11px"><span class="tf-ms" style="font-size:17px;color:#8C857B">search</span><span style="font-size:11.5px;color:#8C857B">{{ L.mockSearch }}</span></div>
+</div>
+<div class="tf-sc" style="flex:1;overflow-y:auto;padding:11px 15px 14px">
+<div style="position:relative;border-radius:15px;overflow:hidden;height:84px;background:#FF441F;padding:12px 14px;display:flex;flex-direction:column;justify-content:center">
+<div style="position:absolute;right:-10px;bottom:-14px;font-size:60px">🍔</div>
+<div style="font-size:9px;font-weight:800;color:#fff;opacity:.9;text-transform:uppercase;letter-spacing:.06em">2x1 HOY</div>
+<div class="tf-disp" style="font-size:18px;font-weight:800;color:#fff;line-height:1.05;max-width:140px">{{ L.mockPromo }}</div>
+</div>
+<div style="display:flex;gap:13px;margin-top:13px;justify-content:space-between">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:42px;height:42px;border-radius:14px;background:#FFE9E2;display:flex;align-items:center;justify-content:center;font-size:21px">🍔</div><span style="font-size:9px;font-weight:700;color:#17140F">Burgers</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:42px;height:42px;border-radius:14px;background:#FFF1D6;display:flex;align-items:center;justify-content:center;font-size:21px">🍗</div><span style="font-size:9px;font-weight:700;color:#17140F">Pollo</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:42px;height:42px;border-radius:14px;background:#E3F6EC;display:flex;align-items:center;justify-content:center;font-size:21px">🥗</div><span style="font-size:9px;font-weight:700;color:#17140F">Saludable</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div style="width:42px;height:42px;border-radius:14px;background:#EDE7FF;display:flex;align-items:center;justify-content:center;font-size:21px">🥤</div><span style="font-size:9px;font-weight:700;color:#17140F">Bebidas</span></div>
+</div>
+<div style="font-size:12px;font-weight:800;color:#17140F;margin:15px 0 9px">{{ L.mockPopular }}</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<sc-for list="{{ mockDishes }}" as="d" hint-placeholder-count="3">
+<div style="display:flex;gap:10px;align-items:center;background:#fff;border:1px solid rgba(20,16,10,.07);border-radius:14px;padding:8px;box-shadow:0 3px 9px rgba(20,16,10,.05)">
+<div style="width:54px;height:54px;border-radius:11px;background:#eee center/cover;flex:none;{{ d.bg }}"></div>
+<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:800;color:#17140F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div><div style="font-size:10px;color:#8C857B;margin-top:1px">⭐ {{ d.rating }} · {{ d.time }}</div><div style="font-size:12px;font-weight:800;color:#17140F;margin-top:3px">{{ d.price }}</div></div>
+<div style="width:28px;height:28px;border-radius:9px;background:#11B26A;display:flex;align-items:center;justify-content:center;align-self:flex-end;flex:none"><span class="tf-ms" style="font-size:18px;color:#fff">add</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-around;padding:9px 0 12px;background:#fff;border-top:1px solid rgba(20,16,10,.07)">
+<span class="tf-ms" style="font-size:21px;color:#FF441F;font-variation-settings:'FILL' 1">home</span>
+<span class="tf-ms" style="font-size:21px;color:#B6AFA4">search</span>
+<span class="tf-ms" style="font-size:21px;color:#B6AFA4">receipt_long</span>
+<span class="tf-ms" style="font-size:21px;color:#B6AFA4">person</span>
+</div>
+</div>
+</div>
+</div>
+<!-- PHONE 2 — checkout / Nequi -->
+<div class="tf-phone2" style="width:262px;flex:none;border-radius:42px;background:#0C0B0A;padding:8px;box-shadow:0 38px 70px rgba(20,16,10,.34);transform:rotate(2deg)">
+<div style="position:relative;border-radius:35px;overflow:hidden;background:#F6F5F2;height:540px">
+<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:118px;height:24px;background:#0C0B0A;border-radius:0 0 15px 15px;z-index:6"></div>
+<div style="height:100%;display:flex;flex-direction:column">
+<div style="padding:32px 16px 13px;background:#fff;border-bottom:1px solid rgba(20,16,10,.07);display:flex;align-items:center;gap:9px">
+<span class="tf-ms" style="font-size:20px;color:#17140F">arrow_back</span><span style="font-size:14px;font-weight:800;color:#17140F">{{ L.mockCart }}</span>
+</div>
+<div style="flex:1;overflow:hidden;padding:13px 16px">
+<sc-for list="{{ mockCart }}" as="i" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+<div style="width:42px;height:42px;border-radius:10px;background:#eee center/cover;flex:none;{{ i.bg }}"></div>
+<div style="flex:1;min-width:0"><div style="font-size:11.5px;font-weight:800;color:#17140F">{{ i.name }}</div><div style="font-size:10px;color:#8C857B">x{{ i.qty }}</div></div>
+<div style="font-size:11.5px;font-weight:800;color:#17140F">{{ i.price }}</div>
+</div>
+</sc-for>
+<div style="border-top:1px dashed rgba(20,16,10,.14);margin-top:6px;padding-top:11px;display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#8C857B"><span>{{ L.mockSubtotal }}</span><span style="font-weight:700;color:#17140F">$58.800</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#8C857B"><span>{{ L.mockDelivery }}</span><span style="font-weight:700;color:#11B26A">{{ L.mockFree }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:3px"><span style="font-size:12.5px;font-weight:800;color:#17140F">{{ L.mockTotal }}</span><span class="tf-disp" style="font-size:19px;font-weight:800;color:#17140F">$58.800</span></div>
+</div>
+<div style="margin-top:13px;background:#F0EEE9;border-radius:12px;padding:10px 11px;display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">📱</div><div style="flex:1"><div style="font-size:10.5px;font-weight:800;color:#17140F">Nequi</div><div style="font-size:9px;color:#8C857B">{{ L.mockPayMethod }}</div></div><span class="tf-ms" style="font-size:17px;color:#11B26A;font-variation-settings:'FILL' 1">check_circle</span></div>
+</div>
+<div style="padding:12px 16px 16px;background:#fff">
+<div style="height:46px;border-radius:13px;background:#FF441F;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 8px 18px rgba(255,68,31,.3)"><span class="tf-ms" style="font-size:18px;color:#fff">lock</span><span style="font-size:13px;font-weight:800;color:#fff">{{ L.mockPay }}</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- ============ DASHBOARD PREVIEW ============ -->
+<div class="tf-wrap" style="padding-top:64px;padding-bottom:10px">
+<div style="background:var(--ink);border-radius:30px;overflow:hidden;position:relative;box-shadow:0 40px 90px rgba(20,16,10,.30)">
+<div style="position:absolute;right:-120px;top:-120px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,68,31,.30),transparent 68%)"></div>
+<div class="tf-dash tf-cardpad" style="padding:46px;position:relative">
+<div>
+<span style="font-size:13px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.1em">{{ L.dashKicker }}</span>
+<h2 class="tf-disp" style="margin:12px 0 0;font-weight:800;font-size:36px;line-height:1.08;letter-spacing:-.025em;color:#fff;text-wrap:balance">{{ L.dashT1 }} <span class="tf-serif" style="color:var(--primary);font-weight:400">{{ L.dashT2 }}</span></h2>
+<p style="margin:14px 0 0;font-size:16px;line-height:1.55;color:rgba(255,255,255,.66);max-width:430px">{{ L.dashSub }}</p>
+<div style="display:flex;flex-direction:column;gap:13px;margin-top:24px">
+<sc-for list="{{ dashPoints }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:11px"><span class="tf-ms" style="font-size:21px;color:var(--primary);font-variation-settings:'FILL' 1">check_circle</span><span style="font-size:15px;font-weight:600;color:rgba(255,255,255,.9)">{{ d }}</span></div>
+</sc-for>
+</div>
+</div>
+<div style="background:#16130F;border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:18px;box-shadow:0 30px 60px rgba(0,0,0,.4)">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:7px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span class="tf-disp" style="font-weight:800;font-size:15px;color:#fff">t</span></div><span style="font-size:13px;font-weight:800;color:#fff">{{ L.dashPanel }}</span></div>
+<span style="font-size:11px;font-weight:700;color:var(--green)">{{ L.dashLive }}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+<sc-for list="{{ dashKpis }}" as="k" hint-placeholder-count="4">
+<div style="background:#211C17;border:1px solid rgba(255,255,255,.06);border-radius:13px;padding:12px">
+<div style="display:flex;align-items:center;gap:6px"><span class="tf-ms" style="font-size:15px;color:{{ k.color }}">{{ k.icon }}</span><span style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.5)">{{ k.label }}</span></div>
+<div class="tf-disp" style="font-weight:800;font-size:21px;color:#fff;margin-top:5px;letter-spacing:-.02em">{{ k.value }}</div>
+<div style="font-size:10.5px;font-weight:700;color:{{ k.color }};margin-top:1px">{{ k.delta }}</div>
+</div>
+</sc-for>
+</div>
+<div style="background:#211C17;border:1px solid rgba(255,255,255,.06);border-radius:13px;padding:13px;margin-top:10px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.6)">{{ L.dashChart }}</span><span style="font-size:10.5px;font-weight:700;color:var(--green)">+18.4%</span></div>
+<div style="display:flex;align-items:flex-end;gap:7px;height:64px">
+<sc-for list="{{ dashBars }}" as="b" hint-placeholder-count="8">
+<div style="flex:1;border-radius:5px 5px 0 0;background:{{ b.bg }};height:{{ b.h }}"></div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ PRICING ============ -->
+<div id="tf-pricing" class="tf-wrap tf-pad" style="padding-top:80px;padding-bottom:10px">
+<div style="text-align:center;max-width:680px;margin:0 auto">
+<span style="font-size:13px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.1em">{{ L.priceKicker }}</span>
+<h2 class="tf-disp" style="margin:12px 0 0;font-weight:800;font-size:44px;line-height:1.04;letter-spacing:-.03em;text-wrap:balance">{{ L.priceT1 }} <span class="tf-serif" style="color:var(--primary);font-weight:400">{{ L.priceT2 }}</span> {{ L.priceT3 }}</h2>
+<p style="margin:14px 0 0;font-size:17px;line-height:1.55;color:var(--muted)">{{ L.priceSub }}</p>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:30px">
+<div style="display:flex;align-items:center;gap:4px;padding:5px;border-radius:14px;background:var(--surface2);border:1px solid var(--border)">
+<button onClick="{{ setMonthly }}" style="height:40px;padding:0 20px;border-radius:10px;font-size:14px;font-weight:700;{{ monthlyBtn }}">{{ L.monthly }}</button>
+<button onClick="{{ setAnnual }}" style="height:40px;padding:0 18px;border-radius:10px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;{{ annualBtn }}">{{ L.annual }}<span style="font-size:11px;font-weight:800;padding:3px 7px;border-radius:999px;background:var(--green);color:#fff">{{ annualSaveBadge }}</span></button>
+</div>
+</div>
+
+<div class="tf-price" style="margin-top:34px">
+<sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+<div style="position:relative;border-radius:24px;padding:28px;background:{{ p.cardBg }};border:{{ p.cardBorder }};box-shadow:{{ p.cardShadow }};{{ p.cardExtra }}">
+<sc-if value="{{ p.popular }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:linear-gradient(100deg,#F6E4A6,#E8C766);color:#1a1206;font-size:11.5px;font-weight:800;box-shadow:0 10px 22px rgba(184,145,47,.5);white-space:nowrap"><span style="font-size:13px">⭐</span>{{ L.popular }}</div>
+</sc-if>
+<div style="display:flex;align-items:center;gap:9px">
+<div class="{{ p.iconCls }}" style="width:38px;height:38px;border-radius:11px;background:{{ p.iconBg }};display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:21px;color:{{ p.iconColor }};font-variation-settings:'FILL' 1">{{ p.icon }}</span></div>
+<div class="tf-disp" style="font-weight:800;font-size:21px;letter-spacing:-.02em;color:{{ p.fg }}">{{ p.name }}</div>
+</div>
+<div style="margin-top:11px;font-size:13.5px;line-height:1.45;color:{{ p.fgMuted }};min-height:38px">{{ p.tagline }}</div>
+<div style="display:flex;align-items:flex-end;gap:6px;margin-top:14px">
+<span class="tf-disp" style="font-weight:800;font-size:42px;line-height:1;letter-spacing:-.03em;color:{{ p.fg }}">{{ p.priceMain }}</span>
+<span style="font-size:15px;font-weight:700;color:{{ p.fgMuted }};margin-bottom:5px">{{ p.pricePer }}</span>
+<sc-if value="{{ p.hasSave }}" hint-placeholder-val="{{ false }}"><span style="margin-bottom:7px;font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:999px;background:rgba(17,178,106,.16);color:var(--green)">{{ p.saveBadge }}</span></sc-if>
+</div>
+<div style="margin-top:5px;font-size:12.5px;font-weight:600;color:{{ p.fgFaint }};min-height:18px">{{ p.priceSub }}</div>
+<button onClick="{{ p.onChoose }}" style="width:100%;height:50px;border-radius:14px;margin-top:18px;font-size:15px;font-weight:700;{{ p.ctaStyle }}">{{ p.ctaLabel }}</button>
+<a href="{{ p.demoHref }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:7px;height:42px;border-radius:12px;margin-top:9px;font-size:13px;font-weight:700;{{ p.demoStyle }}"><span style="width:7px;height:7px;border-radius:50%;background:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.22)"></span>{{ L.demoLive }}<span class="tf-ms" style="font-size:16px">arrow_outward</span></a>
+<div style="margin-top:20px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:{{ p.featTitleColor }}">{{ p.featuresTitle }}</div>
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:13px">
+<sc-for list="{{ p.features }}" as="f" hint-placeholder-count="7">
+<div style="display:flex;align-items:flex-start;gap:9px">
+<span class="tf-ms" style="font-size:18px;flex:none;margin-top:1px;color:{{ f.color }}{{ f.fillVar }}">{{ f.icon }}</span>
+<span style="font-size:13.5px;line-height:1.4;color:{{ f.text }};text-decoration:{{ f.deco }};text-decoration-color:var(--faint)">{{ f.label }}</span>
+<sc-if value="{{ f.pro }}" hint-placeholder-val="{{ false }}"><span class="tf-gold-text" style="font-size:9.5px;font-weight:800;letter-spacing:.05em;border:1px solid var(--nightBorder);border-radius:5px;padding:2px 5px;margin-top:1px;flex:none">PRO</span></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="text-align:center;margin-top:22px">
+<button onClick="{{ goCompare }}" style="display:inline-flex;align-items:center;gap:7px;font-size:14.5px;font-weight:700;color:var(--primary)">{{ L.seeAll }}<span class="tf-ms" style="font-size:19px">arrow_downward</span></button>
+</div>
+</div>
+
+<!-- ============ COMPARISON TABLE ============ -->
+<div id="tf-compare" class="tf-wrap" style="padding-top:70px;padding-bottom:10px;max-width:1080px">
+<div style="text-align:center;max-width:640px;margin:0 auto 30px">
+<h2 class="tf-disp" style="margin:0;font-weight:800;font-size:36px;line-height:1.06;letter-spacing:-.025em">{{ L.cmpTitle }}</h2>
+<p style="margin:12px 0 0;font-size:15.5px;color:var(--muted)">{{ L.cmpSub }}</p>
+</div>
+<div class="tf-sc" style="overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadowSm)">
+<div style="min-width:680px">
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;background:var(--surface);border-bottom:1px solid var(--border)">
+<div style="padding:16px 20px;display:flex;align-items:flex-end"><span style="font-size:13px;font-weight:800;color:var(--muted)">{{ L.cmpFeature }}</span></div>
+<sc-for list="{{ cmpHead }}" as="h" hint-placeholder-count="3">
+<div style="padding:14px 12px;text-align:center;{{ h.bg }}">
+<div class="tf-disp" style="font-weight:800;font-size:15px;letter-spacing:-.01em;color:{{ h.fg }}">{{ h.name }}</div>
+<div style="font-size:11.5px;font-weight:700;color:{{ h.priceColor }};margin-top:2px">{{ h.price }}</div>
+</div>
+</sc-for>
+</div>
+<sc-for list="{{ cmpGroups }}" as="g" hint-placeholder-count="6">
+<div>
+<div style="padding:13px 20px 9px;background:var(--surface2)"><span style="font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--primary)">{{ g.title }}</span></div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4">
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;border-top:1px solid var(--border);align-items:center">
+<div style="padding:13px 20px;font-size:13.5px;font-weight:600;color:var(--text)">{{ r.label }}</div>
+<sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="3">
+<div style="padding:11px 10px;text-align:center;{{ c.cellBg }}">
+<span style="font-size:13px;font-weight:700;color:{{ c.color }}">{{ c.disp }}</span>
+<sc-if value="{{ c.hasNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;font-weight:700;color:var(--amber);margin-top:2px">{{ c.note }}</div></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</sc-for>
+<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;border-top:1px solid var(--border);background:var(--surface2)">
+<div style="padding:16px 20px"></div>
+<sc-for list="{{ cmpCtas }}" as="c" hint-placeholder-count="3">
+<div style="padding:14px 12px;text-align:center;{{ c.cellBg }}"><button onClick="{{ c.onChoose }}" style="width:100%;height:42px;border-radius:11px;font-size:13px;font-weight:700;{{ c.style }}">{{ c.label }}</button></div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+
+<div class="tf-wrap" style="max-width:1080px;position:relative;padding-top:0">
+<sc-if value="{{ cmpCollapsed }}" hint-placeholder-val="{{ true }}">
+<div style="height:96px;margin-top:-98px;position:relative;z-index:2;background:linear-gradient(180deg,transparent,var(--bg));pointer-events:none;border-radius:0 0 22px 22px"></div>
+</sc-if>
+<div style="display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:6px">
+<button onClick="{{ cmpToggle }}" style="display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 24px;border-radius:14px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadowSm);font-size:14.5px;font-weight:700;color:var(--text)">{{ cmpMoreLabel }}<span class="tf-ms" style="font-size:21px;color:var(--primary);transition:transform .25s;{{ cmpIconRot }}">expand_more</span></button>
+<a href="#tf-pricing" style="display:none" aria-hidden="true" style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--muted)">{{ L.cmpFullPage }}<span class="tf-ms" style="font-size:16px">arrow_outward</span></a>
+</div>
+</div>
+
+<!-- ============ CAL.COM BOOKING ============ -->
+<div id="tf-cal" class="tf-wrap" style="padding-top:80px;padding-bottom:10px">
+<div style="position:relative;border-radius:30px;overflow:hidden;background:linear-gradient(160deg,#241C12 0%,#150F09 60%,#0C0B0A 100%);border:1px solid var(--nightBorder);box-shadow:0 40px 90px rgba(12,11,10,.5)">
+<div style="position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(232,199,102,.22),transparent 68%)"></div>
+<div style="position:absolute;left:-70px;bottom:-80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,68,31,.18),transparent 70%)"></div>
+<div class="tf-cal tf-cardpad" style="position:relative;padding:40px">
+<div style="position:relative">
+<span class="tf-gold-text" style="font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em">{{ L.calKicker }}</span>
+<h2 class="tf-disp" style="margin:12px 0 0;font-weight:800;font-size:36px;line-height:1.08;letter-spacing:-.025em;color:#fff;text-wrap:balance">{{ L.calT1 }} <span class="tf-serif tf-gold-text" style="font-weight:400">{{ L.calT2 }}</span></h2>
+<p style="margin:14px 0 0;font-size:15.5px;line-height:1.6;color:rgba(255,255,255,.68)">{{ L.calSub }}</p>
+<div style="display:flex;flex-direction:column;gap:13px;margin-top:24px">
+<sc-for list="{{ calPoints }}" as="c" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:11px"><span class="tf-ms" style="font-size:21px;color:var(--gold);font-variation-settings:'FILL' 1">check_circle</span><span style="font-size:14.5px;font-weight:600;color:rgba(255,255,255,.9)">{{ c.label }}</span></div>
+</sc-for>
+</div>
+<div style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:9px 15px;border-radius:999px;background:rgba(232,199,102,.1);border:1px solid var(--nightBorder)"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(17,178,106,.18)"></span><span class="tf-gold-text" style="font-size:12.5px;font-weight:800">{{ L.calFreePill }}</span></div>
+</div>
+</div>
+<div style="background:#F6F5F2;border:1px solid var(--nightBorder);border-radius:22px;padding:12px;box-shadow:0 20px 50px rgba(0,0,0,.4);display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:8px;padding:6px 8px 10px"><span style="width:9px;height:9px;border-radius:50%;background:var(--goldDeep)"></span><span style="font-size:13px;font-weight:800;color:#17140F">{{ L.calPick }}</span></div>
+<div id="my-cal-inline-growthpartner" style="width:100%;height:600px;overflow:auto;border-radius:16px;background:#fff"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ FAQ ============ -->
+<div id="tf-faq" class="tf-wrap" style="padding-top:74px;padding-bottom:10px;max-width:820px">
+<div style="text-align:center;margin-bottom:28px">
+<h2 class="tf-disp" style="margin:0;font-weight:800;font-size:36px;letter-spacing:-.025em">{{ L.faqT1 }} <span class="tf-serif" style="color:var(--primary);font-weight:400">{{ L.faqT2 }}</span></h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:11px">
+<sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
+<button onClick="{{ q.onToggle }}" style="text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:19px 20px;box-shadow:var(--shadowSm);cursor:pointer">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:14px">
+<span style="font-size:15.5px;font-weight:700;color:var(--text)">{{ q.q }}</span>
+<span class="tf-ms" style="font-size:23px;color:var(--primary);flex:none;{{ q.iconRot }}">expand_more</span>
+</div>
+<sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}"><div style="font-size:14.5px;line-height:1.6;color:var(--muted);margin-top:11px">{{ q.a }}</div></sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+
+<!-- ============ FINAL CTA ============ -->
+<div class="tf-wrap" style="padding-top:70px;padding-bottom:60px">
+<div style="position:relative;border-radius:30px;overflow:hidden;background:var(--primary);padding:54px 44px;text-align:center;box-shadow:0 30px 70px rgba(255,68,31,.32)">
+<div style="position:absolute;right:-80px;bottom:-90px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.12)"></div>
+<div style="position:absolute;left:-70px;top:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10)"></div>
+<div style="position:relative">
+<h2 class="tf-disp" style="margin:0;font-weight:800;font-size:42px;line-height:1.05;letter-spacing:-.03em;color:#fff;text-wrap:balance">{{ L.ctaT1 }} <span class="tf-serif" style="font-weight:400;color:#fff">{{ L.ctaT2 }}</span></h2>
+<p style="margin:14px auto 0;font-size:17px;line-height:1.5;color:rgba(255,255,255,.9);max-width:520px">{{ L.ctaSub }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:28px">
+<button onClick="{{ startFree }}" style="height:54px;padding:0 26px;border-radius:15px;background:#fff;color:var(--primary);font-size:16px;font-weight:800;display:flex;align-items:center;gap:9px;box-shadow:0 14px 30px rgba(0,0,0,.18)"><span class="tf-ms" style="font-size:21px">rocket_launch</span>{{ L.ctaBtn1 }}</button>
+<button onClick="{{ chooseGrowth }}" style="height:54px;padding:0 26px;border-radius:15px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);color:#fff;font-size:16px;font-weight:700">{{ L.ctaBtn2 }}</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<div style="border-top:1px solid var(--border);background:var(--surface)">
+<div class="tf-wrap" style="padding-top:34px;padding-bottom:34px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:32px;height:32px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span class="tf-disp" style="font-weight:800;font-size:19px;color:#fff">t</span></div>
+<div><div class="tf-disp" style="font-weight:800;font-size:16px">Tura Food <span class="tf-serif" style="color:var(--primary)">AI</span></div><div style="font-size:11.5px;color:var(--muted)">turafood.com · Buenaventura, Colombia 🇨🇴</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+<a href="https://app.turafood.com" style="font-size:13px;font-weight:600;color:var(--muted)">app.turafood.com</a>
+
+<span style="font-size:12.5px;color:var(--faint)">© 2026 Tura Food AI</span>
+</div>
+</div>
+</div>
+
+<!-- ============ WHATSAPP FLOAT ============ -->
+<div style="position:fixed;right:22px;bottom:22px;z-index:60;display:flex;align-items:center;gap:12px">
+<span class="tf-wa-bubble tf-hide-sm">{{ L.waBubble }}</span>
+<a class="tf-wa" href="{{ waHref }}" target="_blank" rel="noopener" aria-label="WhatsApp">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2zm0 18.15c-1.52 0-3.01-.41-4.3-1.18l-.31-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.35c0-4.54 3.7-8.23 8.24-8.23 4.54 0 8.23 3.69 8.23 8.23 0 4.54-3.69 8.24-8.23 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
+<span style="position:absolute;top:-3px;right:-3px;width:20px;height:20px;border-radius:50%;background:#FF441F;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff">1</span>
+</a>
+</div>
+
+<!-- ============ ONBOARDING OVERLAY ============ -->
+<sc-if value="{{ onbOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:90;background:rgba(12,11,10,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;animation:tfpop .25s ease both">
+<div class="tf-sc" style="width:100%;max-width:520px;max-height:92dvh;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:26px;box-shadow:0 50px 100px rgba(0,0,0,.4);position:relative">
+<div style="position:absolute;inset:0;background:center top/cover;background-image:url('img/burger-hero.jpg');opacity:.06;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,#000,transparent 55%);mask-image:linear-gradient(180deg,#000,transparent 55%)"></div>
+<div style="position:sticky;top:0;background:var(--bg);padding:18px 22px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:2">
+<div style="display:flex;align-items:center;gap:9px">
+<div style="width:30px;height:30px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center"><span class="tf-disp" style="font-weight:800;font-size:17px;color:#fff">t</span></div>
+<div><div style="font-size:13.5px;font-weight:800;color:var(--text)">{{ onbHeadTitle }}</div><div style="font-size:11.5px;color:var(--muted)">{{ onbHeadSub }}</div></div>
+</div>
+<button onClick="{{ closeOnb }}" style="width:34px;height:34px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:20px;color:var(--muted)">close</span></button>
+</div>
+<div style="display:flex;gap:6px;padding:14px 22px 0">
+<sc-for list="{{ onbDots }}" as="d" hint-placeholder-count="4">
+<div style="flex:1;height:5px;border-radius:999px;background:{{ d.bg }};transition:background .3s"></div>
+</sc-for>
+</div>
+
+<sc-if value="{{ onbIsQuestion }}" hint-placeholder-val="{{ true }}">
+<div style="padding:22px 22px 24px">
+<div class="tf-disp" style="font-weight:800;font-size:23px;line-height:1.12;letter-spacing:-.02em;text-wrap:balance">{{ onbQ.title }}</div>
+<div style="font-size:13.5px;color:var(--muted);margin-top:6px">{{ onbQ.sub }}</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+<sc-for list="{{ onbQ.options }}" as="o" hint-placeholder-count="4">
+<button onClick="{{ o.onPick }}" style="display:flex;align-items:center;gap:13px;text-align:left;padding:15px 16px;border-radius:15px;background:{{ o.bg }};border:{{ o.border }};transition:all .15s;cursor:pointer">
+<span style="font-size:24px;flex:none">{{ o.emoji }}</span>
+<span style="flex:1;font-size:15px;font-weight:700;color:{{ o.fg }}">{{ o.label }}</span>
+<span class="tf-ms" style="font-size:22px;color:{{ o.checkColor }}">{{ o.check }}</span>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:10px;margin-top:20px">
+<sc-if value="{{ onbCanBack }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ onbBack }}" style="height:50px;padding:0 20px;border-radius:14px;background:var(--surface2);font-size:14.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px"><span class="tf-ms" style="font-size:19px">arrow_back</span>{{ L.onbBack }}</button>
+</sc-if>
+<button onClick="{{ onbNext }}" style="flex:1;height:50px;border-radius:14px;font-size:15px;font-weight:700;{{ onbNextStyle }}">{{ onbNextLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ onbIsContact }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px">
+<div class="tf-disp" style="font-weight:800;font-size:23px;line-height:1.14;letter-spacing:-.02em;text-wrap:balance">{{ L.ctTitle }}</div>
+<div style="font-size:13.5px;color:var(--muted);margin-top:6px">{{ L.ctSub }}</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:18px">
+<label style="display:block"><span style="font-size:12px;font-weight:700;color:var(--muted)">{{ L.ctResto }}</span>
+<div style="display:flex;align-items:center;gap:9px;margin-top:6px;height:50px;padding:0 14px;border-radius:13px;background:var(--surface);border:1px solid var(--border)"><span class="tf-ms" style="font-size:19px;color:var(--primary)">storefront</span><input value="{{ onbC.restaurante }}" onInput="{{ onbC.setRestaurante }}" placeholder="{{ L.ctRestoPh }}" style="flex:1;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:600;color:var(--text)"></div></label>
+<label style="display:block"><span style="font-size:12px;font-weight:700;color:var(--muted)">{{ L.ctName }}</span>
+<div style="display:flex;align-items:center;gap:9px;margin-top:6px;height:50px;padding:0 14px;border-radius:13px;background:var(--surface);border:1px solid var(--border)"><span class="tf-ms" style="font-size:19px;color:var(--primary)">person</span><input value="{{ onbC.nombre }}" onInput="{{ onbC.setNombre }}" placeholder="{{ L.ctNamePh }}" style="flex:1;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:600;color:var(--text)"></div></label>
+<label style="display:block"><span style="font-size:12px;font-weight:700;color:var(--muted)">{{ L.ctWa }}</span>
+<div style="display:flex;align-items:center;gap:9px;margin-top:6px;height:50px;padding:0 14px;border-radius:13px;background:var(--surface);border:1px solid var(--border)"><span class="tf-ms" style="font-size:19px;color:#25D366">chat</span><input value="{{ onbC.whatsapp }}" onInput="{{ onbC.setWhatsapp }}" inputMode="tel" placeholder="{{ L.ctWaPh }}" style="flex:1;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:600;color:var(--text)"></div></label>
+<label style="display:block"><span style="font-size:12px;font-weight:700;color:var(--muted)">{{ L.ctEmail }}</span>
+<div style="display:flex;align-items:center;gap:9px;margin-top:6px;height:50px;padding:0 14px;border-radius:13px;background:var(--surface);border:1px solid var(--border)"><span class="tf-ms" style="font-size:19px;color:var(--muted)">mail</span><input value="{{ onbC.email }}" onInput="{{ onbC.setEmail }}" inputMode="email" placeholder="{{ L.ctEmailPh }}" style="flex:1;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:600;color:var(--text)"></div></label>
+</div>
+<div style="display:flex;gap:10px;margin-top:20px">
+<button onClick="{{ onbBack }}" style="height:50px;padding:0 20px;border-radius:14px;background:var(--surface2);font-size:14.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px"><span class="tf-ms" style="font-size:19px">arrow_back</span>{{ L.onbBack }}</button>
+<button onClick="{{ onbToCheckout }}" style="flex:1;height:50px;border-radius:14px;font-size:15px;font-weight:700;{{ onbToCheckoutStyle }}">{{ L.ctContinue }}</button>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:13px"><span class="tf-ms" style="font-size:16px;color:var(--green)">lock</span><span style="font-size:11.5px;color:var(--muted)">{{ L.ctPrivacy }}</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ onbIsCheckout }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px">
+<div class="tf-disp" style="font-weight:800;font-size:23px;letter-spacing:-.02em">{{ L.coTitle }}</div>
+<div style="font-size:13.5px;color:var(--muted);margin-top:5px">{{ L.coSub }}</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:17px;margin-top:16px;box-shadow:var(--shadowSm)">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:10px;background:rgba(255,68,31,.13);display:flex;align-items:center;justify-content:center"><span class="tf-ms" style="font-size:20px;color:var(--primary);font-variation-settings:'FILL' 1">{{ coPlanIcon }}</span></div><div><div style="font-size:15px;font-weight:800;color:var(--text)">{{ coPlanName }}</div><div style="font-size:12px;color:var(--muted)">{{ coPeriod }}</div></div></div>
+<button onClick="{{ goPricing2 }}" style="font-size:12.5px;font-weight:700;color:var(--primary)">{{ L.coChange }}</button>
+</div>
+<div style="height:1px;background:var(--border);margin:14px 0"></div>
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;color:var(--muted)">{{ coLineLabel }}</span><span style="font-size:13.5px;font-weight:700;color:var(--text)">{{ coLineValue }}</span></div>
+<sc-if value="{{ coHasDisc }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px"><span style="font-size:13.5px;color:var(--green)">{{ L.coDiscount }}</span><span style="font-size:13.5px;font-weight:700;color:var(--green)">−{{ coDisc }}</span></div>
+</sc-if>
+<div style="height:1px;background:var(--border);margin:14px 0"></div>
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><span style="font-size:14px;font-weight:700;color:var(--text)">{{ L.coTotal }}</span><div style="text-align:right"><div class="tf-disp" style="font-weight:800;font-size:26px;letter-spacing:-.02em;color:var(--text)">{{ coTotal }}</div><div style="font-size:11.5px;color:var(--muted)">{{ coTotalNote }}</div></div></div>
+</div>
+<div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 10px">{{ L.coPayWith }}</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ coMethods }}" as="m" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:11px;background:var(--surface);border:1px solid var(--border)"><span style="font-size:16px">{{ m.emoji }}</span><span style="font-size:12.5px;font-weight:700;color:var(--text)">{{ m.label }}</span></div>
+</sc-for>
+</div>
+<button onClick="{{ goPay }}" style="width:100%;height:54px;border-radius:15px;margin-top:18px;background:var(--primary);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 12px 28px rgba(255,68,31,.34)"><span class="tf-ms" style="font-size:22px">lock</span>{{ coPayBtn }}</button>
+<div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:13px"><span class="tf-ms" style="font-size:17px;color:var(--green)">verified_user</span><span style="font-size:12px;color:var(--muted)">{{ L.coSecure }}</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ onbIsPaying }}" hint-placeholder-val="{{ false }}">
+<div style="padding:46px 30px 50px;text-align:center">
+<sc-if value="{{ payDone }}" hint-placeholder-val="{{ false }}">
+<div style="width:74px;height:74px;border-radius:50%;background:rgba(17,178,106,.15);display:flex;align-items:center;justify-content:center;margin:0 auto;animation:tfpop .4s ease both"><span class="tf-ms" style="font-size:42px;color:var(--green);font-variation-settings:'FILL' 1">check</span></div>
+<div class="tf-disp" style="font-weight:800;font-size:25px;margin-top:18px;letter-spacing:-.02em">{{ L.payOkTitle }}</div>
+<div style="font-size:14.5px;color:var(--muted);margin-top:8px;line-height:1.5;max-width:340px;margin-left:auto;margin-right:auto">{{ payOkSub }}</div>
+<a href="https://app.turafood.com" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 26px;border-radius:14px;margin-top:24px;background:var(--primary);color:#fff;font-size:15px;font-weight:700;box-shadow:0 10px 24px rgba(255,68,31,.3)">{{ L.payOkBtn }}<span class="tf-ms" style="font-size:19px">arrow_forward</span></a>
+</sc-if>
+<sc-if value="{{ payLoading }}" hint-placeholder-val="{{ true }}">
+<div style="width:58px;height:58px;border-radius:50%;border:5px solid var(--surface2);border-top-color:var(--primary);margin:0 auto;animation:tfspin .8s linear infinite"></div>
+<div class="tf-disp" style="font-weight:800;font-size:21px;margin-top:22px;letter-spacing:-.02em">{{ L.payLoadTitle }}</div>
+<div style="font-size:14px;color:var(--muted);margin-top:7px">{{ L.payLoadSub }}</div>
+<div style="display:inline-flex;align-items:center;gap:7px;margin-top:18px;padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border)"><span style="font-size:14px;font-weight:800;color:#0A7BC0">e</span><span style="font-size:12.5px;font-weight:700;color:var(--muted)">{{ L.payRedirect }}</span></div>
+</sc-if>
+</div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;waNumber&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;573137594713&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;calLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;sophieaimkt/growthpartner&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;calNamespace&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;growthpartner&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;demo_starter&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://demo.turafood.com&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demos&quot;},&quot;demo_turafood&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://demo.turafood.com&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demos&quot;},&quot;demo_growth&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://demo.turafood.com&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demos&quot;}}">
+class Component extends DCLogic {
+  state = { lang:'es', theme:'light', billing:'annual', onbOpen:false, onbPlan:'growth', onbStep:0, onbAns:{}, payPhase:'', faqOpen:0, cmpOpen:false, onbContact:{restaurante:'',nombre:'',whatsapp:'',email:''} };
+
+  componentDidMount(){ setTimeout(()=>this.initCal(), 80); }
+
+  initCal(){
+    if(this._calDone) return; this._calDone=true;
+    const calLink=this.props.calLink || 'sophieaimkt/growthpartner';
+    const ns=this.props.calNamespace || 'growthpartner';
+    try{
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      window.Cal("init", ns, {origin:"https://app.cal.com"});
+      window.Cal.config = window.Cal.config || {}; window.Cal.config.forwardQueryParams = true;
+      window.Cal.ns[ns]("inline", { elementOrSelector:"#my-cal-inline-growthpartner", config: {"layout":"month_view","useSlotsViewOnSmallScreen":"true"}, calLink: calLink });
+      window.Cal.ns[ns]("ui", {"cssVarsPerTheme":{"light":{"cal-brand":"#FF441F"},"dark":{"cal-brand":"#FF441F"}},"hideEventTypeDetails":false,"layout":"month_view"});
+    }catch(e){}
+  }
+
+  fmt(n){ return n.toLocaleString('es-CO'); }
+  money(n){ return '$'+this.fmt(n); }
+  scrollTo(id){ const el=document.getElementById(id); if(el){ const y=el.getBoundingClientRect().top+window.scrollY-66; window.scrollTo({top:y,behavior:'smooth'}); } }
+
+  planMeta(){ return {
+    starter:{ name:'Starter', icon:'storefront', monthly:0, annual:0 },
+    turafood:{ name:'Tura Food', icon:'language', monthly:89000, annual:489000 },
+    growth:{ name:'Tura Growth', icon:'rocket_launch', monthly:289000, annual:890000, popular:true }
+  }; }
+
+  T(){
+    const es = this.state.lang==='es';
+    return {
+      annBar: es?'⚡ Ya en Buenaventura · Onboarding GRATIS para los primeros 50 restaurantes 🇨🇴':'⚡ Now live in Buenaventura · FREE onboarding for the first 50 restaurants 🇨🇴',
+      navProducto: es?'Producto':'Product', navMockup: es?'Cómo se ve':'Preview', navPlanes: es?'Planes':'Plans', navComparar: es?'Comparar':'Compare', navFaq:'FAQ', navCta: es?'Ver planes':'See plans', navLogin: es?'Ingresar':'Log in',
+      heroBadge: es?'La plataforma de IA para tu restaurante':'The AI platform for your restaurant',
+      heroT1: es?'El restaurante':'The restaurant', heroT2: es?'inteligente':'brain', heroT3: es?'que llena tus mesas.':'that fills your tables.',
+      heroSub: es?'Tura Food AI es el ecosistema digital completo para tu restaurante: sitio web, reservas, Voice AI 24/7, WhatsApp automatizado y un dashboard que te muestra cada peso. Sin agencias, sin complicaciones.':'The complete digital ecosystem for your restaurant: website, reservations, 24/7 Voice AI, automated WhatsApp and a dashboard that shows you every peso. No agencies, no headaches.',
+      heroCta1: es?'Ver planes':'See plans', heroCta2: es?'Probar gratis':'Start free',
+      heroChipTop: es?'Más pedidos, más reservas':'More orders, more bookings',
+      heroReviews: es?'+189 reseñas en Google':'+189 Google reviews',
+      floatResTitle: es?'Nueva reserva':'New booking', floatResSub: es?'Mesa 4 · 8:30 PM':'Table 4 · 8:30 PM',
+      floatVoiceTitle: es?'Voice AI atendió':'Voice AI answered', floatVoiceSub: es?'Llamada · reserva creada':'Call · booking created',
+      floatWaTitle:'WhatsApp', floatWaSub: es?'Confirmación enviada':'Confirmation sent',
+      trustLead: es?'Todo tu restaurante, en un lugar':'Your whole restaurant, in one place',
+      featKicker: es?'Por qué Tura Food AI':'Why Tura Food AI',
+      featT1: es?'No es una agencia. Es tu':'Not an agency. Your', featT2: es?'infraestructura de crecimiento.':'growth infrastructure.',
+      featSub: es?'Reemplaza 6 herramientas y 3 proveedores por una sola plataforma pensada para restaurantes de Buenaventura.':'Replace 6 tools and 3 vendors with a single platform built for Buenaventura restaurants.',
+      featSub2: es?'Todo en una sola plataforma':'All in one platform', bentoStat: es?'clientes que vuelven':'returning customers',
+      mockKicker: es?'Cómo se ve':'How it looks',
+      mockT1: es?'Tu restaurante, listo para tus':'Your restaurant, ready for your', mockT2: es?'clientes.':'customers.',
+      mockSub: es?'Así viven tus clientes tu marca: una PWA tipo Rappi, menú con fotos y pagos por Nequi. Todo con tu identidad, sin que descarguen otra app.':'This is how customers experience your brand: a Rappi-style PWA, photo menu and Nequi payments. All in your identity, no extra app to download.',
+      mockLoc: es?'Pedir a domicilio':'Order delivery', mockSearch: es?'Buscar en la carta…':'Search the menu…',
+      mockPromo: es?'Hamburguesa gratis':'Free burger', mockPopular: es?'Lo más pedido':'Most ordered',
+      mockCart: es?'Tu pedido':'Your order', mockSubtotal:'Subtotal', mockDelivery: es?'Domicilio':'Delivery', mockFree:'Gratis', mockTotal:'Total', mockPayMethod: es?'Cuenta conectada':'Connected account', mockPay: es?'Pagar con Nequi':'Pay with Nequi',
+      revCount: es?'127 reseñas en Google':'127 reviews on Google', revLead: es?'Restaurantes que ya crecen con Tura':'Restaurants already growing with Tura', revVerified: es?'Reseña verificada de Google':'Verified Google review',
+      dashKicker:'Dashboard ECME', dashT1: es?'Cada decisión, con':'Every decision, backed by', dashT2: es?'datos en tiempo real.':'real-time data.',
+      dashSub: es?'app.turafood.com es el centro de control de tu restaurante. Empieza gratis con el dashboard básico y desbloquea más según tu plan.':'app.turafood.com is your restaurant control center. Start free with the basic dashboard and unlock more as you grow.',
+      dashPanel: es?'Panel del restaurante':'Restaurant panel', dashLive: es?'● En vivo':'● Live', dashChart: es?'Reservas · últimos 8 días':'Bookings · last 8 days',
+      priceKicker: es?'Membresías':'Memberships',
+      priceT1: es?'Tres planes.':'Three plans.', priceT2: es?'Cero':'Zero', priceT3: es?'confusión.':'confusion.',
+      priceSub: es?'Empieza gratis. Crece cuando quieras. Cancela cuando quieras. Precios en pesos colombianos.':'Start free. Grow when you want. Cancel anytime. Prices in Colombian pesos.',
+      monthly: es?'Mensual':'Monthly', annual: es?'Anual':'Annual', popular: es?'Más popular':'Most popular', demoLive: es?'Ver demo en vivo':'See live demo',
+      seeAll: es?'Comparar todo, función por función':'Compare everything, feature by feature',
+      cmpTitle: es?'Comparación completa':'Full comparison',
+      cmpSub: es?'Lo que incluye cada plan, de un vistazo.':'What each plan includes, at a glance.',
+      cmpFullPage: es?'Ver todo en turafood.com/precios':'See all at turafood.com/precios',
+      cmpFeature: es?'Característica':'Feature',
+      calKicker: es?'¿Aún con dudas?':'Still unsure?',
+      calT1: es?'Agenda una llamada':'Book a call', calT2: es?'gratis.':'free.',
+      calSub: es?'Hablemos 30 minutos. Te mostramos la plataforma, resolvemos tus dudas y armamos un plan de crecimiento para tu restaurante.':'Let’s talk for 30 minutes. We’ll show you the platform, answer your questions and build a growth plan for your restaurant.',
+      calDuration: es?'30 min · sin compromiso':'30 min · no commitment',
+      calStat: es?'+20 restaurantes agendaron esta semana':'+20 restaurants booked this week',
+      calFreePill: es?'100% gratis · sin compromiso':'100% free · no commitment',
+      calPick: es?'Elige tu horario':'Pick your time',
+      faqT1: es?'Preguntas':'Frequently', faqT2: es?'frecuentes':'asked',
+      ctaT1: es?'Tu competencia ya está online.':'Your competition is online.', ctaT2: es?'¿Y tú?':'Are you?',
+      ctaSub: es?'Crea tu cuenta gratis hoy y ten tu restaurante digital funcionando esta semana.':'Create your free account today and get your digital restaurant running this week.',
+      ctaBtn1: es?'Empezar gratis':'Start free', ctaBtn2: es?'Quiero Tura Growth':'I want Tura Growth',
+      waBtn: es?'Escríbenos':'Chat with us', waBubble: es?'¿Dudas? Escríbenos 👋':'Questions? Chat with us 👋', flagTop: es?'Hecho en':'Made in',
+      blogKicker: es?'Recursos':'Resources', blogT1: es?'Ideas para hacer crecer tu':'Ideas to grow your', blogT2: es?'restaurante':'restaurant', blogSlideHint: es?'Desliza':'Swipe', blogRead: es?'min de lectura':'min read',
+      spKicker: es?'Con la confianza de restaurantes del Pacífico':'Trusted by Pacific-coast restaurants', spT1: es?'Marcas locales que ya venden':'Local brands already selling', spT2: es?'con Tura':'with Tura',
+      onbBack: es?'Atrás':'Back',
+      coTitle: es?'Resumen de tu plan':'Your plan summary', coSub: es?'Revisa y continúa al pago seguro.':'Review and continue to secure checkout.',
+      ctTitle: es?'¿A dónde enviamos tu acceso?':'Where do we send your access?', ctSub: es?'Con estos datos creamos tu cuenta y te acompañamos en el onboarding.':'We use this to create your account and guide your onboarding.',
+      ctResto: es?'Nombre del restaurante':'Restaurant name', ctRestoPh: es?'Ej. El Sazón del Puerto':'e.g. El Sazón del Puerto',
+      ctName: es?'Tu nombre':'Your name', ctNamePh: es?'Ej. Carlos Mosquera':'e.g. Carlos Mosquera',
+      ctWa: 'WhatsApp', ctWaPh: es?'Ej. 320 123 4567':'e.g. 320 123 4567',
+      ctEmail: es?'Correo (opcional)':'Email (optional)', ctEmailPh: 'tu@correo.com',
+      ctContinue: es?'Continuar al pago':'Continue to payment', ctPrivacy: es?'Tus datos están seguros. No compartimos tu información.':'Your data is safe. We never share your information.',
+      coChange: es?'Cambiar':'Change', coDiscount: es?'Descuento anual':'Annual discount', coTotal: es?'Total a pagar':'Total', coPayWith: es?'Paga con':'Pay with',
+      coSecure: es?'Pago seguro procesado por ePayco':'Secure payment processed by ePayco',
+      payOkTitle: es?'¡Listo! 🎉':'All set! 🎉', payOkBtn: es?'Ir a mi dashboard':'Go to my dashboard',
+      payLoadTitle: es?'Conectando con ePayco…':'Connecting to ePayco…', payLoadSub: es?'Te llevamos al pago seguro.':'Taking you to secure checkout.', payRedirect: es?'Redirigiendo a ePayco':'Redirecting to ePayco'
+    };
+  }
+
+  cmpData(){
+    const es=this.state.lang==='es';
+    const tx=(a,b)=>({t:[a,b]}); const txa=(a,b)=>({t:[a,b],a:true});
+    const G=(e,en,rows)=>({title:es?e:en, rows});
+    const R=(e,en,s,f,g)=>({label:es?e:en, cells:[s,f,g]});
+    return [
+      G('Sitio web y presencia','Website & presence',[
+        R('Tipo de sitio','Site type', tx('Subdominio','Subdomain'), tx('Profesional','Professional'), tx('Profesional','Professional')),
+        R('Dominio propio','Own domain','n','y','y'),
+        R('Hosting premium','Premium hosting','n','y','y'),
+        R('Correo corporativo','Business email','n','y','y'),
+        R('Menú digital','Digital menu', tx('Básico','Basic'), tx('Profesional','Pro'), tx('+ QR analítico','+ Smart QR')),
+        R('Blog SEO','SEO blog','n', tx('Básico','Basic'), tx('Avanzado','Advanced')),
+        R('Google My Business','Google My Business','n', tx('Básico','Basic'), txa('Avanzado','Advanced'))
+      ]),
+      G('Reservas y agenda','Reservations',[
+        R('Sistema de reservas','Reservation system','n','n','ya'),
+        R('Confirmaciones automáticas','Auto confirmations','n','n','ya'),
+        R('Recordatorios','Reminders','n','n','ya'),
+        R('Gestión de disponibilidad','Availability','n','n','ya'),
+        R('Lista de espera','Waitlist','n','n','ya')
+      ]),
+      G('Voice AI 24/7','Voice AI 24/7',[
+        R('Responde llamadas','Answers calls','n','n','y'),
+        R('Reserva por voz','Books by voice','n','n','y'),
+        R('Resuelve preguntas','Answers FAQs','n','n','y'),
+        R('Califica clientes','Qualifies clients','n','n','y'),
+        R('Minutos incluidos / mes','Minutes / mo','n','n', tx('300 min','300 min'))
+      ]),
+      G('WhatsApp Business','WhatsApp Business',[
+        R('Automatización completa','Full automation','n','n','y'),
+        R('Confirmaciones y cambios','Confirms & changes','n','n','y'),
+        R('Campañas y promociones','Campaigns & promos','n','n','y'),
+        R('Respuestas automáticas','Auto replies','n','n','y'),
+        R('Recuperar inactivos','Win-back inactive','n','n','ya')
+      ]),
+      G('Fidelización y CRM','Loyalty & CRM',[
+        R('CRM de clientes','Customer CRM','n','n','y'),
+        R('Historial de visitas','Visit history','n','n','y'),
+        R('Segmentación','Segmentation','n','n','y'),
+        R('Programa de lealtad','Loyalty program','n','n','ya'),
+        R('Cupones y recompensas','Coupons & rewards','n','n','ya'),
+        R('Cumpleaños automáticos','Auto birthdays','n','n','ya'),
+        R('Reseñas en Google','Google reviews','n','n','ya')
+      ]),
+      G('Email marketing','Email marketing',[
+        R('Campañas automáticas','Auto campaigns','n','n','ya'),
+        R('Diseños PRO','PRO designs','n','n','ya'),
+        R('Newsletter y promos','Newsletter & promos','n','n','ya')
+      ]),
+      G('Marketing y tracking','Marketing & tracking',[
+        R('Google Ads PRO AI','Google Ads PRO AI','n','n','y'),
+        R('Meta Pixel + CAPI','Meta Pixel + CAPI','n','n','y'),
+        R('Google Analytics 4','Google Analytics 4','n','n','y'),
+        R('Google Tag Manager','Google Tag Manager','n','n','y')
+      ]),
+      G('Pagos','Payments',[
+        R('Pasarela Nequi','Nequi gateway','n', txa('Nequi','Nequi'),'y'),
+        R('Todos los métodos (PSE, tarjetas)','All methods (PSE, cards)','n','n','ya')
+      ]),
+      G('Dashboard','Dashboard',[
+        R('Dashboard básico','Basic dashboard','y','y','y'),
+        R('Reservas en tiempo real','Real-time bookings','n','n','y'),
+        R('Ocupación y recurrencia','Occupancy & retention','n','n','y'),
+        R('ROI de campañas','Campaign ROI','n','n','y'),
+        R('Consumo de Voice AI','Voice AI usage','n','n','y'),
+        R('Integración POS','POS integration','n','n', tx('Opcional','Optional'))
+      ]),
+      G('Soporte','Support',[
+        R('Soporte','Support', tx('Self-service','Self-service'), tx('Help Desk','Help Desk'), tx('Help Desk + WhatsApp','Help Desk + WhatsApp')),
+        R('Onboarding guiado','Guided onboarding','n', tx('Básico','Basic'), tx('Completo','Full')),
+        R('Garantía','Guarantee','n', tx('30 días','30 days'), tx('30 días','30 days'))
+      ])
+    ];
+  }
+
+  buildCell(code, growth){
+    const es=this.state.lang==='es';
+    const cellBg = growth ? 'background:rgba(255,68,31,.05)' : '';
+    let o={ cellBg, hasNote:false, note:'' };
+    if(code==='y'){ o.disp='✓'; o.color='var(--primary)'; }
+    else if(code==='ya'){ o.disp='✓'; o.color='var(--primary)'; o.hasNote=true; o.note=es?'Anual':'Annual'; }
+    else if(code==='n'){ o.disp='—'; o.color='var(--faint)'; }
+    else if(code && code.t){ o.disp=code.t[es?0:1]; o.color='var(--text)'; if(code.a){ o.hasNote=true; o.note=es?'Anual':'Annual'; } }
+    return o;
+  }
+
+  buildPlans(){
+    const es=this.state.lang==='es', an=this.state.billing==='annual';
+    const meta=this.planMeta();
+    const feat=(ok,label,ao)=>{
+      if(ao){ if(an) return { icon:'check_circle', color:'var(--goldDeep)', fillVar:";font-variation-settings:'FILL' 1", text:'var(--text)', label, deco:'none', pro:true };
+        return { icon:'lock', color:'var(--faint)', fillVar:'', text:'var(--faint)', label, deco:'line-through', pro:false }; }
+      return { icon: ok?'check_circle':'cancel', color: ok?'var(--primary)':'var(--faint)', fillVar: ok?";font-variation-settings:'FILL' 1":'', text: ok?'var(--text)':'var(--faint)', label, deco:'none', pro:false };
+    };
+    const onAcc=(ok,label,ao)=>{
+      if(ao){ if(an) return { icon:'check_circle', color:'var(--gold)', fillVar:";font-variation-settings:'FILL' 1", text:'#fff', label, deco:'none', pro:true };
+        return { icon:'lock', color:'rgba(255,255,255,.42)', fillVar:'', text:'rgba(255,255,255,.5)', label, deco:'line-through', pro:false }; }
+      return { icon: ok?'check_circle':'cancel', color: ok?'var(--gold)':'rgba(255,255,255,.5)', fillVar: ok?";font-variation-settings:'FILL' 1":'', text: ok?'#fff':'rgba(255,255,255,.6)', label, deco:'none', pro:false };
+    };
+    const starterFeat=[
+      feat(true, es?'Subdominio turafood.com/tu-negocio':'turafood.com/your-shop subdomain'),
+      feat(true, es?'Menú digital (hasta 20 productos)':'Digital menu (up to 20 items)'),
+      feat(true, es?'Reserva básica de mesas':'Basic table reservations'),
+      feat(true, es?'Perfil Google Business':'Google Business profile'),
+      feat(true, es?'Dashboard básico':'Basic dashboard'),
+      feat(false, es?'Sin IA, WhatsApp ni marketing':'No AI, WhatsApp or marketing'),
+      feat(false, es?'Soporte self-service':'Self-service support')
+    ];
+    const foodFeat=[
+      feat(true, es?'Sitio web profesional + dominio propio':'Professional website + own domain'),
+      feat(true, es?'Hosting premium + correo corporativo':'Premium hosting + business email'),
+      feat(true, es?'Menú digital profesional + filtros':'Pro digital menu + filters'),
+      feat(true, es?'Blog SEO para restaurantes':'SEO blog for restaurants'),
+      feat(true, es?'Google My Business avanzado':'Advanced Google My Business', true),
+      feat(true, es?'Pasarela de pagos Nequi':'Nequi payment gateway', true),
+      feat(true, es?'Dashboard completo':'Full dashboard'),
+      feat(true, es?'Help Desk + garantía 30 días':'Help Desk + 30-day guarantee')
+    ];
+    const growthFeat=[
+      onAcc(true, es?'PWA tipo Rappi con tu marca':'Rappi-style PWA with your brand'),
+      onAcc(true, es?'Voice AI Host 24/7 (300 min)':'24/7 Voice AI Host (300 min)'),
+      onAcc(true, es?'WhatsApp Business automatizado':'Automated WhatsApp Business'),
+      onAcc(true, es?'CRM + fidelización + cupones':'CRM + loyalty + coupons'),
+      onAcc(true, es?'Sistema de reservas + recordatorios':'Reservations + reminders', true),
+      onAcc(true, es?'Email marketing + reseñas Google':'Email marketing + Google reviews', true),
+      onAcc(true, es?'Google Ads PRO AI + Pixel + GA4':'Google Ads PRO AI + Pixel + GA4'),
+      onAcc(true, es?'Dashboard tiempo real + ROI':'Real-time dashboard + ROI'),
+      onAcc(true, es?'Todos los métodos de pago Colombia':'All Colombian payment methods', true)
+    ];
+    const mk=(key, tagline, feats, opt)=>{
+      const m=meta[key]; const isFree=m.monthly===0; const accent=!!m.popular;
+      const demoHref=(this.props&&this.props['demo_'+key])||'https://turafood.com/store/demo-sabor-porteno-416173';
+      let priceMain, pricePer='', priceSub='', hasSave=false, saveBadge='';
+      if(isFree){ priceMain= es?'Gratis':'Free'; priceSub= es?'Para siempre':'Forever'; }
+      else if(an){ const perMo=Math.round(m.annual/12); priceMain=this.money(perMo); pricePer='/'+(es?'mes':'mo'); priceSub=(es?'Facturado ':'Billed ')+this.money(m.annual)+'/'+(es?'año':'yr'); const pct=Math.round((1-perMo/m.monthly)*100); hasSave=true; saveBadge='−'+pct+'%'; }
+      else { priceMain=this.money(m.monthly); pricePer='/'+(es?'mes':'mo'); priceSub=(es?'Facturado mensual':'Billed monthly'); }
+      const fg=accent?'#fff':'var(--text)', fgMuted=accent?'rgba(255,255,255,.78)':'var(--muted)', fgFaint=accent?'rgba(255,255,255,.6)':'var(--faint)';
+      return {
+        key, name:m.name, icon:m.icon, popular:accent, tagline, features:feats, featuresTitle:opt.ft,
+        priceMain, pricePer, priceSub, hasSave, saveBadge,
+        iconBg: accent?'linear-gradient(145deg,#F6E4A6,#B8912F)':opt.ib, iconColor: accent?'#1a1206':opt.ic, iconCls: accent?'tf-3d-gold':'tf-3d', fg, fgMuted, fgFaint,
+        featTitleColor: accent?'var(--gold)':opt.ic,
+        demoHref, demoStyle: accent?'background:rgba(255,255,255,.06);border:1px solid var(--nightBorder);color:var(--gold)':'background:transparent;border:1px solid var(--border);color:var(--text)',
+        cardBg: accent?"linear-gradient(165deg,rgba(36,28,18,.92),rgba(21,15,9,.95) 60%,rgba(12,11,10,.97)),url('img/gold-steak2.jpg') center/cover":'var(--surface)', cardBorder: accent?'1px solid var(--nightBorder)':'1px solid var(--border)',
+        cardShadow: accent?'0 34px 84px rgba(12,11,10,.55)':'var(--shadowSm)', cardExtra: accent?'':'',
+        ctaLabel: isFree?(es?'Empezar gratis':'Start free'):(accent?(es?'Elegir Tura Growth':'Choose Tura Growth'):(es?'Elegir plan':'Choose plan')),
+        ctaStyle: accent?'background:linear-gradient(100deg,#F6E4A6,#E8C766 50%,#B8912F);color:#1a1206;box-shadow:0 12px 28px rgba(184,145,47,.45)':(isFree?'background:var(--surface2);color:var(--text);border:1px solid var(--border)':'background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(255,68,31,.3)'),
+        onChoose: ()=>this.openOnb(key)
+      };
+    };
+    return [
+      mk('starter', es?'El gancho de entrada. Prueba la plataforma sin pagar nada.':'The entry hook. Try the platform for free.', starterFeat, {ft: es?'Incluye':'Includes', ib:'rgba(140,133,123,.16)', ic:'var(--muted)'}),
+      mk('turafood', es?'Tu restaurante digital, profesional y listo para vender.':'Your professional digital restaurant, ready to sell.', foodFeat, {ft: es?'Todo lo básico, y además':'Everything basic, plus', ib:'rgba(255,68,31,.12)', ic:'var(--primary)'}),
+      mk('growth', es?'El ecosistema completo: IA, automatización y crecimiento.':'The full ecosystem: AI, automation and growth.', growthFeat, {ft: es?'Todo lo de Tura Food, y además':'Everything in Tura Food, plus'})
+    ];
+  }
+
+  onbQuestions(){
+    const es=this.state.lang==='es';
+    return [
+      { id:'tipo', title: es?'¿Qué tipo de negocio tienes?':'What kind of business do you run?', sub: es?'Adaptamos tu plataforma a tu operación.':'We tailor the platform to your operation.',
+        options:[ {v:'restaurante', emoji:'🍽️', label: es?'Restaurante':'Restaurant'}, {v:'rapida', emoji:'🍔', label: es?'Comida rápida':'Fast food'}, {v:'cafe', emoji:'☕', label: es?'Cafetería / Bar':'Café / Bar'}, {v:'foodtruck', emoji:'🚚', label:'Food truck'} ] },
+      { id:'sedes', title: es?'¿Cuántas sedes manejas?':'How many locations?', sub: es?'Para dimensionar tu dashboard.':'To size your dashboard.',
+        options:[ {v:'1', emoji:'📍', label: es?'1 sede':'1 location'}, {v:'2-3', emoji:'🏘️', label:'2 – 3'}, {v:'4+', emoji:'🌆', label: es?'4 o más':'4 or more'} ] },
+      { id:'meta', title: es?'¿Cuál es tu objetivo principal?':'What is your main goal?', sub: es?'Priorizamos tu onboarding según esto.':'We prioritize your onboarding by this.',
+        options:[ {v:'reservas', emoji:'📅', label: es?'Más reservas':'More reservations'}, {v:'pedidos', emoji:'🛵', label: es?'Más pedidos a domicilio':'More delivery orders'}, {v:'whatsapp', emoji:'💬', label: es?'Automatizar WhatsApp':'Automate WhatsApp'}, {v:'web', emoji:'🌐', label: es?'Tener web profesional':'Get a professional website'} ] }
+    ];
+  }
+
+  openOnb(plan){ this.setState({ onbOpen:true, onbPlan:plan, onbStep:0, onbAns:{}, payPhase:'', onbContact:{restaurante:'',nombre:'',whatsapp:'',email:''} }); try{document.body.style.overflow='hidden';}catch(e){} }
+  closeOnb(){ this.setState({ onbOpen:false, payPhase:'' }); try{document.body.style.overflow='';}catch(e){} }
+  pickAns(qid,v){ this.setState({ onbAns:{...this.state.onbAns,[qid]:v} }); setTimeout(()=>this.onbNext(),180); }
+  onbNext(){ const qs=this.onbQuestions(); if(this.state.onbStep<qs.length) this.setState({onbStep:this.state.onbStep+1}); }
+  onbBack(){ if(this.state.onbStep>0) this.setState({onbStep:this.state.onbStep-1}); }
+  setC(f,e){ const v=e&&e.target?e.target.value:''; this.setState({ onbContact:{...this.state.onbContact,[f]:v} }); }
+  onbToCheckout(){ const c=this.state.onbContact; if(c.restaurante.trim()&&c.nombre.trim()&&c.whatsapp.trim()) this.setState({onbStep:this.state.onbStep+1}); }
+  goPay(){ this.setState({payPhase:'loading'}); setTimeout(()=>this.setState({payPhase:'done'}),2200); }
+  toggleLang(){ this.setState({lang:this.state.lang==='es'?'en':'es'}); }
+  toggleTheme(){ this.setState({theme:this.state.theme==='dark'?'light':'dark'}); }
+
+  renderVals(){
+    const L=this.T();
+    const es=this.state.lang==='es', an=this.state.billing==='annual';
+    const meta=this.planMeta();
+
+    const data=this.cmpData();
+    const cmpGroupsAll=data.map(g=>({ title:g.title, rows:g.rows.map(r=>({ label:r.label, cells:r.cells.map((c,i)=>this.buildCell(c,i===2)) })) }));
+    const cmpCollapsed=!this.state.cmpOpen;
+    const cmpGroups=cmpCollapsed?cmpGroupsAll.slice(0,3):cmpGroupsAll;
+    const cmpMoreLabel=cmpCollapsed?(es?'Ver comparación completa':'See full comparison'):(es?'Ver menos':'Show less');
+    const headPrice=(k)=>{ const m=meta[k]; if(m.monthly===0) return es?'Gratis':'Free'; return an? this.money(m.annual)+'/'+(es?'año':'yr') : this.money(m.monthly)+'/'+(es?'mes':'mo'); };
+    const cmpHead=[
+      {name:'Starter', price:headPrice('starter'), bg:'', fg:'var(--text)', priceColor:'var(--muted)'},
+      {name:'Tura Food', price:headPrice('turafood'), bg:'', fg:'var(--text)', priceColor:'var(--muted)'},
+      {name:'Tura Growth', price:headPrice('growth'), bg:'background:rgba(255,68,31,.06)', fg:'var(--primary)', priceColor:'var(--primary)'}
+    ];
+    const cmpCtas=[
+      {label: es?'Empezar':'Start', cellBg:'', style:'background:var(--surface);border:1px solid var(--border);color:var(--text)', onChoose:()=>this.openOnb('starter')},
+      {label: es?'Elegir':'Choose', cellBg:'', style:'background:var(--surface);border:1px solid var(--border);color:var(--text)', onChoose:()=>this.openOnb('turafood')},
+      {label: es?'Elegir':'Choose', cellBg:'background:rgba(255,68,31,.06)', style:'background:var(--primary);color:#fff', onChoose:()=>this.openOnb('growth')}
+    ];
+
+    const dashBars=[40,58,46,70,55,82,68,96].map((h,i)=>({ h:h+'%', bg: i>=6?'var(--primary)':'rgba(255,68,31,.35)' }));
+
+    // pricing toggle styles + badge
+    const onS='background:var(--surface);color:var(--text);box-shadow:var(--shadowSm)', offS='background:transparent;color:var(--muted)';
+    let maxPct=0; ['turafood','growth'].forEach(k=>{ const m=meta[k]; maxPct=Math.max(maxPct, Math.round((1-Math.round(m.annual/12)/m.monthly)*100)); });
+    const annualSaveBadge=(es?'Hasta ':'Up to ')+maxPct+'%';
+
+    const reviews=[
+      { name: es?'Carlos Mosquera':'Carlos Mosquera', photo:"background-image:url('https://randomuser.me/api/portraits/men/32.jpg')", avBg:'background:#FF441F', date: es?'hace 2 semanas':'2 weeks ago', text: es?'Pasamos de no tener web a recibir reservas todos los días. El Voice AI contesta cuando estamos llenos. Brutal.':'We went from no website to daily bookings. The Voice AI answers when we’re full. Amazing.' },
+      { name: es?'Daniela Riascos':'Daniela Riascos', photo:"background-image:url('https://randomuser.me/api/portraits/women/44.jpg')", avBg:'background:#11B26A', date: es?'hace 1 mes':'1 month ago', text: es?'El WhatsApp automatizado nos ahorra horas. Los clientes reciben confirmaciones solos y volvieron los que no pedían hace meses.':'Automated WhatsApp saves us hours. Customers get confirmations on their own and old clients came back.' },
+      { name: es?'Andrés Valencia':'Andrés Valencia', photo:"background-image:url('https://randomuser.me/api/portraits/men/85.jpg')", avBg:'background:#7C5CFF', date: es?'hace 3 semanas':'3 weeks ago', text: es?'El dashboard me muestra el ROI real de cada campaña. Por fin sé en qué invertir. Vale cada peso.':'The dashboard shows the real ROI of each campaign. I finally know where to invest. Worth every peso.' }
+    ];
+
+    const faqList=[
+      es?['¿Necesito conocimientos técnicos?','No. Nosotros configuramos todo en el onboarding: tu sitio, tu menú, tus reservas y tus automatizaciones. Tú solo gestionas desde el dashboard.']:['Do I need technical skills?','No. We set everything up during onboarding: your site, menu, reservations and automations. You just manage from the dashboard.'],
+      es?['¿Cómo funciona el cobro con Nequi y ePayco?','Conectas tu cuenta de Nequi en el onboarding y guardamos solo el identificador necesario (no datos sensibles). Cada pedido genera el cobro y el dinero llega a tu cuenta; el dashboard registra el estado. Los planes se pagan con ePayco (Nequi, PSE, tarjetas).']:['How do Nequi and ePayco payments work?','You connect your Nequi account during onboarding and we store only the required identifier (no sensitive data). Each order triggers a charge and money lands in your account; the dashboard logs the status. Plans are paid via ePayco (Nequi, PSE, cards).'],
+      es?['¿Qué hace exactamente el Voice AI?','Es un host con IA que contesta llamadas 24/7, reserva mesas, resuelve preguntas frecuentes y califica clientes. Incluye 300 minutos al mes en el plan anual de Tura Growth.']:['What does the Voice AI actually do?','An AI host that answers calls 24/7, books tables, handles FAQs and qualifies customers. Includes 300 minutes/month on the Tura Growth annual plan.'],
+      es?['¿Puedo empezar gratis y luego subir de plan?','Sí. El plan Starter es gratis para siempre. Cuando quieras subes a Tura Food o Tura Growth y todo tu contenido se conserva.']:['Can I start free and upgrade later?','Yes. Starter is free forever. Upgrade to Tura Food or Tura Growth whenever you want and keep all your content.'],
+      es?['¿Hay permanencia o puedo cancelar?','No hay permanencia. Cancelas cuando quieras y los planes de pago tienen garantía de satisfacción de 30 días.']:['Is there a lock-in or can I cancel?','No lock-in. Cancel anytime, and paid plans include a 30-day satisfaction guarantee.']
+    ];
+    const faqs=faqList.map((f,i)=>({ q:f[0], a:f[1], open:i===this.state.faqOpen, iconRot: i===this.state.faqOpen?'transform:rotate(180deg);transition:transform .25s':'transition:transform .25s', onToggle:()=>this.setState({faqOpen:this.state.faqOpen===i?-1:i}) }));
+
+    // onboarding
+    const qs=this.onbQuestions(); const totalSteps=qs.length+2; const step=this.state.onbStep;
+    const onbIsQuestion=this.state.payPhase==='' && step<qs.length;
+    const onbIsContact=this.state.payPhase==='' && step===qs.length;
+    const onbIsCheckout=this.state.payPhase==='' && step===qs.length+1;
+    const onbIsPaying=this.state.payPhase!=='';
+    const onbDots=[]; for(let i=0;i<totalSteps;i++) onbDots.push({ bg: i<=step?'var(--primary)':'var(--surface3)' });
+    let onbQ={title:'',sub:'',options:[]};
+    if(onbIsQuestion){ const q=qs[step]; const sel=this.state.onbAns[q.id];
+      onbQ={ title:q.title, sub:q.sub, options:q.options.map(o=>{ const on=sel===o.v; return { emoji:o.emoji, label:o.label, fg:on?'var(--primary)':'var(--text)', bg:on?'rgba(255,68,31,.08)':'var(--surface)', border:on?'2px solid var(--primary)':'1px solid var(--border)', check:on?'check_circle':'radio_button_unchecked', checkColor:on?'var(--primary)':'var(--faint)', onPick:()=>this.pickAns(q.id,o.v) }; }) }; }
+    const curQ=qs[step];
+    const onbNextEnabled=onbIsQuestion?!!this.state.onbAns[curQ&&curQ.id]:true;
+    const onbNextLabel=es?'Continuar':'Continue';
+    const onbNextStyle=onbNextEnabled?'background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(255,68,31,.3)':'background:var(--surface3);color:var(--faint);cursor:not-allowed';
+    const cc=this.state.onbContact;
+    const onbContactValid=!!(cc.restaurante.trim()&&cc.nombre.trim()&&cc.whatsapp.trim());
+    const onbC={ restaurante:cc.restaurante, nombre:cc.nombre, whatsapp:cc.whatsapp, email:cc.email, setRestaurante:(e)=>this.setC('restaurante',e), setNombre:(e)=>this.setC('nombre',e), setWhatsapp:(e)=>this.setC('whatsapp',e), setEmail:(e)=>this.setC('email',e) };
+    const onbToCheckoutStyle=onbContactValid?'background:var(--primary);color:#fff;box-shadow:0 10px 24px rgba(255,68,31,.3)':'background:var(--surface3);color:var(--faint);cursor:not-allowed';
+
+    const m=meta[this.state.onbPlan]; const isFree=m.monthly===0;
+    let coLineLabel,coLineValue,coTotal,coTotalNote,coHasDisc=false,coDisc='',coPeriod;
+    if(isFree){ coLineLabel=es?'Plan':'Plan'; coLineValue=es?'Gratis':'Free'; coTotal='$0'; coTotalNote=es?'Sin tarjeta requerida':'No card required'; coPeriod=es?'Gratis para siempre':'Free forever'; }
+    else if(an){ const perMo=Math.round(m.annual/12); coLineLabel=(es?'12 meses × ':'12 months × ')+this.money(perMo); coLineValue=this.money(m.monthly*12); coHasDisc=true; coDisc=this.money(m.monthly*12-m.annual); coTotal=this.money(m.annual)+'/'+(es?'año':'yr'); coTotalNote=(es?'Equivale a ':'Equals ')+this.money(perMo)+'/'+(es?'mes':'mo'); coPeriod=es?'Plan anual · 12 meses':'Annual plan · 12 months'; }
+    else { coLineLabel=es?'1 mes':'1 month'; coLineValue=this.money(m.monthly); coTotal=this.money(m.monthly)+'/'+(es?'mes':'mo'); coTotalNote=es?'Se renueva cada mes':'Renews monthly'; coPeriod=es?'Plan mensual':'Monthly plan'; }
+    const coMethods=[ {emoji:'📱',label:'Nequi'}, {emoji:'🏦',label:'PSE'}, {emoji:'💳',label:es?'Tarjetas':'Cards'}, {emoji:'💵',label:'Daviplata'} ];
+    const coPayBtn=isFree?(es?'Crear mi cuenta gratis':'Create my free account'):(es?('Pagar '+coTotal+' con ePayco'):('Pay '+coTotal+' with ePayco'));
+    const payOkSub=isFree?(es?'Tu cuenta Starter está lista. Configura tu restaurante desde el dashboard.':'Your Starter account is ready. Set up your restaurant from the dashboard.'):(es?('Tu pago fue aprobado. Empecemos a configurar tu '+m.name+'.'):('Your payment was approved. Let’s set up your '+m.name+'.'));
+
+    const waNumber=this.props.waNumber||'573137594713';
+    const waText=encodeURIComponent(es?'Hola 👋 Quiero saber más sobre Tura Food AI para mi restaurante.':'Hi 👋 I want to know more about Tura Food AI for my restaurant.');
+
+    return {
+      rootVars: this.state.theme==='dark'
+        ? "--bg:#121110;--surface:#1C1A18;--surface2:#26231F;--surface3:#322D27;--text:#F6F4F0;--muted:#A39C92;--faint:#6E675E;--border:rgba(255,255,255,.10);--ink:#070605;--navBg:rgba(18,17,16,.82);--shadow:0 18px 50px rgba(0,0,0,.5);--shadowSm:0 4px 16px rgba(0,0,0,.4);"
+        : "",
+      L,
+      langLabel: es?'ES':'EN', themeIcon: this.state.theme==='dark'?'light_mode':'dark_mode',
+      goFeatures:()=>this.scrollTo('tf-features'), goMock:()=>this.scrollTo('tf-mockup'), goPricing:()=>this.scrollTo('tf-pricing'), goCompare:()=>this.scrollTo('tf-compare'), goFaq:()=>this.scrollTo('tf-faq'),
+      toggleLang:()=>this.toggleLang(), toggleTheme:()=>this.toggleTheme(),
+      startFree:()=>this.openOnb('starter'), chooseGrowth:()=>this.openOnb('growth'),
+      heroAvatars:[ {photo:"background-image:url('https://randomuser.me/api/portraits/women/68.jpg')"}, {photo:"background-image:url('https://randomuser.me/api/portraits/men/45.jpg')"}, {photo:"background-image:url('https://randomuser.me/api/portraits/women/12.jpg')"}, {photo:"background-image:url('https://randomuser.me/api/portraits/men/76.jpg')"} ],
+      heroStats:[ {num:'24/7', label: es?'Host de voz con IA':'AI voice host'}, {num:'Gratis', label: es?'Para empezar, sin papeles':'Free to start, no paperwork'}, {num:'1', label: es?'Plataforma, todo incluido':'Platform, all-in'} ],
+      trustItems:[ {icon:'language', label: es?'Sitio web':'Website'}, {icon:'event_available', label:'Reservas'}, {icon:'support_agent', label:'Voice AI'}, {icon:'chat', label:'WhatsApp'}, {icon:'insights', label:'Marketing'}, {icon:'monitoring', label:'Dashboard'} ],
+      valueProps:[
+        {icon:'language', iconBg:'rgba(255,68,31,.12)', iconColor:'var(--primary)', title: es?'Presencia profesional':'Professional presence', body: es?'Sitio web, menú digital y perfil de Google listos para vender, con tu dominio propio.':'Website, digital menu and Google profile ready to sell, on your own domain.'},
+        {icon:'support_agent', iconBg:'rgba(255,176,32,.16)', iconColor:'#E0900A', title:'Voice AI 24/7', body: es?'Un host con IA contesta llamadas, reserva mesas y responde preguntas aunque estés lleno o cerrado.':'An AI host answers calls, books tables and answers questions even when you are full or closed.'},
+        {icon:'chat', iconBg:'rgba(37,211,102,.14)', iconColor:'#1FAE55', title: es?'WhatsApp automatizado':'Automated WhatsApp', body: es?'Confirmaciones, recordatorios, campañas y recuperación de clientes, en piloto automático.':'Confirmations, reminders, campaigns and win-backs, on autopilot.'},
+        {icon:'favorite', iconBg:'rgba(255,68,31,.12)', iconColor:'var(--primary)', title: es?'Fidelización y CRM':'Loyalty & CRM', body: es?'Conoce a cada cliente, segméntalo y hazlo volver con puntos, cupones y cumpleaños.':'Know every customer, segment them and bring them back with points, coupons and birthdays.'},
+        {icon:'trending_up', iconBg:'rgba(255,176,32,.16)', iconColor:'#E0900A', title: es?'Marketing con tracking':'Marketing with tracking', body: es?'Google Ads PRO AI, Meta Pixel, CAPI y GA4 configurados para medir cada campaña.':'Google Ads PRO AI, Meta Pixel, CAPI and GA4 set up to measure every campaign.'},
+        {icon:'monitoring', iconBg:'rgba(17,178,106,.14)', iconColor:'var(--green)', title: es?'Dashboard en tiempo real':'Real-time dashboard', body: es?'Reservas, ocupación, recurrencia, ROI y consumo de Voice AI en una sola pantalla.':'Bookings, occupancy, retention, ROI and Voice AI usage on one screen.'}
+      ],
+      bento:{
+        voice:{ cat: es?'IA DE VOZ':'VOICE AI', title:'Voice AI 24/7', body: es?'Un host con IA contesta llamadas, reserva mesas y responde preguntas — aunque estés lleno o cerrado.':'An AI host answers calls, books tables and handles questions — even when you are full or closed.' },
+        presencia:{ cat: es?'SITIO WEB':'WEBSITE', title: es?'Presencia profesional':'Professional presence', body: es?'Sitio web, menú digital y perfil de Google, con tu dominio propio.':'Website, digital menu and Google profile, on your own domain.' },
+        whatsapp:{ title: es?'WhatsApp automatizado':'Automated WhatsApp', body: es?'Confirmaciones, recordatorios y campañas en piloto automático.':'Confirmations, reminders and campaigns on autopilot.' },
+        marketing:{ title: es?'Marketing con tracking':'Marketing with tracking', body: es?'Google Ads PRO AI, Meta Pixel, CAPI y GA4 midiendo cada campaña.':'Google Ads PRO AI, Meta Pixel, CAPI and GA4 measuring every campaign.' },
+        fidel:{ cat:'CRM', title: es?'Fidelización y CRM':'Loyalty & CRM', body: es?'Conoce a cada cliente y hazlo volver con puntos, cupones y cumpleaños.':'Know every customer and bring them back with points and coupons.' },
+        dashboard:{ cat:'DASHBOARD', title: es?'Dashboard en tiempo real':'Real-time dashboard', body: es?'Reservas, ocupación, ROI y consumo de Voice AI en una sola pantalla.':'Bookings, occupancy, ROI and Voice AI usage on one screen.' }
+      },
+      mockChips:[ {icon:'smartphone', label: es?'PWA tipo Rappi con tu marca':'Rappi-style PWA, your brand'}, {icon:'event_available', label: es?'Reservas y Voice AI integrados':'Reservations & Voice AI built in'}, {icon:'payments', label: es?'Pagos por Nequi y todos los métodos':'Nequi & all payment methods'} ],
+      mockDishes:[
+        {name: es?'Burger Doble Tura':'Tura Double Burger', rating:'4.9', time:'20 min', price:'$24.900', bg:"background:#222 url('img/burger-hero.jpg') center/cover"},
+        {name: es?'Lomo al grill':'Grilled Steak', rating:'4.8', time:'25 min', price:'$33.500', bg:"background:#222 url('img/steak-top.jpg') center/cover"},
+        {name: es?'Costillas BBQ':'BBQ Ribs', rating:'4.9', time:'30 min', price:'$38.000', bg:"background:#222 url('img/steak-rustic.jpg') center/cover"}
+      ],
+      mockCart:[
+        {name: es?'Burger Doble Tura':'Tura Double Burger', qty:'1', price:'$24.900', bg:"background:#222 url('img/burger-hero.jpg') center/cover"},
+        {name: es?'Lomo al grill':'Grilled Steak', qty:'1', price:'$33.900', bg:"background:#222 url('img/food-fork.jpg') center/cover"}
+      ],
+      reviews,
+      blogPosts:[
+        {cat: es?'Marketing':'Marketing', title: es?'Cómo llenar tu restaurante un martes por la noche':'How to fill your restaurant on a Tuesday night', read:'5', href:'https://turafood.com/blog', imgStyle:"background-image:url('img/burger-hero.jpg')"},
+        {cat:'Voice AI', title: es?'Voice AI: por qué dejaste de perder llamadas y reservas':'Voice AI: why you stopped missing calls and bookings', read:'4', href:'https://turafood.com/blog', imgStyle:"background-image:url('img/steak-top-dark.jpg')"},
+        {cat:'Growth', title: es?'De 0 a 500 pedidos: monta tu PWA de domicilios':'From 0 to 500 orders: launch your delivery PWA', read:'6', href:'https://turafood.com/blog', imgStyle:"background-image:url('img/gold-steak.jpg')"}
+      ],
+      socialStats:[
+        {num:'120+', label: es?'Restaurantes en el Pacífico':'Restaurants in the Pacific'},
+        {num:'38K', label: es?'Reservas gestionadas':'Bookings managed'},
+        {num:'4.9★', label: es?'Calificación promedio':'Average rating'},
+        {num:'24/7', label: es?'Voice AI siempre activo':'Voice AI always on'}
+      ],
+      dashPoints:[ es?'Reservas y ocupación al instante':'Instant bookings & occupancy', es?'Clientes nuevos vs. recurrentes':'New vs. returning customers', es?'ROI de cada campaña':'ROI for every campaign', es?'Consumo de Voice AI y WhatsApp':'Voice AI & WhatsApp usage' ],
+      dashKpis:[ {icon:'event_available', color:'#FF7A5C', label: es?'Reservas hoy':'Bookings today', value:'42', delta:'+12%'}, {icon:'group', color:'#11B26A', label: es?'Clientes nuevos':'New clients', value:'128', delta:'+8.4%'}, {icon:'trending_up', color:'#FFB020', label:'ROI', value:'3.7x', delta:'+0.4x'}, {icon:'support_agent', color:'#7FA8FF', label: es?'Min. Voice AI':'Voice AI min', value:'186', delta:'/300'} ],
+      dashBars,
+      calAvatars:[ {i:'M', bg:'background:linear-gradient(145deg,#F6E4A6,#B8912F)'}, {i:'D', bg:'background:linear-gradient(145deg,#FFB48F,#FF441F)'}, {i:'A', bg:'background:linear-gradient(145deg,#8FE0B3,#11B26A)'}, {i:'+', bg:'background:linear-gradient(145deg,#CFC7BA,#8C857B)'} ],
+      calPoints:[ {icon:'check_circle', label: es?'Demo en vivo de la plataforma':'Live platform demo'}, {icon:'check_circle', label: es?'Resolvemos todas tus dudas':'We answer all your questions'}, {icon:'check_circle', label: es?'Plan de crecimiento a tu medida':'A growth plan tailored to you'} ],
+      plans:this.buildPlans(),
+      monthlyBtn: this.state.billing==='monthly'?onS:offS, annualBtn: an?onS:offS, annualSaveBadge,
+      setMonthly:()=>this.setState({billing:'monthly'}), setAnnual:()=>this.setState({billing:'annual'}),
+      cmpHead, cmpGroups, cmpCtas, faqs,
+      cmpCollapsed, cmpMoreLabel, cmpIconRot: cmpCollapsed?'':'transform:rotate(180deg)', cmpToggle:()=>this.setState({cmpOpen:!this.state.cmpOpen}),
+      waHref:'https://wa.me/'+waNumber+'?text='+waText,
+      onbOpen:this.state.onbOpen, onbHeadTitle:(es?'Activa tu ':'Activate your ')+m.name, onbHeadSub:(es?'Solo 3 preguntas rápidas':'Just 3 quick questions'),
+      onbDots, onbIsQuestion, onbQ, onbIsContact, onbC, onbContactValid, onbToCheckout:()=>this.onbToCheckout(), onbToCheckoutStyle, onbIsCheckout, onbIsPaying,
+      onbCanBack:onbIsQuestion&&step>0, onbBack:()=>this.onbBack(), onbNext:()=>{ if(onbNextEnabled) this.onbNext(); }, onbNextStyle, onbNextLabel,
+      closeOnb:()=>this.closeOnb(),
+      coPlanIcon:m.icon, coPlanName:m.name, coPeriod, coLineLabel, coLineValue, coHasDisc, coDisc, coTotal, coTotalNote, coMethods, coPayBtn,
+      goPricing2:()=>{ this.closeOnb(); setTimeout(()=>this.scrollTo('tf-pricing'),60); }, goPay:()=>this.goPay(),
+      payDone:this.state.payPhase==='done', payLoading:this.state.payPhase==='loading', payOkSub
+    };
+  }
+}
+</script>
+</body>
+</html>

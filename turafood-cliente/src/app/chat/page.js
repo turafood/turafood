@@ -329,7 +329,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10,
-    background: '#FFF0ED', color: 'var(--primary)',
+    background: 'var(--primarySoft)', color: 'var(--primary)',
     padding: '9px 12px', borderRadius: 11, fontSize: 12, fontWeight: 600,
   },
 };

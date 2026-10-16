@@ -249,10 +249,10 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
                         onClick={(e) => handleQuickAdd(p, e)}
                         style={{
                           height: 38, padding: '0 14px', borderRadius: 12,
-                          background: isJustAdded ? 'var(--green)' : 'linear-gradient(135deg, #FF441F, #E2360F)',
+                          background: isJustAdded ? 'var(--green)' : 'linear-gradient(135deg, var(--primary), var(--primaryDark))',
                           color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer',
                           display: 'flex', alignItems: 'center', gap: 6, flex: 'none',
-                          boxShadow: isJustAdded ? '0 4px 12px rgba(17,178,106,0.3)' : '0 4px 12px rgba(255,68,31,0.25)',
+                          boxShadow: isJustAdded ? '0 4px 12px rgba(17,178,106,0.3)' : '0 4px 12px color-mix(in srgb, var(--primary) 25%, transparent)',
                           transition: 'all .2s ease',
                         }}
                       >
@@ -286,11 +286,11 @@ export default function FastViewModal({ storeId, initialStore, onClose }) {
                 disabled={cartItems.length === 0}
                 style={{
                   flex: 1.2, height: 48, borderRadius: 14,
-                  background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                  background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))',
                   color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   opacity: cartItems.length === 0 ? 0.5 : 1,
-                  boxShadow: '0 4px 16px rgba(255,68,31,0.25)',
+                  boxShadow: '0 4px 16px color-mix(in srgb, var(--primary) 25%, transparent)',
                 }}
               >
                 <span>Ir a Pagar</span>

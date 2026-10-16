@@ -102,7 +102,7 @@ const S = {
     width: 620,
     height: 620,
     maxWidth: '140%',
-    background: 'radial-gradient(circle, rgba(255,68,31,.20) 0%, transparent 62%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 62%)',
     filter: 'blur(50px)',
     pointerEvents: 'none',
   },

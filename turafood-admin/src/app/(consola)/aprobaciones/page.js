@@ -197,7 +197,7 @@ function Expediente({ business, docs, busy, onApprove, onReject }) {
   const RISK = {
     bajo:  { label: 'RIESGO BAJO', bg: '#E6F6EE', color: '#0B8E54' },
     medio: { label: 'RIESGO MEDIO', bg: '#FFF7E6', color: '#A8730B' },
-    alto:  { label: 'RIESGO ALTO', bg: '#FFF0ED', color: '#C0341A' },
+    alto:  { label: 'RIESGO ALTO', bg: 'var(--primarySoft)', color: '#C0341A' },
   }[business.risk] ?? null;
 
   return (
@@ -399,14 +399,14 @@ const S = {
 
   rejectBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',
-    height: 48, borderRadius: 16, background: '#FFF0ED', color: '#C0341A',
+    height: 48, borderRadius: 16, background: 'var(--primarySoft)', color: '#C0341A',
     fontSize: 14, fontWeight: 700, transition: 'all 0.2s ease'
   },
   warn: {
     margin: '14px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted)',
   },
   reason: {
-    marginTop: 20, padding: 16, borderRadius: 18, background: '#FFF0ED', border: '1px solid rgba(192,52,26,0.1)'
+    marginTop: 20, padding: 16, borderRadius: 18, background: 'var(--primarySoft)', border: '1px solid rgba(192,52,26,0.1)'
   },
 
   done: {

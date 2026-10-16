@@ -741,8 +741,8 @@ const S = {
   },
   closeBtn: {
     width: '100%', height: 52, borderRadius: 16, marginTop: 24,
-    fontSize: 14, fontWeight: 800, color: '#FFB0A0', background: 'rgba(255,68,31,0.1)',
-    border: '1px solid rgba(255,68,31,0.2)', cursor: 'pointer', transition: '0.3s'
+    fontSize: 14, fontWeight: 800, color: '#FFB0A0', background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
+    border: '1px solid color-mix(in srgb, var(--primary) 20%, transparent)', cursor: 'pointer', transition: '0.3s'
   },
   closedNote: {
     display: 'flex', alignItems: 'center', gap: 16,
@@ -760,7 +760,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 12, marginTop: 20, padding: '16px 18px',
-    borderRadius: 16, background: 'rgba(255,68,31,0.15)', color: '#E2360F',
-    fontSize: 14, fontWeight: 700, lineHeight: 1.45, border: '1px solid rgba(255,68,31,0.3)'
+    borderRadius: 16, background: 'color-mix(in srgb, var(--primary) 15%, transparent)', color: 'var(--primaryDark)',
+    fontSize: 14, fontWeight: 700, lineHeight: 1.45, border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)'
   },
 };

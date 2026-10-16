@@ -63,7 +63,7 @@ export const ORDER_STATUS = {
   ready: { label: 'Listo', color: 'var(--green)', bg: '#E6F6EE' },
   courier_assigned: { label: 'Repartidor asignado', color: 'var(--blue)', bg: '#EBF2FE' },
   picked_up: { label: 'Recogido', color: 'var(--blue)', bg: '#EBF2FE' },
-  delivering: { label: 'En camino', color: 'var(--primary)', bg: '#FFF0ED' },
+  delivering: { label: 'En camino', color: 'var(--primary)', bg: 'var(--primarySoft)' },
   delivered: { label: 'Entregado', color: 'var(--green)', bg: '#E6F6EE' },
   cancelled: { label: 'Cancelado', color: 'var(--muted)', bg: '#F5F5F5' },
   refunded: { label: 'Reembolsado', color: 'var(--muted)', bg: '#F5F5F5' },

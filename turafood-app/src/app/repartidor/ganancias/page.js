@@ -219,7 +219,7 @@ export default function GananciasPage() {
                     width: '100%', borderRadius: '7px 7px 3px 3px',
                     height: `${Math.max(5, (d.total / chartMax) * 100)}%`,
                     background: d.total === chartMax && d.total > 0
-                      ? 'linear-gradient(180deg,#FF7A3D,#FF441F)'
+                      ? 'linear-gradient(180deg,#FF7A3D,var(--primary))'
                       : 'var(--surface2)',
                   }}
                 />
@@ -297,7 +297,7 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     width: '100%', height: 48, borderRadius: 14, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 14.5, marginTop: 14,
-    boxShadow: '0 10px 24px rgba(255,68,31,.34)',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 34%, transparent)',
   },
   tabs: {
     display: 'flex', background: 'var(--surface2)', borderRadius: 13,
@@ -326,6 +326,6 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 12, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

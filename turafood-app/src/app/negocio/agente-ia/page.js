@@ -58,7 +58,7 @@ export default function AgenteIAPage() {
 
       {/* ─────────── HERO (VAPI STYLE) ─────────── */}
       <section style={{ background: 'linear-gradient(135deg, #0c0c0c 0%, #1a1320 50%, #0f1923 100%)', borderRadius: 28, padding: '48px 44px', position: 'relative', overflow: 'hidden', marginBottom: 32, border: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ position: 'absolute', top: -100, right: -60, width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,68,31,0.1) 0%, transparent 60%)', borderRadius: '50%', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', top: -100, right: -60, width: 400, height: 400, background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 10%, transparent) 0%, transparent 60%)', borderRadius: '50%', filter: 'blur(60px)' }} />
         <div style={{ position: 'absolute', bottom: -80, left: 100, width: 300, height: 300, background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 60%)', borderRadius: '50%', filter: 'blur(60px)' }} />
 
         <div style={{ display: 'flex', gap: 40, alignItems: 'center', position: 'relative', zIndex: 2, flexWrap: 'wrap' }}>
@@ -68,7 +68,7 @@ export default function AgenteIAPage() {
               <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Centro de Mando Omnicanal</span>
             </div>
             <h1 style={{ margin: '0 0 16px', fontSize: 38, fontFamily: 'var(--font-bricolage)', fontWeight: 800, color: '#fff', letterSpacing: '-.03em', lineHeight: 1.1 }}>
-              Build, test, and deploy <span style={{ background: 'linear-gradient(90deg, #FF441F, #A855F7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in minutes.</span>
+              Build, test, and deploy <span style={{ background: 'linear-gradient(90deg, var(--primary), #A855F7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>in minutes.</span>
             </h1>
             <p style={{ margin: 0, fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, maxWidth: 460 }}>
               Configura todo desde la voz y el flujo de conversación hasta la telefonía e integraciones. Tura.ai maneja la infraestructura para que vayas del prompt a producción rápido.
@@ -141,7 +141,7 @@ export default function AgenteIAPage() {
             {[
               { label: 'Total llamadas', value: '1,125', change: '+8% last month', color: '#11B26A', icon: 'call' },
               { label: 'Latencia promedio', value: '340ms', change: '↓ 5% last month', color: '#3B82F6', icon: 'speed' },
-              { label: 'Costo promedio/min', value: '$0.05', change: '↑ 7% last month', color: '#FF441F', icon: 'payments' },
+              { label: 'Costo promedio/min', value: '$0.05', change: '↑ 7% last month', color: 'var(--primary)', icon: 'payments' },
               { label: 'CSAT Score', value: '90%', change: '+1% last month', color: '#A855F7', icon: 'sentiment_satisfied' },
             ].map((kpi, i) => (
               <div key={i} style={{ background: 'var(--surface)', borderRadius: 20, padding: 24, border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>

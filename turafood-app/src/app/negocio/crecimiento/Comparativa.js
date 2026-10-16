@@ -85,7 +85,7 @@ export default function Comparativa() {
           sub="1 solo pago"
           monto={PLAN_ANCLA.anio}
           ancho={visible ? pctAnual : 0}
-          color="linear-gradient(90deg, #FFB57A, #FF7A4D)"
+          color="linear-gradient(90deg, #FFB57A, var(--gold))"
           borde="transparent"
           tinta="#fff"
           fuerte

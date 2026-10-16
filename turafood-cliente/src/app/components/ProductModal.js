@@ -144,10 +144,10 @@ export default function ProductModal({ product, store, onClose }) {
             {off && (
               <span style={{
                 position: 'absolute', bottom: 16, left: 20, zIndex: 2,
-                background: 'linear-gradient(135deg, #FF441F, #E2360F)',
+                background: 'linear-gradient(135deg, var(--primary), var(--primaryDark))',
                 color: '#fff', fontSize: 12, fontWeight: 800,
                 padding: '5px 12px', borderRadius: 10,
-                boxShadow: '0 4px 12px rgba(255,68,31,0.35)',
+                boxShadow: '0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent)',
               }}>
                 {off} DESCUENTO
               </span>
@@ -359,10 +359,10 @@ export default function ProductModal({ product, store, onClose }) {
             onClick={handleAdd}
             style={{
               flex: 1, height: 50, borderRadius: 16,
-              background: added ? 'var(--green)' : 'linear-gradient(135deg, #FF441F 0%, #E2360F 100%)',
+              background: added ? 'var(--green)' : 'linear-gradient(135deg, var(--primary) 0%, var(--primaryDark) 100%)',
               color: '#fff', border: 'none', fontSize: 15, fontWeight: 800,
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '0 20px', boxShadow: '0 8px 24px rgba(255,68,31,0.25)',
+              padding: '0 20px', boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 25%, transparent)',
               transition: 'all .2s ease',
             }}
           >

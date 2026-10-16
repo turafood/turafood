@@ -26,7 +26,7 @@ const ISSUES = [
     icon: 'no_meals',
     title: 'Faltó un plato o bebida',
     sub: 'Uno o varios productos de la orden no llegaron',
-    color: '#FF441F',
+    color: 'var(--primary)',
     instantEligible: true,
   },
   {
@@ -485,7 +485,7 @@ function HelpPage() {
                         style={{
                           ...S.itemCheckRow,
                           borderColor: isChecked ? 'var(--primary)' : 'var(--border)',
-                          background: isChecked ? 'rgba(255,68,31,0.04)' : 'var(--surface)',
+                          background: isChecked ? 'color-mix(in srgb, var(--primary) 4%, transparent)' : 'var(--surface)',
                         }}
                       >
                         <span className={`ms ${isChecked ? 'ms-fill' : ''}`} style={{ fontSize: 22, color: isChecked ? 'var(--primary)' : 'var(--muted)' }}>
@@ -562,7 +562,7 @@ function HelpPage() {
                     style={{
                       ...S.solutionCard,
                       borderColor: refundMethod === 'wallet_credits' ? 'var(--primary)' : 'var(--border)',
-                      background: refundMethod === 'wallet_credits' ? 'rgba(255,68,31,0.04)' : 'var(--surface)',
+                      background: refundMethod === 'wallet_credits' ? 'color-mix(in srgb, var(--primary) 4%, transparent)' : 'var(--surface)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -591,7 +591,7 @@ function HelpPage() {
                     style={{
                       ...S.solutionCard,
                       borderColor: refundMethod === 'nequi' ? 'var(--primary)' : 'var(--border)',
-                      background: refundMethod === 'nequi' ? 'rgba(255,68,31,0.04)' : 'var(--surface)',
+                      background: refundMethod === 'nequi' ? 'color-mix(in srgb, var(--primary) 4%, transparent)' : 'var(--surface)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -627,7 +627,7 @@ function HelpPage() {
                     style={{
                       ...S.solutionCard,
                       borderColor: refundMethod === 'reorder' ? 'var(--primary)' : 'var(--border)',
-                      background: refundMethod === 'reorder' ? 'rgba(255,68,31,0.04)' : 'var(--surface)',
+                      background: refundMethod === 'reorder' ? 'color-mix(in srgb, var(--primary) 4%, transparent)' : 'var(--surface)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -856,7 +856,7 @@ const S = {
     border: '1px solid var(--border)', cursor: 'pointer', transition: 'all .15s ease',
   },
   orderIconBadge: {
-    width: 44, height: 44, borderRadius: 12, background: 'rgba(255,68,31,0.1)',
+    width: 44, height: 44, borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 10%, transparent)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   miniBackBtn: {
@@ -896,7 +896,7 @@ const S = {
     height: 48, borderRadius: 14, background: 'var(--primary)', color: '#fff',
     border: 'none', fontWeight: 800, fontSize: 14, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    gap: 8, padding: '0 22px', boxShadow: '0 8px 24px rgba(255,68,31,0.28)',
+    gap: 8, padding: '0 22px', boxShadow: '0 8px 24px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   secondaryBtn: {
     height: 48, borderRadius: 14, background: 'var(--surface2)', color: 'var(--text)',

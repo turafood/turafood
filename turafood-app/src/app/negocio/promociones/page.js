@@ -22,7 +22,7 @@ const TYPES = [
 ];
 
 const LOOK = {
-  percent: { icon: 'redeem', bg: 'rgba(255,68,31,0.1)', fg: 'var(--primary)' },
+  percent: { icon: 'redeem', bg: 'color-mix(in srgb, var(--primary) 10%, transparent)', fg: 'var(--primary)' },
   fixed: { icon: 'local_activity', bg: 'rgba(59,130,246,0.1)', fg: '#3B82F6' },
   free_delivery: { icon: 'two_wheeler', bg: 'rgba(16,185,129,0.1)', fg: 'var(--green)' },
 };
@@ -179,7 +179,7 @@ export default function PromocionesPage() {
         />
         <Kpi
           label="Por vencer" value={String(porVencer.length)}
-          icon="schedule" tint={porVencer.length ? 'rgba(255,68,31,0.1)' : 'var(--surface2)'}
+          icon="schedule" tint={porVencer.length ? 'color-mix(in srgb, var(--primary) 10%, transparent)' : 'var(--surface2)'}
           fg={porVencer.length ? 'var(--primary)' : 'var(--muted)'}
           note={porVencer.length
             ? 'Vencen en menos de 7 días'
@@ -443,7 +443,7 @@ const S = {
   newIcon: {
     width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, var(--primary) 0%, #FF6B4A 100%)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 8px 25px rgba(255,68,31,0.35)'
+    boxShadow: '0 8px 25px color-mix(in srgb, var(--primary) 35%, transparent)'
   },
   scrim: {
     position: 'fixed', inset: 0, background: 'rgba(20,16,10,.42)',
@@ -480,6 +480,6 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

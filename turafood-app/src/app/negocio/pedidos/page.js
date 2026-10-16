@@ -21,6 +21,7 @@ import { COLUMNS, columnOf, setOrderStatus } from '@/lib/negocio';
 import Vertical3D from '../../components/Vertical3D';
 import TicketModal from '../../components/TicketModal';
 import { useBiz } from '../BizContext';
+import { ES_DEMO } from '@/lib/sitio';
 
 const PAY = {
   cash: { label: 'Efectivo', icon: 'payments', warn: true },
@@ -50,14 +51,16 @@ export default function PedidosPage() {
   const [sound, setSound] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [ticketOrder, setTicketOrder] = useState(null);
+  // Demo: lo que el visitante hace con las comandas de ejemplo vive solo en esta pestaña
+  const [demoEstado, setDemoEstado] = useState({});   // id -> estado nuevo | 'rejected'
+  const ahora = useRef(Date.now());
 
   // MODO DEMO: Inyectamos comandas ficticias en el flujo real
   const orders = useMemo(() => {
     if (!demoMode) return realOrders;
     
-    const now = Date.now();
-    return [
-      ...realOrders,
+    const now = ahora.current;
+    const ejemplo = [
       {
         id: 'demo-1', order_number: '4091', status: 'pending', created_at: new Date(now - 60000 * 4).toISOString(),
         customer: { full_name: 'Carlos Riascos' }, customer_phone: '3120000000', payment_method: 'nequi', payment_status: 'paid', mode: 'delivery', delivery_address: 'Barrio La Independencia',
@@ -84,7 +87,13 @@ export default function PedidosPage() {
         ]
       }
     ];
-  }, [realOrders, demoMode]);
+    return [
+      ...realOrders,
+      ...ejemplo
+        .filter((o) => demoEstado[o.id] !== 'rejected')
+        .map((o) => (demoEstado[o.id] ? { ...o, status: demoEstado[o.id] } : o)),
+    ];
+  }, [realOrders, demoMode, demoEstado]);
 
   // Un solo reloj para todo el tablero: cada comanda no monta el suyo
   const [, setTick] = useState(0);
@@ -123,11 +132,14 @@ export default function PedidosPage() {
   const shown = filter ? COLUMNS.filter((c) => c.key === filter) : COLUMNS;
 
   const advance = async (order) => {
+    const col = columnOf(order.status);
     if (order.id.startsWith('demo-')) {
-      toast(`Simulación: ${order.order_number} avanzado`);
+      if (col.next) {
+        setDemoEstado((d) => ({ ...d, [order.id]: col.next }));
+        toast(`#${order.order_number} → ${NEXT_LABEL[col.next] ?? col.next}`);
+      }
       return;
     }
-    const col = columnOf(order.status);
     if (!col.next) return;
     setBusyId(order.id);
     try {
@@ -143,7 +155,8 @@ export default function PedidosPage() {
 
   const reject = async (order) => {
     if (order.id.startsWith('demo-')) {
-      toast(`Simulación: ${order.order_number} rechazado`);
+      setDemoEstado((d) => ({ ...d, [order.id]: 'rejected' }));
+      toast(`#${order.order_number} rechazado`);
       return;
     }
     setBusyId(order.id);
@@ -169,7 +182,7 @@ export default function PedidosPage() {
     : 0;
 
   const stats = [
-    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: 'rgba(255,68,31,0.1)', fg: 'var(--primary)' },
+    { label: 'Sin aceptar', value: grouped.nuevo.length, icon: 'notifications_active', bg: 'color-mix(in srgb, var(--primary) 10%, transparent)', fg: 'var(--primary)' },
     { label: 'En cocina', value: grouped.preparando.length, icon: 'skillet', bg: 'rgba(245,158,11,0.1)', fg: '#D97706' },
     { label: 'Atrasados', value: late, icon: 'running_with_errors', bg: late ? 'rgba(225,29,72,0.1)' : 'rgba(16,185,129,0.1)', fg: late ? '#E11D48' : '#059669' },
     { label: 'Espera promedio', value: `${avgWait} min`, icon: 'timer', bg: 'rgba(59,130,246,0.1)', fg: '#2563EB' },
@@ -204,7 +217,7 @@ export default function PedidosPage() {
         </div>
 
         <div style={{ display: 'flex', gap: 12 }}>
-          {demoMode && (
+          {demoMode && !ES_DEMO && (
             <button
               onClick={() => setDemoMode(false)}
               style={{
@@ -469,7 +482,7 @@ function Comanda({ order, column, prepLimit, busy, open, onToggle, onAdvance, on
           style={{
             ...S.advanceBtn,
             ...(column.next
-              ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 6px 16px rgba(255,68,31,.28)' }
+              ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 6px 16px color-mix(in srgb, var(--primary) 28%, transparent)' }
               : { border: '1px solid var(--border)', color: 'var(--muted)' }),
           }}
         >
@@ -578,8 +591,8 @@ const S = {
     boxShadow: 'var(--shadow)', color: 'var(--text)'
   },
   ticketNew: {
-    borderColor: 'rgba(255,68,31,.6)',
-    boxShadow: '0 0 0 2px rgba(255,68,31,.2), 0 10px 30px rgba(255,68,31,.15)',
+    borderColor: 'color-mix(in srgb, var(--primary) 60%, transparent)',
+    boxShadow: '0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent), 0 10px 30px color-mix(in srgb, var(--primary) 15%, transparent)',
   },
   ticketLate: {
     borderColor: 'rgba(225,29,72,.6)',

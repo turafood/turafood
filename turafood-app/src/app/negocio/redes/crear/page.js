@@ -436,7 +436,7 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     height: 48, padding: '0 22px', borderRadius: 14, background: 'var(--primary)',
     color: '#fff', fontSize: 14.5, fontWeight: 700, flex: 'none',
-    boxShadow: '0 8px 20px rgba(255,68,31,.28)',
+    boxShadow: '0 8px 20px color-mix(in srgb, var(--primary) 28%, transparent)',
   },
   ghost: {
     height: 46, padding: '0 18px', borderRadius: 13, border: '1px solid var(--border)',
@@ -452,7 +452,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, marginTop: 18, padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)',
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45,
   },
 };

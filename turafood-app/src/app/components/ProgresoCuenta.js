@@ -118,7 +118,7 @@ export default function ProgresoCuenta({ pasos, titulo, verificado }) {
                     ...S.marca,
                     background: p.hecho ? 'var(--green)' : esSiguiente ? 'var(--primary)' : 'var(--surface2)',
                     color: p.hecho ? 'var(--surface)' : esSiguiente ? 'var(--surface)' : 'var(--muted)',
-                    boxShadow: esSiguiente ? '0 4px 12px rgba(255,68,31,.3)' : 'none',
+                    boxShadow: esSiguiente ? '0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent)' : 'none',
                     border: esSiguiente ? 'none' : '1px solid var(--border)'
                   }}
                 >
@@ -169,7 +169,7 @@ const S = {
   brillo: {
     position: 'absolute', right: -100, top: -100, width: 300, height: 300,
     borderRadius: '50%', pointerEvents: 'none',
-    background: 'radial-gradient(circle, rgba(255,68,31,.12), transparent 60%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 12%, transparent), transparent 60%)',
   },
   cabecera: {
     position: 'relative', display: 'flex', alignItems: 'flex-start', gap: 12, justifyContent: 'space-between',

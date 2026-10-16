@@ -262,7 +262,7 @@ export default function RiderShell({ children }) {
                 background: demoMode ? 'linear-gradient(135deg, var(--primary), #FF7B3B)' : 'var(--surface2)',
                 color: demoMode ? '#fff' : 'var(--muted)',
                 border: '1px solid ' + (demoMode ? 'transparent' : 'var(--border)'),
-                boxShadow: demoMode ? '0 4px 12px rgba(255,68,31,0.2)' : 'none',
+                boxShadow: demoMode ? '0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent)' : 'none',
                 cursor: 'pointer',
               }}
             >
@@ -349,7 +349,7 @@ export default function RiderShell({ children }) {
 const S = {
   error: {
     display: 'flex', alignItems: 'center', gap: 9, margin: '12px 20px 0', padding: '12px 14px',
-    borderRadius: 14, background: '#FFF0ED', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
+    borderRadius: 14, background: 'var(--primarySoft)', color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
   aiFab: {
     position: 'absolute', right: 20, bottom: 90, zIndex: 70,
@@ -367,9 +367,9 @@ const S = {
   sideBrand: { display: 'flex', alignItems: 'center', gap: 11, padding: '0 8px 20px' },
   sideLogo: {
     width: 40, height: 40, borderRadius: 13, flex: 'none',
-    background: 'linear-gradient(150deg,#FF7A3D,#FF441F)',
+    background: 'linear-gradient(150deg,#FF7A3D,var(--primary))',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(255,68,31,.3)',
+    boxShadow: '0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent)',
   },
   sideName: {
     display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800,

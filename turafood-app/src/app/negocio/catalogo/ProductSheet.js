@@ -614,7 +614,7 @@ export default function ProductSheet({
                 {/* Switch Tura Turbo ⚡ */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, rgba(255,107,0,0.1), rgba(232,199,102,0.06))', padding: '16px 20px', borderRadius: 16, border: '1px solid rgba(255,107,0,0.3)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 10, background: form.is_turbo ? '#FF7A4D' : 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 38, height: 38, borderRadius: 10, background: form.is_turbo ? 'var(--gold)' : 'var(--surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="ms" style={{ color: form.is_turbo ? '#fff' : 'var(--muted)', fontSize: 20 }}>bolt</span>
                     </div>
                     <div>
@@ -628,7 +628,7 @@ export default function ProductSheet({
                     onClick={() => set('is_turbo', !form.is_turbo)}
                     style={{
                       width: 48, height: 28, borderRadius: 99, padding: 3, border: 'none', cursor: 'pointer',
-                      background: form.is_turbo ? '#FF7A4D' : 'var(--border)', transition: 'background .3s', flex: 'none'
+                      background: form.is_turbo ? 'var(--gold)' : 'var(--border)', transition: 'background .3s', flex: 'none'
                     }}
                   >
                     <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#fff', transform: form.is_turbo ? 'translateX(20px)' : 'translateX(0)', transition: 'transform .3s' }} />
@@ -755,7 +755,7 @@ export default function ProductSheet({
                   )}
 
                   {form.is_turbo && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'linear-gradient(135deg, #FF7A4D, #E2360F)', color: '#fff', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, boxShadow: '0 4px 10px rgba(255,68,31,0.25)' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'linear-gradient(135deg, var(--gold), var(--primaryDark))', color: '#fff', padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, boxShadow: '0 4px 10px color-mix(in srgb, var(--primary) 25%, transparent)' }}>
                       <span className="ms" style={{ fontSize: 12 }}>bolt</span> ⚡ TURBO 15 MIN
                     </div>
                   )}
@@ -896,7 +896,7 @@ const S = {
   },
   error: {
     display: 'flex', alignItems: 'flex-start', gap: 9, padding: '14px 16px',
-    borderRadius: 16, background: '#FFF0ED', color: 'var(--primary)',
+    borderRadius: 16, background: 'var(--primarySoft)', color: 'var(--primary)',
     fontSize: 13, fontWeight: 600, lineHeight: 1.45, marginTop: 20,
   },
 };

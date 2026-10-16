@@ -108,7 +108,7 @@ export const metadata = {
 
 // En Next 16 `themeColor` va en el export `viewport`, no en `metadata`
 export const viewport = {
-  themeColor: '#FF441F',
+  themeColor: '#111111',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,

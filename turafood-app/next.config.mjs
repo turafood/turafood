@@ -3,6 +3,7 @@ const nextConfig = {
   // Build autónomo para Docker (imagen pequeña)
   output: 'standalone',
 
+
   images: {
     // Cloudflare Workers no trae optimizador de imágenes: se sirven directo.
     unoptimized: true,

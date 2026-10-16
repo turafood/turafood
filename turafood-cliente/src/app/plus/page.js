@@ -212,7 +212,7 @@ const S = {
   },
   savingsCard: {
     marginTop: 12, borderRadius: 28,
-    background: 'linear-gradient(135deg,#FF7A3D,#FF441F)',
+    background: 'linear-gradient(135deg,#FF7A3D,var(--primary))',
     padding: '28px 20px', textAlign: 'center', color: '#fff',
   },
   ordersRow: {
@@ -237,7 +237,7 @@ const S = {
   subscribeBtn: {
     width: '100%', height: 56, borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 15.5, marginTop: 18,
-    boxShadow: '0 10px 24px rgba(255,68,31,.32)',
+    boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent)',
   },
   legal: {
     fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.45,
@@ -245,7 +245,7 @@ const S = {
   },
   errorBox: {
     display: 'flex', alignItems: 'center', gap: 9, marginBottom: 14,
-    padding: '12px 14px', borderRadius: 14, background: '#FFF0ED',
+    padding: '12px 14px', borderRadius: 14, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 13, fontWeight: 600,
   },
 };

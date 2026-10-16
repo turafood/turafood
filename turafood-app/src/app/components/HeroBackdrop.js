@@ -72,7 +72,7 @@ const S = {
     height: '120vw',
     maxWidth: 900,
     maxHeight: 900,
-    background: 'radial-gradient(circle, rgba(255,68,31,.18) 0%, rgba(255,68,31,.04) 40%, transparent 70%)',
+    background: 'radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent) 0%, color-mix(in srgb, var(--primary) 4%, transparent) 40%, transparent 70%)',
     filter: 'blur(60px)',
     pointerEvents: 'none',
     willChange: 'transform, opacity',

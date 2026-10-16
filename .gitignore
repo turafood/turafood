@@ -99,3 +99,10 @@ Turafood AI - Todo el puerto en una APP*
 documentos/*.docx
 TRASPASO.md
 *.docx
+
+# Material privado / de trabajo (no va al repositorio)
+Portfolio - Tura Food by Ashly Miranda/
+screenshots/
+screencapture-*.png
+AUDITORIA_*.md
+PLAN_PRODUCCION.md

@@ -53,7 +53,7 @@ export default function ActualizarClavePage() {
       padding: '20px', overflowY: 'auto',
     }}>
       {/* Background Flares */}
-      <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 500, height: 260, background: 'radial-gradient(ellipse at top, rgba(232,199,102,0.08) 0%, rgba(255,68,31,0.04) 50%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 500, height: 260, background: 'radial-gradient(ellipse at top, rgba(232,199,102,0.08) 0%, color-mix(in srgb, var(--primary) 4%, transparent) 50%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{
         width: '100%', maxWidth: 410,
@@ -72,7 +72,7 @@ export default function ActualizarClavePage() {
             width: 32, height: 32, borderRadius: 10, background: 'var(--primary)', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
             fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 18,
-            boxShadow: '0 6px 18px rgba(255,68,31,.4)',
+            boxShadow: '0 6px 18px color-mix(in srgb, var(--primary) 40%, transparent)',
           }}>t</span>
           <div>
             <span style={{ display: 'block', fontFamily: 'var(--font-bricolage)', fontWeight: 800, fontSize: 16, color: '#fff', letterSpacing: '-.02em' }}>
@@ -148,8 +148,8 @@ export default function ActualizarClavePage() {
             {error && (
               <div style={{
                 display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 14, padding: '10px 12px',
-                borderRadius: 12, background: 'rgba(255,68,31,.12)',
-                border: '1px solid rgba(255,68,31,.3)', color: '#FFC7BA',
+                borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 12%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)', color: '#FFC7BA',
                 fontSize: 12, fontWeight: 600,
               }}>
                 <span className="ms" style={{ fontSize: 17, flex: 'none' }}>error</span>
@@ -162,9 +162,9 @@ export default function ActualizarClavePage() {
               disabled={busy || !password}
               style={{
                 width: '100%', height: 48, borderRadius: 14,
-                background: 'linear-gradient(145deg, #FF5B2E, #E2360F)',
+                background: 'linear-gradient(145deg, #FF5B2E, var(--primaryDark))',
                 color: '#fff', border: 'none', fontWeight: 700, fontSize: 14.5,
-                cursor: 'pointer', boxShadow: '0 8px 22px rgba(255,68,31,.4)',
+                cursor: 'pointer', boxShadow: '0 8px 22px color-mix(in srgb, var(--primary) 40%, transparent)',
               }}
             >
               {busy ? 'Guardando nueva clave…' : 'Guardar y entrar al panel'}

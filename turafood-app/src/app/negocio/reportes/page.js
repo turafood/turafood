@@ -386,7 +386,7 @@ function WeekdayBars({ data }) {
               style={{
                 width: '100%', height: h, borderRadius: '9px 9px 4px 4px',
                 background: best
-                  ? 'linear-gradient(180deg, var(--primary) 0%, #FF7A4D 100%)'
+                  ? 'linear-gradient(180deg, var(--primary) 0%, var(--gold) 100%)'
                   : 'var(--border)',
                 transition: 'height .35s cubic-bezier(.2,0,0,1)',
               }}
@@ -421,7 +421,7 @@ function HourBars({ data, peak }) {
               height: Math.max((h.orders / max) * 138, 3),
               borderRadius: '6px 6px 3px 3px',
               background: h.hour === peak
-                ? 'linear-gradient(180deg, var(--primary) 0%, #FF7A4D 100%)'
+                ? 'linear-gradient(180deg, var(--primary) 0%, var(--gold) 100%)'
                 : `color-mix(in srgb, var(--primary) ${18 + (h.orders / max) * 40}%, transparent)`,
               transition: 'height .35s cubic-bezier(.2,0,0,1)',
             }}

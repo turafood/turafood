@@ -59,7 +59,7 @@ export default function ResumenPage() {
   const decisions = [
     ...pendientes.slice(0, 2).map((b) => ({
       id: `b-${b.id}`,
-      icon: 'how_to_reg', tint: '#FFF0ED', color: 'var(--primary)',
+      icon: 'how_to_reg', tint: 'var(--primarySoft)', color: 'var(--primary)',
       title: `${b.name} espera aprobación`,
       note: `${b.docs_ok ?? '—'} de ${b.docs_total ?? 4} documentos · ${ago(b.created_at)}`,
       href: '/aprobaciones',
@@ -80,7 +80,7 @@ export default function ResumenPage() {
     },
     overview.marketing?.fallidos > 0 && {
       id: 'mkt',
-      icon: 'mark_email_read', tint: '#FFF0ED', color: 'var(--primary)',
+      icon: 'mark_email_read', tint: 'var(--primarySoft)', color: 'var(--primary)',
       title: `${overview.marketing.fallidos} correos no salieron`,
       note: 'La cola de MailerLite tiene envíos que fallaron y hay que mirar',
       href: '/marketing',
@@ -394,7 +394,7 @@ const S = {
   trio: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16, marginTop: 16 },
 
   pendingTag: {
-    height: 22, padding: '0 9px', borderRadius: 999, background: '#FFF0ED',
+    height: 22, padding: '0 9px', borderRadius: 999, background: 'var(--primarySoft)',
     color: 'var(--primary)', fontSize: 10, fontWeight: 800, letterSpacing: '.04em',
     display: 'inline-flex', alignItems: 'center',
   },

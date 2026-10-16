@@ -436,7 +436,7 @@ export const BOOKING = {
   title: 'Reservas con recordatorio',
   short: 'Reservas',
   icon: 'event_available',
-  accent: '#E2360F',
+  accent: 'var(--primaryDark)',
   tint: '#FFF1EC',
   blurb: 'Que reserven solos y no se te caiga la mesa.',
   intro: {
@@ -580,7 +580,7 @@ export const EXTRA_SERVICES = [
     id: 'website',
     title: 'Sitio web propio',
     icon: 'language',
-    accent: '#E2360F',
+    accent: 'var(--primaryDark)',
     tint: '#FFF1EC',
     blurb: 'Tu carta, tu marca y tu dominio, con los pedidos entrando a TuraFood.',
   },

@@ -37,16 +37,21 @@ const ETIQUETAS = [
 
 const ICONO_ETIQUETA = { Casa: 'home', Trabajo: 'work', Otro: 'location_on' };
 
-const BARRIOS_POPULARES = [
-  { name: 'Centro', emoji: '🏖️', detail: 'Comuna 1 · Centro comercial' },
-  { name: 'Bellavista', emoji: '🌴', detail: 'Comuna 7 · Zona residencial' },
-  { name: 'Pueblo Nuevo', emoji: '🚢', detail: 'Comuna 1 · Muelle y Galería' },
-  { name: 'Juan XXIII', emoji: '🛍️', detail: 'Comuna 6 · Zona residencial' },
-  { name: 'El Jorge', emoji: '🏟️', detail: 'Comuna 4 · Av. Simón Bolívar' },
-  { name: 'La Independencia', emoji: '🏙️', detail: 'Comuna 10 · Vía principal' },
-  { name: 'San Luis', emoji: '🏘️', detail: 'Comuna 7 · Carrera 54' },
-  { name: 'Nayita', emoji: '🌊', detail: 'Comuna 1 · Frente al malecón' },
-];
+const POPULARES = ['Centro', 'Bellavista', 'Pueblo Nuevo', 'Juan XXIII', 'El Jorge', 'La Independencia', 'San Luis', 'Nayita'];
+
+/** Fila de lista al estilo Uber: icono en círculo gris, título, subtítulo y línea fina */
+function Fila({ icono, titulo, sub, onClick, activo = false, acento = false, derecha }) {
+  return (
+    <button type="button" className="as-fila" data-activo={activo} onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
+      <span className={`as-fila-ico ${acento ? 'acento' : ''}`}><span className="ms" style={{ fontSize: 21 }}>{icono}</span></span>
+      <span className="as-fila-txt">
+        <span className="as-fila-t">{titulo}</span>
+        {sub && <span className="as-fila-s">{sub}</span>}
+      </span>
+      {derecha}
+    </button>
+  );
+}
 
 export default function AddressSheet({ open, onClose, onSave, recientes = [], autoGps = false }) {
   // Pestaña activa: 'search' (Rappi) o 'map' (Uber)
@@ -67,6 +72,7 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
   const [localizando, setLocalizando] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [verTodos, setVerTodos] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -102,7 +108,7 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
     setTab('search');
     setTexto(''); setPunto(null); setExacta(false); setPinTocado(false); setBarrio(null);
     setSugs([]); setLista(false); setDetalle(''); setEtiqueta('Casa'); setAviso(null);
-    setIsDragging(false);
+    setIsDragging(false); setVerTodos(false);
     editado.current = false;
   }, [open]);
 
@@ -128,8 +134,8 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
 
       const m = L.map(mapEl.current, {
         center: [CENTRO.lat, CENTRO.lng],
-        zoom: 14,
-        minZoom: 12,
+        zoom: 13,
+        minZoom: 11,
         maxZoom: 19,
         zoomControl: false,
         attributionControl: false,
@@ -144,6 +150,19 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
         attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19,
       }).addTo(m);
+
+      // Toda la ciudad a la vista y cada barrio rotulado (se ocultan al acercar para no tapar las calles)
+      if (!punto) m.fitBounds(MAP_BOUNDS, { animate: false });
+      const rotulos = L.layerGroup(BUENAVENTURA_BARRIOS.map((br) => L.marker([br.lat, br.lng], {
+        interactive: false, keyboard: false,
+        icon: L.divIcon({ className: 'as-barrio-label', html: '<span>' + br.name + '</span>', iconSize: [0, 0] }),
+      })));
+      const pintarRotulos = () => {
+        const z = m.getZoom();
+        if (z >= 13 && z <= 16) { if (!m.hasLayer(rotulos)) rotulos.addTo(m); } else m.removeLayer(rotulos);
+      };
+      m.on('zoomend', pintarRotulos);
+      pintarRotulos();
 
       m.on('dragstart', () => {
         usuarioMovio.current = true;
@@ -401,343 +420,127 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
   };
 
   const hayExacta = sugs.some((s) => s.exacta);
+  const consulta = texto.trim().length >= 2 && lista;
+  const populares = POPULARES.map((n) => BUENAVENTURA_BARRIOS.find((b) => b.name === n)).filter(Boolean);
+  const todos = useMemo(
+    () => [...BUENAVENTURA_BARRIOS].sort((x, y) => x.name.localeCompare(y.name, 'es')),
+    [],
+  );
+  const barriosVisibles = verTodos ? todos : populares;
 
   if (!open || !mounted) return null;
 
   const modalEl = (
-    <div style={S.fondo} onClick={() => !guardando && onClose()}>
-      <div
-        style={S.hoja}
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="¿Dónde te entregamos?"
-      >
-        {/* Cabecera Estilo Rappi/Uber con Segmented Controls */}
-        <div style={S.cabecera}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-            <div>
-              <div style={S.titulo}>¿Dónde te entregamos?</div>
-              <div style={S.sub}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
-                  Buenaventura activa · Entregas rápidas
-                </span>
+    <div className="as-fondo" onClick={() => !guardando && onClose()}>
+      <style>{CSS}</style>
+      <div className="as-hoja" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="¿Dónde te entregamos?">
+
+        {/* ============ LISTA: planear la entrega ============ */}
+        <div className="as-vista" style={{ display: tab === 'search' ? 'flex' : 'none' }}>
+          <header className="as-top">
+            <button type="button" className="as-circulo" onClick={onClose} aria-label="Cerrar"><span className="ms">arrow_back</span></button>
+            <h2 className="as-h">¿Dónde te entregamos?</h2>
+          </header>
+
+          <div className="as-ruta">
+            <div className="as-riel" aria-hidden="true"><i className="d" /><i className="l" /><i className="c" /></div>
+            <div className="as-ruta-filas">
+              <div className="as-ruta-fila">
+                <span className="as-ruta-r">Ciudad</span>
+                <span className="as-ruta-v">Buenaventura, Valle del Cauca</span>
+              </div>
+              <div className="as-ruta-fila">
+                <label className="as-ruta-r" htmlFor="as-q">Dirección de entrega</label>
+                <div className="as-ruta-in">
+                  <input
+                    id="as-q" value={texto} role="combobox" aria-expanded={consulta && sugs.length > 0} aria-autocomplete="list"
+                    aria-controls="dir-lista" autoComplete="street-address" enterKeyHint="search"
+                    placeholder="Calle 5 # 3-12, carrera o barrio"
+                    onChange={(e) => { editado.current = true; setTexto(e.target.value); setLista(true); setPinTocado(false); }}
+                    onFocus={() => setLista(true)} onKeyDown={alTeclear}
+                  />
+                  {buscando && <span className="ms as-spin" style={{ fontSize: 18 }}>progress_activity</span>}
+                  {texto && !buscando && (
+                    <button type="button" className="as-x" aria-label="Borrar" onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => { setTexto(''); setSugs([]); editado.current = true; setLista(true); setPunto(null); setExacta(false); setPinTocado(false); setAviso(null); }}>
+                      <span className="ms" style={{ fontSize: 18 }}>close</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-            <button onClick={onClose} style={S.cerrar} aria-label="Cerrar modal">
-              <span className="ms" style={{ fontSize: 20 }}>close</span>
-            </button>
           </div>
 
-          {/* Segmented Control de Pestañas (Rappi Buscar vs Uber Mapa) */}
-          <div className="addr-segmented-control" style={{ marginTop: 12 }}>
-            <button
-              type="button"
-              onClick={() => setTab('search')}
-              className={`addr-tab-item ${tab === 'search' ? 'active' : ''}`}
-            >
-              <span className="ms" style={{ fontSize: 18, color: tab === 'search' ? 'var(--primary)' : 'inherit' }}>
-                search
-              </span>
-              <span>Buscar y Recientes</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('map')}
-              className={`addr-tab-item ${tab === 'map' ? 'active' : ''}`}
-            >
-              <span className="ms" style={{ fontSize: 18, color: tab === 'map' ? 'var(--primary)' : 'inherit' }}>
-                map
-              </span>
-              <span>Ubicar en Mapa</span>
-              {punto && (
-                <span style={{
-                  width: 7, height: 7, borderRadius: '50%', background: 'var(--primary)',
-                  display: 'inline-block', marginLeft: 2,
-                }} />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* ============================================================
-            TAB 1: BUSCADOR & RECIENTES (RAPPI SUPER-APP STYLE)
-            ============================================================ */}
-        <div
-          ref={cuerpoRef}
-          className="sc"
-          style={{
-            ...S.cuerpo,
-            display: tab === 'search' ? 'block' : 'none',
-          }}
-        >
-          {/* BOTÓN HERO 1-TAP GPS (RADAR EN VIVO) */}
-          <button
-            type="button"
-            onClick={usarGps}
-            disabled={localizando}
-            className="addr-gps-hero-btn"
-            style={{ marginBottom: 14 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div className="gps-radar-wrap">
-                {localizando && (
-                  <>
-                    <div className="gps-radar-wave" />
-                    <div className="gps-radar-wave" />
-                  </>
-                )}
-                <span className="ms ms-fill" style={{ fontSize: 22, color: 'var(--primary)' }}>
-                  {localizando ? 'radar' : 'my_location'}
-                </span>
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>
-                  {localizando ? 'Detectando satélites en Buenaventura...' : 'Usar mi ubicación actual con GPS'}
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                  {localizando ? 'Conectando antena de alta precisión...' : 'Detección automática en 1 toque'}
-                </div>
-              </div>
-            </div>
-            <span className="ms" style={{ fontSize: 20, color: 'var(--primary)', flex: 'none' }}>
-              {localizando ? 'progress_activity' : 'arrow_forward'}
-            </span>
-          </button>
-
-          {/* BUSCADOR SPOTLIGHT */}
-          <div style={{ position: 'relative', marginBottom: 14 }}>
-            <div style={{ ...S.campo, borderColor: lista ? 'var(--primary)' : 'var(--border)' }}>
-              <span className="ms" style={{ fontSize: 21, color: 'var(--primary)' }}>search</span>
-              <input
-                value={texto}
-                role="combobox"
-                aria-expanded={lista && sugs.length > 0}
-                aria-autocomplete="list"
-                aria-controls="dir-lista"
-                autoComplete="street-address"
-                enterKeyHint="search"
-                placeholder="Escribe tu calle, carrera o barrio..."
-                aria-label="Buscar dirección"
-                onChange={(e) => {
-                  editado.current = true;
-                  setTexto(e.target.value);
-                  setLista(true);
-                  setPinTocado(false);
-                }}
-                onFocus={() => setLista(true)}
-                onKeyDown={alTeclear}
-                style={S.input}
-              />
-              {buscando && (
-                <span className="ms" style={{ fontSize: 18, color: 'var(--muted)', animation: 'spin 1s linear infinite' }}>
-                  progress_activity
-                </span>
-              )}
-              {texto && !buscando && (
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => {
-                    setTexto('');
-                    setSugs([]);
-                    editado.current = true;
-                    setLista(true);
-                    setPunto(null);
-                    setExacta(false);
-                    setPinTocado(false);
-                    setAviso(null);
-                  }}
-                  aria-label="Borrar búsqueda"
-                  style={S.borrar}
-                >
-                  <span className="ms" style={{ fontSize: 18 }}>cancel</span>
-                </button>
-              )}
-            </div>
-
-            {/* Dropdown de Sugerencias */}
-            {lista && texto.trim().length >= 2 && (
-              <div id="dir-lista" role="listbox" style={S.lista}>
-                {sugs.map((s, i) => (
-                  <button
-                    key={s.id}
-                    role="option"
-                    aria-selected={i === sel}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onMouseEnter={() => setSel(i)}
-                    onClick={() => elegir(s)}
-                    style={{ ...S.opcion, background: i === sel ? 'var(--surface2)' : 'transparent' }}
-                  >
-                    <span style={S.opcionIcono}>
-                      <span
-                        className="ms"
-                        style={{
-                          fontSize: 19,
-                          color: s.hito ? '#FF9800' : s.barrio ? '#3B82F6' : s.via ? '#10B981' : 'var(--primary)',
-                        }}
-                      >
-                        {s.icon || (s.hito ? 'storefront' : s.barrio ? 'holiday_village' : s.via ? 'alt_route' : 'location_on')}
-                      </span>
-                    </span>
-                    <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                      <span className="tr1" style={{ display: 'block', fontWeight: 700, fontSize: 13.5 }}>{s.label}</span>
-                      <span className="tr1" style={{ display: 'block', fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>{s.detail}</span>
-                    </span>
-                    <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>north_east</span>
-                  </button>
-                ))}
-
-                {texto.trim().length >= 3 && !hayExacta && (
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={usarTexto}
-                    style={{ ...S.opcion, ...S.usarTexto }}
-                  >
-                    <span style={{ ...S.opcionIcono, background: 'var(--primary)' }}>
-                      <span className="ms" style={{ fontSize: 19, color: '#fff' }}>edit_location</span>
-                    </span>
-                    <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                      <span style={{ display: 'block', fontWeight: 800, fontSize: 13, color: 'var(--primary)' }}>
-                        Fijar en el mapa esta dirección
-                      </span>
-                      <span className="tr1" style={{ display: 'block', fontWeight: 700, fontSize: 13 }}>
-                        &quot;{texto.trim()}&quot;
-                      </span>
-                    </span>
-                    <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>arrow_forward</span>
-                  </button>
-                )}
-
-                {!buscando && sugs.length === 0 && texto.trim().length < 4 && (
-                  <div style={S.vacio}>Escribe tu calle, avenida o barrio en Buenaventura...</div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* ACCIÓN DIRECTA: ELEGIR EN EL MAPA */}
-          <button
-            type="button"
-            onClick={() => setTab('map')}
-            className="addr-map-quick-card"
-            style={{ marginBottom: 16 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: 10, background: 'var(--surface)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0,0,0,.06)',
-              }}>
-                <span className="ms" style={{ fontSize: 20, color: 'var(--primary)' }}>map</span>
-              </div>
-              <div>
-                <div style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>
-                  Elegir punto en el mapa interactivo
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>
-                  Mueve el pin directamente sobre el techo de tu casa o local
-                </div>
-              </div>
-            </div>
-            <span className="ms" style={{ fontSize: 18, color: 'var(--muted)' }}>chevron_right</span>
-          </button>
-
-          {/* DIRECCIONES RECIENTES / GUARDADAS */}
-          {recientes.length > 0 && (
-            <div style={{ marginBottom: 18 }}>
-              <div style={S.rotulo}>Tus Direcciones Frecuentes (1 clic para elegir)</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {recientes.slice(0, 3).map((a) => (
-                  <button
-                    key={a.id || a.address}
-                    type="button"
-                    onClick={() => elegirReciente(a)}
-                    className="addr-saved-item"
-                  >
-                    <span style={S.opcionIcono}>
-                      <span className="ms" style={{ fontSize: 19, color: 'var(--primary)' }}>
-                        {ICONO_ETIQUETA[a.label] ?? 'location_on'}
-                      </span>
-                    </span>
-                    <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--text)' }}>
-                          {a.label || 'Dirección'}
-                        </span>
-                        {a.neighborhood && (
-                          <span style={{
-                            fontSize: 10.5, fontWeight: 700, padding: '2px 7px',
-                            borderRadius: 6, background: 'var(--surface2)', color: 'var(--muted)',
-                          }}>
-                            {a.neighborhood}
-                          </span>
-                        )}
-                      </div>
-                      <span className="tr1" style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
-                        {a.address} {a.detail ? `· ${a.detail}` : ''}
-                      </span>
-                    </span>
-                    <span className="ms" style={{ fontSize: 18, color: 'var(--green)' }}>check_circle</span>
-                  </button>
-                ))}
-              </div>
+          {aviso && tab === 'search' && (
+            <div className={`as-aviso ${aviso.tipo}`} role={aviso.tipo === 'error' ? 'alert' : 'status'}>
+              <span className="ms" style={{ fontSize: 18 }}>{aviso.tipo === 'error' ? 'error' : 'info'}</span><span>{aviso.texto}</span>
             </div>
           )}
 
-          {/* BARRIOS POPULARES DE BUENAVENTURA */}
-          <div>
-            <div style={S.rotulo}>Barrios Populares de Buenaventura</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {BARRIOS_POPULARES.map((b) => (
-                <button
-                  key={b.name}
-                  type="button"
-                  onClick={() => elegirBarrio(b)}
-                  className="addr-barrio-chip"
-                >
-                  <span style={{ fontSize: 14 }}>{b.emoji}</span>
-                  <span>{b.name}</span>
+          <div className="as-lista sc" id="dir-lista" role="listbox" ref={cuerpoRef}>
+            {consulta ? (
+              <>
+                {sugs.map((s, i) => (
+                  <Fila
+                    key={s.id} activo={i === sel} onClick={() => elegir(s)}
+                    icono={s.icon || (s.hito ? 'storefront' : s.barrio ? 'location_on' : s.via ? 'map' : 'location_on')}
+                    titulo={s.label} sub={s.detail}
+                  />
+                ))}
+                {texto.trim().length >= 3 && !hayExacta && (
+                  <Fila acento icono="location_on" titulo={`Fijar «${texto.trim()}» en el mapa`} sub="Ajusta el pin hasta tu puerta" onClick={usarTexto} />
+                )}
+                {!buscando && sugs.length === 0 && texto.trim().length < 4 && (
+                  <p className="as-vacio">Escribe tu calle, carrera o barrio. Ej: «Cra 3 # 7-25», «Calle 5 con 3» o «Bellavista».</p>
+                )}
+              </>
+            ) : (
+              <>
+                <h3 className="as-sec">Selecciona un lugar</h3>
+                <Fila
+                  acento icono={localizando ? 'progress_activity' : 'my_location'}
+                  titulo={localizando ? 'Buscando tu ubicación…' : 'Usar mi ubicación actual'}
+                  sub="Con el GPS de tu celular, en un toque" onClick={usarGps}
+                />
+                <Fila icono="map" titulo="Fijar en el mapa" sub="Mueve el pin hasta la puerta de tu casa o local"
+                  onClick={() => { setTab('map'); if (!punto) volar(CENTRO.lat, CENTRO.lng, 14); }} />
+
+                {recientes.length > 0 && (
+                  <>
+                    <h3 className="as-sec">Tus lugares</h3>
+                    {recientes.slice(0, 4).map((a) => (
+                      <Fila
+                        key={a.id || a.address} icono={ICONO_ETIQUETA[a.label] ?? 'history'}
+                        titulo={a.label && a.label !== 'Otro' ? a.label : a.address.split(',')[0]}
+                        sub={[a.address, a.detail].filter(Boolean).join(' · ')} onClick={() => elegirReciente(a)}
+                      />
+                    ))}
+                  </>
+                )}
+
+                <h3 className="as-sec">{verTodos ? `Todos los barrios (${todos.length})` : 'Barrios de Buenaventura'}</h3>
+                {barriosVisibles.map((b) => (
+                  <Fila key={b.name} icono="location_on" titulo={b.name} sub={b.detail} onClick={() => elegirBarrio(b)} />
+                ))}
+                <button type="button" className="as-mas" onClick={() => setVerTodos((v) => !v)}>
+                  {verTodos ? 'Ver menos' : `Ver los ${todos.length} barrios`}
                 </button>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         </div>
 
-        {/* ============================================================
-            TAB 2: MAPA INTERACTIVO (UBER PINPOINT STYLE)
-            ============================================================ */}
-        <div
-          style={{
-            ...S.cuerpoMapa,
-            display: tab === 'map' ? 'flex' : 'none',
-          }}
-        >
-          {/* Contenedor del Mapa con Pin Central Flotante */}
-          <div style={S.mapaContainer}>
-            <div ref={mapEl} style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }} />
+        {/* ============ MAPA: fijar el punto ============ */}
+        <div className="as-vista" style={{ display: tab === 'map' ? 'flex' : 'none' }}>
+          <div className="as-mapa">
+            <div ref={mapEl} className="as-mapa-lienzo" />
 
-            {/* Badge Flotante Superior: Dirección Geocodificada en Vivo */}
-            <div className="uber-map-badge">
-              <span className="gps-live-dot" style={{ position: 'static', flex: 'none' }} />
-              <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-                <div style={{
-                  fontSize: 12.5, fontWeight: 800, color: '#17140f',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                }}>
-                  {texto || 'Mueve el mapa para ubicar tu puerta'}
-                </div>
-                {barrio && (
-                  <div style={{ fontSize: 11, color: '#666', marginTop: 1 }}>
-                    Barrio {barrio} · Buenaventura
-                  </div>
-                )}
-              </div>
+            <button type="button" className="as-circulo as-flota" onClick={() => setTab('search')} aria-label="Volver a la lista"><span className="ms">arrow_back</span></button>
+            <div className="as-pildora">
+              <span className="as-pildora-sub">{barrio ? `Barrio ${barrio}` : 'Buenaventura'}</span>
+              <span className="as-pildora-t">{texto || 'Mueve el mapa hasta tu puerta'}</span>
             </div>
 
-            {/* Pin Central con Animación Uber Bounce */}
             <div className={`uber-pin-marker ${isDragging ? 'dragging' : ''}`} aria-hidden="true">
               <div className="uber-pin-head">
                 <span className="ms ms-fill" style={{ fontSize: 22, color: '#fff' }}>
@@ -747,110 +550,33 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
               <div className="uber-pin-shadow" />
             </div>
 
-            {/* Botón FAB Flotante para Re-centrar con GPS */}
-            <button
-              type="button"
-              onClick={usarGps}
-              disabled={localizando}
-              className="uber-map-recenter-fab"
-              title="Centrar en mi ubicación actual GPS"
-              aria-label="Re-centrar GPS"
-            >
-              <span className="ms" style={{ fontSize: 22 }}>
-                {localizando ? 'progress_activity' : 'my_location'}
-              </span>
+            <button type="button" onClick={usarGps} disabled={localizando} className="as-circulo as-gps" aria-label="Centrar en mi ubicación">
+              <span className="ms">{localizando ? 'progress_activity' : 'my_location'}</span>
             </button>
           </div>
 
-          {/* Panel Inferior de Ajustes y Confirmación */}
-          <div style={S.panelAjustes}>
-            {aviso && (
-              <div role={aviso.tipo === 'error' ? 'alert' : 'status'} style={aviso.tipo === 'error' ? S.error : S.info}>
-                <span className="ms" style={{ fontSize: 18 }}>{aviso.tipo === 'error' ? 'error' : 'info'}</span>
-                <span style={{ flex: 1 }}>{aviso.texto}</span>
+          <div className="as-tarjeta">
+            {aviso && tab === 'map' && (
+              <div className={`as-aviso ${aviso.tipo}`} role={aviso.tipo === 'error' ? 'alert' : 'status'}>
+                <span className="ms" style={{ fontSize: 18 }}>{aviso.tipo === 'error' ? 'error' : 'info'}</span><span>{aviso.texto}</span>
               </div>
             )}
-
-            {/* Input Referencia / Apto */}
-            <div style={{ marginTop: 10 }}>
-              <label htmlFor="dir-detalle" style={S.rotuloCampo}>
-                Apto, Torre, Portón o Referencia de entrega
-              </label>
-              <input
-                id="dir-detalle"
-                value={detalle}
-                onChange={(e) => setDetalle(e.target.value)}
-                placeholder="Ej. Casa de 2 pisos portón blanco, apto 301, frente a la panadería"
-                autoComplete="address-line2"
-                style={S.detalle}
-              />
+            <label htmlFor="dir-detalle" className="as-rot">Apto, torre, portón o referencia</label>
+            <input
+              id="dir-detalle" className="as-detalle" value={detalle} onChange={(e) => setDetalle(e.target.value)}
+              placeholder="Ej. Portón blanco, apto 301, frente a la panadería" autoComplete="address-line2"
+            />
+            <div className="as-chips" role="group" aria-label="Tipo de lugar">
+              {ETIQUETAS.map((l) => (
+                <button key={l.id} type="button" aria-pressed={etiqueta === l.id} data-on={etiqueta === l.id} onClick={() => setEtiqueta(l.id)}>
+                  <span className="ms" style={{ fontSize: 18 }}>{l.icon}</span>{l.label}
+                </button>
+              ))}
             </div>
-
-            {/* Selector de Etiquetas (Casa / Trabajo / Otro) */}
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              {ETIQUETAS.map((l) => {
-                const on = etiqueta === l.id;
-                return (
-                  <button
-                    key={l.id}
-                    type="button"
-                    onClick={() => setEtiqueta(l.id)}
-                    aria-pressed={on}
-                    style={{
-                      ...S.etiqueta,
-                      background: on ? 'var(--text)' : 'var(--surface2)',
-                      color: on ? 'var(--bg)' : 'var(--text)',
-                      border: on ? '1.5px solid var(--text)' : '1px solid var(--border)',
-                    }}
-                  >
-                    <span className="ms" style={{ fontSize: 18 }}>{l.icon}</span>
-                    <span>{l.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <button type="button" className="as-ok" onClick={guardar} disabled={guardando || fuera || !punto}>
+              {guardando ? 'Guardando…' : fuera ? 'Punto fuera de cobertura' : 'Confirmar dirección'}
+            </button>
           </div>
-        </div>
-
-        {/* ============================================================
-            PIE DE PÁGINA: BOTÓN PRINCIPAL
-            ============================================================ */}
-        <div style={S.pie}>
-          {tab === 'search' ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (punto) setTab('map');
-                else void usarGps();
-              }}
-              style={S.boton}
-            >
-              <span className="ms" style={{ fontSize: 20 }}>map</span>
-              <span>{punto ? 'Continuar y Confirmar en el Mapa' : 'Ubicar en el Mapa'}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={guardar}
-              disabled={guardando || fuera}
-              style={{
-                ...S.boton,
-                opacity: listo && !fuera ? 1 : 0.65,
-                background: fuera ? 'var(--muted)' : 'linear-gradient(135deg, #FF441F, #E2360F)',
-              }}
-            >
-              <span className="ms ms-fill" style={{ fontSize: 20 }}>
-                {guardando ? 'progress_activity' : 'check_circle'}
-              </span>
-              <span>
-                {guardando
-                  ? 'Guardando dirección...'
-                  : fuera
-                    ? 'Punto fuera de cobertura'
-                    : 'Confirmar y Entregar Aquí'}
-              </span>
-            </button>
-          )}
         </div>
       </div>
     </div>
@@ -859,256 +585,61 @@ export default function AddressSheet({ open, onClose, onSave, recientes = [], au
   return createPortal(modalEl, document.body);
 }
 
-const S = {
-  fondo: {
-    position: 'fixed',
-    inset: 0,
-    zIndex: 9999,
-    background: 'rgba(15, 12, 8, 0.62)',
-    backdropFilter: 'blur(8px)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    animation: 'fade .18s ease both',
-  },
-  hoja: {
-    width: '100%',
-    maxWidth: 500,
-    maxHeight: 'calc(100dvh - 28px)',
-    height: 'min(620px, calc(100dvh - 28px))',
-    display: 'flex',
-    flexDirection: 'column',
-    background: 'var(--bg)',
-    borderRadius: 24,
-    boxShadow: '0 24px 64px rgba(0,0,0,.32)',
-    animation: 'pop .22s cubic-bezier(.16, 1, 0.3, 1) both',
-    overflow: 'hidden',
-    border: '1px solid var(--border)',
-  },
-  cabecera: {
-    flex: 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '14px 18px 8px',
-    borderBottom: '1px solid var(--border)',
-    background: 'var(--surface)',
-  },
-  titulo: {
-    fontFamily: 'var(--font-bricolage)',
-    fontWeight: 800,
-    fontSize: 19,
-    letterSpacing: '-.02em',
-    color: 'var(--text)',
-  },
-  sub: {
-    fontSize: 12,
-    color: 'var(--muted)',
-    marginTop: 2,
-    fontWeight: 600,
-  },
-  cerrar: {
-    width: 34,
-    height: 34,
-    borderRadius: '50%',
-    background: 'var(--surface2)',
-    border: '1px solid var(--border)',
-    color: 'var(--text)',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'transform 0.15s ease',
-  },
-  cuerpo: {
-    flex: 1,
-    minHeight: 0,
-    overflowY: 'auto',
-    padding: '14px 18px',
-  },
-  cuerpoMapa: {
-    flex: 1,
-    minHeight: 0,
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
-  mapaContainer: {
-    height: 230,
-    minHeight: 200,
-    flex: 'none',
-    position: 'relative',
-    background: 'var(--surface2)',
-    overflow: 'hidden',
-  },
-  panelAjustes: {
-    flex: 'none',
-    padding: '10px 18px 12px',
-    background: 'var(--surface)',
-    borderTop: '1px solid var(--border)',
-  },
-  campo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    height: 50,
-    background: 'var(--surface)',
-    border: '1.5px solid var(--border)',
-    borderRadius: 16,
-    padding: '0 14px',
-    transition: 'border-color .15s, box-shadow .15s',
-  },
-  input: {
-    flex: 1,
-    minWidth: 0,
-    border: 'none',
-    outline: 'none',
-    background: 'none',
-    fontSize: 15,
-    color: 'var(--text)',
-  },
-  borrar: {
-    flex: 'none',
-    color: 'var(--muted)',
-    display: 'flex',
-    padding: 2,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-  },
-  lista: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 56,
-    zIndex: 700,
-    maxHeight: 280,
-    overflowY: 'auto',
-    background: 'var(--surface)',
-    border: '1px solid var(--border)',
-    borderRadius: 16,
-    boxShadow: '0 16px 40px rgba(0,0,0,.22)',
-    padding: 6,
-  },
-  opcion: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 11,
-    width: '100%',
-    padding: '9px 11px',
-    borderRadius: 12,
-    border: 'none',
-    cursor: 'pointer',
-    color: 'var(--text)',
-    transition: 'background .15s',
-  },
-  usarTexto: {
-    background: 'rgba(255,68,31,.06)',
-    border: '1px solid rgba(255,68,31,.25)',
-    marginTop: 4,
-  },
-  opcionIcono: {
-    width: 36,
-    height: 36,
-    borderRadius: 11,
-    background: 'var(--surface2)',
-    flex: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  vacio: {
-    padding: '12px 10px',
-    fontSize: 12.5,
-    color: 'var(--muted)',
-    textAlign: 'center',
-  },
-  rotulo: {
-    fontSize: 11,
-    fontWeight: 800,
-    color: 'var(--muted)',
-    letterSpacing: '.06em',
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  rotuloCampo: {
-    display: 'block',
-    marginBottom: 6,
-    fontSize: 11,
-    fontWeight: 800,
-    color: 'var(--muted)',
-    letterSpacing: '.06em',
-    textTransform: 'uppercase',
-  },
-  detalle: {
-    width: '100%',
-    height: 44,
-    borderRadius: 12,
-    border: '1px solid var(--border)',
-    background: 'var(--surface2)',
-    padding: '0 14px',
-    fontSize: 14,
-    color: 'var(--text)',
-    outline: 'none',
-  },
-  etiqueta: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    height: 40,
-    borderRadius: 12,
-    fontSize: 13,
-    fontWeight: 700,
-    cursor: 'pointer',
-    transition: 'all .15s ease',
-  },
-  pie: {
-    flex: 'none',
-    padding: '12px 20px 16px',
-    borderTop: '1px solid var(--border)',
-    background: 'var(--surface)',
-  },
-  boton: {
-    width: '100%',
-    height: 50,
-    borderRadius: 999,
-    background: 'linear-gradient(135deg, #FF441F, #E2360F)',
-    color: '#fff',
-    fontWeight: 800,
-    fontSize: 15,
-    boxShadow: '0 8px 24px rgba(255,68,31,.32)',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    transition: 'transform .15s ease, opacity .15s ease',
-  },
-  info: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-    background: 'var(--amber-tint)',
-    color: 'var(--text)',
-    border: '1px solid var(--border)',
-    padding: '8px 12px',
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: 600,
-  },
-  error: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-    background: 'var(--primary-tint)',
-    color: 'var(--primary)',
-    padding: '8px 12px',
-    borderRadius: 12,
-    fontSize: 12,
-    fontWeight: 700,
-  },
-};
+const CSS = `
+.as-fondo{position:fixed;inset:0;z-index:9999;background:rgba(10,20,17,.55);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease both}
+.as-hoja{width:100%;height:100dvh;display:flex;flex-direction:column;background:var(--surface);color:var(--text);overflow:hidden;animation:tfsubir .28s cubic-bezier(.2,0,0,1) both}
+@media (min-width:640px){.as-fondo{align-items:center;padding:24px}.as-hoja{max-width:480px;height:min(740px,calc(100dvh - 48px));border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,.35)}}
+.as-vista{flex:1;min-height:0;flex-direction:column}
+.as-top{display:flex;align-items:center;gap:12px;padding:14px 16px 6px}
+.as-h{margin:0;font-weight:800;font-size:20px;letter-spacing:-.02em}
+.as-circulo{width:40px;height:40px;border-radius:50%;border:none;background:var(--surface2);color:var(--text);display:grid;place-items:center;cursor:pointer;flex:none}
+.as-circulo .ms{font-size:22px}
+.as-ruta{margin:10px 16px 4px;display:flex;gap:12px;border:2px solid var(--text);border-radius:16px;padding:6px 14px 6px 12px;background:var(--surface)}
+.as-riel{display:flex;flex-direction:column;align-items:center;padding:20px 0 20px;flex:none}
+.as-riel .d{width:10px;height:10px;border-radius:50%;background:var(--text)}
+.as-riel .l{width:2px;flex:1;background:var(--text);margin:4px 0;min-height:22px}
+.as-riel .c{width:10px;height:10px;background:var(--text)}
+.as-ruta-filas{flex:1;min-width:0}
+.as-ruta-fila{padding:9px 0;display:flex;flex-direction:column;gap:2px}
+.as-ruta-fila+.as-ruta-fila{border-top:1px solid var(--border)}
+.as-ruta-r{font-size:12px;font-weight:700;color:var(--muted)}
+.as-ruta-v{font-size:15.5px;font-weight:600}
+.as-ruta-in{display:flex;align-items:center;gap:8px}
+.as-ruta-in input{flex:1;min-width:0;border:none;outline:none;background:none;font:inherit;font-size:15.5px;font-weight:600;color:var(--text);padding:0}
+.as-ruta-in input::placeholder{color:var(--faint);font-weight:500}
+.as-x{border:none;background:var(--surface2);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+.as-lista{flex:1;min-height:0;overflow-y:auto;padding:4px 0 24px}
+.as-sec{margin:18px 16px 4px;font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--muted)}
+.as-fila{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:none;background:transparent;text-align:left;cursor:pointer;color:var(--text);position:relative}
+.as-fila:hover,.as-fila[data-activo="true"]{background:var(--surface2)}
+.as-fila+.as-fila::before{content:'';position:absolute;top:0;left:70px;right:0;height:1px;background:var(--border)}
+.as-fila-ico{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;flex:none;color:var(--text)}
+.as-fila-ico.acento{background:color-mix(in srgb,var(--primary) 12%,var(--surface));color:var(--primary)}
+.as-fila-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.as-fila-t{font-size:15.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.as-fila-s{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.as-mas{margin:10px 16px 0;height:44px;width:calc(100% - 32px);border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:14px;cursor:pointer}
+.as-vacio{margin:18px 20px;font-size:13.5px;line-height:1.5;color:var(--muted)}
+.as-aviso{display:flex;gap:8px;align-items:flex-start;margin:10px 16px 0;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:600;line-height:1.4}
+.as-aviso.error{background:#FDECE8;color:#9B2C16}
+.as-aviso.info{background:color-mix(in srgb,var(--amber) 22%,var(--surface));color:var(--text)}
+.as-spin{animation:spin 1s linear infinite;color:var(--muted)}
+.as-mapa{position:relative;flex:1;min-height:0;background:var(--surface2)}
+.as-mapa-lienzo{position:absolute;inset:0}
+.as-flota{position:absolute;top:14px;left:14px;z-index:800;background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.as-gps{position:absolute;right:14px;bottom:30px;z-index:800;background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.as-pildora{position:absolute;top:14px;left:64px;right:14px;z-index:800;background:var(--surface);border-radius:999px;padding:7px 16px;box-shadow:0 2px 10px rgba(0,0,0,.2);display:flex;flex-direction:column;min-height:40px;justify-content:center;min-width:0}
+.as-pildora-sub{font-size:11px;font-weight:700;color:var(--muted);line-height:1.2}
+.as-pildora-t{font-size:14px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.as-tarjeta{flex:none;margin-top:-18px;position:relative;z-index:900;background:var(--surface);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.12)}
+.as-rot{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.as-detalle{width:100%;height:46px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);padding:0 14px;font:inherit;font-size:14.5px;color:var(--text);outline:none}
+.as-detalle:focus{border-color:var(--primary)}
+.as-chips{display:flex;gap:8px;margin-top:12px}
+.as-chips button{flex:1;height:42px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.as-chips button[data-on="true"]{background:var(--text);color:var(--surface);border-color:var(--text)}
+.as-ok{width:100%;height:52px;margin-top:14px;border:none;border-radius:14px;background:var(--text);color:var(--surface);font-weight:800;font-size:16px;cursor:pointer}
+.as-ok:disabled{opacity:.45;cursor:not-allowed}
+.as-barrio-label{background:none;border:none}
+.as-barrio-label span{display:block;transform:translate(-50%,-50%);white-space:nowrap;font:700 11px/1 system-ui,sans-serif;color:#1a1a1a;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 0 4px #fff;pointer-events:none}
+`;

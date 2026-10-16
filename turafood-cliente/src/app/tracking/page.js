@@ -75,7 +75,7 @@ const STEP_DETAILS = {
     desc: 'Yeison Mosquera recogió tu pedido en el restaurante y va en ruta.',
     pushBody: '¡El repartidor ya tiene tu comida y va en camino hacia tu dirección!',
     icon: 'two_wheeler',
-    color: '#FF441F',
+    color: 'var(--primary)',
     progress: 70,
     routeIndex: 2,
   },
@@ -85,7 +85,7 @@ const STEP_DETAILS = {
     desc: 'Tu repartidor está a menos de 5 minutos de tu puerta.',
     pushBody: '¡Atento al timbre o teléfono! Tu repartidor está llegando a tu dirección.',
     icon: 'near_me',
-    color: '#FF441F',
+    color: 'var(--primary)',
     progress: 90,
     routeIndex: 3,
   },
@@ -204,9 +204,9 @@ function PreparationAnimation({ status }) {
           }
         `}</style>
         <div style={{ position: 'absolute', left: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <span style={{ width: 9, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.5)', animation: 'windBlow 0.7s infinite linear' }} />
-          <span style={{ width: 13, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.7)', animation: 'windBlow 0.7s infinite linear 0.2s' }} />
-          <span style={{ width: 7, height: 2, borderRadius: 2, background: 'rgba(255,68,31,0.5)', animation: 'windBlow 0.7s infinite linear 0.4s' }} />
+          <span style={{ width: 9, height: 2, borderRadius: 2, background: 'color-mix(in srgb, var(--primary) 50%, transparent)', animation: 'windBlow 0.7s infinite linear' }} />
+          <span style={{ width: 13, height: 2, borderRadius: 2, background: 'color-mix(in srgb, var(--primary) 70%, transparent)', animation: 'windBlow 0.7s infinite linear 0.2s' }} />
+          <span style={{ width: 7, height: 2, borderRadius: 2, background: 'color-mix(in srgb, var(--primary) 50%, transparent)', animation: 'windBlow 0.7s infinite linear 0.4s' }} />
         </div>
         <div style={{ animation: 'motoDrive 0.55s infinite ease-in-out', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span className="ms ms-fill" style={{ fontSize: 34, color: 'var(--primary)' }}>two_wheeler</span>
@@ -902,7 +902,7 @@ function TrackingPage() {
           <div style={{ width: '100%', height: 6, borderRadius: 99, background: 'var(--surface2)', marginTop: 14, overflow: 'hidden' }}>
             <div style={{
               width: `${statusDetails.progress}%`, height: '100%',
-              background: 'linear-gradient(90deg, #FF441F 0%, #10B981 100%)',
+              background: 'linear-gradient(90deg, var(--primary) 0%, #10B981 100%)',
               borderRadius: 99, transition: 'width .4s ease',
             }} />
           </div>
@@ -918,7 +918,7 @@ function TrackingPage() {
                   style={{
                     padding: '4px 9px', borderRadius: 8, fontSize: 11, fontWeight: 700,
                     border: active ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                    background: active ? 'rgba(255,68,31,0.1)' : 'var(--surface2)',
+                    background: active ? 'color-mix(in srgb, var(--primary) 10%, transparent)' : 'var(--surface2)',
                     color: active ? 'var(--primary)' : 'var(--text)',
                     cursor: 'pointer', flex: 'none',
                   }}
@@ -1143,7 +1143,7 @@ const S = {
   callBtn: {
     width: 42, height: 42, borderRadius: '50%', background: 'var(--primary)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(255,68,31,.3)', border: 'none', cursor: 'pointer',
+    boxShadow: '0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent)', border: 'none', cursor: 'pointer',
   },
   codeCard: {
     display: 'flex', alignItems: 'center', gap: 14, marginTop: 14,
@@ -1168,11 +1168,11 @@ const S = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     width: '100%', height: 54, borderRadius: 999, background: 'var(--primary)',
     color: '#fff', fontWeight: 700, fontSize: 14.5, marginTop: 12,
-    boxShadow: '0 12px 28px rgba(255,68,31,.34)', border: 'none', cursor: 'pointer',
+    boxShadow: '0 12px 28px color-mix(in srgb, var(--primary) 34%, transparent)', border: 'none', cursor: 'pointer',
   },
   pushToggleBtn: {
     display: 'flex', alignItems: 'center', gap: 6, height: 40, padding: '0 14px',
-    borderRadius: 12, background: 'rgba(255,68,31,0.08)', border: '1px solid rgba(255,68,31,0.2)',
+    borderRadius: 12, background: 'color-mix(in srgb, var(--primary) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--primary) 20%, transparent)',
     color: 'var(--primary)', fontSize: 12.5, fontWeight: 800, cursor: 'pointer',
   },
   pushNotificationToast: {

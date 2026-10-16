@@ -67,14 +67,14 @@ const MapaSeguimiento = forwardRef(function MapaSeguimiento({ destino, negocio, 
 
     poner('destino', destino, '#10B981', 'home', etiquetaDestino || 'Tu dirección');
     poner('negocio', negocio, '#1E293B', 'storefront', etiquetaNegocio || 'El negocio');
-    poner('repartidor', repartidor, '#FF441F', 'two_wheeler', 'Tu repartidor', true);
+    poner('repartidor', repartidor, 'var(--primary)', 'two_wheeler', 'Tu repartidor', true);
 
     // Línea punteada del repartidor (o del negocio) hacia el destino: solo guía visual
     const origen = repartidor ?? negocio;
     if (linea.current) { m.removeLayer(linea.current); linea.current = null; }
     if (origen && destino) {
       linea.current = L.polyline([[origen.lat, origen.lng], [destino.lat, destino.lng]], {
-        color: '#FF441F', weight: 3.5, opacity: 0.8, dashArray: '8, 8', lineCap: 'round',
+        color: 'var(--primary)', weight: 3.5, opacity: 0.8, dashArray: '8, 8', lineCap: 'round',
       }).addTo(m);
     }
 

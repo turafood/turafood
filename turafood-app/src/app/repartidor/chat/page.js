@@ -162,7 +162,7 @@ export default function ChatPage() {
             style={{
               ...S.send,
               ...(draft.trim()
-                ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 6px 16px rgba(255,68,31,.32)' }
+                ? { background: 'var(--primary)', color: '#fff', boxShadow: '0 6px 16px color-mix(in srgb, var(--primary) 32%, transparent)' }
                 : { background: 'var(--surface2)', color: 'var(--faint)' }),
             }}
           >

@@ -366,7 +366,7 @@ const S = {
   addBtn: {
     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
     height: 52, borderRadius: 16, background: 'var(--primary)', color: '#fff',
-    fontWeight: 700, fontSize: 15, boxShadow: '0 10px 24px rgba(255,68,31,.32)',
+    fontWeight: 700, fontSize: 15, boxShadow: '0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent)',
   },
   errorScreen: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',

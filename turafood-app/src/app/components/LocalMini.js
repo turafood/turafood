@@ -28,7 +28,7 @@ const TOLDO = {
   turapp:          ['#86EFAC', '#15803D'],
 };
 
-const POR_DEFECTO = ['#FFB57A', '#FF7A4D'];
+const POR_DEFECTO = ['#FFB57A', 'var(--gold)'];
 
 export default function LocalMini({ nicho, size = 44, radius = 12 }) {
   const [claro, oscuro] = TOLDO[nicho] ?? POR_DEFECTO;

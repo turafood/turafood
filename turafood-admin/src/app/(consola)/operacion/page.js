@@ -17,7 +17,7 @@ const REFRESH_MS = 20000;
 
 const FLEET_STATE = {
   en_ruta:   { label: 'EN RUTA',   bg: '#EAF1FF', color: '#2E6BFF' },
-  retrasado: { label: 'RETRASADO', bg: '#FFF0ED', color: '#C0341A' },
+  retrasado: { label: 'RETRASADO', bg: 'var(--primarySoft)', color: '#C0341A' },
   libre:     { label: 'LIBRE',     bg: '#E6F6EE', color: '#0B8E54' },
 };
 
@@ -79,7 +79,7 @@ export default function OperacionPage() {
         />
         <Kpi
           label="Pedidos demorados" value={String(late.length)}
-          icon="warning" tint={late.length ? '#FFF0ED' : '#E6F6EE'}
+          icon="warning" tint={late.length ? 'var(--primarySoft)' : '#E6F6EE'}
           color={late.length ? 'var(--primary)' : '#0B8E54'}
           note={late.length ? 'Llevan más de 45 minutos' : 'Todo dentro de tiempo'}
           noteColor={late.length ? 'var(--primary)' : 'var(--green)'}
