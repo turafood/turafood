@@ -92,3 +92,10 @@ turafood-supabase/.cloudflare*
 
 # Documento de traspaso (describe la infraestructura: no subir)
 TRASPASO_TURAFOOD.*
+
+# Documentos de negocio (planes, contratos, NDA, membresias): nunca en el repositorio
+TuraFood AI - Todo el puerto en una APP*
+Turafood AI - Todo el puerto en una APP*
+documentos/*.docx
+TRASPASO.md
+*.docx
